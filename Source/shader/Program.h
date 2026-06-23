@@ -115,18 +115,6 @@ struct Uniform
             setters.get (name, p, value);
     }
 
-    /** @brief Dispatches all uniforms but overrides iResolution with the full
-     *         screen resolution. Used by the post-processing pipeline, whose
-     *         passes normalise gl_FragCoord against the screen-size iResolution
-     *         (post renders at full physical screen res, not the scaled buffer res).
-     *  @param p  The active GL program (must be use()'d first).
-     */
-    void setScene (juce::OpenGLShaderProgram& p)
-    {
-        set (p);
-        setters.get (ID::iResolution, p, screenResolution);
-    }
-
     /** @brief Returns current viewport dimensions by unpacking the stored iResolution value. */
     juce::Point<int> getSize() const
     {
@@ -140,38 +128,77 @@ struct Uniform
 };
 
 //==============================================================================
-/** @brief A compiled shader pass — GL program and optional ping-pong FBO pair.
+/** @brief GL framebuffer container — single or ping-pong double-buffered.
  *
- *  Buffer is emplaced at creation time for non-Image passes.
- *  Image renders to default framebuffer (no buffer).
- *  Ping-pong state is tracked via readIndex — readBuffer() is the current
- *  read source, writeBuffer() is the current render target. Call swap()
- *  after each pass to advance the pair.
+ *  Inherits std::vector<juce::OpenGLFrameBuffer> sized at construction.
+ *  Single-buffer (1): direct render target.
+ *  Double-buffer (2): ping-pong cycling via readBuffer()/writeBuffer()/swap().
  */
-struct Pass
+struct FrameBuffer : std::vector<juce::OpenGLFrameBuffer>
 {
-    std::unique_ptr<juce::OpenGLShaderProgram> program;
-    std::optional<std::array<juce::OpenGLFrameBuffer, 2>> buffer;
+    FrameBuffer (size_t numBuffers = 1) : std::vector<juce::OpenGLFrameBuffer> (numBuffers) {}
+    ~FrameBuffer() = default;
 
-    /** @brief Index of the current read FBO in the ping-pong pair (0 or 1). */
+    /** @brief Index of the current read FBO (0 or 1). */
     int readIndex { 0 };
 
-    Pass() = default;
-    ~Pass() = default;
+    /** @brief Returns the current read FBO — the source for sampling. */
+    juce::OpenGLFrameBuffer& readBuffer() { return at (static_cast<size_t> (readIndex)); }
 
-    /** @brief Returns the current read FBO — the source for this pass's sampler. */
-    juce::OpenGLFrameBuffer& readBuffer() { return (*buffer).at (readIndex); }
-
-    /** @brief Returns the current write FBO — the render target for this pass. */
-    juce::OpenGLFrameBuffer& writeBuffer() { return (*buffer).at (readIndex ^ 1); }
+    /** @brief Returns the current write FBO — the render target. */
+    juce::OpenGLFrameBuffer& writeBuffer() { return at (static_cast<size_t> (readIndex ^ 1)); }
 
     /** @brief Swaps read and write FBOs by toggling readIndex. */
     void swap() noexcept { readIndex ^= 1; }
 
-    /** @brief Initialises and clears the FBO pair at given pixel dims.
-     *         No-op if no buffer (Image pass). FBO content after initialise()
-     *         is undefined per GL spec — explicit clear ensures first-frame
-     *         reads get black, not garbage.
+    /** @brief Initialises and clears all FBOs at the given dimensions.
+     *  @param context  Active GL context.
+     *  @param w        Width in pixels.
+     *  @param h        Height in pixels.
+     */
+    void resize (juce::OpenGLContext& context, int w, int h)
+    {
+        for (auto& fbo : *this)
+        {
+            fbo.initialise (context, w, h);
+            fbo.makeCurrentAndClear();
+            fbo.releaseAsRenderingTarget();
+        }
+    }
+
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FrameBuffer)
+};
+
+//==============================================================================
+/** @brief A compiled shader pass — GL program and optional ping-pong FBO pair.
+ *
+ *  Buffer is emplaced at creation time for non-Image passes.
+ *  Image renders to default framebuffer (no buffer).
+ *  Ping-pong state is delegated to FrameBuffer — readBuffer() is the current
+ *  read source, writeBuffer() is the current render target. Call swap()
+ *  after each pass to advance the pair.
+ */
+struct RenderPass
+{
+    std::unique_ptr<juce::OpenGLShaderProgram> program;
+    std::optional<FrameBuffer> buffer;
+
+    RenderPass() = default;
+    ~RenderPass() = default;
+
+    /** @brief Returns the current read FBO. Requires buffer to be emplaced. */
+    juce::OpenGLFrameBuffer& readBuffer() { return buffer->readBuffer(); }
+
+    /** @brief Returns the current write FBO. Requires buffer to be emplaced. */
+    juce::OpenGLFrameBuffer& writeBuffer() { return buffer->writeBuffer(); }
+
+    /** @brief Swaps read and write FBOs. Requires buffer to be emplaced. */
+    void swap() noexcept { buffer->swap(); }
+
+    /** @brief Resizes buffer FBOs. No-op if buffer is not emplaced.
+     *         FBO content after initialise() is undefined per GL spec —
+     *         explicit clear ensures first-frame reads get black, not garbage.
      *  @param context  Active GL context.
      *  @param w        Width in pixels.
      *  @param h        Height in pixels.
@@ -179,18 +206,11 @@ struct Pass
     void resize (juce::OpenGLContext& context, int w, int h)
     {
         if (buffer.has_value())
-        {
-            for (auto& fbo : *buffer)
-            {
-                fbo.initialise (context, w, h);
-                fbo.makeCurrentAndClear();
-                fbo.releaseAsRenderingTarget();
-            }
-        }
+            buffer->resize (context, w, h);
     }
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pass)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RenderPass)
 };
 
 //==============================================================================
@@ -238,6 +258,212 @@ struct Quad
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Quad)
+};
+
+//==============================================================================
+/** @brief Compiled multi-pass Shadertoy pipeline — passes, uniform state, load/render/resize.
+ *
+ *  Encapsulates a complete Shadertoy-compatible shader set: BufferA-D intermediate
+ *  passes and an Image output pass. Each pass is compiled from GLSL source,
+ *  stored in the passes map as a RenderPass, and rendered in HashMap insertion order.
+ *  Controller owns two Compilation instances: background and post-processing.
+ *
+ *  @par Thread contract
+ *  All methods must be called on the **GL THREAD** (via OpenGLRenderer callbacks
+ *  or executeOnGLThread).
+ */
+struct Compilation
+{
+    Compilation() = default;
+    ~Compilation() = default;
+
+    jam::HashMap<juce::Identifier, std::unique_ptr<RenderPass>> passes;
+    Uniform uniform;
+
+    /** @brief Compiles shader passes from a config ValueTree.
+     *
+     *  Clears existing passes, iterates properties on @p shaderTree,
+     *  compiles each non-Common pass via @p createProgram, and stores
+     *  the resulting Pass in the map. Buffer passes (non-Image) get
+     *  FBO pairs emplaced for ping-pong rendering.
+     *
+     *  @param shaderTree     Config VT with pass properties (key=pass name, value=GLSL source).
+     *  @param wrapper        Wrapper fragment shader template with placeholder.
+     *  @param placeholder    Placeholder string replaced by user source in wrapper.
+     *  @param createProgram  Factory callable: (StringRef source) -> unique_ptr<OpenGLShaderProgram>.
+     */
+    template <typename F>
+    void load (const juce::ValueTree& shaderTree,
+               const juce::String& wrapper,
+               const juce::String& placeholder,
+               F&& createProgram)
+    {
+        passes.clear();
+
+        juce::String common;
+        if (shaderTree.hasProperty (ID::common))
+            common = shaderTree.getProperty (ID::common).toString();
+
+        jam::Model::forEachProperty (
+            shaderTree,
+            [this, &common, &wrapper, &placeholder, &createProgram] (const juce::Identifier& id, const juce::var& var)
+            {
+                if (id != ID::common and file::Shaders::getInstance()->contains (id.toString()))
+                {
+                    if (auto code { var.toString() }; code.isNotEmpty())
+                    {
+                        if (common.isNotEmpty())
+                            code = jam::Format::prependNewLine (code, common);
+
+                        code = jam::Format::replaceholder (wrapper, placeholder, code);
+
+                        if (auto p { createProgram (code) })
+                        {
+                            auto pass { std::make_unique<RenderPass>() };
+                            pass->program = std::move (p);
+
+                            if (id != ID::image)
+                                pass->buffer.emplace (2);
+
+                            passes.addOrReplace (id, std::move (pass));
+                        }
+                    }
+                }
+            });
+    }
+
+    /** @brief Renders all buffer passes (BufferA-D) at the configured resolution.
+     *
+     *  Iterates passes with buffer in HashMap insertion order. Each pass
+     *  renders into its writeBuffer FBO, then swaps the ping-pong index.
+     *  Image pass (no buffer) is skipped.
+     *
+     *  @param quad  Fullscreen quad for drawing.
+     */
+    void renderBuffers (Quad& quad)
+    {
+        using namespace ::juce::gl;
+
+        for (auto& [id, pass] : passes)
+        {
+            if (pass->buffer.has_value())
+            {
+                auto [w, h] = uniform.getSize();
+
+                pass->writeBuffer().makeCurrentAndClear();
+                glViewport (0, 0, w, h);
+
+                pass->program->use();
+                setChannels (*pass->program);
+                uniform.set (*pass->program);
+                quad.draw();
+
+                pass->writeBuffer().releaseAsRenderingTarget();
+                pass->swap();
+            }
+        }
+    }
+
+    /** @brief Renders the Image pass into a target FBO or the default framebuffer.
+     *
+     *  If @p target is non-null, binds it as render target, clears, and sets viewport.
+     *  If @p target is null, renders to the currently bound framebuffer (default).
+     *  No-op if no Image pass is loaded.
+     *
+     *  @param quad    Fullscreen quad for drawing.
+     *  @param target  Target FBO, or nullptr for default framebuffer.
+     */
+    void renderImage (Quad& quad, juce::OpenGLFrameBuffer* target)
+    {
+        using namespace ::juce::gl;
+
+        if (passes.contains (ID::image))
+        {
+            if (target != nullptr)
+            {
+                auto [w, h] = uniform.getSize();
+                target->makeCurrentAndClear();
+                glViewport (0, 0, w, h);
+            }
+
+            auto& image { passes.at (ID::image) };
+            image->program->use();
+            setChannels (*image->program);
+            uniform.set (*image->program);
+            quad.draw();
+
+            if (target != nullptr)
+                target->releaseAsRenderingTarget();
+        }
+    }
+
+    /** @brief Binds buffer pass read textures to iChannel sampler uniforms.
+     *
+     *  Iterates file::BufferChannel bimap, binding each existing buffer pass's
+     *  read FBO texture to the corresponding GL texture unit (0-3) and setting
+     *  the iChannel uniform.
+     *
+     *  @param program  The active GL program (must be use()'d first).
+     */
+    void setChannels (juce::OpenGLShaderProgram& program)
+    {
+        using namespace ::juce::gl;
+
+        for (auto& [id, channelName] : file::BufferChannel::get())
+        {
+            juce::Identifier passId { file::Shaders::get().at (id) };
+
+            if (passes.contains (passId) and passes.at (passId)->buffer.has_value())
+            {
+                glActiveTexture (GL_TEXTURE0 + id);
+                glBindTexture (GL_TEXTURE_2D, passes.at (passId)->readBuffer().getTextureID());
+                glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
+                glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
+                program.setUniform (channelName.toRawUTF8(), id);
+            }
+        }
+
+        if (sceneTexture != 0)
+        {
+            const int unit { static_cast<int> (file::BufferChannel::get().size()) };
+            glActiveTexture (GL_TEXTURE0 + unit);
+            glBindTexture (GL_TEXTURE_2D, sceneTexture);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
+            program.setUniform (IDref::iScene, unit);
+        }
+    }
+
+    /** @brief Resizes uniform viewport and all pass FBOs.
+     *
+     *  Calls @c uniform.resize(w,h) which stores screen dims and computes
+     *  buffer dims via resolutionScale. Pass FBOs are sized at the buffer
+     *  resolution returned by @c uniform.getSize() — not the raw screen dims.
+     *
+     *  @param context  Active GL context.
+     *  @param w        Screen width in pixels.
+     *  @param h        Screen height in pixels.
+     */
+    void resize (juce::OpenGLContext& context, int w, int h)
+    {
+        uniform.resize (w, h);
+        auto [bw, bh] = uniform.getSize();
+
+        for (auto& [id, pass] : passes)
+            pass->resize (context, bw, bh);
+    }
+
+    /** @brief Destroys all passes. */
+    void shutdown() { passes.clear(); }
+
+    /** @brief Returns true if the shader pipeline has been compiled (at least one pass loaded). */
+    bool isCompiled() const noexcept { return passes.size() > 0; }
+
+    /** @brief GL texture ID for the composited scene (post-processing input). 0 = inactive (background). */
+    GLuint sceneTexture { 0 };
+
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Compilation)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

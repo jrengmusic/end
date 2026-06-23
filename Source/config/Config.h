@@ -9,18 +9,24 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
-    @brief Shader source model — @c config::Directory subclass that holds the
-           SHADER tree as its own @c state.
+    @brief Shader source model — @c config::Directory subclass that holds a
+           single shader tree (BACKGROUND or POST_PROCESSING) as its own @c state.
 
-    The constructor init-list builds the SHADER tree via
-    @c jam::Model::fromFiles and adopts it through @c Directory's ValueTree
-    ctor. After construction, @c config::Model attaches @c shader.state
-    directly under the GRAPHICS child — @c shader.state then IS the live
-    SHADER tree inside the CONFIG tree. @c loadFromPath() reads pass files
-    from disk and sets properties on the live SHADER tree.
+    The constructor init-list builds the tree via @c jam::Model::fromFiles
+    (pass names from @c file::Shaders) using the given @p treeType and adopts
+    it through @c Directory's ValueTree ctor. The stored @c type member drives
+    both construction and @c loadFromPath so the same class serves both
+    background and post-processing instances without branching.
+
+    After construction, @c config::Model attaches each instance's @c state
+    directly under the GRAPHICS child — both are first-class GRAPHICS children,
+    not parent/child of each other.
+
+    The two-level parameter key @c (BACKGROUND, Image) vs @c (POST_PROCESSING, Image)
+    ensures no collision in @c jam::Model::createAndAddParameter.
 
     Load policy: @c saveToPath is a no-op (shader source is never seeded from
-    BinaryData). @c loadFromPath reads GLSL from the active shader project dir.
+    BinaryData). @c loadFromPath reads GLSL from disk into @c state.
 
     @see config::Directory
     @see config::Model
@@ -28,17 +34,17 @@ namespace config
 class Shader : public Directory
 {
 public:
-    /** @brief Constructs with the SHADER tree built in the init-list via
-     *         @c jam::Model::fromFiles and adopted through @c Directory.
+    /** @brief Constructs with a shader tree of the given type.
+     *  @param treeType  Tree type identifier (IDtype::background or IDtype::postProcessing).
      */
-    Shader();
+    explicit Shader (juce::Identifier treeType);
 
     ~Shader() override = default;
 
-    /** @brief Reads GLSL source from the active shader project directory into @c state.
+    /** @brief Reads GLSL source from the shader project directory into @c state.
      *
      *  Locates the shader directory via @c file::Shaders::getPath and overlays
-     *  @c state via @c jam::Model::fromFiles + @c setValuesFrom. Fires
+     *  @c state properties via @c setValuesFrom. Fires
      *  @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
      *  listeners (shader::Controller) pick up the new source.
      *
@@ -49,6 +55,8 @@ public:
     void loadFromPath (const juce::var& path, juce::String& errors) override;
 
 private:
+    juce::Identifier type;
+
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
 };
@@ -117,19 +125,22 @@ private:
            drives the Theme and Shader sub-models.
 
     @par Build-in-ctor composition
-    @c theme and @c shader are member objects whose constructors build their
-    own subtrees via @c jam::Model::fromLua / @c jam::Model::fromFiles and
-    adopt the result directly. @c Model's init-list builds the CONFIG tree
-    from @c file::Config BinaryData via @c jam::Model::fromLua and adopts it
-    through @c jam::Model's ValueTree ctor. The constructor body then attaches
-    the @c theme (THEMES) and @c shader (SHADER) subtrees into the CONFIG tree.
+    @c theme, @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) are
+    member objects whose constructors build their own subtrees via
+    @c jam::Model::fromLua / @c jam::Model::fromFiles and adopt the result
+    directly. @c Model's init-list builds the CONFIG tree from @c file::Config
+    BinaryData via @c jam::Model::fromLua and adopts it through @c jam::Model's
+    ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
+    @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
+    the CONFIG tree. Both shader instances are first-class GRAPHICS children —
+    no key collision via the two-level @c (treeType, propertyId) key scheme.
 
     @par Construction order
-    @c jam::Model base runs first (adopting the CONFIG tree). @c theme and
-    @c shader members are constructed before the body executes. The body
-    attaches @c theme.state under CONFIG and @c shader.state under GRAPHICS,
-    each with a single @c appendChild — both are single-rooted subtrees, so no
-    unwrapping is needed.
+    @c jam::Model base runs first (adopting the CONFIG tree). @c theme,
+    @c background, and @c postProcessing members are constructed before the body
+    executes. The body attaches @c theme.state under CONFIG and both
+    @c background.state and @c postProcessing.state under GRAPHICS, each with a single
+    @c appendChild — all are single-rooted subtrees, so no unwrapping is needed.
 
     @par Three-phase init (in constructor body)
     1. @c saveToPath()     — writes missing root lua files to @c file::Config::path.
@@ -261,7 +272,8 @@ private:
     static constexpr int coalesceMs { 300 };
 
     Theme theme;
-    Shader shader;
+    Shader background      { IDtype::background };
+    Shader postProcessing  { IDtype::postProcessing };
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

@@ -41,55 +41,69 @@ void Controller::newOpenGLContextCreated() { initialise(); }
 
 void Controller::renderOpenGL()
 {
-    uniform.advance();
-    auto [bufferWidth, bufferHeight] = uniform.getSize();
+    background.uniform.advance();
+    postProcess.uniform.advance();
 
-    renderBuffers (bufferWidth, bufferHeight);
-    renderImage (bufferWidth, bufferHeight);
-    renderOutput();
-}
-
-void Controller::renderBuffers (int bufferWidth, int bufferHeight)
-{
-    using namespace ::juce::gl;
-
-    for (auto& [id, pass] : programs)
+    if (postProcess.isCompiled())
     {
-        if (pass->buffer.has_value() and id != ID::output)
-        {
-            pass->writeBuffer().makeCurrentAndClear();
-            glViewport (0, 0, bufferWidth, bufferHeight);
+        using namespace ::juce::gl;
 
-            pass->program->use();
-            setChannels (*pass->program);
-            uniform.set (*pass->program);
-            quad->draw();
+        auto [screenWidth, screenHeight] = background.uniform.getScreenSize();
 
-            pass->writeBuffer().releaseAsRenderingTarget();
-            pass->swap();
-        }
-    }
-}
+        // Render background fresh into composite writeBuffer — no feedback from previous post-pro.
+        background.renderBuffers (*quad);
+        background.renderImage (*quad, &backgroundPass[0]);
 
-void Controller::renderImage (int bufferWidth, int bufferHeight)
-{
-    using namespace ::juce::gl;
+        composite.writeBuffer().makeCurrentAndClear();
+        glViewport (0, 0, screenWidth, screenHeight);
+        glEnable (GL_BLEND);
+        glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (programs.contains (ID::image) and programs.contains (ID::output))
-    {
-        auto& outputPass { programs.at (ID::output) };
-        jassert (outputPass->buffer.has_value());
+        outputProgram->use();
+        outputProgram->setUniform (IDref::iOpacity, background.uniform.opacity);
 
-        (*outputPass->buffer).at (0).makeCurrentAndClear();
-        glViewport (0, 0, bufferWidth, bufferHeight);
+        glActiveTexture (GL_TEXTURE0);
+        glBindTexture (GL_TEXTURE_2D, backgroundPass[0].getTextureID());
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, background.uniform.textureFilter);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, background.uniform.textureFilter);
+        outputProgram->setUniform (IDref::outputTexture, 0);
 
-        auto& image { programs.at (ID::image) };
-        image->program->use();
-        setChannels (*image->program);
-        uniform.set (*image->program);
         quad->draw();
 
-        (*outputPass->buffer).at (0).releaseAsRenderingTarget();
+        glBindTexture (GL_TEXTURE_2D, 0);
+        glDisable (GL_BLEND);
+
+        // Blit JUCE component painting from FB 0 (previous frame) onto composite writeBuffer.
+        glBindFramebuffer (GL_READ_FRAMEBUFFER, 0);
+        glBlitFramebuffer (0,
+                           0,
+                           screenWidth,
+                           screenHeight,
+                           0,
+                           0,
+                           screenWidth,
+                           screenHeight,
+                           GL_COLOR_BUFFER_BIT,
+                           GL_NEAREST);
+        composite.writeBuffer().releaseAsRenderingTarget();
+        composite.swap();
+
+        // Post-process the composite (bg + components) → FB 0.
+        glBindFramebuffer (GL_FRAMEBUFFER, 0);
+        juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
+        glViewport (0, 0, screenWidth, screenHeight);
+
+        postProcess.sceneTexture = composite.readBuffer().getTextureID();
+        postProcess.renderBuffers (*quad);
+        postProcess.renderImage (*quad, nullptr);
+        postProcess.sceneTexture = 0;
+    }
+    else
+    {
+        // No post-processing — current behavior.
+        background.renderBuffers (*quad);
+        background.renderImage (*quad, &backgroundPass[0]);
+        renderOutput();
     }
 }
 
@@ -97,25 +111,22 @@ void Controller::renderOutput()
 {
     using namespace ::juce::gl;
 
-    jassert (programs.contains (ID::output));
+    jassert (outputProgram != nullptr);
 
-    auto& output { programs.at (ID::output) };
-    jassert (output->program != nullptr and output->buffer.has_value());
-
-    auto [screenWidth, screenHeight] = uniform.getScreenSize();
+    auto [screenWidth, screenHeight] = background.uniform.getScreenSize();
     juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
     glViewport (0, 0, screenWidth, screenHeight);
     glEnable (GL_BLEND);
     glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    output->program->use();
-    output->program->setUniform (IDref::iOpacity, uniform.opacity);
+    outputProgram->use();
+    outputProgram->setUniform (IDref::iOpacity, background.uniform.opacity);
 
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, (*output->buffer).at (0).getTextureID());
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
-    output->program->setUniform (IDref::outputTexture, 0);
+    glBindTexture (GL_TEXTURE_2D, backgroundPass[0].getTextureID());
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, background.uniform.textureFilter);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, background.uniform.textureFilter);
+    outputProgram->setUniform (IDref::outputTexture, 0);
 
     quad->draw();
 
@@ -136,16 +147,21 @@ void Controller::initialise()
 
     quad = std::make_unique<Quad>();
 
-    auto output { std::make_unique<Pass>() };
-    output->program = createProgram (outputShader);
-    jassert (output->program != nullptr);
-    output->buffer.emplace();
-    programs.addOrReplace (ID::output, std::move (output));
+    outputProgram = createProgram (outputShader);
+    jassert (outputProgram != nullptr);
+
+    postProcess.uniform.resolutionScale = 1.0f;
 }
 
 void Controller::shutdown()
 {
-    programs.clear();
+    background.shutdown();
+    postProcess.shutdown();
+    for (auto& fbo : backgroundPass)
+        fbo.release();
+    for (auto& fbo : composite)
+        fbo.release();
+    outputProgram.reset();
     quad.reset();
 }
 
@@ -173,77 +189,31 @@ std::unique_ptr<juce::OpenGLShaderProgram> Controller::createProgram (juce::Stri
 
 void Controller::resize (int screenWidth, int screenHeight)
 {
-    uniform.resize (screenWidth, screenHeight);
-    auto [bufferWidth, bufferHeight] = uniform.getSize();
+    background.resize (context, screenWidth, screenHeight);
 
-    for (auto& [id, shader] : programs)
-        shader->resize (context, bufferWidth, bufferHeight);
+    auto [bufferWidth, bufferHeight] = background.uniform.getSize();
+    backgroundPass.resize (context, bufferWidth, bufferHeight);
+
+    postProcess.resize (context, screenWidth, screenHeight);
+
+    if (postProcess.isCompiled())
+        composite.resize (context, screenWidth, screenHeight);
 }
 
-void Controller::setChannels (juce::OpenGLShaderProgram& program)
-{
-    using namespace ::juce::gl;
-
-    for (auto& [id, channelName] : file::BufferChannel::get())
-    {
-        juce::Identifier passId { file::Shaders::get().at (id) };
-
-        if (programs.contains (passId) and programs.at (passId)->buffer.has_value())
-        {
-            glActiveTexture (GL_TEXTURE0 + id);
-            glBindTexture (GL_TEXTURE_2D, programs.at (passId)->readBuffer().getTextureID());
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
-            program.setUniform (channelName.toRawUTF8(), id);
-        }
-    }
-}
-
-void Controller::loadShaders()
+void Controller::loadShaders (Compilation& compilation, const juce::Identifier& treeType)
 {
     context.executeOnGLThread (
-        [this] (juce::OpenGLContext&)
+        [this, &compilation, treeType] (juce::OpenGLContext&)
         {
-            programs.clear();
+            auto shaderTree { config.getChildWithName (treeType) };
 
-            // Output pass — infrastructure, not config-driven. Recreate after clear.
-            {
-                auto output { std::make_unique<Pass>() };
-                output->program = createProgram (outputShader);
-                jassert (output->program != nullptr);
-                output->buffer.emplace();
-                programs.addOrReplace (ID::output, std::move (output));
-            }
-
-            juce::String common { config.getValue (IDtype::shader, ID::common) };
-            auto shader { config.getChildWithName (IDtype::shader) };
-
-            jam::Model::forEachProperty (
-                shader,
-                [common, this] (const juce::Identifier& id, const juce::var& var)
-                {
-                    if (id != ID::common and files.contains (id.toString()))
-                    {
-                        if (auto code { var.toString() }; code.isNotEmpty())
-                        {
-                            if (common.isNotEmpty())
-                                code = jam::Format::prependNewLine (code, common);
-
-                            code = jam::Format::replaceholder (wrapper, placeholder, code);
-
-                            if (auto p { createProgram (code) })
-                            {
-                                auto pass { std::make_unique<Pass>() };
-                                pass->program = std::move (p);
-
-                                if (id != ID::image)
-                                    pass->buffer.emplace();
-
-                                programs.addOrReplace (id, std::move (pass));
-                            }
-                        }
-                    }
-                });
+            compilation.load (shaderTree,
+                              wrapper,
+                              placeholder,
+                              [this] (juce::StringRef source)
+                              {
+                                  return createProgram (source);
+                              });
 
             auto* comp { context.getTargetComponent() };
             jassert (comp != nullptr);
@@ -262,8 +232,7 @@ void Controller::refreshParameters()
     jam::Model::forEachProperty (graphics,
                                  [this] (const juce::Identifier& id, const juce::var& newValue)
                                  {
-                                     if (events.contains (id))
-                                         events.get (id, newValue);
+                                     parameterChanged (id, newValue);
                                  });
 }
 
@@ -272,7 +241,13 @@ void Controller::registerEvents()
     events.add<const juce::var&> (ID::background,
                                   [this] (const juce::var&)
                                   {
-                                      loadShaders();
+                                      loadShaders (background, IDtype::background);
+                                  });
+
+    events.add<const juce::var&> (ID::postProcessing,
+                                  [this] (const juce::var&)
+                                  {
+                                      loadShaders (postProcess, IDtype::postProcessing);
                                   });
 
     events.add<const juce::var&> (ID::size,
@@ -301,14 +276,16 @@ void Controller::registerEvents()
                                   {
                                       int fps { static_cast<int> (newValue) };
                                       startTimerHz (fps);
-                                      uniform.setFrameRate (fps);
+                                      background.uniform.setFrameRate (fps);
+                                      postProcess.uniform.setFrameRate (fps);
                                   });
 
     events.add<const juce::var&> (ID::resolutionScale,
                                   [this] (const juce::var& newValue)
                                   {
-                                      uniform.resolutionScale = static_cast<float> (newValue);
-                                      auto screen { uniform.getScreenSize() };
+                                      background.uniform.resolutionScale =
+                                          static_cast<float> (newValue);
+                                      auto screen { background.uniform.getScreenSize() };
 
                                       if (screen.x > 0 and screen.y > 0)
                                       {
@@ -324,14 +301,14 @@ void Controller::registerEvents()
     events.add<const juce::var&> (ID::filter,
                                   [this] (const juce::var& newValue)
                                   {
-                                      uniform.textureFilter =
+                                      background.uniform.textureFilter =
                                           end::Filter::get (newValue.toString());
                                   });
 
     events.add<const juce::var&> (ID::backgroundOpacity,
                                   [this] (const juce::var& newValue)
                                   {
-                                      uniform.opacity = static_cast<float> (newValue);
+                                      background.uniform.opacity = static_cast<float> (newValue);
                                   });
 }
 

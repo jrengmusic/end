@@ -8,9 +8,10 @@ namespace config
 // Shader
 //==============================================================================
 
-Shader::Shader()
+Shader::Shader (juce::Identifier treeType)
     : Directory (jam::Model::fromFiles (
-          IDtype::shader, file::Shaders::get(), [] (int) { return juce::String(); }))
+          treeType, file::Shaders::get(), [] (int) { return juce::String(); }))
+    , type (treeType)
 {
 }
 
@@ -22,7 +23,7 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
 
     if (dir.isDirectory())
     {
-        auto disk { jam::Model::fromFiles (IDtype::shader, file::Shaders::get(),
+        auto disk { jam::Model::fromFiles (type, file::Shaders::get(),
             [dir] (int key) { return dir.getChildFile (file::Shaders::get().at (key)).loadFileAsString(); }) };
 
         setValuesFrom (disk);
@@ -111,11 +112,12 @@ Model::Model()
           [] (int key) { return BinaryData::getString (file::Config::getName (key)); },
           &validators))
 {
-    // theme and shader members are now constructed — attach their subtrees.
+    // theme, background, and postProcessing members are now constructed — attach their subtrees.
     state.appendChild (theme.state, nullptr);
 
     auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
-    graphics.appendChild (shader.state, nullptr);
+    graphics.appendChild (background.state, nullptr);
+    graphics.appendChild (postProcessing.state, nullptr);
 
     registerParameters();
 
@@ -148,12 +150,21 @@ void Model::registerParameters()
         });
 
     // Shader properties (GLSL source) have no validator — fromFiles does not populate them.
-    // Register each as ParameterText with glslBufferSize.
-    jam::Model::forEachProperty (shader.state,
+    // Register each as ParameterText with glslBufferSize. The two-level key
+    // (treeType, propertyId) prevents collision between (BACKGROUND, Image) and
+    // (POST_PROCESSING, Image).
+    jam::Model::forEachProperty (background.state,
         [this] (const juce::Identifier& id, const juce::var& value)
         {
             if (value.isString())
-                createAndAddParameter<jam::ParameterText> (shader.state, id, value.toString(), glslBufferSize);
+                createAndAddParameter<jam::ParameterText> (background.state, id, value.toString(), glslBufferSize);
+        });
+
+    jam::Model::forEachProperty (postProcessing.state,
+        [this] (const juce::Identifier& id, const juce::var& value)
+        {
+            if (value.isString())
+                createAndAddParameter<jam::ParameterText> (postProcessing.state, id, value.toString(), glslBufferSize);
         });
 }
 
@@ -190,7 +201,10 @@ void Model::loadFromPath()
     // notifications and consumers must read fresh source at that point.
     auto diskDisplay { jam::Model::getChildWithName (disk, IDtype::display) };
     theme.loadFromPath (diskDisplay.getProperty (ID::theme), errors);
-    shader.loadFromPath (jam::Model::getChildWithName (disk, IDtype::graphics).getProperty (ID::background), errors);
+
+    auto diskGraphics { jam::Model::getChildWithName (disk, IDtype::graphics) };
+    background.loadFromPath (diskGraphics.getProperty (ID::background), errors);
+    postProcessing.loadFromPath (diskGraphics.getProperty (ID::postProcessing), errors);
 
     setValuesFrom (disk);
 

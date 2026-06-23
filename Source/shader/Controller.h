@@ -19,7 +19,12 @@ namespace shader
  *  never from VT properties (VT lags by one flush tick).
  *
  *  Listens on TWO models:
- *  - config::Model — ID::background triggers full shader recompile (loadShaders).
+ *  - config::Model — ID::background triggers full shader recompile via
+ *    loadShaders(background, IDtype::background); ID::postProcessing triggers
+ *    post-processing recompile via loadShaders(postProcess, IDtype::postProcessing).
+ *    Both reads are config-tree-driven — each config::Shader instance populates
+ *    its own subtree (BACKGROUND or POST_PROCESSING) from disk before firing the
+ *    property change notification.
  *    Config file watcher coalesces reload notifications: one background property
  *    change = one loadShaders call across all passes.
  *  - end::Model    — ID::size events trigger FBO resize via Resizer.
@@ -34,12 +39,21 @@ namespace shader
  *    viewport and re-initialises FBO pairs at scaled dimensions.
  *
  *  Render loop (multi-pass):
- *  - renderOpenGL() advances uniform state.
- *  - Buffer passes (BufferA-D): iterate in HashMap insertion order, render
- *    each into its writeBuffer() FBO, swap ping-pong after each pass.
- *  - Image pass: renders to default framebuffer after all buffer passes.
- *  - All passes receive iChannel0-3 bound to BufferA-D read textures via
- *    setChannels() / unbindChannels().
+ *  - renderOpenGL() advances uniform state via background.uniform.advance()
+ *    and postProcess.uniform.advance().
+ *  - When post-processing is active (postProcess compiled, composite initialised):
+ *    1. glBlitFramebuffer copies FB 0 (previous frame's bg + JUCE compositing)
+ *       into composite writeBuffer. composite.swap() makes it the readBuffer.
+ *    2. Post-process renderBuffers + renderImage render to FB 0, reading
+ *       composite readBuffer via iScene (GL_TEXTURE4, unit = BufferChannel size).
+ *    3. Background buffer passes render at buffer resolution.
+ *    4. Background image pass renders into backgroundPass[0] FBO.
+ *    5. renderOutput() upscales to FB 0. JUCE composites components. Swap presents.
+ *       One frame latency: post-pro shows previous frame's composited scene.
+ *  - Without post-processing: background + renderOutput() to default framebuffer.
+ *  - iChannel0-3 binding is handled inside Compilation::setChannels().
+ *  - iScene binding: sceneTexture GLuint set on postProcess before render (from composite readBuffer),
+ *    cleared after. setChannels() binds at unit = BufferChannel::get().size().
  *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
@@ -85,26 +99,20 @@ private:
     void shutdown();
     void registerEvents();
 
-    /** @brief Compiles all shader passes from config VT. Queues work on GL thread. */
-    void loadShaders();
+    /** @brief Compiles shader passes from the config VT subtree identified by @p treeType into @p compilation.
+     *         Queues work on GL thread.
+     *  @param compilation  Target compilation (background or postProcess).
+     *  @param treeType     Tree type to search for under the GRAPHICS child.
+     *                      @c IDtype::background selects the BACKGROUND subtree (background passes);
+     *                      @c IDtype::postProcessing selects the POST_PROCESSING subtree.
+     */
+    void loadShaders (Compilation& compilation, const juce::Identifier& treeType);
 
     /** @brief Compiles vertex + fragment shader, links. Returns nullptr on failure (error sent to message overlay). GL thread only. */
     std::unique_ptr<juce::OpenGLShaderProgram> createProgram (juce::StringRef shaderSource);
 
-    /** @brief Updates viewport uniform and resizes FBO pairs for all non-Image programs. GL thread only. */
+    /** @brief Updates viewport uniform and resizes FBO pairs for background passes and output pass. GL thread only. */
     void resize (int screenWidth, int screenHeight);
-
-    /** @brief Sets iChannel sampler uniforms and binds buffer pass read textures to corresponding texture units.
-     *         Only binds channels with existing buffer passes. GL thread only.
-     *  @param program  The active GL program (must be use()'d first).
-     */
-    void setChannels (juce::OpenGLShaderProgram& program);
-
-    /** @brief Renders buffer passes (BufferA-D) at buffer resolution. GL thread only. */
-    void renderBuffers (int bufferWidth, int bufferHeight);
-
-    /** @brief Renders Image pass into output pass FBO at buffer resolution. GL thread only. */
-    void renderImage (int bufferWidth, int bufferHeight);
 
     /** @brief Upscales output pass FBO to screen resolution with opacity and filter. GL thread only. */
     void renderOutput();
@@ -126,14 +134,25 @@ private:
 
     //==========================================================================
     config::Model& config { *config::Model::getInstance() };
-    file::Shaders& files { *file::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
-    jam::HashMap<juce::Identifier, std::unique_ptr<Pass>> programs;
+    Compilation background;
 
     jam::Resizer resizer;
     std::unique_ptr<Quad> quad;
-    Uniform uniform;
+    /** @brief Background Image pass render target — buffer resolution, single FBO. GL thread only. */
+    FrameBuffer backgroundPass;
+
+    /** @brief Output shader — upscales backgroundPass[0] to screen with opacity and filter. GL thread only. */
+    std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
+
+    /** @brief Post-processing compilation — screen resolution, iScene input from composite FBO. GL thread only. */
+    Compilation postProcess;
+
+    /** @brief Ping-pong FBO — screen resolution, holds upscaled background + JUCE components for post-processing.
+     *         Initialised in resize() when postProcess is compiled. GL thread only. */
+    FrameBuffer composite { 2 };
+
     //==============================================================================
     static inline const juce::String placeholder { "source" };
     static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };

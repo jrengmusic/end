@@ -11,6 +11,8 @@ uniform sampler2D iChannel1;
 uniform sampler2D iChannel2;
 uniform sampler2D iChannel3;
 
+uniform sampler2D iScene;
+
 out vec4 fragColor;
 
 %%source%%

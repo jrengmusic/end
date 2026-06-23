@@ -2,6 +2,47 @@
 
 ---
 
+## Sprint 40: Full-Scene Post-Processing Pipeline ✅
+
+**Date:** 2026-06-24
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: plan (Compilation extraction, blit-based scene capture, FrameBuffer unification, config generalization), render loop debugging (8 diagnostics to find FBO redirect failure → blit approach), delegation, naming
+- Pathfinder (×2): shader pipeline architecture discovery, jam::Model parameter key scheme (`(treeType, propertyId)` two-level HashMap — no collision)
+- Librarian (×3): Ghostty post-processing analysis (render-to-texture + glBlitFramebuffer), JUCE OOTB post-processing (none — setComponentPaintingEnabled only path), OpenGLGraphicsContextCustomShader analysis
+- Researcher: OpenGL post-processing patterns, JUCE FBO redirect verification
+- Engineer (×15): identifiers, Compilation extraction, config Shader parameterization, wrapper.frag iScene, scene FBO + render loop, audit fixes, render order fix, blit approach, loadShaders SSOT, naming renames (backgroundPass/composite/RenderPass/FrameBuffer), PingPong→FrameBuffer extraction, backgroundImage→bare FBO
+- Auditor: BLESSED/NAMES validation (5 findings: M1 lambda capture, L1 DRY renderOutput, L2 dead setScene, L3 stray post_wrapper.frag, L4 LEAN — all fixed)
+
+### Files Modified (7 total)
+- `Source/Identifier.h` — added iScene, scene, output identifiers; removed postShader (unused)
+- `Source/shader/Program.h` — FrameBuffer struct (inherits vector<OpenGLFrameBuffer>, parameterized count), RenderPass (program + optional<FrameBuffer>), Compilation (passes + uniform + load/render/setChannels/resize/isCompiled, sceneTexture for iScene binding)
+- `Source/shader/Controller.h` — Compilation background + postProcess; FrameBuffer backgroundPass + composite; outputProgram separate; loadShaders parameterized
+- `Source/shader/Controller.cpp` — renderOpenGL with blit-based post-pro (glBlitFramebuffer capture, iScene binding at derived texture unit), renderOutput, loadShaders SSOT (Compilation& + treeType), resize with composite lifecycle, registerEvents for both pipelines
+- `Source/shader/wrapper.frag` — uniform sampler2D iScene declaration
+- `Source/config/Config.h` — Shader generalized with tree type parameter; Model owns Shader background + postProcessing
+- `Source/config/Config.cpp` — Shader ctor/loadFromPath use stored type; Model attaches + registers + loads both shader trees
+
+### Alignment Check
+- [x] BLESSED principles followed — FrameBuffer SSOT for FBO containers, Compilation encapsulates multi-pass logic, no bail-out guards
+- [x] NAMES.md adhered — FrameBuffer, RenderPass, Compilation, backgroundPass, composite, outputProgram, isCompiled
+- [x] MANIFESTO.md principles applied — same Compilation type for both pipelines, same loadShaders method, same Shader class
+
+### Problems Solved
+- Full-scene post-processing pipeline: blit-based capture of previous frame's composited scene (background + JUCE components), post-processed via user Shadertoy shaders, rendered to default framebuffer
+- FBO redirect approach failed (swap requires default FB bound on macOS) — pivoted to glBlitFramebuffer capture
+- Compilation struct extraction: multi-pass Shadertoy logic reusable for both background and post-processing pipelines
+- FrameBuffer unification: single type for single-buffer (backgroundPass) and ping-pong (composite) FBOs, replacing scattered FBO management
+- Config Shader generalization: same class parameterized by tree type, two instances under GRAPHICS with proper ParameterText registration (no collision via two-level key scheme)
+- iScene uniform binding: derived texture unit from BufferChannel bimap size, bound in setChannels alongside iChannels
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260623T212453` — post-processing shaders do not load on app startup; only load after hot reload
+
 ## Sprint 39: Collapse outputFBO + outputProgram into Pass ✅
 
 **Date:** 2026-06-23
