@@ -1,1 +1,36 @@
-/Users/jreng/.carol/CAROL.md
+# END — Ephemeral Nexus Display
+
+**Type:** GPU-accelerated terminal emulator  
+**Stack:** C++17 · JUCE · JAM  
+**Root:** `~/Documents/Poems/dev/end/`  
+**Version:** 0.0.1
+
+## Current State
+- **Last sprint:** Sprint 40 — Full-Scene Post-Processing Pipeline ✅ (2026-06-24)
+- **Active ODE:** `END.ode` (opened 2026-06-26)
+- **Active debt:** `DEBT-20260623T212453` — post-pro shaders not loading on startup; hot reload works
+
+## Layer Order (top → bottom)
+`Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  
+Shader: `Source/shader/` — Compilation, Controller, Program, FrameBuffer, RenderPass  
+Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
+UI: `Source/end/` — View, Window, Tabs, Panes  
+Constants: `Identifier.h` · `Bimap.h`
+
+## Key Docs
+| File | Purpose |
+|------|---------|
+| `ARCHITECTURE.md` | Architectural contracts, invariants, layer rules (SSOT) |
+| `SPEC.md` | Requirements v0.0.1 |
+| `DEBT.md` | Active debt ledger |
+| `carol/SPRINT-LOG.md` | Cross-session memory (last 5 sprints) |
+| `END.ode` | Active ODE investigation |
+
+## Doxygen (mandatory before any code task)
+- Project: `docs/xml/index.xml`
+- JAM: `~/Documents/Poems/dev/jam/docs/xml/index.xml`
+- JUCE: `~/Documents/Poems/JUCE/docs/xml/index.xml`
+- KANJUT / CIUM: not used in this project
+
+## Build (ARCHITECT only — agents never run)
+`ninja` via `Builds/` · `ninja doxygen` to regenerate docs

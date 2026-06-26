@@ -46,7 +46,7 @@ public:
      *  Locates the shader directory via @c file::Shaders::getPath and overlays
      *  @c state properties via @c setValuesFrom. Fires
      *  @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
-     *  listeners (shader::Controller) pick up the new source.
+     *  listeners (graphics::Processor) pick up the new source.
      *
      *  @param path    Active shader project name from config::Model.
      *  @param errors  Accumulation channel (unused by shader — no lua parse).

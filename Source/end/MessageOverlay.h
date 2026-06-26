@@ -95,8 +95,12 @@ public:
         auto& messageParam { model.createAndAddParameter<jam::ParameterText> (
             state, ID::message, juce::String {}, 4096) };
 
-        parameterAttachments.add (std::make_unique<jam::Model::ParameterAttachment> (
-            messageParam, [this] (const juce::var& v) { showMessage (v.toString()); }));
+        parameterAttachments.add (
+            std::make_unique<jam::Model::ParameterAttachment> (messageParam,
+                                                               [this] (const juce::var& v)
+                                                               {
+                                                                   showMessage (v.toString());
+                                                               }));
     }
 
     /**
@@ -143,7 +147,8 @@ public:
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
         g.setFont (font);
         g.setColour (fgColour);
-        g.drawFittedText (message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
+        g.drawFittedText (
+            message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
     }
 
 private:
@@ -175,7 +180,7 @@ private:
     static constexpr int fadeInMs { 60 };
 
     /** @brief Display duration for plain messages in milliseconds. */
-    static constexpr int messageDelayMs { 5000 };
+    static constexpr int messageDelayMs { 0 };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageOverlay)

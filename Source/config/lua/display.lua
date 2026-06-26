@@ -91,7 +91,7 @@ return {
 		-- Background shader opacity (0.0 = transparent, 1.0 = opaque).
 		background_opacity = 0.5,
 		-- Post-processing shader project directory name. Empty string disables.
-		post_processing = "",
+		post_processing = "crt",
 		-- Shader frame rate (1-120). Controls how many times per second
 		-- shader passes execute. Lower values reduce GPU load.
 		frame_rate = 30,

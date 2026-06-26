@@ -36,8 +36,8 @@ void View::registerEvents()
             bool canUseGpu { config.getValue (IDtype::display, ID::gpu) and gpu.isAvailable };
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
-            if (canUseGpu != shader.isAttached())
-                canUseGpu ? shader.attach (*this) : shader.detach();
+            if (canUseGpu != processor.isAttached())
+                canUseGpu ? processor.attach (*this) : processor.detach();
         });
 
     events.add<juce::ValueTree&> (

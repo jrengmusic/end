@@ -8,7 +8,7 @@
 #include "end/MessageOverlay.h"
 #include "action/Registry.h"
 #include "config/Config.h"
-#include "shader/Controller.h"
+#include "graphics/Processor.h"
 #include "Bimap.h"
 
 namespace end
@@ -162,7 +162,7 @@ private:
     jam::Function::Map<juce::Identifier, void> events;
 
     /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
-    shader::Controller shader;
+    graphics::Processor processor;
 
 //==============================================================================
 #if JUCE_DEBUG

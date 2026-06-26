@@ -1,12 +1,12 @@
 /**
- * @file shader/Program.h
+ * @file graphics/Program.h
  * @brief Shader pass data and per-frame uniform dispatch.
  */
 #pragma once
 #include <JuceHeader.h>
 #include "Identifier.h"
 
-namespace shader
+namespace graphics
 {
 /*____________________________________________________________________________*/
 
@@ -136,7 +136,10 @@ struct Uniform
  */
 struct FrameBuffer : std::vector<juce::OpenGLFrameBuffer>
 {
-    FrameBuffer (size_t numBuffers = 1) : std::vector<juce::OpenGLFrameBuffer> (numBuffers) {}
+    FrameBuffer (size_t numBuffers = 1)
+        : std::vector<juce::OpenGLFrameBuffer> (numBuffers)
+    {
+    }
     ~FrameBuffer() = default;
 
     /** @brief Index of the current read FBO (0 or 1). */
@@ -164,6 +167,12 @@ struct FrameBuffer : std::vector<juce::OpenGLFrameBuffer>
             fbo.makeCurrentAndClear();
             fbo.releaseAsRenderingTarget();
         }
+    }
+
+    void release()
+    {
+        for (auto& fbo : *this)
+            fbo.release();
     }
 
     //==============================================================================
@@ -266,7 +275,7 @@ struct Quad
  *  Encapsulates a complete Shadertoy-compatible shader set: BufferA-D intermediate
  *  passes and an Image output pass. Each pass is compiled from GLSL source,
  *  stored in the passes map as a RenderPass, and rendered in HashMap insertion order.
- *  Controller owns two Compilation instances: background and post-processing.
+ *  Compositor owns two Compilation instances: background and post-processing.
  *
  *  @par Thread contract
  *  All methods must be called on the **GL THREAD** (via OpenGLRenderer callbacks
@@ -292,7 +301,7 @@ struct Compilation
      *  @param placeholder    Placeholder string replaced by user source in wrapper.
      *  @param createProgram  Factory callable: (StringRef source) -> unique_ptr<OpenGLShaderProgram>.
      */
-    template <typename F>
+    template<typename F>
     void load (const juce::ValueTree& shaderTree,
                const juce::String& wrapper,
                const juce::String& placeholder,
@@ -306,7 +315,8 @@ struct Compilation
 
         jam::Model::forEachProperty (
             shaderTree,
-            [this, &common, &wrapper, &placeholder, &createProgram] (const juce::Identifier& id, const juce::var& var)
+            [this, &common, &wrapper, &placeholder, &createProgram] (
+                const juce::Identifier& id, const juce::var& var)
             {
                 if (id != ID::common and file::Shaders::getInstance()->contains (id.toString()))
                 {
@@ -467,4 +477,4 @@ struct Compilation
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace shader
+}// namespace graphics
