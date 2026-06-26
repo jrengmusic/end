@@ -6,6 +6,7 @@ namespace graphics
 
 Processor::Processor()
 {
+    compositor.reportError = [this] (const juce::String& msg) { appModel.setMessage (msg); };
     registerEvents();
     config.addListener (this);
     appModel.addListener (this);
@@ -16,23 +17,18 @@ Processor::~Processor()
     stopTimer();
     appModel.removeListener (this);
     config.removeListener (this);
-    shutdownOpenGL();
+    compositor.detach();
 }
 
 //==============================================================================
-void Processor::shutdownOpenGL() { context.detach(); }
-
 void Processor::attach (juce::Component& component)
 {
-    context.setOpenGLVersionRequired (juce::OpenGLContext::openGL4_1);
-    context.setMultisamplingEnabled (true);
-    context.setRenderer (this);
-    context.attachTo (component);
+    compositor.attach (*this, component);
 }
 
-void Processor::detach() { context.detach(); }
+void Processor::detach() { compositor.detach(); }
 
-bool Processor::isAttached() const noexcept { return context.isAttached(); }
+bool Processor::isAttached() const noexcept { return compositor.isAttached(); }
 
 //==============================================================================
 void Processor::newOpenGLContextCreated()
@@ -41,20 +37,15 @@ void Processor::newOpenGLContextCreated()
     jam::BackgroundBlur::enableWindowTransparency();
 #endif
 
-    quad = std::make_unique<Quad>();
-    compositor.prepare (context);
+    compositor.prepare();
     refreshParameters();
 }
 
-void Processor::renderOpenGL() { compositor.process (*quad); }
+void Processor::renderOpenGL() { compositor.process(); }
 
-void Processor::openGLContextClosing()
-{
-    compositor.reset();
-    quad.reset();
-}
+void Processor::openGLContextClosing() { compositor.reset(); }
 
-void Processor::timerCallback() { context.triggerRepaint(); }
+void Processor::timerCallback() { compositor.triggerRepaint(); }
 
 //==============================================================================
 void Processor::parameterChanged (const juce::Identifier& id, const juce::var& newValue)
@@ -80,39 +71,8 @@ void Processor::registerEvents()
     events.add<const juce::var&> (ID::background,
                                   [this] (const juce::var&)
                                   {
-                                      context.executeOnGLThread (
-                                          [this] (juce::OpenGLContext&)
-                                          {
-                                              compositor.loadShaders (IDtype::background);
-
-                                              auto* comp { context.getTargetComponent() };
-                                              jassert (comp != nullptr);
-
-                                              auto scale { context.getRenderingScale() };
-                                              compositor.resize (
-                                                  juce::roundToInt (comp->getWidth() * scale),
-                                                  juce::roundToInt (comp->getHeight() * scale));
-                                          },
-                                          false);
-                                  });
-
-    events.add<const juce::var&> (ID::postProcessing,
-                                  [this] (const juce::var&)
-                                  {
-                                      context.executeOnGLThread (
-                                          [this] (juce::OpenGLContext&)
-                                          {
-                                              compositor.loadShaders (IDtype::postProcessing);
-
-                                              auto* comp { context.getTargetComponent() };
-                                              jassert (comp != nullptr);
-
-                                              auto scale { context.getRenderingScale() };
-                                              compositor.resize (
-                                                  juce::roundToInt (comp->getWidth() * scale),
-                                                  juce::roundToInt (comp->getHeight() * scale));
-                                          },
-                                          false);
+                                      auto shaderTree { config.getChildWithName (IDtype::background) };
+                                      compositor.loadShaders (shaderTree);
                                   });
 
     events.add<const juce::var&> (ID::size,
@@ -127,14 +87,7 @@ void Processor::registerEvents()
         juce::Identifier { jam::ID::stop },
         [this] (int width, int height)
         {
-            context.executeOnGLThread (
-                [this, width, height] (juce::OpenGLContext&)
-                {
-                    const auto scale { context.getRenderingScale() };
-                    compositor.resize (juce::roundToInt (width * scale),
-                                       juce::roundToInt (height * scale));
-                },
-                false);
+            compositor.resize (width, height);
         });
 
     events.add<const juce::var&> (ID::frameRate,
@@ -150,18 +103,6 @@ void Processor::registerEvents()
                                   {
                                       compositor.setResolutionScale (
                                           static_cast<float> (newValue));
-
-                                      auto screen { compositor.getScreenSize() };
-
-                                      if (screen.x > 0 and screen.y > 0)
-                                      {
-                                          context.executeOnGLThread (
-                                              [this, screen] (juce::OpenGLContext&)
-                                              {
-                                                  compositor.resize (screen.x, screen.y);
-                                              },
-                                              false);
-                                      }
                                   });
 
     events.add<const juce::var&> (ID::filter,

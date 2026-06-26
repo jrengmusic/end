@@ -1,6 +1,6 @@
 /**
  * @file graphics/Processor.h
- * @brief GL pipeline orchestrator — analogous to PluginProcessor.
+ * @brief GL pipeline pure listener/adapter — bridges config events to Compositor API.
  */
 #pragma once
 #include <JuceHeader.h>
@@ -12,10 +12,8 @@ namespace graphics
 {
 /*____________________________________________________________________________*/
 
-/** @brief GL pipeline orchestrator — analogous to PluginProcessor.
- *
- *  Owns the OpenGLContext lifecycle and config-driven event dispatch.
- *  Delegates all rendering to Compositor (analogous to ProcessorChain).
+/** @brief GL pipeline pure listener/adapter — owns Compositor, bridges config
+ *         events to Compositor API. Never touches the GL context directly.
  *
  *  Listens on TWO models:
  *  - config::Model — ID::background and ID::postProcessing trigger
@@ -37,10 +35,7 @@ struct Processor
     Processor();
     ~Processor() override;
 
-    /** @brief Detaches the GL context. */
-    void shutdownOpenGL();
-
-    /** @brief Attaches the GL context to @p component.
+    /** @brief Delegates to compositor.attach().
      *  @param component  The component to render into (end::View).
      */
     void attach (juce::Component& component);
@@ -50,9 +45,6 @@ struct Processor
 
     /** @brief Returns true if the GL context is currently attached. */
     bool isAttached() const noexcept;
-
-    /** @brief The GL context. Public — mirrors juce::OpenGLAppComponent. */
-    juce::OpenGLContext context;
 
 private:
     //==========================================================================
@@ -86,7 +78,6 @@ private:
     jam::Function::Map<juce::Identifier, void> events;
 
     Compositor compositor;
-    std::unique_ptr<Quad> quad;
     jam::Resizer resizer;
 
     //==============================================================================

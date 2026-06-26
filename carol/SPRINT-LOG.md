@@ -2,6 +2,45 @@
 
 ---
 
+## Sprint 42: Compositor Owns GL Context + JUCE-Compatible Rendering ✅
+
+**Date:** 2026-06-26 → 2026-06-27
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: architecture analysis, JUCE CachedImage internals research, root cause diagnosis, plan
+- Pathfinder: graphics pipeline survey, JUCE CachedImage source extraction
+- Librarian: JUCE GL painting API verification (setComponentPaintingEnabled, MessageManagerLock, paintEntireComponent, createOpenGLGraphicsContext, renderFrame MM lock semantics)
+- Researcher: JUCE OpenGL render loop threading analysis
+- Engineer: 4 implementation passes (component capture, context ownership, pipeline fix, final strip)
+- Auditor: (implicit via verification reads)
+
+### Files Modified (5 total)
+- `Source/graphics/Compositor.h` — full rewrite: context owned by value (private), wrapper API (attach/detach/isAttached/triggerRepaint), zero upstream visibility (no config::Model, no end::Model), stripped componentPass/sceneCapture/postProcess/paintComponents/compositeScene/renderPostProcess, loadShaders takes ValueTree, createProgram reports via reportError callback
+- `Source/graphics/Compositor.cpp` — full rewrite: background-only renderer, process() renders bg to FB0 with component-derived dimensions, JUCE handles component painting, no setComponentPaintingEnabled(false)
+- `Source/graphics/Processor.h` — removed context, quad, shutdownOpenGL; pure listener/adapter
+- `Source/graphics/Processor.cpp` — all delegation to Compositor, registerEvents reads config and passes tree, wires reportError, removed postProcessing event
+- `Source/graphics/Program.h` — Uniform::resolutionScale default 0.5f→1.0f, added explicit includes for Bimap.h and end/Model.h (were transitive via removed Compositor includes)
+
+### Alignment Check
+- [x] BLESSED principles followed — B: context owned by value, no naked pointers; E: Compositor has zero upstream visibility, Processor tells/never asks; S(SSOT): JUCE is SSOT for component rendering
+- [x] NAMES.md adhered — reportError callback follows established pattern
+- [x] MANIFESTO.md principles applied — TETRIS contract (Compositor = dumb renderer, Processor = listener adapter)
+
+### Problems Solved
+- **Root cause: MM lock not acquired with setComponentPaintingEnabled(false)** — JUCE's renderFrame (juce_OpenGLContext.cpp:370-394) only acquires MessageManagerLock when `renderComponents=true`. With `renderComponents=false`, renderOpenGL runs without MM lock. Our paintEntireComponent from GL thread raced with message thread ValueTree listener list (DummyCriticalSection) → UB array corruption → crash on tab add/remove.
+- **Compositor upstream visibility violation** — config::Model and end::Model references removed. Compositor receives shader trees and reports errors through API. TETRIS contract enforced.
+- **Uniform::resolutionScale hardcoded override** — default changed from 0.5f to 1.0f, hardcoded `postProcess.uniform.resolutionScale = 1.0f` in prepare() eliminated.
+- **Dimension dependency inversion** — screen dimensions now derived from component + getRenderingScale in process(), not from shader uniform state.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260623T212453` — post-pro shaders not loading on startup (post-processing pipeline stripped pending CachedComponentImage architecture)
+
+---
+
 ## Sprint 41: graphics::Processor + graphics::Compositor — TETRIS-Analog Pipeline ✅
 
 **Date:** 2026-06-26

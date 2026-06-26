@@ -5,6 +5,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Identifier.h"
+#include "Bimap.h"
+#include "end/Model.h"
 
 namespace graphics
 {
@@ -30,7 +32,7 @@ struct Uniform
 
     int frameDelta { 1000 / 30 };
     int screenResolution { 0 };
-    float resolutionScale { 0.5f };
+    float resolutionScale { 1.0f };
     float opacity { 0.5f };
     GLenum textureFilter { juce::gl::GL_LINEAR };
 

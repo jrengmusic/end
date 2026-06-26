@@ -1,122 +1,163 @@
 /**
  * @file graphics/Compositor.h
- * @brief Render pipeline compositor — analogous to ProcessorChain.
+ * @brief Background shader renderer — owns GL context, renders background layer only.
  */
 #pragma once
 #include <JuceHeader.h>
-#include "end/Model.h"
-#include "config/Config.h"
 #include "graphics/Program.h"
 
 namespace graphics
 {
 /*____________________________________________________________________________*/
 
-/** @brief Render pipeline compositor — analogous to ProcessorChain.
+/** @brief Background shader renderer — owns the GL context and background rendering resources.
  *
- *  Owns two Compilation instances (background and post-processing),
- *  pipeline framebuffers, and the output shader. Orchestrates the
- *  three-layer render pipeline: background → JUCE components → post-processing.
+ *  Dumb renderer with zero upstream visibility. Receives shader source trees and
+ *  parameter values through its public API from Processor. Does not access
+ *  config::Model or end::Model.
+ *
+ *  Renders background shader (multi-pass Shadertoy) to FB 0. JUCE handles
+ *  component painting via its own CachedImage + drawComponentBuffer after
+ *  renderOpenGL returns. Components always render on top of background.
  *
  *  Surface API mirrors TETRIS contract:
- *  - prepare() — initialise GL resources (= ProcessorChain::prepare)
- *  - process() — per-frame render loop (= ProcessorChain::process)
- *  - reset()   — release GL resources (= ProcessorChain::reset)
+ *  - prepare() — initialise GL resources
+ *  - process() — per-frame render loop
+ *  - reset()   — release GL resources
  *
  *  @par Thread contract
- *  All methods must be called on the **GL THREAD** unless noted otherwise.
- *  Setters (setOpacity, setTextureFilter, etc.) are called from the
- *  message thread — they write single values read by the GL thread.
+ *  prepare() / process() / reset() : GL THREAD.
+ *  attach() / detach() / isAttached() / triggerRepaint() : MESSAGE THREAD.
+ *  loadShaders() / resize() dispatch to GL thread internally — message thread safe.
+ *  Setters are message-thread safe (single-value writes).
  */
 struct Compositor
 {
     Compositor() = default;
     ~Compositor() = default;
 
-    /** @brief Initialises GL resources — creates output shader program.
-     *  @param ctx  Active GL context (stored for createProgram).
-     */
-    void prepare (juce::OpenGLContext& ctx);
+    //==============================================================================
+    // Lifecycle — owns GL context
 
-    /** @brief Per-frame render loop — renders all layers to the default framebuffer.
+    /** @brief Configures the GL context and attaches it to a component.
      *
-     *  Without post-processing: background → renderOutput (upscale to FB 0).
-     *  With post-processing: background → compositeScene (bg + prev JUCE → sceneCapture)
-     *  → post-process sceneCapture → FB 0.
+     *  Sets OpenGL 4.1, enables multisampling, registers @p renderer,
+     *  attaches to @p component. Component painting left enabled (JUCE default).
+     *  Message thread.
      *
-     *  @param quad  Fullscreen quad for drawing.
+     *  @param renderer   The OpenGLRenderer implementation (Processor).
+     *  @param component  The component to render into (end::View).
      */
-    void process (Quad& quad);
+    void attach (juce::OpenGLRenderer& renderer, juce::Component& component);
 
-    /** @brief Releases all GL resources — compilations, FBOs, output program. */
+    /** @brief Detaches the GL context. Message thread. */
+    void detach();
+
+    /** @brief Returns true if the GL context is currently attached. */
+    bool isAttached() const noexcept;
+
+    /** @brief Triggers a GL repaint cycle. Message thread. */
+    void triggerRepaint();
+
+    //==============================================================================
+    // TETRIS API — GL thread only
+
+    /** @brief Creates the fullscreen Quad and compiles the output program.
+     *         Initialises background FBOs from target component dimensions.
+     *         GL thread only.
+     */
+    void prepare();
+
+    /** @brief Per-frame render loop — renders background to FB 0 (if compiled).
+     *         Components are painted by JUCE after this returns.
+     *         GL thread only.
+     */
+    void process();
+
+    /** @brief Releases all GL resources. GL thread only. */
     void reset();
 
-    /** @brief Compiles shader passes from the config subtree identified by @p treeType.
-     *
-     *  Selects the background or postProcess compilation based on treeType,
-     *  reads shader source from config, compiles and links programs.
-     *  Must be called on GL thread.
-     *
-     *  @param treeType  @c IDtype::background or @c IDtype::postProcessing.
-     */
-    void loadShaders (const juce::Identifier& treeType);
+    //==============================================================================
+    // Config-driven — dispatch to GL thread internally
 
-    /** @brief Updates viewport uniform and resizes all FBOs. GL thread only.
-     *  @param screenWidth   Screen width in pixels (after DPI scaling).
-     *  @param screenHeight  Screen height in pixels (after DPI scaling).
+    /** @brief Compiles background shader passes from the given source tree.
+     *
+     *  Dispatches compilation to the GL thread. After compilation, resizes
+     *  FBOs to match the current target component dimensions. On failure,
+     *  calls reportError (if set) from the GL thread.
+     *  Message thread safe.
+     *
+     *  @param shaderTree  ValueTree containing pass source properties (Image, BufferA, etc.).
      */
-    void resize (int screenWidth, int screenHeight);
+    void loadShaders (const juce::ValueTree& shaderTree);
 
-    /** @brief Returns current screen dimensions from the background uniform. */
+    /** @brief Dispatches FBO resize to the GL thread.
+     *         Takes logical pixel dimensions, applies rendering scale internally.
+     *         Message thread safe.
+     *  @param width   Logical pixel width.
+     *  @param height  Logical pixel height.
+     */
+    void resize (int width, int height);
+
+    //==============================================================================
+    // Message-thread setters
+
+    /** @brief Sets the background opacity. @param value Opacity in [0, 1]. */
+    void setOpacity (float value);
+
+    /** @brief Sets the background texture filter. @param value GL_LINEAR or GL_NEAREST. */
+    void setTextureFilter (GLenum value);
+
+    /** @brief Sets the background resolution scale and dispatches a resize.
+     *  @param value Scale factor (e.g. 0.5 = half resolution).
+     */
+    void setResolutionScale (float value);
+
+    /** @brief Sets the target frame rate. @param fps Frames per second. */
+    void setFrameRate (int fps);
+
+    //==============================================================================
+    // Query
+
+    /** @brief Returns current screen dimensions from background uniform. */
     juce::Point<int> getScreenSize() const { return background.uniform.getScreenSize(); }
 
     //==============================================================================
-    // Setters — message thread safe (single-value writes read by GL thread)
+    // Error reporting — called from GL thread on shader compilation failure.
 
-    void setOpacity (float value);
-    void setTextureFilter (GLenum value);
-    void setResolutionScale (float value);
-    void setFrameRate (int fps);
+    /** @brief Called with the error string when createProgram fails. Set by Processor. */
+    std::function<void (const juce::String&)> reportError;
 
 private:
-    /** @brief Compiles vertex + fragment shader, links. Returns nullptr on failure. GL thread only. */
+    /** @brief Resizes background FBOs at the given pixel dimensions. GL thread only. */
+    void resizeBuffers (int pixelWidth, int pixelHeight);
+
+    /** @brief Compiles vertex + fragment shader. Returns nullptr on failure.
+     *         On failure, calls reportError (if set) with the error message. GL thread only.
+     *  @param shaderSource  GLSL fragment shader source.
+     */
     std::unique_ptr<juce::OpenGLShaderProgram> createProgram (juce::StringRef shaderSource);
 
-    /** @brief Upscales backgroundPass to FB 0 with opacity and filter. GL thread only. */
-    void renderOutput (Quad& quad);
-
-    /** @brief Composites background + previous frame JUCE components into sceneCapture.
-     *
-     *  Renders background texture into sceneCapture FBO with opacity blend,
-     *  then blits FB 0 (previous frame's JUCE component painting) on top.
-     *  Result: sceneCapture contains the composited scene for post-processing.
-     *
-     *  @param quad  Fullscreen quad for drawing.
+    /** @brief Renders background to FB 0 with opacity blend. GL thread only.
+     *  @param quad          Fullscreen quad for drawing.
+     *  @param screenWidth   Viewport width in pixels.
+     *  @param screenHeight  Viewport height in pixels.
      */
-    void compositeScene (Quad& quad);
-
-    /** @brief Renders post-processing passes from sceneCapture to FB 0. GL thread only.
-     *  @param quad  Fullscreen quad for drawing.
-     */
-    void renderPostProcess (Quad& quad);
+    void renderOutput (Quad& quad, int screenWidth, int screenHeight);
 
     //==============================================================================
-    config::Model& config { *config::Model::getInstance() };
-    end::Model& appModel { *end::Model::getInstance() };
-    juce::OpenGLContext* context { nullptr };
+    juce::OpenGLContext context;
 
     Compilation background;
-    Compilation postProcess;
 
     /** @brief Background Image pass render target — buffer resolution, single FBO. GL thread only. */
     FrameBuffer backgroundPass;
 
-    /** @brief Scene capture FBO — screen resolution, holds composited bg + JUCE for post-processing.
-     *         Written in compositeScene(), read by post-processing as iScene texture. GL thread only. */
-    FrameBuffer sceneCapture;
-
-    /** @brief Output shader — upscales backgroundPass to screen with opacity and filter. GL thread only. */
+    /** @brief Output shader — renders backgroundPass to screen with opacity and filter. GL thread only. */
     std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
+
+    /** @brief Fullscreen quad VAO+VBO. Created in prepare(). */
+    std::unique_ptr<Quad> quad;
 
     //==============================================================================
     static inline const juce::String placeholder { "source" };
