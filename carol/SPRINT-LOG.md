@@ -2,6 +2,51 @@
 
 ---
 
+## Sprint 41: graphics::Processor + graphics::Compositor — TETRIS-Analog Pipeline ✅
+
+**Date:** 2026-06-26
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: TETRIS/ProcessorChain analogy design (PluginProcessor→Processor, ProcessorChain→Compositor, DSP core→Compilation), object model mapping, render pipeline analysis (clear placement, FB0 capture order, JUCE component painting sequence), JUCE OpenGL API synthesis
+- Pathfinder: shader pipeline architecture survey (GL raw call inventory, render sequence, postProcess wiring, View integration)
+- Librarian: JUCE OpenGL rendering internals deep dive (CachedImage::renderFrame sequence, cachedImageFrameBuffer lifecycle, setComponentPaintingEnabled, setCachedComponentImage jassert, ImageEffectFilter scope, OpenGLGraphicsContextCustomShader, createOpenGLGraphicsContext API)
+- Researcher: JUCE GL post-processing patterns (community forum threads, CachedComponentImage intercept pattern, MessageManagerLock threading model, ImageEffectFilter limitations, OpenGLImageType GPU-resident texture)
+- Engineer (×2): full restructure (namespace rename, Compositor/Processor split, reference updates, old file cleanup), CRT test shader creation + config wiring
+
+### Files Modified (9 total)
+- `Source/graphics/Processor.h` — NEW (from shader/Controller.h): stripped to GL lifecycle + Model::Listener + event dispatch. renderOpenGL delegates `compositor.process(*quad)`. Owns context, Compositor, Quad, events, resizer.
+- `Source/graphics/Processor.cpp` — NEW (from shader/Controller.cpp): registerEvents dispatches to compositor setters. loadShaders/resize wrapped in executeOnGLThread. refreshParameters fires config events at init.
+- `Source/graphics/Compositor.h` — NEW: TETRIS API (prepare/process/reset). Owns background + postProcess Compilations, backgroundPass + sceneCapture FrameBuffers, outputProgram. Private: compositeScene, renderPostProcess, renderOutput, createProgram.
+- `Source/graphics/Compositor.cpp` — NEW: process() single clear before FB0 write; compositeScene blits FB0 first then bg on top; renderPostProcess binds sceneCapture as iScene. loadShaders selects compilation by treeType internally.
+- `Source/graphics/Program.h` — moved from shader/, namespace graphics (structs unchanged)
+- `Source/graphics/{wrapper.frag,screen.vert,output.frag}` — moved from shader/ (unchanged)
+- `Source/end/View.h:11,165` — `#include "graphics/Processor.h"`, member `graphics::Processor processor`
+- `Source/end/EventRegistration.cpp:39-40` — `processor.isAttached()` / `.attach()` / `.detach()`
+- `Source/config/Config.h:49` — doxygen `shader::Controller` → `graphics::Processor`
+
+### Alignment Check
+- [x] BLESSED principles followed — S (Compositor SSOT for render pipeline, Processor SSOT for lifecycle), E (Processor delegates, Compositor encapsulates GL details), B (sceneCapture single FBO — no feedback loop), L (Processor.renderOpenGL = one line delegation)
+- [x] NAMES.md adhered — Processor/Compositor follow KANJUT PluginProcessor/ProcessorChain naming; prepare/process/reset mirror TETRIS contract; compositeScene/renderPostProcess/renderOutput verb-first
+- [x] MANIFESTO.md principles applied — same Compilation type for both pipelines (S); no bail-out guards; Compositor thread-unaware like ProcessorChain
+
+### Problems Solved
+- shader::Controller monolith split into Processor (lifecycle) + Compositor (rendering) following KANJUT PluginProcessor/ProcessorChain pattern
+- Namespace `shader` → `graphics` (broader scope)
+- Ping-pong composite(2) → sceneCapture(1) — no temporal feedback needed
+- FB0 clear consolidated to single location (was duplicated)
+- compositeScene order fixed: blit FB0 first (captures prev JUCE), then bg blend on top
+- Post-pro pipeline verified with colour-invert shader
+- JUCE component painting architecture fully mapped; clean path identified for next sprint: setComponentPaintingEnabled(false) + manual paintEntireComponent via createOpenGLGraphicsContext
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260623T212453` — post-pro shaders still do not load on startup (hot reload works); unchanged by this restructure
+
+---
+
 ## Sprint 40: Full-Scene Post-Processing Pipeline ✅
 
 **Date:** 2026-06-24
