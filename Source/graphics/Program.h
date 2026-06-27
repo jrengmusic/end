@@ -252,20 +252,19 @@ struct Compilation
     jam::HashMap<juce::Identifier, std::unique_ptr<RenderPass>> passes;
     Uniform uniform;
 
-    /** @brief Compiles shader passes from a config ValueTree.
+    /** @brief Compiles shader passes from a source map.
      *
-     *  Clears existing passes, iterates properties on @p shaderTree,
-     *  compiles each non-Common pass via @p createProgram, and stores
-     *  the resulting Pass in the map. Buffer passes (non-Image) get
-     *  FBO pairs emplaced for ping-pong rendering.
+     *  Clears existing passes, iterates @p sources, compiles each non-Common
+     *  pass via @p createProgram, and stores the resulting Pass in the map.
+     *  Buffer passes (non-Image) get FBO pairs emplaced for ping-pong rendering.
      *
-     *  @param shaderTree     Config VT with pass properties (key=pass name, value=GLSL source).
+     *  @param sources        Pass sources keyed by Identifier (Image, BufferA, etc.). Common source included under ID::common.
      *  @param wrapper        Wrapper fragment shader template with placeholder.
      *  @param placeholder    Placeholder string replaced by user source in wrapper.
      *  @param createProgram  Factory callable: (StringRef source) -> unique_ptr<OpenGLShaderProgram>.
      */
     template<typename F>
-    void load (const juce::ValueTree& shaderTree,
+    void load (const jam::HashMap<juce::Identifier, juce::String>& sources,
                const juce::String& wrapper,
                const juce::String& placeholder,
                F&& createProgram)
@@ -273,35 +272,32 @@ struct Compilation
         passes.clear();
 
         juce::String common;
-        if (shaderTree.hasProperty (ID::common))
-            common = shaderTree.getProperty (ID::common).toString();
+        if (sources.contains (ID::common))
+            common = sources.at (ID::common);
 
-        jam::Model::forEachProperty (
-            shaderTree,
-            [this, &common, &wrapper, &placeholder, &createProgram] (
-                const juce::Identifier& id, const juce::var& var)
+        for (auto& [id, source] : sources)
+        {
+            if (id != ID::common and file::Shaders::getInstance()->contains (id.toString()))
             {
-                if (id != ID::common and file::Shaders::getInstance()->contains (id.toString()))
+                if (auto code { source }; code.isNotEmpty())
                 {
-                    if (auto code { var.toString() }; code.isNotEmpty())
+                    if (common.isNotEmpty())
+                        code = jam::Format::prependNewLine (code, common);
+
+                    code = jam::Format::replaceholder (wrapper, placeholder, code);
+
+                    if (auto p { createProgram (code) })
                     {
-                        if (common.isNotEmpty())
-                            code = jam::Format::prependNewLine (code, common);
+                        auto pass { std::make_unique<RenderPass>() };
+                        pass->program = std::move (p);
 
-                        code = jam::Format::replaceholder (wrapper, placeholder, code);
+                        pass->numBuffers = (id != ID::image) ? 2 : 1;
 
-                        if (auto p { createProgram (code) })
-                        {
-                            auto pass { std::make_unique<RenderPass>() };
-                            pass->program = std::move (p);
-
-                            pass->numBuffers = (id != ID::image) ? 2 : 1;
-
-                            passes.addOrReplace (id, std::move (pass));
-                        }
+                        passes.addOrReplace (id, std::move (pass));
                     }
                 }
-            });
+            }
+        }
     }
 
     /** @brief Renders all buffer passes (BufferA-D) at the configured resolution.
@@ -358,10 +354,22 @@ struct Compilation
             image->program->use();
             setChannels (*image->program);
             uniform.set (*image->program);
+            if (sceneTexture != 0)
+                image->program->setUniform (IDref::iPostOpacity, postOpacity);
             quad.draw();
 
             image->readBuffer().releaseAsRenderingTarget();
         }
+    }
+
+    /** @brief Advances uniforms and renders all passes (buffers + image). GL thread only.
+     *  @param quad  Fullscreen quad for drawing.
+     */
+    void render (Quad& quad)
+    {
+        uniform.advance();
+        renderBuffers (quad);
+        renderImage (quad);
     }
 
     /** @brief Returns the GL texture ID of the Image pass output.
@@ -408,6 +416,11 @@ struct Compilation
             glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
             glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
             program.setUniform (IDref::iScene, unit);
+            program.setUniform (IDref::iPostOpacity, postOpacity);
+        }
+        else
+        {
+            program.setUniform (IDref::iPostOpacity, -1.0f);
         }
     }
 
@@ -438,6 +451,9 @@ struct Compilation
 
     /** @brief GL texture ID for the composited scene (post-processing input). 0 = inactive (background). */
     GLuint sceneTexture { 0 };
+
+    /** @brief Post-processing effect intensity (0.0 = original, 1.0 = full effect). Set by Processor. */
+    float postOpacity { 0.0f };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Compilation)

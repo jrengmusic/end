@@ -284,10 +284,12 @@
     X (background, "background")                \
     X (backgroundOpacity, "background_opacity") \
     X (postProcessing, "post_processing")       \
+    X (postProcessingOpacity, "post_processing_opacity") \
     X (frameRate, "frame_rate")                 \
     X (resolutionScale, "resolution_scale")     \
     X (filter, "filter")                        \
     X (iOpacity, "iOpacity")                    \
+    X (iPostOpacity, "iPostOpacity")  \
     X (outputTexture, "outputTexture")          \
     X (output, "output")                   \
     X (iScene, "iScene")                   \

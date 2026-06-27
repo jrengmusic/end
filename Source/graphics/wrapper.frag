@@ -13,6 +13,8 @@ uniform sampler2D iChannel3;
 
 uniform sampler2D iScene;
 
+uniform float iPostOpacity;
+
 out vec4 fragColor;
 
 %%source%%
@@ -21,5 +23,11 @@ void main()
 {
     vec4 col;
     mainImage (col, gl_FragCoord.xy);
-    fragColor = col;
+
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec4 scene = texture (iScene, uv);
+    float pp = step (0.0, iPostOpacity);
+
+    fragColor = vec4 (mix (col.rgb, mix (scene.rgb, col.rgb, iPostOpacity), pp),
+                      mix (col.a, scene.a, pp));
 }

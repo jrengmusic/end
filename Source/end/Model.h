@@ -22,6 +22,12 @@ struct Size : jam::Union<int16_t, int16_t>
     {
     }
 
+    Size (float width, float height) noexcept
+        : jam::Union<int16_t, int16_t> { pack (static_cast<int16_t> (jam::toInt (width)),
+                                               static_cast<int16_t> (jam::toInt (height))) }
+    {
+    }
+
     /** @brief Unpack from ValueTree property (int round-trip).
      *  @param v  var holding the packed int written by toInt().
      */

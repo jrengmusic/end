@@ -21,9 +21,9 @@ Processor::~Processor()
 }
 
 //==============================================================================
-void Processor::attach (juce::Component& component)
+void Processor::attach (juce::Component& view, juce::Component& cacheTarget)
 {
-    compositor.attach (*this, component);
+    compositor.attach (view, cacheTarget);
 }
 
 void Processor::detach() { compositor.detach(); }
@@ -66,13 +66,34 @@ void Processor::refreshParameters()
                                  });
 }
 
+jam::HashMap<juce::Identifier, juce::String> Processor::extractShaderSources (const juce::Identifier& treeType)
+{
+    jam::HashMap<juce::Identifier, juce::String> sources;
+    auto shaderTree { config.getChildWithName (treeType) };
+
+    jam::Model::forEachProperty (shaderTree,
+                                 [&sources] (const juce::Identifier& id, const juce::var& value)
+                                 {
+                                     sources.addOrReplace (id, value.toString());
+                                 });
+
+    return sources;
+}
+
 void Processor::registerEvents()
 {
     events.add<const juce::var&> (ID::background,
                                   [this] (const juce::var&)
                                   {
-                                      auto shaderTree { config.getChildWithName (IDtype::background) };
-                                      compositor.loadShaders (shaderTree);
+                                      compositor.compileShaders (ID::background,
+                                                                extractShaderSources (IDtype::background));
+                                  });
+
+    events.add<const juce::var&> (ID::postProcessing,
+                                  [this] (const juce::var&)
+                                  {
+                                      compositor.compileShaders (ID::postProcessing,
+                                                                extractShaderSources (IDtype::postProcessing));
                                   });
 
     events.add<const juce::var&> (ID::size,
@@ -85,9 +106,9 @@ void Processor::registerEvents()
 
     resizer.addTrigger (
         juce::Identifier { jam::ID::stop },
-        [this] (int width, int height)
+        [this] (int, int)
         {
-            compositor.resize (width, height);
+            compositor.resize();
         });
 
     events.add<const juce::var&> (ID::frameRate,
@@ -116,6 +137,13 @@ void Processor::registerEvents()
                                   [this] (const juce::var& newValue)
                                   {
                                       compositor.setOpacity (
+                                          static_cast<float> (newValue));
+                                  });
+
+    events.add<const juce::var&> (ID::postProcessingOpacity,
+                                  [this] (const juce::var& newValue)
+                                  {
+                                      compositor.setPostOpacity (
                                           static_cast<float> (newValue));
                                   });
 }

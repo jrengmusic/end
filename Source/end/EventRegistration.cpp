@@ -37,7 +37,7 @@ void View::registerEvents()
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
             if (canUseGpu != processor.isAttached())
-                canUseGpu ? processor.attach (*this) : processor.detach();
+                canUseGpu ? processor.attach (*this, tabs) : processor.detach();
         });
 
     events.add<juce::ValueTree&> (

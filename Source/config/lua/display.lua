@@ -90,8 +90,6 @@ return {
 		background = "",
 		-- Background shader opacity (0.0 = transparent, 1.0 = opaque).
 		background_opacity = 0.5,
-		-- Post-processing shader project directory name. Empty string disables.
-		post_processing = "crt",
 		-- Shader frame rate (1-120). Controls how many times per second
 		-- shader passes execute. Lower values reduce GPU load.
 		frame_rate = 30,
@@ -100,6 +98,10 @@ return {
 		resolution_scale = 0.5,
 		-- Texture filter mode for shader upscaling: "linear" (bilinear) or "nearest" (pixel-sharp).
 		filter = "linear",
+		-- Post-processing shader project directory name. Empty string disables.
+		post_processing = "",
+		-- Post-processing effect intensity (0.0 = original scene, 1.0 = fully processed).
+		post_processing_opacity = 1.0,
 	},
 
 	-- ==========================================================================
@@ -274,5 +276,4 @@ return {
 			end,
 		},
 	},
-
 }

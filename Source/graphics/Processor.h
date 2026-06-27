@@ -35,10 +35,11 @@ struct Processor
     Processor();
     ~Processor() override;
 
-    /** @brief Delegates to compositor.attach().
-     *  @param component  The component to render into (end::View).
+    /** @brief Attaches the GL context to @p view and installs CachedImage on @p cacheTarget.
+     *  @param view         The component to render into (end::View).
+     *  @param cacheTarget  The child component whose painting gets post-processed (Tabs).
      */
-    void attach (juce::Component& component);
+    void attach (juce::Component& view, juce::Component& cacheTarget);
 
     /** @brief Detaches the GL context. */
     void detach();
@@ -62,6 +63,12 @@ private:
      */
     void refreshParameters();
 
+    /** @brief Extracts shader pass sources from the config tree for the given type.
+     *  @param treeType  Config tree type (IDtype::background or IDtype::postProcessing).
+     *  @return HashMap of pass Identifier to GLSL source string.
+     */
+    jam::HashMap<juce::Identifier, juce::String> extractShaderSources (const juce::Identifier& treeType);
+
     //==========================================================================
     // jam::Model::Listener
 
@@ -77,7 +84,7 @@ private:
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
 
-    Compositor compositor;
+    Compositor compositor { *this };
     jam::Resizer resizer;
 
     //==============================================================================

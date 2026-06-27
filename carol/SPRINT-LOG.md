@@ -2,6 +2,60 @@
 
 ---
 
+## Sprint 44: Post-Processing Pipeline + CachedImage + SSOT Refactors ✅
+
+**Date:** 2026-06-27
+**Duration:** ~10:00
+
+### Agents Participated
+- COUNSELOR: architecture design (CachedImage hook, compositing pipeline, alpha handling, SSOT extractions), JUCE source analysis, cool-retro-term shader survey, bug diagnosis (double premultiply, FB0 double-render, float truncation), plan
+- Pathfinder: Compositor+Processor+View survey, tab text hot-reload trace, cool-retro-term shader alpha analysis
+- Librarian: JUCE CachedComponentImage hook (paintWithinParentContext, renderFrame sequence, jassert constraints), JUCE OpenGL helper API survey, JUCE OpenGLFrameBuffer API
+- Engineer (x5): Steps 1-2 (constructor + CachedImage), Step 3 (post-processing pipeline), Step 4 (Processor events), SSOT fixes (render/compileShaders/renderTexture), HashMap refactor
+- Auditor: (implicit via JRENG-CODING-STANDARD audit — 9 violations found and fixed)
+
+### Files Modified (11 total)
+
+**END (8 files):**
+- `Source/graphics/Compositor.h` — constructor(OpenGLRenderer&), attach(Component&, Component&), CachedImage nested struct (CachedComponentImage subclass), shaders HashMap<ID, unique_ptr<Compilation>>, compilationIDs[] data-driven init, compileShaders(ID, sources), renderPost, renderTexture(ID, w, h), setPostOpacity, isPostProcessing, getSize, resizeBuffers (collapsed from resizeFromComponent+resizeBuffers), removed renderOutput/loadShaders/loadPostProcessShaders/loadCompilation
+- `Source/graphics/Compositor.cpp` — full rewrite: renderPost pipeline (capture → composite → post-process → output), process() skips FB0 blit when post-processing active, branchless triggerRepaint invalidation, prepare() data-driven Compilation init with postProcess opacity=1.0, compileShaders via HashMap sources, renderTexture reads from shaders map, getSize returns end::Size with jassert, all JRENG-CODING-STANDARD violations fixed (bail-out guards → positive nesting, narrow pointer scope, scope-init-as-condition preserved)
+- `Source/graphics/Program.h` — FrameBuffer struct eliminated, RenderPass absorbs FBOs (std::array<OpenGLFrameBuffer,2> + numBuffers), Compilation::render(Quad&) SSOT, Compilation::load accepts HashMap<ID,String>, renderImage self-contained + getOutputTextureID, setChannels sets iPostOpacity, postOpacity member on Compilation
+- `Source/graphics/Processor.h` — Compositor compositor{*this}, attach(Component&, Component&), extractShaderSources declaration
+- `Source/graphics/Processor.cpp` — extractShaderSources impl, compileShaders dispatches HashMap sources, postProcessingOpacity event, resizer trigger ignores width/height
+- `Source/end/EventRegistration.cpp` — processor.attach(*this, tabs)
+- `Source/graphics/wrapper.frag` — branchless iPostOpacity mix + scene alpha preservation via step/mix
+- `Source/graphics/output.frag` — premultiplied alpha (reverted iPremultiplied experiment)
+- `Source/Identifier.h` — postProcessingOpacity, iPostOpacity identifiers
+- `Source/config/lua/display.lua` — post_processing_opacity config parameter
+
+**JAM (3 files):**
+- `jam_lua/jam_lua_types.h` — Tag::integer (= 9) splits LUA_TNUMBER integer subtype
+- `jam_lua/jam_lua_stack.h` — checkType: lua_isinteger distinguishes 30/0xFF from 1.0
+- `jam_data_structures/model/jam_lua_value_tree.cpp` — toVar/toValidator/toCSV: Tag::number → double/Parameter<float>, Tag::integer → int64/Parameter<int64>
+- `jam_lua/jam_lua_object.h` — isNumber() accepts both Tag::number and Tag::integer
+
+### Alignment Check
+- [x] BLESSED principles followed — B: CachedImage lifecycle bound to Component (setCachedComponentImage), FBOs RAII via reset(). L: FrameBuffer struct eliminated, renderOutput inlined, SSOT methods. E: compilationIDs[] data-driven, getSize asserts positive, branchless wrapper. S(SSOT): single compileShaders, single renderTexture, single resizeBuffers, render() collapses 3 calls. S(Stateless): CachedImage renders fresh every frame. E(Encap): Compositor manages CachedImage internally, TETRIS contract preserved.
+- [x] NAMES.md adhered — renderPost (pairs with process), compileShaders, renderTexture, getSize, CachedImage, postOpacity, iPostOpacity
+- [x] MANIFESTO.md principles applied — JUCE CachedImage pattern followed verbatim, cool-retro-term alpha architecture validated (shader never touches alpha, infrastructure owns it)
+
+### Problems Solved
+- **Post-processing pipeline**: CachedImage on tabs intercepts component painting, composites background + components into scene FBO, post-processes via Compilation, outputs to JUCE's cachedImageFrameBuffer
+- **Double premultiplication**: output.frag premultiplied JUCE's already-premultiplied component data. Fixed by compositing background into componentCapture FIRST, then JUCE paints on top with correct blending
+- **FB0 double-render**: process() rendered background to FB0 even when post-processing was active, causing original colors to show through low-alpha post-processed scene. Fixed: skip FB0 blit when isPostProcessing()
+- **Float truncation**: Lua 1.0 stored as int64 → Parameter<int64> → 0.5 truncated to 0. Root cause: JAM's toVar checked isWhole, not Lua's type system. Fixed: Tag::integer via lua_isinteger — Lua 5.3 correctly distinguishes 1.0 (float) from 30 (integer)
+- **Alpha preservation**: post-processing shaders inverted alpha channel. Fixed: wrapper.frag preserves scene alpha via branchless mix, shader output alpha discarded for post-processing mode
+- **SSOT violations**: 9 DRY/coding-standard violations fixed — renderTexture, compileShaders, resizeBuffers collapsed; bail-out guards → positive nesting; pointer-to-reference round trips eliminated
+- **DEBT-20260623T212453**: Post-processing shaders now load on startup via refreshParameters → compileShaders event
+
+### Debts Paid
+- `DEBT-20260623T212453` — post-pro shaders not loading on startup; now load via refreshParameters event dispatch at GL context creation
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 43: Merge FrameBuffer into Compilation ✅
 
 **Date:** 2026-06-27

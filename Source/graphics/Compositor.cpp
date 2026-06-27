@@ -4,19 +4,92 @@ namespace graphics
 {
 /*____________________________________________________________________________*/
 
-void Compositor::attach (juce::OpenGLRenderer& renderer, juce::Component& component)
+Compositor::Compositor (juce::OpenGLRenderer& rendererRef)
+    : renderer (rendererRef)
+{
+}
+
+void Compositor::attach (juce::Component& view, juce::Component& cacheTarget)
 {
     context.setOpenGLVersionRequired (juce::OpenGLContext::openGL4_1);
     context.setMultisamplingEnabled (true);
     context.setRenderer (&renderer);
-    context.attachTo (component);
+    cacheTarget.setCachedComponentImage (new CachedImage (*this, cacheTarget));
+    context.attachTo (view);
 }
 
 void Compositor::detach() { context.detach(); }
 
 bool Compositor::isAttached() const noexcept { return context.isAttached(); }
 
-void Compositor::triggerRepaint() { context.triggerRepaint(); }
+bool Compositor::isPostProcessing() const noexcept
+{
+    return shaders.contains (ID::postProcessing)
+       and shaders.at (ID::postProcessing)->isCompiled();
+}
+
+void Compositor::renderPost (juce::Component& owner, juce::Graphics& g)
+{
+    using namespace ::juce::gl;
+
+    if (auto* component = context.getTargetComponent())
+    {
+        auto [screenWidth, screenHeight] = getSize (*component);
+        auto cachedFBO { juce::OpenGLFrameBuffer::getCurrentFrameBufferTarget() };
+
+        // 1. Composite background + components into componentCapture FBO
+        {
+            componentCapture.makeCurrentAndClear();
+
+            if (shaders.at (ID::background)->isCompiled())
+            {
+                glEnable (GL_BLEND);
+                glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+                renderTexture (ID::background, screenWidth, screenHeight);
+
+                glDisable (GL_BLEND);
+            }
+
+            // Components on top — JUCE paints with correct premultiplied blending
+            {
+                std::unique_ptr<juce::LowLevelGraphicsContext> captureContext (
+                    juce::createOpenGLGraphicsContext (context, componentCapture));
+                captureContext->addTransform (juce::AffineTransform::scale (
+                    static_cast<float> (context.getRenderingScale())));
+
+                juce::Graphics captureGraphics (*captureContext);
+                owner.paintEntireComponent (captureGraphics, false);
+            }
+
+            componentCapture.releaseAsRenderingTarget();
+        }
+
+        // 2. Post-process: feed composited scene to postProcess Compilation
+        shaders.at (ID::postProcessing)->sceneTexture = componentCapture.getTextureID();
+        shaders.at (ID::postProcessing)->render (*quad);
+
+        // 3. Output post-processed result to JUCE's cachedImageFrameBuffer
+        glBindFramebuffer (GL_FRAMEBUFFER, cachedFBO);
+
+        renderTexture (ID::postProcessing, screenWidth, screenHeight);
+
+        return;
+    }
+
+    owner.paintEntireComponent (g, false);
+}
+
+void Compositor::triggerRepaint()
+{
+    context.triggerRepaint();
+
+    if (isPostProcessing())
+    {
+        if (auto* comp = context.getTargetComponent())
+            comp->repaint();
+    }
+}
 
 //==============================================================================
 void Compositor::prepare()
@@ -26,153 +99,149 @@ void Compositor::prepare()
     outputProgram = createProgram (outputShader);
     jassert (outputProgram != nullptr);
 
-    if (auto* comp = context.getTargetComponent())
-    {
-        auto scale = context.getRenderingScale();
-        resizeBuffers (juce::roundToInt (comp->getWidth() * scale),
-                       juce::roundToInt (comp->getHeight() * scale));
-    }
+    for (auto& id : compilationIDs)
+        shaders.addOrReplace (id, std::make_unique<Compilation>());
+
+    shaders.at (ID::postProcessing)->uniform.opacity = 1.0f;
+    resizeBuffers();
 }
 
 void Compositor::process()
 {
-    auto* component { context.getTargetComponent() };
-    jassert (component != nullptr);
-
-    auto scale { static_cast<float> (context.getRenderingScale()) };
-    int screenWidth { juce::roundToInt (component->getWidth() * scale) };
-    int screenHeight { juce::roundToInt (component->getHeight() * scale) };
-
-    if (screenWidth <= 0 or screenHeight <= 0)
-        return;
-
-    if (background.isCompiled())
+    if (auto* component = context.getTargetComponent())
     {
-        background.uniform.advance();
-        background.renderBuffers (*quad);
-        background.renderImage (*quad);
+        auto [screenWidth, screenHeight] = getSize (*component);
+
+        if (shaders.at (ID::background)->isCompiled())
+            shaders.at (ID::background)->render (*quad);
+
+        juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
+
+        if (shaders.at (ID::background)->isCompiled() and not isPostProcessing())
+        {
+            juce::gl::glEnable (juce::gl::GL_BLEND);
+            juce::gl::glBlendFunc (juce::gl::GL_ONE, juce::gl::GL_ONE_MINUS_SRC_ALPHA);
+
+            renderTexture (ID::background, screenWidth, screenHeight);
+
+            juce::gl::glDisable (juce::gl::GL_BLEND);
+        }
+
+        // Components: JUCE paints via CachedImage after renderOpenGL returns.
     }
-
-    juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
-
-    if (background.isCompiled())
-        renderOutput (*quad, screenWidth, screenHeight);
-
-    // Components: JUCE paints via CachedImage after renderOpenGL returns.
 }
 
 void Compositor::reset()
 {
-    background.shutdown();
+    shaders.clear();
+    componentCapture.release();
     outputProgram.reset();
     quad.reset();
 }
 
 //==============================================================================
-void Compositor::loadShaders (const juce::ValueTree& shaderTree)
+void Compositor::compileShaders (const juce::Identifier& id,
+                                 const jam::HashMap<juce::Identifier, juce::String>& sources)
 {
-    context.executeOnGLThread (
-        [this, shaderTree] (juce::OpenGLContext&)
-        {
-            background.load (shaderTree,
-                             wrapper,
-                             placeholder,
-                             [this] (juce::StringRef source)
-                             {
-                                 return createProgram (source);
-                             });
+    auto* target { shaders.at (id).get() };
 
-            if (auto* comp = context.getTargetComponent())
-            {
-                auto scale = context.getRenderingScale();
-                resizeBuffers (juce::roundToInt (comp->getWidth() * scale),
-                               juce::roundToInt (comp->getHeight() * scale));
-            }
+    context.executeOnGLThread (
+        [this, target, sources] (juce::OpenGLContext&)
+        {
+            target->load (sources,
+                          wrapper,
+                          placeholder,
+                          [this] (juce::StringRef source)
+                          {
+                              return createProgram (source);
+                          });
+
+            resizeBuffers();
         },
         false);
 }
 
-void Compositor::resize (int width, int height)
+void Compositor::resize()
 {
     context.executeOnGLThread (
-        [this, width, height] (juce::OpenGLContext&)
-        {
-            auto scale = context.getRenderingScale();
-            resizeBuffers (juce::roundToInt (width * scale),
-                           juce::roundToInt (height * scale));
-        },
+        [this] (juce::OpenGLContext&) { resizeBuffers(); },
         false);
 }
 
-void Compositor::resizeBuffers (int screenWidth, int screenHeight)
+end::Size Compositor::getSize (const juce::Component& component) const
 {
-    background.resize (context, screenWidth, screenHeight);
+    auto scale { static_cast<float> (context.getRenderingScale()) };
+    end::Size size { component.getWidth() * scale,
+                     component.getHeight() * scale };
+    auto [w, h] = size;
+    jassert (w > 0 and h > 0);
+    return size;
+}
+
+void Compositor::resizeBuffers()
+{
+    if (auto* comp = context.getTargetComponent())
+    {
+        auto [w, h] = getSize (*comp);
+
+        for (auto& [id, compilation] : shaders)
+            compilation->resize (context, w, h);
+
+        componentCapture.initialise (context, w, h);
+    }
 }
 
 //==============================================================================
-void Compositor::setOpacity (float value) { background.uniform.opacity = value; }
-void Compositor::setTextureFilter (GLenum value) { background.uniform.textureFilter = value; }
+void Compositor::setOpacity (float value) { shaders.at (ID::background)->uniform.opacity = value; }
+void Compositor::setPostOpacity (float value)
+{
+    shaders.at (ID::postProcessing)->postOpacity = value;
+}
+void Compositor::setTextureFilter (GLenum value) { shaders.at (ID::background)->uniform.textureFilter = value; }
 
 void Compositor::setResolutionScale (float value)
 {
-    background.uniform.resolutionScale = value;
-
-    context.executeOnGLThread (
-        [this] (juce::OpenGLContext&)
-        {
-            if (auto* comp = context.getTargetComponent())
-            {
-                auto scale = context.getRenderingScale();
-                resizeBuffers (juce::roundToInt (comp->getWidth() * scale),
-                               juce::roundToInt (comp->getHeight() * scale));
-            }
-        },
-        false);
+    shaders.at (ID::background)->uniform.resolutionScale = value;
+    resize();
 }
 
 void Compositor::setFrameRate (int fps)
 {
-    background.uniform.setFrameRate (fps);
+    for (auto& [id, compilation] : shaders)
+        compilation->uniform.setFrameRate (fps);
 }
 
 //==============================================================================
 std::unique_ptr<juce::OpenGLShaderProgram> Compositor::createProgram (juce::StringRef shaderSource)
 {
-    auto p { std::make_unique<juce::OpenGLShaderProgram> (context) };
-
-    if (p->addVertexShader (screenQuad) and p->addFragmentShader (shaderSource) and p->link())
+    if (auto p { std::make_unique<juce::OpenGLShaderProgram> (context) })
     {
-        return p;
-    }
+        if (p->addVertexShader (screenQuad) and p->addFragmentShader (shaderSource) and p->link())
+            return p;
 
-    if (reportError)
-        reportError (p->getLastError());
+        if (reportError)
+            reportError (p->getLastError());
+    }
 
     return nullptr;
 }
 
-void Compositor::renderOutput (Quad& quad, int screenWidth, int screenHeight)
+void Compositor::renderTexture (const juce::Identifier& id, int width, int height)
 {
     using namespace ::juce::gl;
 
-    jassert (outputProgram != nullptr);
-
-    glViewport (0, 0, screenWidth, screenHeight);
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
+    glViewport (0, 0, width, height);
     outputProgram->use();
-    outputProgram->setUniform (IDref::iOpacity, background.uniform.opacity);
+    outputProgram->setUniform (IDref::iOpacity, shaders.at (id)->uniform.opacity);
 
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, background.getOutputTextureID());
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, background.uniform.textureFilter);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, background.uniform.textureFilter);
+    glBindTexture (GL_TEXTURE_2D, shaders.at (id)->getOutputTextureID());
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, shaders.at (id)->uniform.textureFilter);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, shaders.at (id)->uniform.textureFilter);
     outputProgram->setUniform (IDref::outputTexture, 0);
-    quad.draw();
+    quad->draw();
 
     glBindTexture (GL_TEXTURE_2D, 0);
-    glDisable (GL_BLEND);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
