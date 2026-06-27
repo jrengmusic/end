@@ -2,6 +2,51 @@
 
 ---
 
+## Sprint 45: jam::OpenGL Isomorphic Abstraction + END Consumer Migration ✅
+
+**Date:** 2026-06-28
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: architecture design (isomorphic abstraction analysis, Compositor/Program vs glyph pattern comparison, virtual getter design, BLESSED alignment), plan
+- Pathfinder (x3): JAM module structure survey, END GL abstraction extraction analysis, current codebase state survey
+- Engineer (x6): GL identifiers in jam_core, jam_opengl module creation (6 files), file moves to opengl/ subdirectory, Program.h Quad/RenderPass deletion + Compilation inheritance, Compositor jam::OpenGL::createProgram + Quad migration, Compilation thin consumer refactor
+- Librarian: (implicit via Pathfinder JAM survey)
+
+### Files Modified (9 total)
+
+**JAM (3 files):**
+- `jam_core/identifier/jam_identifier_gl.h` — created: IDENTIFIER_GL X-macro (uViewportSize, uOffset, uAtlas)
+- `jam_core/identifier/jam_identifier.h` — added jam_identifier_gl.h include + IDENTIFIER_GL to MAKE_VIEW
+- `jam_graphics/opengl/jam_opengl.h` — created: `struct OpenGL` with nested Quad (RAII VAO+VBO, getScreen/getUnit factories, draw/drawInstanced), RenderPass\<numBuffers\> (template FBO pair, ping-pong), Compilation (concrete base: virtual getters for shaderMap/channelMap/commonKey/wrapper/placeholder, owns passes HashMap, load() compiles from source map, shutdown/isCompiled concrete, render/resize pure virtual), createProgram (factory, FunctionType template with nullptr default)
+
+**END (6 files):**
+- `Source/graphics/Program.h` — Quad struct deleted (→ jam::OpenGL::Quad). RenderPass struct deleted (→ jam::OpenGL::RenderPass\<2\>). Compilation inherits jam::OpenGL::Compilation: overrides getShaderMap (file::Shaders), getChannelMap (file::BufferChannel), getWrapper (BinaryData wrapper.frag). Removed passes map, load(), shutdown(), isCompiled() — all inherited from base. setChannels updated to use getChannelMap()/getShaderMap() instead of direct Bimap access.
+- `Source/graphics/Compositor.h` — quad member → unique_ptr\<jam::OpenGL::Quad\>. createProgram declaration deleted. wrapper/placeholder static members removed (moved to Compilation virtual getters).
+- `Source/graphics/Compositor.cpp` — Quad::getScreen() factory. jam::OpenGL::createProgram replaces local createProgram method (deleted). load() call simplified to 2 args (sources + factory lambda). outputProgram creation via jam::OpenGL::createProgram with error callback.
+- `Source/graphics/Processor.h` — no change (Compositor type change transparent)
+- `Source/graphics/Processor.cpp` — no change (load/compileShaders call chain unchanged)
+- `Source/terminal/View.h` — CodeView rendering disabled: removed addAndMakeVisible(CodeView), feedDummyText(), makeLine(). Session reference + stub infrastructure kept. Fixes GL_INVALID_VALUE assert from glyph GL state pollution in CachedImage paint path.
+
+### Alignment Check
+- [x] BLESSED principles followed — B: RAII Quad (VAO/VBO in destructor, move-only), RenderPass FBOs via JUCE RAII. L: Program.h ~100 lines lighter, single-header OpenGL struct. E: virtual getters declare contract, static factories (getScreen/getUnit), FunctionType template param. S(SSOT): Quad/RenderPass/createProgram defined once in JAM, consumed by END. S(Stateless): no `ready` booleans, construction = ready, virtual getters read live data. E(Encap): raw GL hidden in Quad constructor/destructor, base handles load() compilation logic.
+- [x] NAMES.md adhered — getScreen/getUnit (verb prefix for factories), FunctionType (descriptive template param, matches codebase pattern), shaderMap/channelMap (semantic names), OpenGL (struct namespace)
+- [x] MANIFESTO.md principles applied — isomorphic abstraction: same flow (compile → configure → render), different data. Both Shadertoy and glyph pipelines consume same building blocks.
+
+### Problems Solved
+- **GL_INVALID_VALUE assert**: CodeView rendering disabled in terminal::View — glyph GL state pollution in CachedImage paint path no longer reachable
+- **Isomorphic GL abstraction**: jam::OpenGL provides BLESSED building blocks (Quad, RenderPass, Compilation, createProgram) shared by both END's Shadertoy pipeline and future glyph pipeline rewrite
+- **END consumer migration**: Program.h Quad/RenderPass deleted, Compilation inherits base with virtual getters, Compositor uses jam::OpenGL::createProgram — END is now a thin consumer of JAM GL types
+- **Compilation concrete base**: virtual getters (getShaderMap/getChannelMap pure virtual, getCommonKey/getWrapper/getPlaceholder with defaults), load() internal with Map::containsValue validation, shutdown/isCompiled concrete
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 44: Post-Processing Pipeline + CachedImage + SSOT Refactors ✅
 
 **Date:** 2026-06-27

@@ -130,185 +130,59 @@ struct Uniform
 };
 
 //==============================================================================
-/** @brief A compiled shader pass — GL program with direct FBO management.
+/** @brief END Shadertoy pipeline — thin consumer of jam::OpenGL::Compilation.
  *
- *  Buffer passes (BufferA-D) use two FBOs for ping-pong rendering (numBuffers = 2).
- *  Image pass uses one FBO as output target (numBuffers = 1).
- *  readBuffer() is the current read source, writeBuffer() is the current render target.
- *  Call swap() after each buffer pass to advance the ping-pong pair.
- */
-struct RenderPass
-{
-    std::unique_ptr<juce::OpenGLShaderProgram> program;
-    std::array<juce::OpenGLFrameBuffer, 2> fbos;
-    int numBuffers { 0 };
-    int readIndex { 0 };
-
-    RenderPass() = default;
-    ~RenderPass() = default;
-
-    /** @brief Returns the current read FBO. */
-    juce::OpenGLFrameBuffer& readBuffer() { return fbos.at (static_cast<size_t> (readIndex)); }
-
-    /** @brief Returns the current read FBO (const). */
-    const juce::OpenGLFrameBuffer& readBuffer() const { return fbos.at (static_cast<size_t> (readIndex)); }
-
-    /** @brief Returns the current write FBO — the render target for ping-pong passes. */
-    juce::OpenGLFrameBuffer& writeBuffer() { return fbos.at (static_cast<size_t> (readIndex ^ 1)); }
-
-    /** @brief Swaps read and write FBOs by toggling readIndex. */
-    void swap() noexcept { readIndex ^= 1; }
-
-    /** @brief Initialises and clears FBOs at the given dimensions.
-     *  @param context  Active GL context.
-     *  @param w        Width in pixels.
-     *  @param h        Height in pixels.
-     */
-    void resize (juce::OpenGLContext& context, int w, int h)
-    {
-        for (int i { 0 }; i < numBuffers; ++i)
-        {
-            fbos.at (static_cast<size_t> (i)).initialise (context, w, h);
-            fbos.at (static_cast<size_t> (i)).makeCurrentAndClear();
-            fbos.at (static_cast<size_t> (i)).releaseAsRenderingTarget();
-        }
-    }
-
-    /** @brief Releases all initialised FBOs. GL thread only. */
-    void release()
-    {
-        for (int i { 0 }; i < numBuffers; ++i)
-            fbos.at (static_cast<size_t> (i)).release();
-    }
-
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RenderPass)
-};
-
-//==============================================================================
-/** @brief Fullscreen triangle strip — VAO + VBO for shader rendering. RAII. */
-struct Quad
-{
-    Quad()
-    {
-        using namespace ::juce::gl;
-
-        glGenVertexArrays (1, &vao);
-        glBindVertexArray (vao);
-
-        glGenBuffers (1, &vbo);
-        glBindBuffer (GL_ARRAY_BUFFER, vbo);
-
-        static constexpr float vertices[] { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
-        glBufferData (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer (0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-        glEnableVertexAttribArray (0);
-
-        glBindVertexArray (0);
-    }
-
-    ~Quad()
-    {
-        using namespace ::juce::gl;
-
-        glDeleteBuffers (1, &vbo);
-        glDeleteVertexArrays (1, &vao);
-    }
-
-    void draw() const noexcept
-    {
-        using namespace ::juce::gl;
-
-        glBindVertexArray (vao);
-        glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-        glBindVertexArray (0);
-    }
-
-    GLuint vao { 0 };
-    GLuint vbo { 0 };
-
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Quad)
-};
-
-//==============================================================================
-/** @brief Compiled multi-pass Shadertoy pipeline — passes, uniform state, load/render/resize.
+ *  Delegates compilation, pass management, and lifecycle to the base class.
+ *  Supplies END-specific configuration via virtual getter overrides
+ *  (getShaderMap, getChannelMap, getCommonKey, getWrapper, getPlaceholder).
+ *  Implements render() with Uniform-driven per-frame state:
+ *  advance() → renderBuffers() → renderImage().
  *
- *  Encapsulates a complete Shadertoy-compatible shader set: BufferA-D intermediate
- *  passes and an Image output pass. Each pass is compiled from GLSL source,
- *  stored in the passes map as a RenderPass, and rendered in HashMap insertion order.
- *  Each Compilation is a self-contained pipeline stage — owns its output via the Image pass FBO.
+ *  Buffer passes (BufferA-D) ping-pong via swap(). Image pass renders into
+ *  its own FBO — output accessible via getOutputTextureID().
  *
  *  @par Thread contract
  *  All methods must be called on the **GL THREAD** (via OpenGLRenderer callbacks
  *  or executeOnGLThread).
  */
-struct Compilation
+struct Compilation : jam::OpenGL::Compilation
 {
     Compilation() = default;
-    ~Compilation() = default;
 
-    jam::HashMap<juce::Identifier, std::unique_ptr<RenderPass>> passes;
     Uniform uniform;
 
-    /** @brief Compiles shader passes from a source map.
-     *
-     *  Clears existing passes, iterates @p sources, compiles each non-Common
-     *  pass via @p createProgram, and stores the resulting Pass in the map.
-     *  Buffer passes (non-Image) get FBO pairs emplaced for ping-pong rendering.
-     *
-     *  @param sources        Pass sources keyed by Identifier (Image, BufferA, etc.). Common source included under ID::common.
-     *  @param wrapper        Wrapper fragment shader template with placeholder.
-     *  @param placeholder    Placeholder string replaced by user source in wrapper.
-     *  @param createProgram  Factory callable: (StringRef source) -> unique_ptr<OpenGLShaderProgram>.
-     */
-    template<typename F>
-    void load (const jam::HashMap<juce::Identifier, juce::String>& sources,
-               const juce::String& wrapper,
-               const juce::String& placeholder,
-               F&& createProgram)
+    //==============================================================================
+    // Virtual getter overrides — supply END configuration to base class load()
+
+    /** @brief Returns the Shadertoy pass name registry (pass key → pass name). */
+    const jam::HashMap<int, juce::String>& getShaderMap() const override
     {
-        passes.clear();
-
-        juce::String common;
-        if (sources.contains (ID::common))
-            common = sources.at (ID::common);
-
-        for (auto& [id, source] : sources)
-        {
-            if (id != ID::common and file::Shaders::getInstance()->contains (id.toString()))
-            {
-                if (auto code { source }; code.isNotEmpty())
-                {
-                    if (common.isNotEmpty())
-                        code = jam::Format::prependNewLine (code, common);
-
-                    code = jam::Format::replaceholder (wrapper, placeholder, code);
-
-                    if (auto p { createProgram (code) })
-                    {
-                        auto pass { std::make_unique<RenderPass>() };
-                        pass->program = std::move (p);
-
-                        pass->numBuffers = (id != ID::image) ? 2 : 1;
-
-                        passes.addOrReplace (id, std::move (pass));
-                    }
-                }
-            }
-        }
+        return file::Shaders::get();
     }
 
+    /** @brief Returns the channel binding map (buffer key → sampler uniform name). */
+    const jam::HashMap<int, juce::String>& getChannelMap() const override
+    {
+        return file::BufferChannel::get();
+    }
+
+    /** @brief Returns the wrapper fragment shader template. */
+    const juce::String& getWrapper() const override
+    {
+        static const juce::String source { BinaryData::getString ("wrapper.frag") };
+        return source;
+    }
+
+    //==============================================================================
     /** @brief Renders all buffer passes (BufferA-D) at the configured resolution.
      *
      *  Iterates passes with buffer in HashMap insertion order. Each pass
      *  renders into its writeBuffer FBO, then swaps the ping-pong index.
-     *  Image pass (no buffer) is skipped.
+     *  Image pass is skipped.
      *
      *  @param quad  Fullscreen quad for drawing.
      */
-    void renderBuffers (Quad& quad)
+    void renderBuffers (jam::OpenGL::Quad& quad)
     {
         using namespace ::juce::gl;
 
@@ -339,7 +213,7 @@ struct Compilation
      *
      *  @param quad    Fullscreen quad for drawing.
      */
-    void renderImage (Quad& quad)
+    void renderImage (jam::OpenGL::Quad& quad)
     {
         using namespace ::juce::gl;
 
@@ -365,7 +239,7 @@ struct Compilation
     /** @brief Advances uniforms and renders all passes (buffers + image). GL thread only.
      *  @param quad  Fullscreen quad for drawing.
      */
-    void render (Quad& quad)
+    void render (jam::OpenGL::Quad& quad) override
     {
         uniform.advance();
         renderBuffers (quad);
@@ -384,9 +258,9 @@ struct Compilation
 
     /** @brief Binds buffer pass read textures to iChannel sampler uniforms.
      *
-     *  Iterates file::BufferChannel bimap, binding each existing buffer pass's
-     *  read FBO texture to the corresponding GL texture unit (0-3) and setting
-     *  the iChannel uniform.
+     *  Iterates getChannelMap(), binding each existing buffer pass's read FBO
+     *  texture to the corresponding GL texture unit (0-3) and setting the
+     *  iChannel uniform. Buffer passes are identified by passId != ID::image.
      *
      *  @param program  The active GL program (must be use()'d first).
      */
@@ -394,11 +268,11 @@ struct Compilation
     {
         using namespace ::juce::gl;
 
-        for (auto& [id, channelName] : file::BufferChannel::get())
+        for (auto& [id, channelName] : getChannelMap())
         {
-            juce::Identifier passId { file::Shaders::get().at (id) };
+            juce::Identifier passId { getShaderMap().at (id) };
 
-            if (passes.contains (passId) and passes.at (passId)->numBuffers > 1)
+            if (passes.contains (passId) and passId != ID::image)
             {
                 glActiveTexture (GL_TEXTURE0 + id);
                 glBindTexture (GL_TEXTURE_2D, passes.at (passId)->readBuffer().getTextureID());
@@ -410,13 +284,13 @@ struct Compilation
 
         if (sceneTexture != 0)
         {
-            const int unit { static_cast<int> (file::BufferChannel::get().size()) };
+            const int unit { static_cast<int> (getChannelMap().size()) };
             glActiveTexture (GL_TEXTURE0 + unit);
             glBindTexture (GL_TEXTURE_2D, sceneTexture);
             glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, uniform.textureFilter);
             glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, uniform.textureFilter);
             program.setUniform (IDref::iScene, unit);
-            program.setUniform (IDref::iPostOpacity, postOpacity);
+            program.setUniform (IDref::iPostOpacity, -1.0f);
         }
         else
         {
@@ -434,7 +308,7 @@ struct Compilation
      *  @param w        Screen width in pixels.
      *  @param h        Screen height in pixels.
      */
-    void resize (juce::OpenGLContext& context, int w, int h)
+    void resize (juce::OpenGLContext& context, int w, int h) override
     {
         uniform.resize (w, h);
         auto [bw, bh] = uniform.getSize();
@@ -443,12 +317,7 @@ struct Compilation
             pass->resize (context, bw, bh);
     }
 
-    /** @brief Destroys all passes. */
-    void shutdown() { passes.clear(); }
-
-    /** @brief Returns true if the shader pipeline has been compiled (at least one pass loaded). */
-    bool isCompiled() const noexcept { return passes.size() > 0; }
-
+    //==============================================================================
     /** @brief GL texture ID for the composited scene (post-processing input). 0 = inactive (background). */
     GLuint sceneTexture { 0 };
 

@@ -94,9 +94,14 @@ void Compositor::triggerRepaint()
 //==============================================================================
 void Compositor::prepare()
 {
-    quad = std::make_unique<Quad>();
+    quad = std::make_unique<jam::OpenGL::Quad> (jam::OpenGL::Quad::getScreen());
 
-    outputProgram = createProgram (outputShader);
+    outputProgram = jam::OpenGL::createProgram (context, screenQuad, outputShader,
+        [this] (const juce::String& msg)
+        {
+            if (reportError)
+                reportError (msg);
+        });
     jassert (outputProgram != nullptr);
 
     for (auto& id : compilationIDs)
@@ -149,11 +154,14 @@ void Compositor::compileShaders (const juce::Identifier& id,
         [this, target, sources] (juce::OpenGLContext&)
         {
             target->load (sources,
-                          wrapper,
-                          placeholder,
                           [this] (juce::StringRef source)
                           {
-                              return createProgram (source);
+                              return jam::OpenGL::createProgram (context, screenQuad, source,
+                                  [this] (const juce::String& msg)
+                                  {
+                                      if (reportError)
+                                          reportError (msg);
+                                  });
                           });
 
             resizeBuffers();
@@ -209,21 +217,6 @@ void Compositor::setFrameRate (int fps)
 {
     for (auto& [id, compilation] : shaders)
         compilation->uniform.setFrameRate (fps);
-}
-
-//==============================================================================
-std::unique_ptr<juce::OpenGLShaderProgram> Compositor::createProgram (juce::StringRef shaderSource)
-{
-    if (auto p { std::make_unique<juce::OpenGLShaderProgram> (context) })
-    {
-        if (p->addVertexShader (screenQuad) and p->addFragmentShader (shaderSource) and p->link())
-            return p;
-
-        if (reportError)
-            reportError (p->getLastError());
-    }
-
-    return nullptr;
 }
 
 void Compositor::renderTexture (const juce::Identifier& id, int width, int height)

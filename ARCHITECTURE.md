@@ -2,9 +2,9 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — parameter system, multi-pass shader pipeline (BufferA-D + Image), and FBO resize implemented. Terminal pipeline pre-implementation.
+**Status:** ACTIVE — MVP pattern formalized, Phase 3 terminal stubs (Processor, View, Nexus). Shader pipeline complete. Terminal pipeline pre-implementation.
 
-**Last Updated:** 2026-06-21
+**Last Updated:** 2026-06-27
 
 ---
 
@@ -26,15 +26,17 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
     |
     v
  Session Host (Nexus)
-    — owns terminal::Controller instances; manages lifecycle
+    — owns terminal::Session instances; manages lifecycle
     |
     v
- Terminal / Controller (terminal::Controller)
-    — owns Model, Processor, CodeModel, CodeView; the AudioProcessor analog
+ Terminal / Session (terminal::Session)
+    — DAW host per terminal instance. Owns CodeModel (document buffer)
+      and Processor (engine). Phase 4: also owns terminal::Model and Resizer.
     |
     v
- Terminal / Logic (terminal::Processor → Video → Buffer<Row>)
-    — reader thread; writes atomics on terminal::Model, pushes CellFifo
+ Terminal / Processor (terminal::Processor)
+    — AudioProcessor analog. Reader thread pipeline (Video → Buffer<Row> → CellFifo).
+      Reader thread writes atomics on terminal::Model.
     |
     v
  Terminal / Model (terminal::Model)
@@ -43,7 +45,7 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
     v
  Terminal / View (terminal::View)
     — message thread; listens on terminal::Model + config::Model;
-      parents CodeView; calls Controller::drain() on screenDirty
+      parents CodeView; calls Session::drain() on screenDirty
     |
     v
  Terminal / TTY (jam_terminal, platform)
@@ -76,7 +78,7 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 - The **reader thread NEVER touches CodeModel.** The boundary is CellFifo.
 - The **message thread NEVER writes atomics** (except during timer flush).
 - The **GL thread NEVER writes** ValueTree or CodeModel.
-- `Controller::drain()` runs on the **message thread ONLY.**
+- `Session::drain()` runs on the **message thread ONLY.**
 - Violation of any of these is a **B violation** (BLESSED Bound — thread binding).
 
 ### Parameter Access by Thread
@@ -104,7 +106,7 @@ High-volume (25,000+ cells at 5K fullscreen), consumed by render path.
 
 ```
 READER → Video writes Buffer<Row> → CellFifo push (drop-oldest SPSC)
-MESSAGE → Controller::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
+MESSAGE → terminal::View calls Session::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
 ```
 
 **Buffer\<Row\>** is Video's scratch surface — dual channel (normal + alternate), destroyed on resize. It is NOT the document. NOT the SSOT. NOT persistent.
@@ -130,7 +132,7 @@ Keystroke → Message Thread → TTY::write()
          → Timer flush (60/120 Hz) on Message Thread
          → terminal::Model flushes dirty atomics to ValueTree
          → terminal::View::valueTreePropertyChanged()
-            → calls Controller::drain()
+            → terminal::View calls drain on Session
             → CellFifo drained into CodeModel
             → CodeView::calc() → repaint
          → JUCE composites component paint through GL context when GPU renderer active
@@ -156,17 +158,17 @@ END does NOT use the terminal scanline model. See SPEC.md Section 1.0 for the fu
 
 Two independent resize paths — shader FBO and terminal grid:
 
-### Shader FBO Resize (shader::Controller)
+### Shader FBO Resize (graphics::Processor)
 
 - `end::View::resized()` → packs `end::Size` → writes ID::size as single int to view state
-- `Parameter<int>` adapter fires `parameterChanged(ID::size)` → Controller event dispatches
+- `Parameter<int>` adapter fires `parameterChanged(ID::size)` → Processor event dispatches
 - Event unpacks `end::Size`, calls `resizer.set()` → `jam::Resizer` coalesces (16ms timer)
 - Resizer stop trigger → `executeOnGLThread` → re-initialise FBO pair for each buffer pass at scaled dims
 
-### Terminal Grid Resize (terminal::Controller)
+### Terminal Grid Resize (terminal::Processor)
 
 - `terminal::View::resized()` → writes new pixel dimensions
-- `Controller` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
+- `Processor` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
 - Resizer start trigger → `Processor::suspendProcessing(true)` → `Processor::prepare()` (resizes Video grid only) → `Processor::suspendProcessing(false)`
 - `prepare()` resizes Buffer\<Row\> only. CellFifo untouched. CodeModel untouched. CodeView untouched.
 - CodeView re-wraps at new width on next paint via `getWrappedLines(viewWidth)`
@@ -181,10 +183,10 @@ Two independent resize paths — shader FBO and terminal grid:
 When `screenDirty` fires on terminal::Model's ValueTree:
 
 1. terminal::View's `valueTreePropertyChanged` fires.
-2. View calls `Controller::drain()`.
-3. Controller drains **history ring** — permanently appends departed scrollback lines to CodeModel.
-4. Controller drains **active ring** — removes previous live tail (`liveTailExtent[screen]` rows from end), lays down new active rows as the live tail, stores drained count as new `liveTailExtent`.
-5. Controller calls `CodeView::calc()`.
+2. View calls `Session::drain()`.
+3. Session drains **history ring** — permanently appends departed scrollback lines to CodeModel.
+4. Session drains **active ring** — removes previous live tail (`liveTailExtent[screen]` rows from end), lays down new active rows as the live tail, stores drained count as new `liveTailExtent`.
+5. View calls `CodeView::calc()`.
 6. CodeView repaints.
 
 **Invariant:** history ring rows and active ring rows must NOT overlap by row index. A row enters history OR active, never both in the same tick. Violation produces content doubling.
@@ -220,7 +222,7 @@ jam::Model is a 1:1 APVTS analog for multi-type parameters. Key contracts:
 - **createAndAddParameter\<T\>** — creates typed Parameter (int, float, int64_t, ParameterText) in AnyMap, seeds VT property, registers ParameterAdapter. Parameters live on Model forever.
 - **ParameterAdapter** (cpp-internal) — bridges Parameter↔VT. Bidirectional: atomic→VT (flush timer), VT→atomic (valueTreePropertyChanged reverse sync). Loopback-guarded, equality-gated.
 - **ParameterAttachment** (public) — per-parameter listener bridge. Takes ParameterBase& + callback. Delivers changes on MESSAGE THREAD via AsyncUpdater. Does NOT create/destroy parameters.
-- **Model::Listener::parameterChanged** — fires on the calling thread when parameter value changes. Controller, View, and other listeners receive parameter events through this.
+- **Model::Listener::parameterChanged** — fires on the calling thread when parameter value changes. Processor, View, and other listeners receive parameter events through this.
 - **Flush timer** — 10 Hz. Iterates adapters, writes dirty atomics to VT properties.
 
 ### Packed Value Transport — end::Size
@@ -235,9 +237,9 @@ This pattern avoids separate width/height parameters that would fire two events 
 
 ---
 
-## Shader Pipeline — shader::Controller
+## Shader Pipeline — graphics::Processor
 
-shader::Controller owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
+graphics::Processor owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
 Renders multi-pass Shadertoy pipeline: buffer passes (BufferA-D) to ping-pong FBOs, then Image to screen.
 All passes receive Shadertoy-compatible uniforms (iResolution, iTime, iTimeDelta, iFrame) and iChannel0-3 samplers.
 
@@ -281,7 +283,7 @@ config::Model::loadFromPath()
   → pre-creates ParameterText for all bimap entries (Common through Image)
   → shader.load() reads files, calls param->setValue(source) for existing files
   → ParameterAdapter fires parameterChanged (ID::background) once per reload
-  → Controller events map dispatches loadShaders (single trigger — not per pass)
+  → Processor events map dispatches loadShaders (single trigger — not per pass)
   → executeOnGLThread: programs.clear(), read ParameterText atomics, compile, store Pass
   → resize() updates Uniform viewport + initialises FBO pairs at scaled dims
 ```
@@ -296,7 +298,7 @@ must read the atomic directly to get the current value.
 View::resized()
   → setViewState() packs end::Size, writes ID::size to VT
   → Parameter<int> adapter fires parameterChanged (ID::size)
-  → Controller events map dispatches ID::size event
+  → Processor events map dispatches ID::size event
   → event unpacks end::Size, calls resizer.set (IDtype::view, w, h)
   → jam::Resizer coalesces (16ms timer)
   → stop trigger: executeOnGLThread → resize (scaledW, scaledH)
@@ -366,18 +368,18 @@ the parameter atomic (`ParameterText::getValue()`, `Parameter<T>::get()`) —
 never from VT properties. VT properties lag behind the atomic by one flush
 tick. The GL thread cannot wait for flush; it reads the atomic directly.
 This applies to loadShaders, resize, and any future GL-thread parameter
-consumers. shader::Controller's entire execution surface is the GL thread;
-all parameter reads in Controller use atomics.
+consumers. graphics::Processor's entire execution surface is the GL thread;
+all parameter reads in Processor use atomics.
 
 ### Event → Setter → Trigger Pattern
 
-Controller follows the KANJUT event/trigger pattern:
+Processor follows the KANJUT event/trigger pattern:
 
 - **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. Lambdas receive `const juce::var& newValue` directly — no re-read from VT or atomic.
   - `ID::background` → `loadShaders()`. Config file watcher coalesces reload notifications: one `background` property change = one full recompile across all passes. `loadShaders` reads all pass sources from ParameterText atomics (GL-safe).
   - `ID::size` → unpack `end::Size` from `newValue`, call `resizer.set()` with width and height.
 - **Resizer** — trigger mechanism. `set()` coalesces via timer, fires "stop" trigger with final dimensions.
-- **parameterChanged** is the single dispatch point. Controller listens on both config::Model (`ID::background`) and end::Model (`ID::size`).
+- **parameterChanged** is the single dispatch point. Processor listens on both config::Model (`ID::background`) and end::Model (`ID::size`).
 
 ---
 
@@ -388,7 +390,7 @@ MessageOverlay inherits `jam::Model::Component` (IDtype::overlay) + `juce::Timer
 - **registerParameters()** creates ParameterText for ID::message + ParameterAttachment with showMessage callback.
 - **Writers** call `end::Model::setMessage(text)` → retrieves ParameterText → setValue (any thread, lock-free).
 - **Delivery:** ParameterAttachment delivers to showMessage on MESSAGE THREAD via AsyncUpdater.
-- Called from config::Model (load success/error) and shader::Controller (compile errors).
+- Called from config::Model (load success/error) and graphics::Processor (compile errors).
 
 ---
 
@@ -414,7 +416,7 @@ Config-derived values for the reader thread (cellWidth, cellHeight, scrollbackLi
 | Space | Coordinates | Owner |
 |---|---|---|
 | **Video-grid** | `(gridRow, gridCol)`, viewport-bounded | Video (reader thread), packed into terminal::Model |
-| **Document** | `(lineIndex, col)` over CodeModel lines | CodeModel (owned by Controller) |
+| **Document** | `(lineIndex, col)` over CodeModel lines | CodeModel (owned by Session) |
 | **Screen/pixel** | wrapped projection via `getWrappedLines(viewWidth)` | CodeView |
 
 ### Conversion Authority — HARD RULE
@@ -424,10 +426,10 @@ Config-derived values for the reader thread (cellWidth, cellHeight, scrollbackLi
 | Translation | Owner | Mechanism |
 |---|---|---|
 | pixel <-> cell | `jam::Cell` | `Cell::Point::fromPixel` / `toPixel` |
-| Video-grid -> document cell-row | Controller | cell-space row arithmetic via `liveTailExtent` |
+| Video-grid -> document cell-row | Session | cell-space row arithmetic via `liveTailExtent` |
 | document -> screen/pixel | CodeView | the wrapped projection (`getWrappedLines`) |
 
-CodeView never sees a Video-grid coordinate. Controller translates at the boundary.
+CodeView never sees a Video-grid coordinate. Session translates at the boundary.
 
 ---
 
@@ -435,9 +437,9 @@ CodeView never sees a Video-grid coordinate. Controller translates at the bounda
 
 | JUCE Audio Plugin | END |
 |---|---|
-| Host (DAW) | `Nexus` |
-| AudioProcessor | `terminal::Controller` |
-| ProcessorChain | `terminal::Processor` |
+| Host (DAW) | `terminal::Session` (per-instance host) |
+| Session Manager | `Nexus` (owns all Sessions) |
+| AudioProcessor | `terminal::Processor` |
 | APVTS | `jam::Model` (terminal::Model, end::Model, config::Model) |
 | APVTS::Listener | `jam::Model::Listener` |
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
@@ -446,15 +448,36 @@ CodeView never sees a Video-grid coordinate. Controller translates at the bounda
 | SpectrumFIFO | `CellFifo` |
 | SpectrumProcessor::outputDB | `CodeModel` |
 
-The View is detachable. Controller survives View destruction (daemon mode).
+The View is detachable. Session (and its Processor) survives View destruction (daemon mode).
 
 ---
 
-## META-MVC
+## META-MVP (Model - View - Processor)
 
-Model-View-Controller is not three god objects — it is a recursive pattern where each layer is itself an MVC triad. See SPEC.md Section 2 for the full hierarchy.
+Model-View-Processor is not three god objects — it is a recursive pattern where each layer is itself an MVP triad. See SPEC.md Section 2 for the full hierarchy.
 
-Every View at one level is a Controller at the level below. Each layer carries its own Model node. All runtime Model nodes attach to end::Model. All config is on config::Model.
+Every View at one level is the presentation surface at the level below. Each layer carries its own Model node. All runtime Model nodes attach to end::Model. All config is on config::Model.
+
+### The Pattern
+
+| JUCE Plugin | END | Role |
+|---|---|---|
+| APVTS | Model (jam::Model) | State bridge — atomics ↔ ValueTree |
+| PluginProcessor | Processor | Authority — owns pipeline, output, state. Persists. |
+| PluginEditor | View | Display — message thread, detachable |
+
+### Hierarchy
+
+```
+Application:  end::Model      — end::View      — graphics::Processor (GL thread)
+Terminal:     terminal::Model  — terminal::View  — terminal::Processor (reader thread)
+```
+
+- **graphics::Processor** — GL thread orchestrator: shaders, FBOs, render loop
+- **terminal::Processor** — reader thread orchestrator: Parser, Video, CellFifo, TTY.
+- **terminal::Session** — DAW host per terminal instance. Owns CodeModel (document buffer) and Processor (engine).
+- **View** — message thread: parents CodeView, calls drain(), owns Font. Detachable — Session persists without View (daemon mode).
+- **Nexus** — Session manager. Owns all terminal::Session instances. Instance<Nexus> singleton.
 
 ---
 

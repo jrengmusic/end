@@ -32,6 +32,8 @@ void Tabs::addNewTab()
 
     attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
 
+    panes->createPane (uuid);
+
     // State is parented in model tree after Attachment — VTPC now fires on setProperty.
     panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
 

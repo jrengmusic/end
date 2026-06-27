@@ -6,13 +6,13 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 40 — Full-Scene Post-Processing Pipeline ✅ (2026-06-24)
+- **Last sprint:** Sprint 44 — Post-Processing Pipeline + CachedImage + SSOT Refactors ✅ (2026-06-27)
 - **Active ODE:** `END.ode` (opened 2026-06-26)
-- **Active debt:** `DEBT-20260623T212453` — post-pro shaders not loading on startup; hot reload works
+- **Active debt:** None
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  
-Shader: `Source/shader/` — Compilation, Controller, Program, FrameBuffer, RenderPass  
+Graphics: `Source/graphics/` — Processor, Compositor, Program (Compilation, RenderPass)  
 Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
 UI: `Source/end/` — View, Window, Tabs, Panes  
 Constants: `Identifier.h` · `Bimap.h`

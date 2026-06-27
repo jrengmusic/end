@@ -6,6 +6,7 @@
 #include "end/Window.h"
 #include "lookAndFeel/LookAndFeel.h"
 #include "Bimap.h"
+#include "Nexus.h"
 
 namespace end
 {
@@ -35,6 +36,7 @@ private:
 
     Model model;
     config::Model config;
+    Nexus nexus;
 
     //==============================================================================
     LookAndFeel lookAndFeel;

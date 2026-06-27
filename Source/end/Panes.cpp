@@ -1,5 +1,6 @@
 #include "end/Panes.h"
-// #include "config/Config.h"
+#include "terminal/View.h"
+#include "config/Config.h"
 
 namespace end
 {
@@ -15,12 +16,22 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
     // const int thickness { config::Model::getInstance()->getValue (IDtype::pane, ID::resizeBarThickness) };
     const int thickness { 4 };
     paneManager.setResizerBarSize (thickness);
+}
 
-    auto pane { std::make_unique<PaneView> (uuid, model) };
-    addAndMakeVisible (*pane);
+void Panes::createPane (jam::UUID uuid)
+{
+    const jam::Font font {
+        config::Model::getInstance()->getValue (IDtype::code, ID::fontFamily).toString(),
+        static_cast<float> (config::Model::getInstance()->getValue (IDtype::code, ID::fontSize)) };
+    auto& session { end::Nexus::getInstance()->create (uuid, font) };
+    auto pane { std::make_unique<terminal::View> (uuid, model, session) };
+    auto* panePtr { pane.get() };
+    addChildComponent (*pane);
     attachments.add (std::make_unique<jam::Model::Attachment> (*pane));
     paneViews.add (std::move (pane));
     paneManager.addLeaf (uuid);
+    panePtr->setVisible (isShowing());
+    resized();
 }
 
 void Panes::resized()
@@ -31,16 +42,32 @@ void Panes::resized()
         addAndMakeVisible (*bar);
 }
 
+void Panes::visibilityChanged()
+{
+    if (isShowing())
+    {
+        for (auto& pane : paneViews)
+            pane->setVisible (true);
+
+        resized();
+    }
+}
+
 void Panes::split (jam::UUID uuid, const juce::Identifier& direction)
 {
     jam::UUID newUUID;
-    auto pane { std::make_unique<PaneView> (newUUID, model) };
+    const jam::Font font {
+        config::Model::getInstance()->getValue (IDtype::code, ID::fontFamily).toString(),
+        static_cast<float> (config::Model::getInstance()->getValue (IDtype::code, ID::fontSize)) };
+    auto& session { end::Nexus::getInstance()->create (newUUID, font) };
+    auto pane { std::make_unique<terminal::View> (newUUID, model, session) };
     auto* panePtr { pane.get() };
-    addAndMakeVisible (*panePtr);
+    addChildComponent (*panePtr);
     paneViews.add (std::move (pane));
     paneManager.split (uuid, newUUID, direction);
     resized();
     attachments.add (std::make_unique<jam::Model::Attachment> (*panePtr));
+    panePtr->setVisible (isShowing());
     panePtr->toFront (true);
 }
 
@@ -58,6 +85,7 @@ void Panes::removePane (jam::UUID uuid)
         }
     }
 
+    end::Nexus::getInstance()->remove (uuid);
     paneManager.remove (uuid);
     resized();
 }

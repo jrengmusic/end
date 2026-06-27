@@ -174,12 +174,6 @@ private:
     /** @brief Resizes all FBOs from the current target component dimensions. GL thread only. */
     void resizeBuffers();
 
-    /** @brief Compiles vertex + fragment shader. Returns nullptr on failure.
-     *         On failure, calls reportError (if set) with the error message. GL thread only.
-     *  @param shaderSource  GLSL fragment shader source.
-     */
-    std::unique_ptr<juce::OpenGLShaderProgram> createProgram (juce::StringRef shaderSource);
-
     /** @brief Renders a Compilation's output to the current FBO.
      *  Sets viewport, reads texture/opacity/filter from the Compilation's uniform. GL thread only.
      *  @param id      Compilation identifier in the shaders map.
@@ -201,14 +195,12 @@ private:
     std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
 
     /** @brief Fullscreen quad VAO+VBO. Created in prepare(). */
-    std::unique_ptr<Quad> quad;
+    std::unique_ptr<jam::OpenGL::Quad> quad;
 
     //==============================================================================
     /** @brief Compilation pipeline identifiers — drives prepare() and any future per-pipeline iteration. */
     static inline const juce::Identifier compilationIDs[] { ID::background, ID::postProcessing };
 
-    static inline const juce::String placeholder { "source" };
-    static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };
     static inline const juce::String screenQuad { BinaryData::getString ("screen.vert") };
     static inline const juce::String outputShader { BinaryData::getString ("output.frag") };
     //==============================================================================

@@ -5,6 +5,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/PaneView.h"
+#include "Nexus.h"
 
 namespace end
 {
@@ -24,13 +25,19 @@ class Panes
     , public jam::Model::Component
 {
 public:
-    /** @brief Constructs the container with one initial pane.
-     *  @param uuid   UUID for both this TAB tree and the first PaneView leaf.
+    /** @brief Constructs the container — pane creation deferred to createPane().
+     *  @param uuid   UUID for this TAB tree.
      *  @param model  Model reference — forwarded to Component and child Attachments.
      */
     Panes (jam::UUID uuid, jam::Model& model);
 
+    /** @brief Creates the initial pane. Call AFTER Panes is parented and showing.
+     *  @param uuid  UUID for the first PaneView leaf.
+     */
+    void createPane (jam::UUID uuid);
+
     void resized() override;
+    void visibilityChanged() override;
 
     /** @brief Splits the pane identified by uuid.
      *  @param uuid       Existing pane to split.
