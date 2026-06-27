@@ -50,7 +50,7 @@ void Compositor::process()
     {
         background.uniform.advance();
         background.renderBuffers (*quad);
-        background.renderImage (*quad, &backgroundPass[0]);
+        background.renderImage (*quad);
     }
 
     juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
@@ -64,7 +64,6 @@ void Compositor::process()
 void Compositor::reset()
 {
     background.shutdown();
-    backgroundPass.release();
     outputProgram.reset();
     quad.reset();
 }
@@ -108,9 +107,6 @@ void Compositor::resize (int width, int height)
 void Compositor::resizeBuffers (int screenWidth, int screenHeight)
 {
     background.resize (context, screenWidth, screenHeight);
-
-    auto [bufferWidth, bufferHeight] = background.uniform.getSize();
-    backgroundPass.resize (context, bufferWidth, bufferHeight);
 }
 
 //==============================================================================
@@ -169,7 +165,7 @@ void Compositor::renderOutput (Quad& quad, int screenWidth, int screenHeight)
     outputProgram->setUniform (IDref::iOpacity, background.uniform.opacity);
 
     glActiveTexture (GL_TEXTURE0);
-    glBindTexture (GL_TEXTURE_2D, backgroundPass[0].getTextureID());
+    glBindTexture (GL_TEXTURE_2D, background.getOutputTextureID());
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, background.uniform.textureFilter);
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, background.uniform.textureFilter);
     outputProgram->setUniform (IDref::outputTexture, 0);

@@ -2,6 +2,41 @@
 
 ---
 
+## Sprint 43: Merge FrameBuffer into Compilation ✅
+
+**Date:** 2026-06-27
+**Duration:** ~00:30
+
+### Agents Participated
+- COUNSELOR: design analysis (Compilation-FrameBuffer coupling), plan
+- Pathfinder: Compilation+FrameBuffer coupling survey
+- Librarian: JUCE OpenGLFrameBuffer API verification (default-constructible, non-movable, destructor release, getTextureID=0 when uninitialized)
+- Engineer (x2): Program.h restructure (FrameBuffer elimination + Compilation update), Compositor simplification
+
+### Files Modified (3 total)
+- `Source/graphics/Program.h:132-186` — FrameBuffer struct deleted. RenderPass rewritten: `std::array<juce::OpenGLFrameBuffer, 2> fbos` + `int numBuffers` + `int readIndex` absorb FrameBuffer functionality (resize/release/readBuffer/writeBuffer/swap). Const overload added for readBuffer(). Compilation: `load()` sets `numBuffers = 2` (buffer passes) or `1` (Image pass). `renderBuffers()` skips Image via `id != ID::image`. `renderImage(Quad&)` renders into Image pass's own FBO (was external target). New `getOutputTextureID()` returns Image pass output texture. `setChannels()` uses `numBuffers > 1` (was `buffer.has_value()`). Doxygen updated: "self-contained pipeline stage."
+- `Source/graphics/Compositor.h:153` — `FrameBuffer backgroundPass` member removed. `outputProgram` doxygen updated (was "renders backgroundPass").
+- `Source/graphics/Compositor.cpp:53,107-110,64-69,168` — `process()`: `renderImage(*quad)` (no target arg). `resizeBuffers()`: single `background.resize()` call (Compilation handles all FBOs). `reset()`: `backgroundPass.release()` removed. `renderOutput()`: `background.getOutputTextureID()` (was `backgroundPass[0].getTextureID()`).
+
+### Alignment Check
+- [x] BLESSED principles followed — B: FBO lifecycle bound to RenderPass (RAII), no floating resources; L: FrameBuffer struct eliminated (~50 lines), Compositor simplified; E: numBuffers explicit, getOutputTextureID() explicit output; S(SSOT): FBO ownership in RenderPass only, not split across RenderPass + Compositor; E(Encap): Compilation self-contained, Compositor doesn't poke pass internals for FBOs
+- [x] NAMES.md adhered — getOutputTextureID follows JUCE getTextureID pattern; numBuffers, readIndex descriptive
+- [x] MANIFESTO.md principles applied — each Compilation is a self-contained pipeline stage (foundation for post-processing as second instance)
+
+### Problems Solved
+- FrameBuffer struct eliminated — indirection without value. RenderPass manages FBOs directly.
+- Compilation now self-contained — owns its output via Image pass FBO. No external target parameter needed.
+- Compositor's `backgroundPass` member removed — Compilation::getOutputTextureID() replaces direct FBO access.
+- `setChannels()` compile fix: `buffer.has_value()` → `numBuffers > 1` (buffer field no longer exists on RenderPass).
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260623T212453` — post-pro shaders not loading on startup (post-processing pipeline pending CachedComponentImage architecture)
+
+---
+
 ## Sprint 42: Compositor Owns GL Context + JUCE-Compatible Rendering ✅
 
 **Date:** 2026-06-26 → 2026-06-27

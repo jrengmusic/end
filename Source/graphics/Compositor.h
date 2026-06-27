@@ -150,10 +150,7 @@ private:
 
     Compilation background;
 
-    /** @brief Background Image pass render target — buffer resolution, single FBO. GL thread only. */
-    FrameBuffer backgroundPass;
-
-    /** @brief Output shader — renders backgroundPass to screen with opacity and filter. GL thread only. */
+    /** @brief Output shader — renders background output to screen with opacity and filter. GL thread only. */
     std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
 
     /** @brief Fullscreen quad VAO+VBO. Created in prepare(). */

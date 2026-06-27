@@ -130,94 +130,55 @@ struct Uniform
 };
 
 //==============================================================================
-/** @brief GL framebuffer container — single or ping-pong double-buffered.
+/** @brief A compiled shader pass — GL program with direct FBO management.
  *
- *  Inherits std::vector<juce::OpenGLFrameBuffer> sized at construction.
- *  Single-buffer (1): direct render target.
- *  Double-buffer (2): ping-pong cycling via readBuffer()/writeBuffer()/swap().
- */
-struct FrameBuffer : std::vector<juce::OpenGLFrameBuffer>
-{
-    FrameBuffer (size_t numBuffers = 1)
-        : std::vector<juce::OpenGLFrameBuffer> (numBuffers)
-    {
-    }
-    ~FrameBuffer() = default;
-
-    /** @brief Index of the current read FBO (0 or 1). */
-    int readIndex { 0 };
-
-    /** @brief Returns the current read FBO — the source for sampling. */
-    juce::OpenGLFrameBuffer& readBuffer() { return at (static_cast<size_t> (readIndex)); }
-
-    /** @brief Returns the current write FBO — the render target. */
-    juce::OpenGLFrameBuffer& writeBuffer() { return at (static_cast<size_t> (readIndex ^ 1)); }
-
-    /** @brief Swaps read and write FBOs by toggling readIndex. */
-    void swap() noexcept { readIndex ^= 1; }
-
-    /** @brief Initialises and clears all FBOs at the given dimensions.
-     *  @param context  Active GL context.
-     *  @param w        Width in pixels.
-     *  @param h        Height in pixels.
-     */
-    void resize (juce::OpenGLContext& context, int w, int h)
-    {
-        for (auto& fbo : *this)
-        {
-            fbo.initialise (context, w, h);
-            fbo.makeCurrentAndClear();
-            fbo.releaseAsRenderingTarget();
-        }
-    }
-
-    void release()
-    {
-        for (auto& fbo : *this)
-            fbo.release();
-    }
-
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FrameBuffer)
-};
-
-//==============================================================================
-/** @brief A compiled shader pass — GL program and optional ping-pong FBO pair.
- *
- *  Buffer is emplaced at creation time for non-Image passes.
- *  Image renders to default framebuffer (no buffer).
- *  Ping-pong state is delegated to FrameBuffer — readBuffer() is the current
- *  read source, writeBuffer() is the current render target. Call swap()
- *  after each pass to advance the pair.
+ *  Buffer passes (BufferA-D) use two FBOs for ping-pong rendering (numBuffers = 2).
+ *  Image pass uses one FBO as output target (numBuffers = 1).
+ *  readBuffer() is the current read source, writeBuffer() is the current render target.
+ *  Call swap() after each buffer pass to advance the ping-pong pair.
  */
 struct RenderPass
 {
     std::unique_ptr<juce::OpenGLShaderProgram> program;
-    std::optional<FrameBuffer> buffer;
+    std::array<juce::OpenGLFrameBuffer, 2> fbos;
+    int numBuffers { 0 };
+    int readIndex { 0 };
 
     RenderPass() = default;
     ~RenderPass() = default;
 
-    /** @brief Returns the current read FBO. Requires buffer to be emplaced. */
-    juce::OpenGLFrameBuffer& readBuffer() { return buffer->readBuffer(); }
+    /** @brief Returns the current read FBO. */
+    juce::OpenGLFrameBuffer& readBuffer() { return fbos.at (static_cast<size_t> (readIndex)); }
 
-    /** @brief Returns the current write FBO. Requires buffer to be emplaced. */
-    juce::OpenGLFrameBuffer& writeBuffer() { return buffer->writeBuffer(); }
+    /** @brief Returns the current read FBO (const). */
+    const juce::OpenGLFrameBuffer& readBuffer() const { return fbos.at (static_cast<size_t> (readIndex)); }
 
-    /** @brief Swaps read and write FBOs. Requires buffer to be emplaced. */
-    void swap() noexcept { buffer->swap(); }
+    /** @brief Returns the current write FBO — the render target for ping-pong passes. */
+    juce::OpenGLFrameBuffer& writeBuffer() { return fbos.at (static_cast<size_t> (readIndex ^ 1)); }
 
-    /** @brief Resizes buffer FBOs. No-op if buffer is not emplaced.
-     *         FBO content after initialise() is undefined per GL spec —
-     *         explicit clear ensures first-frame reads get black, not garbage.
+    /** @brief Swaps read and write FBOs by toggling readIndex. */
+    void swap() noexcept { readIndex ^= 1; }
+
+    /** @brief Initialises and clears FBOs at the given dimensions.
      *  @param context  Active GL context.
      *  @param w        Width in pixels.
      *  @param h        Height in pixels.
      */
     void resize (juce::OpenGLContext& context, int w, int h)
     {
-        if (buffer.has_value())
-            buffer->resize (context, w, h);
+        for (int i { 0 }; i < numBuffers; ++i)
+        {
+            fbos.at (static_cast<size_t> (i)).initialise (context, w, h);
+            fbos.at (static_cast<size_t> (i)).makeCurrentAndClear();
+            fbos.at (static_cast<size_t> (i)).releaseAsRenderingTarget();
+        }
+    }
+
+    /** @brief Releases all initialised FBOs. GL thread only. */
+    void release()
+    {
+        for (int i { 0 }; i < numBuffers; ++i)
+            fbos.at (static_cast<size_t> (i)).release();
     }
 
     //==============================================================================
@@ -277,7 +238,7 @@ struct Quad
  *  Encapsulates a complete Shadertoy-compatible shader set: BufferA-D intermediate
  *  passes and an Image output pass. Each pass is compiled from GLSL source,
  *  stored in the passes map as a RenderPass, and rendered in HashMap insertion order.
- *  Compositor owns two Compilation instances: background and post-processing.
+ *  Each Compilation is a self-contained pipeline stage — owns its output via the Image pass FBO.
  *
  *  @par Thread contract
  *  All methods must be called on the **GL THREAD** (via OpenGLRenderer callbacks
@@ -334,8 +295,7 @@ struct Compilation
                             auto pass { std::make_unique<RenderPass>() };
                             pass->program = std::move (p);
 
-                            if (id != ID::image)
-                                pass->buffer.emplace (2);
+                            pass->numBuffers = (id != ID::image) ? 2 : 1;
 
                             passes.addOrReplace (id, std::move (pass));
                         }
@@ -358,7 +318,7 @@ struct Compilation
 
         for (auto& [id, pass] : passes)
         {
-            if (pass->buffer.has_value())
+            if (id != ID::image)
             {
                 auto [w, h] = uniform.getSize();
 
@@ -376,37 +336,42 @@ struct Compilation
         }
     }
 
-    /** @brief Renders the Image pass into a target FBO or the default framebuffer.
+    /** @brief Renders the Image pass into its own FBO.
      *
-     *  If @p target is non-null, binds it as render target, clears, and sets viewport.
-     *  If @p target is null, renders to the currently bound framebuffer (default).
+     *  The result is accessible via getOutputTextureID().
      *  No-op if no Image pass is loaded.
      *
      *  @param quad    Fullscreen quad for drawing.
-     *  @param target  Target FBO, or nullptr for default framebuffer.
      */
-    void renderImage (Quad& quad, juce::OpenGLFrameBuffer* target)
+    void renderImage (Quad& quad)
     {
         using namespace ::juce::gl;
 
         if (passes.contains (ID::image))
         {
-            if (target != nullptr)
-            {
-                auto [w, h] = uniform.getSize();
-                target->makeCurrentAndClear();
-                glViewport (0, 0, w, h);
-            }
-
             auto& image { passes.at (ID::image) };
+            auto [w, h] = uniform.getSize();
+
+            image->readBuffer().makeCurrentAndClear();
+            glViewport (0, 0, w, h);
+
             image->program->use();
             setChannels (*image->program);
             uniform.set (*image->program);
             quad.draw();
 
-            if (target != nullptr)
-                target->releaseAsRenderingTarget();
+            image->readBuffer().releaseAsRenderingTarget();
         }
+    }
+
+    /** @brief Returns the GL texture ID of the Image pass output.
+     *  Returns 0 if no Image pass is loaded or FBO is uninitialized.
+     */
+    GLuint getOutputTextureID() const
+    {
+        if (passes.contains (ID::image))
+            return passes.at (ID::image)->readBuffer().getTextureID();
+        return 0;
     }
 
     /** @brief Binds buffer pass read textures to iChannel sampler uniforms.
@@ -425,7 +390,7 @@ struct Compilation
         {
             juce::Identifier passId { file::Shaders::get().at (id) };
 
-            if (passes.contains (passId) and passes.at (passId)->buffer.has_value())
+            if (passes.contains (passId) and passes.at (passId)->numBuffers > 1)
             {
                 glActiveTexture (GL_TEXTURE0 + id);
                 glBindTexture (GL_TEXTURE_2D, passes.at (passId)->readBuffer().getTextureID());
