@@ -98,6 +98,7 @@ configure_app(
         juce_opengl
     JAM_MODULES
         jam_core
+        jam_vulkan
         jam_fuzzy
         jam_style
         jam_data_structures

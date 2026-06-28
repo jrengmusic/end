@@ -2,6 +2,58 @@
 
 ---
 
+## Sprint 47: jam_vulkan Module + JUCE Vulkan Engine Hook ✅
+
+**Date:** 2026-06-28
+**Duration:** ~02:00
+
+### Agents Participated
+- COUNSELOR: architecture design (factory pointer vs std::function, per-platform paint path analysis, LowLevelGraphicsContext composition strategy, BLESSED alignment), plan, delegation, verification
+- Pathfinder (x4): JUCE peer paint paths (NSViewComponentPeer/HWNDComponentPeer/LinuxComponentPeer renderRect/handlePaintMessage/performAnyPendingRepaintsNow), JAM Window + BackgroundBlur + OpenGL abstractions, Vulkan SDK + MoltenVK survey, END graphics layer state
+- Librarian: (implicit via Pathfinder JUCE peer internals)
+- Engineer (x3): JUCE patch (4 files), Vulkan header vendoring (9 files), jam_vulkan module creation (6 files)
+
+### Files Modified (19 total)
+
+**JUCE (patch, 4 files):**
+- `juce_gui_basics/windows/juce_ComponentPeer.h:490` — `static inline std::unique_ptr<LowLevelGraphicsContext> (*externalContextFactory) (ComponentPeer&) = nullptr;`
+- `juce_gui_basics/native/juce_NSViewComponentPeer_mac.mm:1033-1035` — factory check in `renderRect` before CoreGraphics/software branch
+- `juce_gui_basics/native/juce_Windowing_windows.cpp:2459-2468` — factory check in `handlePaintMessage` with `BeginPaint`/`EndPaint` dirty region validation
+- `juce_gui_basics/native/juce_Windowing_linux.cpp:505-513` — factory check in `performAnyPendingRepaintsNow` before image creation + X11 blit
+
+**JAM jam_vulkan module (6 source files, new):**
+- `jam_vulkan/jam_vulkan.h` — JUCE module declaration (deps: juce_gui_basics, jam_core), platform Vulkan defines, includes all submodule headers
+- `jam_vulkan/jam_vulkan.cpp` — translation unit
+- `jam_vulkan/jam_vulkan.mm` — macOS TU (CAMetalLayer, Metal imports)
+- `jam_vulkan/context/jam_vulkan_context.h` — `VulkanContext` struct: VkInstance, VkPhysicalDevice, VkDevice, VkQueue, VkSurface, VkSwapchain, VkRenderPass, VkCommandPool, sync objects. `init(nativeHandle, w, h)`, `shutdown()`, `beginFrame()`, `endFrame()`, `resize(w, h)`. Platform surface: VkMetalSurfaceCreateInfoEXT (macOS), VkWin32SurfaceCreateInfoKHR (Win), VkXlibSurfaceCreateInfoKHR (Linux).
+- `jam_vulkan/context/jam_vulkan_llgc.h` — `VulkanLowLevelGraphicsContext`: implements juce::LowLevelGraphicsContext via composition with juce::LowLevelGraphicsSoftwareRenderer. Destructor calls `context.endFrame()`.
+- `jam_vulkan/registry/jam_vulkan_engine_registry.h` — `VulkanEngineRegistry : jam::Instance<VulkanEngineRegistry>`: per-peer VulkanContext HashMap, static factory function, sets `ComponentPeer::externalContextFactory` at construction.
+
+**JAM vendored headers (9 files, new):**
+- `jam_vulkan/vulkan/` — vulkan.h, vulkan_core.h, vk_platform.h, vulkan_metal.h, vulkan_win32.h, vulkan_xlib.h, vulkan_wayland.h, vk_icd.h, vk_layer.h
+
+**JAM patches (1 file, new):**
+- `___patches___/juce-vulkan-engine-hook.patch` — 75-line git diff capturing all 4 JUCE file changes
+
+### Alignment Check
+- [x] BLESSED principles followed — B: VulkanContext RAII (destructor calls shutdown), VulkanLLGC scoped to single paint call (unique_ptr from factory). L: composition avoids reimplementing 30 LowLevelGraphicsContext methods. E: raw function pointer (constinit-safe, no std::function), nullptr = fallback (result return). S(SSOT): one factory pointer on ComponentPeer, one VulkanContext per peer. S(Stateless): factory queries Instance singleton. E(Encap): jam_vulkan encapsulates all Vulkan, END is pure consumer, zero Vulkan code in END. D: same paint calls produce same output.
+- [x] NAMES.md adhered — VulkanContext (follows OpenGLContext), VulkanLowLevelGraphicsContext (matches JUCE naming), VulkanEngineRegistry (semantic noun), externalContextFactory (accurate — external to JUCE)
+- [x] MANIFESTO.md principles applied — JUCE patch is purely additive (~20 lines), factory returns nullptr for fallback (NON-NEGOTIABLE CPU fallback preserved), no JUCE source deleted or modified
+
+### Problems Solved
+- **Peer fork impossibility resolved**: Sprint 46 proved forking JUCE peers fails (final classes, internal types). Factory pointer on ComponentPeer bypasses all internal dependencies — only public LowLevelGraphicsContext seam needed.
+- **Cross-platform uniform hook**: Single `externalContextFactory` static pointer works on all 3 platforms. Each platform's paint path checks before native rendering, falls back when nullptr returned.
+- **Windows dirty region validation**: BeginPaint/EndPaint required even when external factory handles painting — without it, Windows sends infinite WM_PAINT messages.
+- **RAII frame lifecycle**: VulkanLLGC destructor calls `endFrame()` — ensures Vulkan frame completes after handlePaint returns and LLGC goes out of scope. Prevents fence hang from uncompleted frames.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Handoff to COUNSELOR: Vulkan Rendering Engine via JUCE Patch
 
 **From:** COUNSELOR

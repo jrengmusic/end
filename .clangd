@@ -25,6 +25,7 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_markdown=1
     - -DJUCE_MODULE_AVAILABLE_jam_style=1
     - -DJUCE_MODULE_AVAILABLE_jam_terminal=1
+    - -DJUCE_MODULE_AVAILABLE_jam_vulkan=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1
