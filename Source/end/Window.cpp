@@ -14,11 +14,16 @@ Window::Window (juce::Component* mainComponent,
 void Window::lookAndFeelChanged()
 {
     auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-    auto [colour, blur, fx] = laf.getWindowGlass();
+    auto [colour, blur, fx, windowButtons] = laf.getWindowStyle();
 
-    setGlass (colour,
-              static_cast<float> (blur),
-              static_cast<jam::BackgroundBlur::WindowFX> (fx));
+    jam::style::window::apply (this, colour);
+    jam::BackgroundBlur::enable (this,
+                                 static_cast<jam::BackgroundBlur::WindowFX> (fx),
+                                 static_cast<float> (blur),
+                                 colour);
+
+    if (auto* peer { getPeer() })
+        jam::style::window::setButtons (*peer, windowButtons);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

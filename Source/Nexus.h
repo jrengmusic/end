@@ -22,6 +22,7 @@ struct Nexus : jam::Instance<Nexus>
 
     /** @brief Creates a new terminal session.
      *  @param uuid  Unique identifier for the session.
+     *  @param font  Typeface used to seed the session's initial font state.
      *  @return Reference to the created Session.
      */
     terminal::Session& create (jam::UUID uuid, const jam::Font& font)

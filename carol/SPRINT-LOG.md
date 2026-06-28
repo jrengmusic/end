@@ -2,6 +2,66 @@
 
 ---
 
+## Sprint 49: Restore Glass + Window Style Rename Pass ✅
+
+**Date:** 2026-06-28
+**Duration:** ~01:30
+
+### Agents Participated
+- COUNSELOR: architecture (compositeAlpha blocker, BackgroundBlur idempotency, jam::Window async machinery strip, LAF-as-style-facade), plan, delegation, verification, post-edit compiler/runtime fix
+- Pathfinder: glass state survey (jam::Window + jam::BackgroundBlur + end::Window + LAF + theme.lua)
+- Auditor: full contract validation (BLESSED + NAMES + JRENG-CODING-STANDARD + locked plan + idempotency + cross-platform + Doxygen)
+- Engineer (x3): glass restore (3 changes + 8 renames), int16_t static_cast ambiguity fix, titleBarButtons config subtree fix, 3 pre-existing Doxygen warnings cleanup
+
+### Files Modified (13 total)
+
+**JAM jam_vulkan (1 file):**
+- `jam_vulkan/context/jam_vulkan_context.h:490` — `compositeAlpha` reads `isWindowTransparent` (was hardcoded `OPAQUE_BIT_KHR`). New member `bool isWindowTransparent { true }` at line 805. Doxygen for `getBackingScaleFactor` and `updateMetalLayerFrame` re-bound to correct targets (pre-existing warning fix).
+
+**JAM BackgroundBlur (2 files):**
+- `jam_style/background_blur/jam_background_blur.mm:268-270` — `applyVisualFX` removes existing `NSVisualEffectView` subviews before insert (idempotent). `applyGlassFX:303-305` — same idempotency for `NSGlassEffectView`. `configureWindowChrome` definition deleted (~37 lines).
+- `jam_style/background_blur/jam_background_blur.h` — `configureWindowChrome` declaration deleted. File-header doxygen GlassComponent reference removed.
+
+**JAM style::window (2 files):**
+- `jam_style/style_window/jam_style_window.h:18-21` — `setButtons(ComponentPeer&, bool)` declared (JUCE_MAC guarded).
+- `jam_style/style_window/jam_style_window.mm:41-43` — `apply` removes the three `setHidden:YES` traffic-light lines (chrome moved to `setButtons`). New `setButtons` definition with traffic-light toggle pattern.
+
+**JAM jam_gui Window (4 files):**
+- `jam_gui/window/jam_window.h` — renamed: `setGlass` → `setStyle`, `setShowWindowButtons` → `setWindowButtons`, `shouldShowWindowButtons` → `windowButtons`, ctor param `showWindowButtons` → `windowButtons`. Deleted: `AsyncUpdater` base, `parentHierarchyChanged`/`visibilityChanged`/`handleAsyncUpdate` overrides, `isPeerReady`/`tintColour`/`blurRadius`/`windowFX` members. File-header doxygen rewritten for post-refactor contract.
+- `jam_gui/window/jam_window.cpp` — `setStyle` body now synchronous (`style::window::apply` + `setOpaque` + `setBackgroundColour` + `BackgroundBlur::enable`). `setWindowButtons` body routes to `style::window::setButtons` on macOS, Windows DWM path on Windows. Ctor parameter + initializer renamed.
+- `jam_gui/window/jam_modal_window.h` — ctor param `showWindowButtons` → `windowButtons` (both ctors). Doxygen `setGlass` reference → `setStyle`.
+- `jam_gui/window/jam_modal_window.cpp:60` — `setGlass` call → `setStyle`. Ctor param rename.
+
+**END (4 files):**
+- `Source/lookAndFeel/LookAndFeel.h:153-161` — `Style` struct replaces `Glass` Union (4 fields: `juce::Colour colour; int16_t blur; int16_t fx; bool windowButtons`). `getWindowGlass` → `getWindowStyle`.
+- `Source/lookAndFeel/LookAndFeel.cpp:143-161` — `getWindowStyle` reads 4 values: colour from `IDtype::window`/`ID::background`, blur from `IDtype::window`/`ID::blurRadius`, fx from `IDtype::style`/`ID::mac` or `ID::win` via `jam::map::WindowFX::get`, windowButtons from `IDtype::display`/`ID::titleBarButtons` (post-fix: subtree moved from `IDtype::window` to `IDtype::display` where the config key actually lives at `display.lua:49`). `int16_t` static_cast ambiguity resolved by reading blur into `int` first, narrowing at return site.
+- `Source/end/Window.h` — file-header + class doxygen updated for inlined primitives contract.
+- `Source/end/Window.cpp:14-27` — `lookAndFeelChanged` inlines three primitives directly: `jam::style::window::apply(this, colour)` + `jam::BackgroundBlur::enable(this, fx, blur, colour)` + `jam::style::window::setButtons(getPeer(), windowButtons)`. No `setStyle` indirection.
+- `Source/end/EventRegistration.cpp:58` — `setShowWindowButtons` → `setWindowButtons`.
+
+### Alignment Check
+- [x] BLESSED principles followed — B: jam::Window owns public API (setStyle, setWindowButtons); end::Window stays thin. L: Style struct 4-field POD, setStyle ~20 lines, no god objects. E: setStyle/setWindowButtons/setButtons/getWindowStyle are verbs/nouns reading naturally. S(SSOT): Style struct is single source — LAF reads, end::Window consumes, ModalWindow calls setStyle. S(Stateless): setStyle pure function, no AsyncUpdater, no isPeerReady, no peer-state. E(Encap): setButtons lives in style::window namespace (correct semantic location). D: synchronous setStyle — same input produces same output.
+- [x] NAMES.md adhered — setStyle/setWindowButtons/setButtons/getWindowStyle (verbs, semantic), Style (noun, no type suffix). No forbidden terms. Consistency: set* for mutators, get* for accessors, apply for side-effecting configuration.
+- [x] MANIFESTO.md principles applied — no bail-out guards, no DBG, no anonymous namespaces. Doxygen moves with API changes — all renames documented.
+
+### Problems Solved
+- **Glass disappeared under Vulkan**: `compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR` at jam_vulkan_context.h:490 forced opaque swapchain compositing, blocking the blur backdrop. Fix: INHERIT_BIT_KHR propagates NSWindow `setOpaque:NO` state.
+- **NSVisualEffectView/NSGlassEffectView stacking**: factory's per-paint calls would insert new subviews without removing old ones. Fix: idempotent cleanup loops in applyVisualFX/applyGlassFX using `[[subviews] copy]` safe-iteration pattern.
+- **jam::Window async/state-machine complexity**: `parentHierarchyChanged`/`visibilityChanged`/`AsyncUpdater`/`isPeerReady` dance existed to work around peer-not-yet-realized timing. With factory hook, peer is fully realized on first paint — no dance needed. Stripped: ~50 lines of state machine, replaced with synchronous three-call sequence.
+- **configureWindowChrome wrong home**: chrome (traffic-lights) is not blur. Moved to `jam::style::window::setButtons` (correct semantic location) and renamed for clarity.
+- **Glass/glass naming**: `setGlass`/`getWindowGlass`/`Glass` Union implied the whole window style is "glass." Renamed to setStyle/getWindowStyle/Style — glass is one specific effect, style is the umbrella (chrome + tint + blur + buttons).
+- **int16_t static_cast ambiguity**: `static_cast<int16_t>(juce::var)` ambiguous (var has int/int64/bool/float/double operators). Fix: read into int, narrow at return site.
+- **jassert on titleBarButtons**: Engineer read from `IDtype::window` but config key lives at `display.lua:49` under `IDtype::display`. Fix: subtree corrected.
+- **Pre-existing Doxygen warnings**: orphaned `@param` tags in `jam_vulkan_context.h:12-18` (rebound to correct targets), undocumented `font` param in `end/Source/Nexus.h:27` (added `@param font`).
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 48: Wire END as Vulkan Consumer + Blit Pipeline + macOS Retina ✅
 
 **Date:** 2026-06-28

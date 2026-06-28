@@ -145,15 +145,20 @@ public:
      */
     juce::BorderSize<int> getTabBarPadding() const override;
 
-    /** @brief Packed window glass parameters from the active theme.
-     *  Returns { argb colour, blur radius, windowFX style } packed into
-     *  Union<uint32_t, int16_t, int16_t>. Consumer unpacks via structured binding.
-     *  Returns zeros when theme is not loaded.
+    /** @brief Window style parameters from the active theme.
+     *  Returns { tint colour, blur radius, windowFX style, window-button visibility }
+     *  read from IDtype::window and IDtype::style.  Consumer unpacks via structured binding.
+     *  Returns a default-constructed Style when theme is not loaded.
      */
+    struct Style
+    {
+        juce::Colour colour;
+        int16_t blur;
+        int16_t fx;
+        bool windowButtons;
+    };
 
-    using Glass = jam::Union<juce::Colour, int16_t, int16_t>;
-
-    Glass getWindowGlass() const;
+    Style getWindowStyle() const;
 
     /** @brief Pane resizer bar — SVG Flex rendering with pane colourIds.
      *  Hover/pressed state swaps bar colour to highlight colour.

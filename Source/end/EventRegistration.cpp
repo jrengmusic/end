@@ -55,7 +55,7 @@ void View::registerEvents()
         [this] (juce::ValueTree& tree)
         {
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setShowWindowButtons (tree.getProperty (ID::titleBarButtons));
+                window->setWindowButtons (tree.getProperty (ID::titleBarButtons));
         });
 }
 

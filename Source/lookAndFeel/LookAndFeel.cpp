@@ -140,11 +140,11 @@ juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
-LookAndFeel::Glass LookAndFeel::getWindowGlass() const
+LookAndFeel::Style LookAndFeel::getWindowStyle() const
 {
     auto colour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
     int blur { config.getValue (IDtype::window, ID::blurRadius) };
-    int fx { 0 };
+    int16_t fx { 0 };
 
 #if JUCE_MAC
     auto name { config.getValue (jam::IDtype::style, ID::mac).toString() };
@@ -153,9 +153,11 @@ LookAndFeel::Glass LookAndFeel::getWindowGlass() const
 #endif
 
     if (jam::map::WindowFX::getInstance()->contains (name))
-        fx = jam::map::WindowFX::get (name);
+        fx = static_cast<int16_t> (jam::map::WindowFX::get (name));
 
-    return Glass::pack (colour, blur, fx);
+    const bool windowButtons { config.getValue (IDtype::display, ID::titleBarButtons) };
+
+    return Style { colour, static_cast<int16_t> (blur), fx, windowButtons };
 }
 
 juce::String LookAndFeel::getTabText (const juce::String& tabName) const
