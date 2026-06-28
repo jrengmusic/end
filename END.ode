@@ -1,5 +1,64 @@
 
 **********************************************************
 
-Log started: 28 Jun 2026 8:29:37pm
+Log started: 28 Jun 2026 9:47:39pm
 
+VulkanRegistry: logical=640x480 scale=2 physical=1280x960
+VulkanContext::createSwapchain requested=1280x960 currentExtent=1280x960 min=1x1 max=16384x16384 final=1280x960
+VulkanRegistry: logical=640x598 scale=2 physical=1280x1196
+VulkanContext::createSwapchain requested=1280x1196 currentExtent=1280x1196 min=1x1 max=16384x16384 final=1280x1196
+VulkanRegistry: logical=640x780 scale=2 physical=1280x1560
+VulkanContext::createSwapchain requested=1280x1560 currentExtent=1280x1560 min=1x1 max=16384x16384 final=1280x1560
+VulkanRegistry: logical=640x945 scale=2 physical=1280x1890
+VulkanContext::createSwapchain requested=1280x1890 currentExtent=1280x1890 min=1x1 max=16384x16384 final=1280x1890
+VulkanRegistry: logical=640x1090 scale=2 physical=1280x2180
+VulkanContext::createSwapchain requested=1280x2180 currentExtent=1280x2180 min=1x1 max=16384x16384 final=1280x2180
+VulkanRegistry: logical=640x1220 scale=2 physical=1280x2440
+VulkanContext::createSwapchain requested=1280x2440 currentExtent=1280x2440 min=1x1 max=16384x16384 final=1280x2440
+VulkanRegistry: logical=640x1331 scale=2 physical=1280x2662
+VulkanContext::createSwapchain requested=1280x2662 currentExtent=1280x2662 min=1x1 max=16384x16384 final=1280x2662
+VulkanRegistry: logical=640x1422 scale=2 physical=1280x2844
+VulkanContext::createSwapchain requested=1280x2844 currentExtent=1280x2844 min=1x1 max=16384x16384 final=1280x2844
+VulkanRegistry: logical=640x1504 scale=2 physical=1280x3008
+VulkanContext::createSwapchain requested=1280x3008 currentExtent=1280x3008 min=1x1 max=16384x16384 final=1280x3008
+VulkanRegistry: logical=640x1564 scale=2 physical=1280x3128
+VulkanContext::createSwapchain requested=1280x3128 currentExtent=1280x3128 min=1x1 max=16384x16384 final=1280x3128
+VulkanRegistry: logical=640x1608 scale=2 physical=1280x3216
+VulkanContext::createSwapchain requested=1280x3216 currentExtent=1280x3216 min=1x1 max=16384x16384 final=1280x3216
+VulkanRegistry: logical=640x1635 scale=2 physical=1280x3270
+VulkanContext::createSwapchain requested=1280x3270 currentExtent=1280x3270 min=1x1 max=16384x16384 final=1280x3270
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanContext::createSwapchain requested=1280x3292 currentExtent=1280x3292 min=1x1 max=16384x16384 final=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292
+VulkanRegistry: logical=640x1646 scale=2 physical=1280x3292

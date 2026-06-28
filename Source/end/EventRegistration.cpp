@@ -36,8 +36,10 @@ void View::registerEvents()
             bool canUseGpu { config.getValue (IDtype::display, ID::gpu) and gpu.isAvailable };
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
-            if (canUseGpu != processor.isAttached())
-                canUseGpu ? processor.attach (*this, tabs) : processor.detach();
+            if (canUseGpu and not vulkanEngine)
+                vulkanEngine = std::make_unique<jam::VulkanEngineRegistry>();
+            else if (not canUseGpu and vulkanEngine)
+                vulkanEngine.reset();
         });
 
     events.add<juce::ValueTree&> (

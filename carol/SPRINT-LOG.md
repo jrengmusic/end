@@ -2,6 +2,52 @@
 
 ---
 
+## Sprint 48: Wire END as Vulkan Consumer + Blit Pipeline + macOS Retina ✅
+
+**Date:** 2026-06-28
+**Duration:** ~02:30
+
+### Agents Participated
+- COUNSELOR: architecture (sublayer vs setLayer diagnosis, getPlatformScaleFactor root cause, blit pipeline design, BLESSED alignment), plan, delegation, verification, debug::Log instrumentation
+- Pathfinder (x2): END consumer wiring survey, jam_vulkan current state survey
+- Researcher: macOS layer-hosting vs layer-backed behavior, MoltenVK sublayer compatibility
+- Engineer (x4): END wiring (View.h + EventRegistration.cpp), Vulkan blit pipeline (VulkanContext + LLGC + .mm), MoltenVK linking (AppBuilder.cmake), CAMetalLayer sublayer fix (3 files)
+
+### Files Modified (7 total)
+
+**END (2 files):**
+- `Source/end/View.h:164-168` -- `processor` member commented out (GL disabled), `vulkanEngine` unique_ptr<VulkanEngineRegistry> added
+- `Source/end/EventRegistration.cpp:39-42` -- GPU event creates/destroys VulkanEngineRegistry instead of attaching/detaching OpenGL Processor
+
+**JAM jam_vulkan (4 files, modified):**
+- `jam_vulkan/jam_vulkan.mm:7-42` -- createMetalLayerForView: sublayer via addSublayer (not setLayer), zPosition=1, autoresizingMask, explicit drawableSize. Added getBackingScaleFactor (queries NSWindow backingScaleFactor). Added updateMetalLayerFrame for resize.
+- `jam_vulkan/context/jam_vulkan_context.h` -- beginFrame/endFrame restructured (render pass removed into separate beginRenderPass/endRenderPass). blitToSwapchain: staging buffer upload + layout transitions + vkCmdCopyBufferToImage. createSurface macOS: stores metalLayerRef, uses createMetalLayerForView. createSwapchain: UNORM format preference, uses currentExtent from surface capabilities. resize: takes scale param, calls updateMetalLayerFrame, creates swapchain at physical dims. Staging buffer infrastructure (create/destroy/findMemoryType/transitionImageLayout). Removed VK_KHR_portability_enumeration + flag. Declarations for getBackingScaleFactor, updateMetalLayerFrame.
+- `jam_vulkan/context/jam_vulkan_llgc.h` -- Destructor: BitmapData extraction + blitToSwapchain + endFrame (was TODO). getPhysicalPixelScaleFactor returns scale member (was forwarding to software renderer which returns 1.0). Doxygen updated.
+- `jam_vulkan/registry/jam_vulkan_engine_registry.h` -- scaleFactor via jam::getBackingScaleFactor on macOS (peer.getPlatformScaleFactor returns 1.0 on macOS -- not overridden). init/resize pass physical pixel dimensions. Resize compares against physical extents.
+
+**JAM build (1 file):**
+- `cmake/AppBuilder.cmake:508-513` -- jam_vulkan special case: links MoltenVK.a static library + IOKit + IOSurface frameworks on macOS
+
+### Alignment Check
+- [x] BLESSED principles followed -- B: staging buffer RAII (create/destroy lifecycle), LLGC scoped to single paint call. L: blitToSwapchain single responsibility. E: explicit physical/logical dimension separation, getBackingScaleFactor queries directly. S(SSOT): currentExtent from surface capabilities is ground truth. S(Stateless): factory queries singleton, holds nothing. E(Encap): jam_vulkan encapsulates all Vulkan + MoltenVK + ObjC, END has zero Vulkan code. D: same paint calls produce same output.
+- [x] NAMES.md adhered -- blitToSwapchain (verb, action), getBackingScaleFactor (follows Apple naming), updateMetalLayerFrame (verb), metalLayerRef (clear reference semantics)
+- [x] MANIFESTO.md principles applied -- no bail-out guards (result returns in staging buffer creation), no DBG (used debug::Log for diagnostics, removed within sprint)
+
+### Problems Solved
+- **Black screen**: createMetalLayerForView called [view setLayer:] replacing JUCE's own CAMetalLayer (used by CoreGraphicsMetalLayerRenderer). Fix: addSublayer with zPosition=1.
+- **Blurry/low-res rendering**: peer.getPlatformScaleFactor() returns 1.0 on macOS (base class, not overridden in NSViewComponentPeer). All dimensions computed at 1x. Fix: jam::getBackingScaleFactor queries NSWindow.backingScaleFactor via ObjC.
+- **Vulkan link errors**: MoltenVK.a not linked. JUCE module system has no OSXLibs field. Fix: AppBuilder.cmake jam_vulkan special case with explicit static lib + frameworks.
+- **portability_enumeration extension**: not available in installed MoltenVK. Not needed with static linking (no Vulkan loader). Removed extension + instance create flag.
+- **GL Processor crash**: Processor constructor registers config listeners; resize events fire executeOnGLThread on non-attached context. Fix: commented out processor member.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 47: jam_vulkan Module + JUCE Vulkan Engine Hook ✅
 
 **Date:** 2026-06-28

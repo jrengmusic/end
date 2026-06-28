@@ -161,8 +161,11 @@ private:
      */
     jam::Function::Map<juce::Identifier, void> events;
 
-    /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
-    graphics::Processor processor;
+    // /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
+    // graphics::Processor processor;
+
+    /** @brief Vulkan rendering engine — replaces OpenGL when GPU available. */
+    std::unique_ptr<jam::VulkanEngineRegistry> vulkanEngine;
 
 //==============================================================================
 #if JUCE_DEBUG
