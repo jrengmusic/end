@@ -2,6 +2,96 @@
 
 ---
 
+## Handoff to COUNSELOR: Vulkan Rendering Engine via JUCE Patch
+
+**From:** COUNSELOR
+**Date:** 2026-06-28
+**Status:** Blocked — architectural pivot required, reset to HEAD
+
+### Context
+
+**OBJECTIVE:** Replace END's OpenGL rendering pipeline with Vulkan. `Component::paint(Graphics&)` works exactly as-is — backed by `VulkanLowLevelGraphicsContext` when Vulkan engine is selected. Same as how GDI or D2D backs it today via `setCurrentRenderingEngine(int)`. No OpenGL-style attach/detach dance. Shadertoy hot-reload preserved (GLSL→SPIR-V future sprint). Cross-platform: Win/Linux native Vulkan, macOS via MoltenVK (static library, compiled into binary).
+
+**ARCHITECTURE VISION (confirmed by ARCHITECT):**
+- `jam_vulkan` is the Vulkan analog of `juce_opengl` — owns all Vulkan infrastructure
+- END consumes `jam_vulkan` — zero Vulkan code in END
+- Forked peers gain Vulkan as a rendering engine appended to existing engine lists: Win (GDI=0, D2D=1, Vulkan=2), Mac (Software=0, CoreGraphics=1, Vulkan=2), Linux (Software=0, Vulkan=1)
+- `jam::Window` owns `createNewPeer()` override — all jam::Window users get Vulkan-capable peers
+- Glass (glassmorphism) becomes native to the peer — eliminates the current OpenGL workaround for D2D conflicts on Windows
+- Fallback: existing JUCE engines (GDI/D2D/CoreGraphics/Software) remain functional when Vulkan unavailable
+
+### Completed (all to be discarded — reset to HEAD)
+
+Sprint 46 attempt produced working vendored headers and VulkanContext but the peer fork approach failed structurally:
+
+- Vendored 6 Khronos Vulkan headers into `jam_vulkan/vulkan/` (27K lines, portable)
+- Forked all 3 JUCE platform peers verbatim into `jam_vulkan/ComponentPeer/` (macOS 2100 lines, Windows 5255 lines, Linux 650 lines)
+- Implemented `VulkanContext::init()` with real Vulkan API calls (instance, device, surface, swapchain, render pass, command pool) and `shutdown()` with reverse-order destruction
+- `VulkanLowLevelGraphicsContext` — 26 pure virtual overrides stubbed with `jassertfalse`
+- Module declaration (`jam_vulkan.h/.cpp/.mm`) with platform-gated includes
+- `jam::Window::createNewPeer()` override wired
+- END's 12 skeleton vulkan files deleted, CMakeLists.txt cleaned
+
+### Why It Failed — Peer Fork Is Structurally Impossible
+
+JUCE's platform peers (`HWNDComponentPeer`, `NSViewComponentPeer`, `LinuxComponentPeer`) are `final` and compiled INSIDE `juce_gui_basics.cpp`'s translation unit. They depend on:
+
+1. **JUCE-internal types** not in any header: `PerScreenDisplayLinks` (`native/juce_PerScreenDisplayLinks_mac.h:135`), `detail::ComponentHelpers` (`detail/juce_ComponentHelpers.h:43`), `CoreGraphicsMetalLayerRenderer` (`native/juce_CGMetalLayerRenderer_mac.h:42`), `KeyEventAttributes` (nested class inside NSViewComponentPeer, `.mm:1672`)
+2. **Compilation environment**: macros `JUCE_CORE_INCLUDE_OBJC_HELPERS`, `JUCE_CORE_INCLUDE_NATIVE_HEADERS`, `JUCE_GRAPHICS_INCLUDE_COREGRAPHICS_HELPERS` must be defined BEFORE `juce_gui_basics.h` is included
+3. **Include order conflicts**: Cocoa imports `gltypes.h` (via AppKit→NSOpenGL.h), which conflicts with `juce_gl.h` if Cocoa is imported before JUCE processes OpenGL headers. Vulkan's `vulkan_metal.h` forward-declares `CAMetalLayer` which shadows the real Cocoa class needed by `juce_CGMetalLayerRenderer_mac.h`
+4. **Namespace conflicts**: `using namespace juce;` in `namespace jam {}` collides with macOS Carbon typedefs (`Component`, `Point`). Explicit `juce::` everywhere is the only option but requires massive mechanical edits + still doesn't solve the internal-type issues
+5. **ObjC wrapper coupling**: `JuceNSViewClass`/`JuceNSWindowClass` store `juce::NSViewComponentPeer*` ivars and pass member function pointers — all hardcoded to the juce:: type
+
+Every fix cascaded into new errors. After 8+ Engineer iterations, ARCHITECT called stop.
+
+### Key Decisions (LOCKED by ARCHITECT)
+
+1. **JUCE stays vanilla** — no modifying JUCE source directly. ARCHITECT ships commercial audio plugins with same JUCE copy
+2. **Patch approach approved** — additive JUCE patch, maintained as `.patch` file for upstream resync
+3. **Registration hook** — JUCE patch adds a static factory pointer in `juce::ComponentPeer` (public header). `jam_vulkan` sets it at module init. `juce::LowLevelGraphicsContext` is the seam (it's PUBLIC in `juce_graphics`, no internal types needed)
+4. **jam::Instance + jam::Function::Map** — ARCHITECT's preferred JAM-side pattern for the engine registry
+5. **Explicit `juce::` everywhere** — no `using namespace juce;` anywhere in jam_vulkan
+6. **Submodule files include NOTHING** — topmost `jam_vulkan.h` owns all includes (JRENG-CODING-STANDARD)
+7. **MoltenVK static library** — compiled into binary, no runtime dylib dependency
+8. **Vulkan headers vendored** — 6 Khronos headers in `jam_vulkan/vulkan/`, no external SDK dependency at compile time
+
+### The Approved Architecture (next sprint)
+
+**JUCE patch (~15 lines total, purely additive):**
+- `juce_ComponentPeer.h`: add `static inline std::function<std::unique_ptr<LowLevelGraphicsContext>(ComponentPeer&)>* externalContextFactory = nullptr;`
+- Each platform peer's paint path (~5 lines each): check factory pointer, create context, paint, fallback to existing engine if null
+- Patch file: `~/Documents/Poems/dev/jam/___patches___/juce-vulkan-engine-hook.patch`
+
+**jam_vulkan module:**
+- `VulkanEngineRegistry : jam::Instance<VulkanEngineRegistry>` — singleton holding engine factories via `jam::Function::Map`
+- Sets `ComponentPeer::externalContextFactory` at module init
+- `VulkanContext` — real Vulkan init/shutdown (already implemented, to be redone)
+- `VulkanLowLevelGraphicsContext` — implements `juce::LowLevelGraphicsContext` backed by Vulkan command buffers
+- Vendored Vulkan headers (already done, to be redone)
+- NO forked peers — JUCE's own peers handle rendering via the hook
+
+**END consumes jam_vulkan — zero Vulkan code in END.**
+
+### SDK/Library Locations
+- Vulkan SDK: `~/Documents/Poems/dev/jam/___sdk___/vulkan/macOS/include/`
+- MoltenVK (built): `~/Documents/Poems/dev/moltenVK/Builds/Ninja/MoltenVK/` (static lib)
+- Vendored headers target: `jam_vulkan/vulkan/` (6 files from SDK)
+
+### Open Questions
+- Exact `externalContextFactory` signature — single factory vs engine-list query callback
+- How the factory integrates with each platform's paint path (Windows `RenderContext::handlePaintMessage` vs macOS `drawRect`/`renderRect` vs Linux `performAnyPendingRepaintsNow`)
+- Swapchain recreation on resize — who owns it (VulkanContext vs LowLevelGraphicsContext)
+- GLSL→SPIR-V pipeline for Shadertoy shader hot-reload — separate sprint
+
+### Next Steps
+1. `git reset --hard HEAD` — discard all sprint 46 changes
+2. Design the JUCE patch in detail — read each platform peer's paint path to find the exact insertion point
+3. Implement patch, write `.patch` file
+4. Rebuild jam_vulkan: vendored headers + VulkanContext + VulkanLLGC + VulkanEngineRegistry (no forked peers)
+5. Wire END
+
+---
+
 ## Sprint 45: jam::OpenGL Isomorphic Abstraction + END Consumer Migration ✅
 
 **Date:** 2026-06-28
