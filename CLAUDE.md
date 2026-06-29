@@ -6,9 +6,9 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 44 — Post-Processing Pipeline + CachedImage + SSOT Refactors ✅ (2026-06-27)
-- **Active ODE:** `END.ode` (opened 2026-06-26)
-- **Active debt:** None
+- **Last sprint:** Sprint 49 — Restore Glass + Window Style Rename Pass ✅ (2026-06-28)
+- **Active ODE:** `END.ode` (opened 2026-06-29)
+- **Active debt:** DEBT-20260629T100000 (VulkanLLGC native GPU methods)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  

@@ -2,6 +2,84 @@
 
 ---
 
+## Sprint 50: Vulkan LLGC Infrastructure ✅
+
+**Date:** 2026-06-29
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR: sprint planning, coordination, architecture decisions
+- Pathfinder: codebase discovery (JUCE LLGC backends, CoreGraphics contract, jam_vulkan structure)
+- Librarian: Vulkan API research (pipeline architecture, push constants, VMA, clipping)
+- Researcher: GPU 2D rendering patterns (Skia, glyph atlas, path tessellation, batching)
+- Engineer: all implementation (vendoring, shaders, pipelines, VMA, LLGC methods, compile fixes)
+- Auditor: Sprint 50 audit (38 findings: 4 blocker, 11 warn, 23 info)
+
+### Files Modified (JAM — 30+ files)
+- `jam/CMakeLists.txt` — registered jam_vulkan module
+- `jam/cmake/AppBuilder.cmake` — moltenVK imported target, GLM/VMA include paths, VMA warning suppression, SPIR-V BinaryData embedding
+- `jam_vulkan/jam_vulkan.h` — added jam_graphics/jam_freetype deps, FreeType/HarfBuzz/GLM/VMA includes, fonts block, moltenVK include, pipelines/context/registry include order
+- `jam_vulkan/jam_vulkan.cpp` — fonts .cpp unity includes, VMA allocator .cpp, glyph_vk.cpp, glyph_gl.cpp, llgc.cpp
+- `jam_vulkan/jam_vulkan.mm` — fonts .mm includes, Accelerate framework
+- `jam_vulkan/context/jam_vulkan_context.h` — VMA allocator, pipelines, quad VB, MVP UBO, descriptor pool, glyph atlas/VB, texture cache, sampler, frame lifecycle (idempotent beginFrame/beginRenderPass, ref-counted endFrame), app name from JUCE runtime
+- `jam_vulkan/context/jam_vulkan_llgc.h` — deleted softwareRenderer + image members, native State struct + stack, fillRect/drawImage/drawGlyphs overrides, stub methods for hard GPU paths (DEBT-20260629T100000)
+- `jam_vulkan/context/jam_vulkan_llgc.cpp` — issueRectFill (MVP, push constants, pipeline selection, viewport/scissor), fillRect family (setFill colour), drawImage (texture cache, descriptor set, transformed quad)
+- `jam_vulkan/context/jam_vulkan_pipelines.h` — 7 VkPipelines (OpaqueRect, AlphaBlendRect, TransformedImage, TiledImage, GlyphQuadMono, GlyphQuadEmoji, Background), shared VkPipelineLayout, VkPipelineCache (disk-backed), dynamic viewport+scissor state, glyphVertexInputState (4-attr)
+- `jam_vulkan/registry/jam_vulkan_engine_registry.h` — createContext refactored (positive nesting, jam::HashMap, GpuProbe gate, no friend)
+- `jam_vulkan/allocator/jam_vulkan_allocator.h` + `.cpp` — VMA include anchor + VMA_IMPLEMENTATION TU
+- `jam_vulkan/fonts/font/glyph/jam_glyph_vk.cpp` — VKResources struct, initVK/popVK/isVKReady, per-vertex glyph packing
+- `jam_vulkan/fonts/font/glyph/jam_glyph_graphics.h` — VK method declarations (public), VKResources forward decl
+- `jam_vulkan/fonts/font/glyph/jam_glyph_graphics.cpp` — GL branch preserved in push/pop
+- `jam_vulkan/fonts/font/glyph/jam_atlas.h` — AtlasGLuint restored
+- `jam_vulkan/shaders/{fill_rect,image,glyph,background}.{vert,frag}` + fill_rect_alpha.frag + tiled_image.frag + glyph_mono.frag + glyph_emoji.frag — 11 GLSL 450 shaders
+- `jam_vulkan/spv/*.spv` — 11 pre-baked SPIR-V binaries
+- `jam_vulkan/moltenVK/{include,lib,LICENSE}` — vendored MoltenVK (headers + static lib)
+- `jam_vulkan/glm/include/` — vendored GLM (432 header files)
+- `jam_vulkan/vma/include/vk_mem_alloc.h` — vendored AMD VMA
+- `jam_core/gpu_probe/jam_gpu_probe.{h,mm,cpp}` — rewritten from OpenGL to Vulkan probe
+- `jam_graphics/jam_graphics.h` — removed fonts includes (moved to jam_vulkan)
+- `jam_graphics/jam_graphics.cpp` — removed fonts .cpp includes
+- `jam_graphics/jam_graphics.mm` — deleted (font macOS code moved to jam_vulkan)
+- `jam_gui/jam_gui.h` — added jam_vulkan dependency + include
+- `jam_look_and_feel/jam_look_and_feel.h` — added jam_vulkan dependency + include
+- `jam_animation/jam_animation.h` — jam_vulkan dependency chain
+
+### Files Modified (END — 4 files)
+- `Source/Nexus.h` — added `#include <jam_vulkan/jam_vulkan.h>`
+- `Source/end/Panes.h` — same
+- `Source/terminal/Session.h` — same
+- `Source/lookAndFeel/LookAndFeel.h` — same
+
+### Alignment Check
+- [x] BLESSED principles followed (infrastructure is lean, direct, economical)
+- [x] NAMES.md adhered (VulkanPipelines, VulkanContext, GpuProbe — all correct)
+- [x] MANIFESTO.md principles applied
+- [ ] LLGC coordinate model not yet correct — rewrite deferred to Sprint 51
+
+### Problems Solved
+- Vulkan rendering pipeline end-to-end: instance → device → swapchain → render pass → pipeline → draw → present (verified: red clear + white rect at correct position)
+- MoltenVK vendored lean (headers + static lib, no source compile)
+- VMA integration replacing manual vkAllocateMemory
+- GPU probe rewritten for Vulkan (was OpenGL)
+- Frame lifecycle: idempotent beginFrame/beginRenderPass, ref-counted endFrame (handles multiple LLGCs per peer paint)
+- 7 pipelines with dynamic viewport+scissor, shared layout, disk-backed cache
+- 11 GLSL 450 shaders + pre-baked SPIR-V (no shaderc in JAM)
+- fillRect renders with correct Y orientation and setFill colour
+- Audit: 3 blocker bugs fixed (pDynamicState field, dangling viewport pointers, blitToSwapchain VK_NULL_HANDLE)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — VulkanLLGC native GPU methods: clipToPath (stencil), clipToImageAlpha (stencil from alpha), fillPath (earcut tessellation), beginTransparencyLayer/endTransparencyLayer (offscreen attachment), drawGlyphs (atlas lookup + instanced draw), drawLine (via fillPath)
+- LLGC coordinate model rewrite — current model manually transforms coords; correct model: MVP encodes origin+scale+transform (like CoreGraphics CTM), clip uses vkCmdSetScissor with transformed rects, raw JUCE coords pass through to vertex shader
+- Namespace format pass (task 28)
+- Comprehensive doxygen for new modules (task 29)
+- Dead code: transitionImageLayout(), stagingBufferMemory member
+- Audit WARN findings: bail-out guards, god-file/god-function line counts, public-member-with-getter dual access
+
+---
+
 ## Sprint 49: Restore Glass + Window Style Rename Pass ✅
 
 **Date:** 2026-06-28
