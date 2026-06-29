@@ -153,5 +153,13 @@ void Panes::focusPane (const juce::Identifier& direction)
 
 int Panes::getPaneCount() const noexcept { return static_cast<int> (paneViews.size()); }
 
+jam::UUID Panes::getFirstPaneUUID() const noexcept
+{
+    if (paneViews.size() > 0)
+        return jam::UUID (paneViews.at (0)->getComponentID().getLargeIntValue());
+
+    return jam::UUID (0);
+}
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

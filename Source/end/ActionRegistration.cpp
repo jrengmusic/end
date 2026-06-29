@@ -39,19 +39,25 @@ void View::registerActions()
     registry.actions.add (ID::splitHorizontal,
                           [this]
                           {
-                              auto id { state.getProperty (ID::focusedPane) };
                               if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (
-                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::horizontal);
+                              {
+                                  const auto uuid { panes->getFirstPaneUUID() };
+
+                                  if (uuid.value != 0)
+                                      panes->split (uuid, jam::ID::horizontal);
+                              }
                           });
 
     registry.actions.add (ID::splitVertical,
                           [this]
                           {
-                              auto id { state.getProperty (ID::focusedPane) };
                               if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (
-                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::vertical);
+                              {
+                                  const auto uuid { panes->getFirstPaneUUID() };
+
+                                  if (uuid.value != 0)
+                                      panes->split (uuid, jam::ID::vertical);
+                              }
                           });
 
     registry.actions.add (ID::closePane,

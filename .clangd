@@ -64,6 +64,8 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -isystem
+    - /Users/jreng/Documents/Poems/dev/end/../jam/jam_vulkan/earcut/include
+    - -isystem
     - /Users/jreng/Documents/Poems/dev/end/../jam/jam_vulkan/moltenVK/include
     - -g
     - -std=c++17

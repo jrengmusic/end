@@ -59,6 +59,9 @@ public:
     /** @brief Returns the number of pane views. */
     int getPaneCount() const noexcept;
 
+    /** @brief Returns the UUID of the first pane, or a null UUID if no panes exist. */
+    jam::UUID getFirstPaneUUID() const noexcept;
+
 private:
     jam::PaneManager paneManager;
     jam::Owner<PaneView> paneViews;
