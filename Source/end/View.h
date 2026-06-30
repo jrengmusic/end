@@ -165,7 +165,7 @@ private:
     // graphics::Processor processor;
 
     /** @brief Vulkan rendering engine — replaces OpenGL when GPU available. */
-    std::unique_ptr<jam::VulkanEngineRegistry> vulkanEngine;
+    std::unique_ptr<jam::vulkan::Registry> vulkanEngine;
 
 //==============================================================================
 #if JUCE_DEBUG

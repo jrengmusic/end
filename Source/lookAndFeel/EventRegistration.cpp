@@ -21,40 +21,19 @@ void LookAndFeel::registerTypeface()
     add (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
     add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
 
-    // jam side: build the composite code typeface from theme, with emoji + nerd-font fallbacks
-    // and a bold style variant.
-    juce::String fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
-    float fontSize { config.getValue (IDtype::code, ID::fontSize) };
-
-    auto typeface { std::make_unique<jam::Typeface> (fontFamily,
-    #if JUCE_MAC
-                                                     "Apple Color Emoji",
-    #elif JUCE_WINDOWS
-                                                     "Segoe UI Emoji",
-    #else
-                                                     "Noto Color Emoji",
-    #endif
-                                                     fontSize) };
-
-    typeface->addFallbackFont (
-        jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
-
-    typeface->addFallbackFont (
-        BinaryData::SymbolsNerdFontRegular_ttf, BinaryData::SymbolsNerdFontRegular_ttfSize);
-
-    typeface->registerStyleFont (
-        jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
-
-    jam::Typeface::registerTypeface (fontFamily, std::move (typeface));
+    // STUB: jam::Typeface removed — glyph pipeline deleted. Code typeface registration
+    // will be re-added when the new glyph pipeline is wired.
+    // jam::Typeface::registerTypeface (...) removed.
 }
 
 void LookAndFeel::initialiseColours()
 {
     colourMap = jam::ColourMap::fromValueTree (config.state);
 
-    setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
-    setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
-    setColourId (IDtype::code, ID::caret, jam::CaretComponent::caretColourId);
+    // STUB: jam::CodeView and jam::CaretComponent removed — glyph pipeline deleted.
+    // setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
+    // setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
+    // setColourId (IDtype::code, ID::caret, jam::CaretComponent::caretColourId);
     setColourId (IDtype::code, ID::highlight, juce::TextEditor::highlightColourId);
     setColourId (IDtype::code, ID::selectionCursor, selectionCursorColourId);
     setColourId (IDtype::code, ID::editorBackground, juce::TextEditor::backgroundColourId);

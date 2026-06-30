@@ -2,6 +2,67 @@
 
 ---
 
+## Sprint 52: VulkanContext → jam::vulkan::Graphics CONTRACT Rewrite ✅
+
+**Date:** 2026-07-01
+**Duration:** ~10:00
+
+### Agents Participated
+- COUNSELOR: god-object decomposition design, OOTB API research synthesis, crash root-cause analysis (descriptor pool exhaustion, FrameBuffer grow-invalidates-commands, render-pass-violation transfer commands, shared staging buffer corruption), audit triage
+- Pathfinder: VulkanContext full surface survey (members/structs/magic numbers/bail-outs), invalid-resource root-cause trace
+- Librarian: JAM OOTB API research (jam::HashMap, RAII patterns, VMA_ALLOCATION_CREATE_MAPPED_BIT)
+- Engineer: full rewrite (9 plan steps) + 4 post-build crash fixes + 47-finding audit remediation (parallel batches)
+- Auditor: comprehensive CONTRACT audit — 3 critical, 12 violation, 32 style findings, all resolved
+
+### Files Modified (24 total)
+
+**JAM framework — new:**
+- `jam_vulkan/device/jam_VulkanDevice.h` + `.cpp` — `jam::vulkan::Device`: shared instance/physicalDevice/device/queue/allocator, RAII constructor (result-chain `and`), one per app (ARCHITECT decision)
+- `jam_vulkan/resource/jam_VulkanBuffer.h` — `jam::vulkan::Buffer`: RAII VMA buffer, `VMA_ALLOCATION_CREATE_MAPPED_BIT` eliminates manual map/unmap, move-only
+- `jam_vulkan/resource/jam_VulkanImage.h` — `jam::vulkan::Image`: RAII VkImage+VkImageView+VmaAllocation, move-only
+- `jam_vulkan/resource/jam_FrameBuffer.h` + `.cpp` — unified vertex/index buffer (replaces GlyphFrameVB/PathFrameVB duplicate structs), `retiredBuffers` list defers destruction until post-fence `resetUsage()`
+- `jam_vulkan/context/jam_VulkanGraphics.h` + `.cpp` — `jam::vulkan::Graphics` (was VulkanContext, 2210→~1250 lines): static `create()` factory, RAII members, per-frame descriptor pool reset, `createStencilImage()` extracted (SSOT)
+- `jam_vulkan/registry/jam_VulkanRegistry.h` — `jam::vulkan::Registry` (was VulkanEngineRegistry): owns shared `Device`, `jam::HashMap<void*, unique_ptr<Graphics>>`
+
+**JAM framework — modified:**
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.h` + `.cpp` — namespace `jam::vulkan`, `LowLevelGraphicsContext` (was VulkanLowLevelGraphicsContext), FrameBuffer accessor API, `updateProjection()` (was updateMvp), DPI fix (`fontHeight * scale`), stencil clip wired to fillRect/drawImage/fillPath, `triangulatePath()` extracted (SSOT, was duplicated in fillPath+clipToPath)
+- `jam_vulkan/context/jam_VulkanPipelines.h` — namespace `jam::vulkan`, `Pipelines` (was VulkanPipelines), members private, two new IDs `opaqueTriListStencil`/`alphaBlendTriListStencil` (pipelineCount 16→18)
+- `jam_vulkan/context/jam_VulkanMetal.mm` — namespace `jam::vulkan`
+- `jam_vulkan/jam_vulkan.h` + `.cpp` — new include order, `jam::vk` → `jam::vulkan` shader namespace
+- `cmake/AppBuilder.cmake:577` — binary-data NAMESPACE `jam::vk` → `jam::vulkan`
+
+**JAM framework — deleted:**
+- `jam_vulkan/context/jam_VulkanContext.h` + `.cpp` (2210 lines) — replaced by Graphics
+- `jam_vulkan/registry/jam_VulkanEngineRegistry.h` — replaced by Registry
+
+**END project:**
+- `Source/end/View.h:168` — `jam::VulkanEngineRegistry` → `jam::vulkan::Registry`
+- `Source/end/EventRegistration.cpp:40` — same rename at construction site
+
+### Alignment Check
+- [x] BLESSED principles followed (B: RAII for all GPU resources — zero manual create/destroy pairs; L: god object split into 6 bounded types; E: 221 VK_NULL_HANDLE checks eliminated, no magic numbers, no bail-out guards; S/SSOT: jam::HashMap, triangulatePath/createStencilImage extracted; S/Stateless: isInitialized/frameActive/isWindowTransparent deleted; E/Encap: Pipelines members private, CachedTexture/TransparencyTarget own RAII Image; D: per-frame descriptor pool reset = deterministic allocation)
+- [x] NAMES.md adhered (jam::vulkan namespace removes redundant Vulkan-prefix per Rule 4 — Graphics not VulkanGraphics, Device not VulkanDevice; activeLlgcCount → activeContextCount, abbreviation removed)
+- [x] MANIFESTO.md principles applied (full BLESSED audit, zero outstanding findings)
+
+### Problems Solved
+- Crash at 4th tab: descriptor pool (maxSets=16, never reset) exhausted — fixed with `vkResetDescriptorPool()` in `beginFrame()`
+- Crash at 7th tab (InvalidResource): `FrameBuffer::ensureCapacity()` destroyed old vertex/index buffers still referenced by prior draw commands in the same command buffer — fixed by retiring old buffers until next frame's post-fence `resetUsage()`
+- GPU timeout: `createTextureForImage()` recorded transfer commands inside an active render pass (illegal per Vulkan spec) — bracketed with `endRenderPass()`/`beginRenderPassLoad()`
+- GPU InvalidResource (recurring): atlas upload and texture upload shared one persistent staging buffer — second upload's memcpy corrupted/freed the first upload's data mid-frame — split into `atlasStagingBuffer` + `textureStagingBuffer`
+- DPI wrong on Retina: glyph atlas rasterized at logical font size — fixed by multiplying by display scale in the atlas key
+- Stencil clip silently ignored for fillRect/drawImage/fillPath (non-deterministic output depending on draw order) — wired all three to stencil-test pipeline variants; added 2 new TriList stencil pipeline IDs for fillPath
+- `getApplicationName()` const-correctness — JUCE declares it non-const; fixed call-site to non-const pointer
+
+### Debts Paid
+- None (DEBT-20260629T100000 partially addressed — `fillPath`, `clipToPath`, `beginTransparencyLayer`/`endTransparencyLayer`, `drawGlyphs` all confirmed implemented and now stencil-clip-correct; `clipToImageAlpha` remains a stub)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — remaining: `clipToImageAlpha` (needs alpha-test stencil pipeline variant)
+- `jam_VulkanGraphics.cpp` (~1250 lines) / `jam_VulkanLowLevelGraphicsContext.cpp` (~1030 lines) — L violation (300-line limit), reduced from prior 2210/1017 but still over; further decomposition (swapchain/texture-cache/path-draw extraction) deferred
+- Multiple functions exceed 30-line limit (`create()`, `createSwapchain()`, `createRenderPass()`, `drawGlyphs()`, etc.) — deferred, requires per-function decomposition design
+
+---
+
 ## Sprint 51: Vulkan LLGC Isomorphic Coordinate Model + Full Native GPU ✅
 
 **Date:** 2026-06-29

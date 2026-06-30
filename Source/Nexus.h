@@ -22,12 +22,13 @@ struct Nexus : jam::Instance<Nexus>
 
     /** @brief Creates a new terminal session.
      *  @param uuid  Unique identifier for the session.
-     *  @param font  Typeface used to seed the session's initial font state.
      *  @return Reference to the created Session.
+     *
+     *  STUB: font parameter removed — jam::Font deleted with glyph pipeline.
      */
-    terminal::Session& create (jam::UUID uuid, const jam::Font& font)
+    terminal::Session& create (jam::UUID uuid)
     {
-        auto [entry, inserted] = sessions.try_emplace (uuid.value, std::make_unique<terminal::Session> (font));
+        auto [entry, inserted] = sessions.try_emplace (uuid.value, std::make_unique<terminal::Session>());
         jassert (inserted);
         auto& [key, session] = *entry;
         return *session;

@@ -12,23 +12,23 @@ namespace terminal
 
 /** @brief Terminal session — DAW host per terminal instance.
  *
- *  Owns the document buffer (CodeModel), text renderer (CodeView), and
- *  processing engine (Processor). Nexus owns Sessions. terminal::View
- *  parents CodeView for rendering and holds Session reference.
+ *  Owns the document buffer (CodeModel) and processing engine (Processor).
+ *  Nexus owns Sessions. terminal::View holds Session reference.
  *
- *  Phase 3: stub — CodeView with dummy text, empty lifecycle.
+ *  STUB: CodeView removed — glyph pipeline (jam::Font, glyph::Arrangement,
+ *  glyph::Graphics) deleted. No terminal content rendered until new pipeline
+ *  is wired.
+ *
  *  Phase 4: terminal::Model, Resizer, TTY lifecycle, graftInto.
  */
 struct Session
 {
-    explicit Session (const jam::Font& font)
-        : textEditor (font, document)
+    explicit Session()
     {
         jam::Stamp::getInstance()->addIfNotAlreadyThere (jam::Stamp::Entry {});
     }
 
-    /** @brief Returns the owned CodeView. View parents this for rendering. */
-    jam::CodeView& getTextEditor() noexcept { return textEditor; }
+    // STUB: getTextEditor() removed — jam::CodeView depends on deleted glyph pipeline.
 
     /** @brief Returns the owned CodeModel. View drains into this. */
     jam::CodeModel& getDocument() noexcept { return document; }
@@ -39,13 +39,10 @@ struct Session
     // Phase 4: start(), stop(), graftInto(), drain()
     // Phase 4: terminal::Model model, unique_ptr<jam::Resizer> resizer
 
-    /** @brief Document SSOT — 2 screens (normal + alternate). Declared before textEditor. */
+    /** @brief Document SSOT — 2 screens (normal + alternate). */
     jam::CodeModel document { 2 };
 
 private:
-    /** @brief Terminal text renderer — references document. Constructed after document. */
-    jam::CodeView textEditor;
-
     /** @brief Terminal engine — AudioProcessor analog. */
     Processor processor;
 

@@ -37,7 +37,7 @@ void View::registerEvents()
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
             if (canUseGpu and not vulkanEngine)
-                vulkanEngine = std::make_unique<jam::VulkanEngineRegistry>();
+                vulkanEngine = std::make_unique<jam::vulkan::Registry>();
             else if (not canUseGpu and vulkanEngine)
                 vulkanEngine.reset();
         });

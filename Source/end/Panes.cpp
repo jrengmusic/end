@@ -20,10 +20,8 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
 
 void Panes::createPane (jam::UUID uuid)
 {
-    const jam::Font font {
-        config::Model::getInstance()->getValue (IDtype::code, ID::fontFamily).toString(),
-        static_cast<float> (config::Model::getInstance()->getValue (IDtype::code, ID::fontSize)) };
-    auto& session { end::Nexus::getInstance()->create (uuid, font) };
+    // STUB: jam::Font removed — glyph pipeline deleted. Session created without font.
+    auto& session { end::Nexus::getInstance()->create (uuid) };
     auto pane { std::make_unique<terminal::View> (uuid, model, session) };
     auto* panePtr { pane.get() };
     addChildComponent (*pane);
@@ -56,10 +54,8 @@ void Panes::visibilityChanged()
 void Panes::split (jam::UUID uuid, const juce::Identifier& direction)
 {
     jam::UUID newUUID;
-    const jam::Font font {
-        config::Model::getInstance()->getValue (IDtype::code, ID::fontFamily).toString(),
-        static_cast<float> (config::Model::getInstance()->getValue (IDtype::code, ID::fontSize)) };
-    auto& session { end::Nexus::getInstance()->create (newUUID, font) };
+    // STUB: jam::Font removed — glyph pipeline deleted. Session created without font.
+    auto& session { end::Nexus::getInstance()->create (newUUID) };
     auto pane { std::make_unique<terminal::View> (newUUID, model, session) };
     auto* panePtr { pane.get() };
     addChildComponent (*panePtr);
