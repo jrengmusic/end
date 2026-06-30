@@ -2,6 +2,64 @@
 
 ---
 
+## Sprint 51: Vulkan LLGC Isomorphic Coordinate Model + Full Native GPU ✅
+
+**Date:** 2026-06-29
+**Duration:** 06:00
+
+### Agents Participated
+- COUNSELOR: sprint planning, architecture, CoreGraphics/D2D research synthesis, bug diagnosis (VB overwrite, UBO overwrite, ortho Y-flip, earcut sub-path, triangle topology, stencil diagnostic)
+- Pathfinder: CoreGraphics LLGC study, Direct2D LLGC study, LLGC codebase survey
+- Librarian: Vulkan 1.2 API research (stencil, dynamic state, push constants, scissors, transparency layers)
+- Engineer: all code implementation (11 steps + 8 bug fixes + audit remediation)
+- Auditor: full contract audit (3 blocking, 4 high, 11 medium findings — all blocking/high resolved)
+
+### Files Modified (17 total)
+
+**JAM framework:**
+- `jam_vulkan/context/jam_vulkan_low_level_graphics_context.h` — full rewrite: TransformState, State with deviceSpaceClipList, all LLGC overrides, stencil/transparency members, doxygen (renamed from jam_vulkan_llgc.h)
+- `jam_vulkan/context/jam_vulkan_low_level_graphics_context.cpp` — full rewrite: CPU vertex transform, ortho-only MVP, fillPath (earcut), clipToPath (stencil), transparency layers, named push constants, setFullViewport helper, positive nesting (renamed from jam_vulkan_llgc.cpp)
+- `jam_vulkan/context/jam_vulkan_context.h` — stencil image (S8_UINT), PathFrameVB, TransparencyTarget, renderPassLoad, stencil dynamic state init, beginRenderPassLoad
+- `jam_vulkan/context/jam_vulkan_pipelines.h` — 16 pipelines (stencilWrite, stencil-test variants, triList topology), triangleListInputAssemblyState, stencil depth-stencil states, dynamic stencil state
+- `jam_vulkan/registry/jam_vulkan_engine_registry.h` — peer map key: void* native handle replaces raw ComponentPeer*
+- `jam_vulkan/jam_vulkan.h` — earcut include, renamed LLGC include
+- `jam_vulkan/jam_vulkan.cpp` — renamed LLGC include
+- `jam_vulkan/earcut/include/earcut.hpp` — vendored Mapbox earcut (ISC license)
+- `jam_vulkan/earcut/LICENSE` — ISC license
+- `cmake/AppBuilder.cmake:539-543` — earcut include path
+
+**END project:**
+- `Source/end/Panes.h:60-62` — getFirstPaneUUID declaration
+- `Source/end/Panes.cpp:156-162` — getFirstPaneUUID implementation
+- `Source/end/ActionRegistration.cpp:39-66` — split actions use getFirstPaneUUID fallback
+
+### Alignment Check
+- [x] BLESSED principles followed (B: RAII ownership, L: DRY extractions, E: positive nesting + named structs, S: no shadow state, E: private by default, D: deterministic)
+- [x] NAMES.md adhered (TransformState, deviceSpaceClipList, PathFrameVB, TransparencyTarget, RectPushConstants, setFullViewport — all approved; llgc renamed to low_level_graphics_context)
+- [x] MANIFESTO.md principles applied (isomorphic to CoreGraphics/D2D coordinate model)
+
+### Problems Solved
+- Coordinate model rewrite: TransformState replaces broken origin+transform, deviceSpaceClipList replaces broken clipRegion
+- VB overwrite: all draws append to PathFrameVB with offset tracking (firstVertex/firstIndex/vertexBase)
+- UBO overwrite: vertices pre-transformed on CPU, MVP = fixed orthoProjection
+- Ortho Y-flip: glm::ortho(0,W,0,H) correct for Vulkan NDC Y-down
+- Triangle topology: opaqueTriList/alphaBlendTriList for earcut indexed draws
+- Earcut sub-path: per-ring independent triangulation (not outer+holes)
+- Stencil diagnostic: re-enabled after isolation test confirmed pipeline works
+- Pane split assert: focusedPane unset for initial pane, fallback to getFirstPaneUUID
+- Transparency layout: pipeline barrier PRESENT_SRC_KHR → SHADER_READ_ONLY_OPTIMAL
+- Peer map dangling key: void* native handle replaces raw ComponentPeer*
+
+### Debts Paid
+- None (DEBT-20260629T100000 partially addressed — fillPath, clipToPath, beginTransparencyLayer/endTransparencyLayer implemented; clipToImageAlpha and drawGlyphs remain)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — remaining: clipToImageAlpha (needs alpha-test stencil pipeline), drawGlyphs (awaiting ARCHITECT discussion)
+- VulkanContext god-file (2244 lines, L violation) — structural decomposition deferred
+- Bail-out guards in VulkanContext::init/shutdown/resize/beginFrame — pre-existing, outside sprint scope
+
+---
+
 ## Sprint 50: Vulkan LLGC Infrastructure ✅
 
 **Date:** 2026-06-29

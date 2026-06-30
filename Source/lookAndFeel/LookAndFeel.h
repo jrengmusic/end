@@ -166,9 +166,6 @@ public:
     void drawResizerBar (juce::Graphics& g, juce::Component& bar) override;
 
 private:
-    /** @brief Rendering-context typeface registry and shared glyph atlas. */
-    jam::TypefaceResources typefaceResources;
-
     /** @brief Rendering-context style table — self-registers as jam::Stamp::getInstance(). */
     jam::Stamp stampInstance;
 
