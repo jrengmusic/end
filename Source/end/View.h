@@ -62,8 +62,25 @@ public:
      */
     void resized() override;
 
-    /** @brief No-op — component is transparent; Window glass shows through. */
-    void paint (juce::Graphics&) override {}
+    /** @brief TEMPORARY visual test for clipToImageAlpha — draws a red circle via
+     *  an image-alpha clip mask. Remove once ARCHITECT has visually confirmed the
+     *  Vulkan stencil-alpha-mask pipeline (see DEBT-20260629T100000 history).
+     *  Component is otherwise transparent; Window glass shows through elsewhere.
+     */
+    void paint (juce::Graphics& g) override
+    {
+        constexpr int maskSize { 200 };
+
+        juce::Image circleMask (juce::Image::SingleChannel, maskSize, maskSize, true);
+        juce::Graphics maskGraphics (circleMask);
+        maskGraphics.setColour (juce::Colours::white);
+        maskGraphics.fillEllipse (0.0f, 0.0f, static_cast<float> (maskSize), static_cast<float> (maskSize));
+
+        g.saveState();
+        g.reduceClipRegion (circleMask, juce::AffineTransform::translation (40.0f, 40.0f));
+        g.fillAll (juce::Colours::red);
+        g.restoreState();
+    }
 
     /** @brief Routes key presses to the action registry.
      *  @param key                    The key press event.

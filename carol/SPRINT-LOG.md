@@ -2,6 +2,66 @@
 
 ---
 
+## Sprint 54: clipToImageAlpha — Native Vulkan Stencil-Alpha-Mask Clip ✅
+
+**Date:** 2026-07-01
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: PLAN authorship (7 steps) + Names Gate revisions (2 rounds, ARCHITECT-directed), independent verification of every Engineer/Auditor deliverable against file:line, root-cause synthesis for 3 runtime bugs found during manual testing, GPU-driven-architecture discussion (vertex pulling/bindless/draw-indirect/container-choice), ORACLE handoff brief authorship
+- Pathfinder: clipToPath/drawImage/TextureCache pattern survey, shader→SPIR-V build-mechanism trace, JUCE `clipToImageAlpha` trigger-API + END call-site survey, stencil-leak + staging-buffer-race + jaggy-edge root-cause investigation (3-part)
+- Librarian: JUCE `Image::convertedToFormat` SingleChannel→ARGB conversion semantics verification (confirms alpha-preserving, not corrupting)
+- Engineer: PLAN Steps 1-6 (single dispatch), F1/F2/F3 Auditor-finding fix (function relocation + doxygen correction), TextureCache ARGB-normalization crash fix, `View::paint()` throwaway visual test
+- Auditor: full Validation Gate pass — 5 findings (1 Medium, 4 Low), F1-F3 fixed same sprint, F4/F5 flagged as pre-existing residuals
+
+### Files Modified
+
+**JAM framework:**
+- `jam_vulkan/context/jam_VulkanPipelines.h` — `ID::stencilWriteImageAlpha` (=18), `StagePair::imageAlphaMask` (=7), `pipelineCount` 18→19, `stagePairCount` 7→8, `shaderCount` 11→12, new `pipelineSpecs` row, `PipelineBuildState::stagesImageAlphaMask[2]`
+- `jam_vulkan/context/jam_VulkanPipelines.cpp` — `sharedPushConstantRangeSize { 44 }` replaces bare literal `32` (pre-existing bug: `ImagePushConstants` is 44 bytes, every `drawImage` call was already pushing past the declared range); `loadShaderModules`/`initializeShaderStages` wired for the new shader
+- `jam_vulkan/shaders/image_alpha_mask.frag` (new) + `jam_vulkan/spv/image_alpha_mask.frag.spv` (new, compiled via `glslc`) — alpha-test discard, shares `image.vert`
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.cpp` — class-level doxygen corrected (lists all native-issuing draw paths, only `drawLine` still delegates); `frameVB`→`frameBuffer` rename
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.h` — `clipToImageAlpha` doxygen updated; new `computeImageDeviceBounds`/`recordClipToImageAlphaDrawCommands` declarations (image-helpers section)
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContextImage.cpp` — `computeImageDeviceBounds` extracted (SSOT, shared with `packImageQuadVertices`); `clipToImageAlpha` + `recordClipToImageAlphaDrawCommands` implemented here (relocated from the core file post-audit, F2/F3 fix); `frameVB`→`frameBuffer`
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContextPath.cpp`, `...Glyph.cpp`, `...Transparency.cpp` — `frameVB`→`frameBuffer` rename only (46 occurrences total across all 5 files)
+- `jam_vulkan/resource/jam_VulkanTextureCache.cpp` — `createTextureForImage` normalizes any source format via `convertedToFormat (juce::Image::ARGB)` before upload; fixes a real crash (`jassert (bmp.pixelStride == 4)`) on any non-ARGB source image (e.g. `SingleChannel` alpha masks — the idiomatic JUCE mask format)
+
+**END project:**
+- `Source/end/View.h` — `paint()` no-op replaced with a temporary visual test (alpha-mask circle clip + red fill) confirming the pipeline renders correctly (screenshot-verified: clipped red circle, not full-view fill)
+- `DEBT.md` — `DEBT-20260629T100000` re-scoped: `clipToImageAlpha` marked resolved, `drawLine`'s native-line-pipeline gap is now the sole tracked remainder
+
+### Alignment Check
+- [x] BLESSED principles followed — B: no new resource ownership, reuses `TextureCache`'s existing RAII image cache; L: all new functions ≤30 lines, `jam_VulkanLowLevelGraphicsContext.cpp` brought back under 300 (356→284) by relocating the two new functions to their correct sibling file; E: no bail-out guards, `sharedPushConstantRangeSize` replaces a magic number; S/SSOT: `computeImageDeviceBounds` shared by `drawImage` and `clipToImageAlpha`; S/Stateless: reuses `isStencilClipActive`/`currentStencilRef` rather than inventing new flags (see Debts Deferred — this reuse is also the source of a newly-found bug); E/Encapsulation: new helper is private, called only within the class's split `.cpp` files; D: stencil write sequencing matches `clipToPath` exactly
+- [x] NAMES.md adhered — 2 rounds of ARCHITECT-directed naming correction: `stencilWriteImage`→`stencilWriteImageAlpha` (Rule 4, names the alpha-test behavior explicitly) and `pushConstantRangeSize`→`sharedPushConstantRangeSize` (Rule 4, names why one size covers 19 pipelines); `frameVB`→`frameBuffer` (Rule 3, object is a `FrameBuffer&` not a vertex-only buffer)
+- [x] MANIFESTO.md principles applied — pre-existing push-constant range bug and `frameVB` misnaming both treated as in-scope per DCF §5 (no pre-existing immunity), not deferred
+
+### Problems Solved
+- `clipToImageAlpha` implemented end-to-end: native Vulkan stencil-write pipeline with alpha-test fragment shader, visually confirmed working via manual test
+- Real pre-existing bug found and fixed: push-constant range declared 32 bytes, actual `ImagePushConstants` struct is 44 bytes — every `drawImage`/transparency-composite call was already out-of-spec
+- Real bug found and fixed (crash, reproduced at runtime): `TextureCache::createTextureForImage` asserted ARGB-only, crashed on any `SingleChannel` (alpha-mask) source image — fixed via `convertedToFormat`, verified alpha-preserving via JUCE source (not assumed)
+- Auditor findings F1 (stale class doxygen)/F2 (misleading section comment)/F3 (300-line overage) — all three resolved by one relocation (functions moved to their correct sibling file)
+- Stale `frameVB` abbreviation (46 occurrences, all 5 LLGC split files) corrected to `frameBuffer`
+
+### Problems Found, Not Yet Fixed (surfaced by manual testing this sprint)
+- **Stencil-clip-state leak**: `isStencilClipActive`/`currentStencilRef` (`jam_VulkanLowLevelGraphicsContext.h:750,753`) live outside `State`, so `saveState()`/`restoreState()` never reset them. One `LowLevelGraphicsContext` instance serves an entire top-level repaint, so a single `clipToPath`/`clipToImageAlpha` call anywhere in the component tree leaves every subsequent draw for the rest of that frame stencil-gated — reproduced as "clipToImageAlpha breaks path rendering" (ARCHITECT report). Pre-existing bug in `clipToPath` too, newly exercised.
+- **Staging-buffer lifetime race (crash)**: `TextureCache::textureStagingBuffer` is grown in place via synchronous `Buffer` move-assignment (destroys the old VMA allocation immediately). If two differently-sized images upload within one unsubmitted frame, an earlier `vkCmdCopyBufferToImage`'s buffer handle goes dangling before `vkQueueSubmit` — reproduced as a real MoltenVK blit crash on new-tab creation. `FrameBuffer`'s `retiredBuffers` pattern (`jam_FrameBuffer.h:136-137`) is the precedented fix, not yet applied to `TextureCache`.
+- **Jaggy mask edges**: `image_alpha_mask.frag`'s stencil write is a binary discard (`alpha <= 0.0`) — no MSAA/sample-shading enabled anywhere in the module. Inherent to stencil-based clipping, not a shader-only fix.
+- These three, plus the broader GPU-driven-rendering discussion (vertex pulling / bindless / draw-indirect / clip-as-data reframing), were synthesized into a comprehensive ORACLE handoff brief this session — RFC not yet commissioned.
+
+### Debts Paid
+- None (`DEBT-20260629T100000` re-scoped again — `clipToImageAlpha` resolved, `drawLine` remains open under the same ID)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `drawLine` native-line-pipeline gap
+- Stencil-clip-state leak (`isStencilClipActive`/`currentStencilRef` outside `State`) — no DEBT-ID yet, found this sprint via manual testing
+- `TextureCache` staging-buffer lifetime race — no DEBT-ID yet, found this sprint via manual testing (real crash reproduced)
+- Binary/jaggy stencil-clip edges (no MSAA) — no DEBT-ID yet, architectural limitation of stencil-based clipping
+- `jam_VulkanPipelines.cpp` — 337 lines, pre-existing, minimally worsened (+~7 lines this sprint) — flagged (Auditor F4), not restructured, consistent with ARCHITECT's prior "300 is a guide" ruling
+- `jam_VulkanLowLevelGraphicsContext.h` — 767 lines, pre-existing, not materially changed this sprint — flagged (Auditor F5), not restructured
+- `TextureCache::createTextureForImage` — now 72 lines (pre-existing overage before this sprint's fix too) — flagged, not restructured (out of scope for the crash fix)
+
+---
+
 ## Sprint 53: GlyphAtlas Type-Keyed Consolidation + BLESSED Lean Decomposition ✅
 
 **Date:** 2026-07-01

@@ -10,8 +10,8 @@
 
 ## DEBT-20260629T100000
 
-**O:** `LowLevelGraphicsContext::clipToImageAlpha` still needs native Vulkan GPU work (stencil mask from an image's alpha channel). `clipToPath`, `fillPath`, `beginTransparencyLayer`/`endTransparencyLayer` were resolved in Sprint 51/52 with real Vulkan implementations (stencil pre-pass, earcut tessellation, offscreen composite respectively).
+**O:** `LowLevelGraphicsContext::drawLine` still delegates to `fillPath` with a 1px-thick stroked path instead of a native Vulkan line-rasterisation pipeline. `clipToPath`, `fillPath`, `beginTransparencyLayer`/`endTransparencyLayer`, and `clipToImageAlpha` were all resolved with real Vulkan implementations across Sprint 51/52/54 (stencil pre-pass, earcut tessellation, offscreen composite, and stencil-write alpha-test respectively).
 
-**D:** `clipToImageAlpha` is a no-op stub: it calls `juce::ignoreUnused (sourceImage, transform)` and returns without writing to the stencil buffer, without intersecting `deviceSpaceClipList`, and without binding any pipeline. Any caller relying on image-alpha clipping gets an unclipped (full) region instead of the masked one.
+**D:** `drawLine` (`jam_VulkanLowLevelGraphicsContext.cpp:275-281`) rasterises every line as a filled triangulated path via `fillPath`, which is correct but not a dedicated native line pipeline — extra earcut triangulation cost per line draw instead of a direct `VK_PRIMITIVE_TOPOLOGY_LINE_LIST`/`LINE_STRIP` pipeline.
 
-**E:** `clipToImageAlpha` gets a native Vulkan implementation via stencil buffer pre-pass reading the source image's alpha channel + `vkCmdSetStencilReference`, mirroring the pattern already established by `clipToPath`.
+**E:** `drawLine` gets a native Vulkan line-rasterisation pipeline (dedicated `Pipelines::ID` + shader stage pair using `VK_PRIMITIVE_TOPOLOGY_LINE_LIST`), removing the `fillPath` delegation and its triangulation overhead.
