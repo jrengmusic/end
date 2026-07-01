@@ -2,6 +2,64 @@
 
 ---
 
+## Sprint 53: GlyphAtlas Type-Keyed Consolidation + BLESSED Lean Decomposition ✅
+
+**Date:** 2026-07-01
+**Duration:** ~09:00
+
+### Agents Participated
+- COUNSELOR: design discussion (Type-keyed consolidation scope, container choice, Function::Map dispatch), audit triage, decomposition planning (class-extraction vs multi-TU split), independent verification of every Engineer/Auditor/Pathfinder deliverable against file:line
+- Pathfinder: Graphics/LLGC/Pipelines decomposition seam mapping, doxygen-excluded (code-only) line-count re-measurement against MANIFESTO.md:60
+- Engineer: GlyphAtlas consolidation, Function::Map build-error fix, comprehensive namespace-format sweep, Graphics→TextureCache/TransparencyStack extraction, Pipelines data-table rewrite + h/cpp split, LLGC 5-file decomposition, Graphics::create() atomic-check fix (13 dispatches total)
+- Auditor: comprehensive Sprint 52 + session audit — 48 findings (namespace formatting, bail-out guards, magic numbers, stale doxygen, file/function length, stale project docs)
+
+### Files Modified
+
+**JAM framework — new:**
+- `jam_vulkan/resource/jam_VulkanTextureCache.h` + `.cpp` — extracted from Graphics: texture cache, glyph atlas images, staging buffers, linear sampler
+- `jam_vulkan/resource/jam_VulkanTransparencyStack.h` + `.cpp` — extracted from Graphics: offscreen transparency targets; framebuffer cleanup now genuine RAII (was manual external cleanup in Graphics's destructor)
+- `jam_vulkan/context/jam_VulkanGraphicsSetup.cpp` — Graphics's 8 one-time setup helpers (surface/swapchain/renderpass/framebuffers/commandpool/syncobjects/drawstate/stencil), split from `jam_VulkanGraphics.cpp` (multi-TU, same class)
+- `jam_vulkan/context/jam_VulkanPipelines.cpp` + `jam_VulkanPipelinesState.cpp` — Pipelines was the only header-only-inline class in the module; split into declaration (`.h`) + creation-orchestration (`.cpp`) + state-builder/disk-I/O (`State.cpp`), matching every other class's convention
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContextImage.cpp` / `Path.cpp` / `Transparency.cpp` / `Glyph.cpp` — LLGC split by responsibility (drawImage; fillPath/clipToPath/triangulatePath; begin/endTransparencyLayer; drawGlyphs/ensureGlyphAtlasReady/uploadDirtyAtlasSlots)
+
+**JAM framework — modified:**
+- `jam_graphics/fonts/jam_GlyphAtlas.h` + `.cpp` — `mono`/`emoji` duplicate-by-type fields (Image, dirty flag, pack cursor ×3) collapsed to `jam::HashMap<Type, Slot>`; `packGlyph`/`writePixels` take `Type` not `bool`; `compositeMono`/`compositeEmoji` unified into `composite(Type, ...)` dispatched via `jam::Function::Map<Type, void>`; `rasterize()` decomposed (`extractGlyphBounds`/`renderMonoGlyphIntoAtlas`/`renderEmojiGlyphIntoAtlas`); `computeDestBlend` SSOT extraction shared by both composite implementations; constructor uses member-initializer-list
+- `jam_vulkan/context/jam_VulkanGraphics.h` + `.cpp` — `monoAtlasImage`/`emojiAtlasImage` → `HashMap<Type, Image>`; owns `TextureCache`/`TransparencyStack`, all prior public API preserved via thin forwarders; dead `transitionImageLayout()` deleted; `create()` factory rewritten from 9 sequential `if (not step()) return nullptr;` branches to one atomic `and`-chain matching `Device`'s constructor convention
+- `jam_vulkan/context/jam_VulkanPipelines.h` — 18-pipeline creation rewritten data-table-driven (`PipelineSpec` struct + `pipelineSpecs[18]` table replacing ~108 lines of imperative per-ID overrides); fixed a **pre-existing dangling-pointer bug** — `colorBlendState()` stores a pointer to its by-const-ref argument, and the original code passed temporaries (`opaqueBlendAttachment()`/`alphaBlendAttachment()`) directly, which are destroyed at end of full-expression; now bound to named `PipelineBuildState` members that outlive the call
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.h` + `.cpp` — `monoAtlasDescriptor`/`emojiAtlasDescriptor` → `HashMap<Type, VkDescriptorSet>`; `monoQuads`/`emojiQuads` → `HashMap<Type, vector<GlyphQuad>>`; duplicated dirty-upload block (appeared in both `ensureGlyphAtlasReady()` and `drawGlyphs()`) collapsed into shared `uploadDirtyAtlasSlots()`; duplicated pack/draw blocks collapsed into loops over `{Type::mono, Type::emoji}`; ~27 new private helpers across the 5-file split, every function now ≤30 code-only lines
+- `jam_vulkan/resource/jam_FrameBuffer.h` — `isValid()` added; closes a real gap where `Graphics::create()` could return a "successful" Graphics with a silently-failed VMA-allocated FrameBuffer
+- `jam_vulkan/jam_vulkan.h` + `.cpp` — include order updated for all new files
+- Namespace block formatting (`/*____*/` opening marker, `/**___END OF NAMESPACE___*/` closing marker, `}// namespace X` no-space closing brace) standardized across all touched jam_vulkan + jam_graphics/fonts files, per ARCHITECT's explicit no-exceptions directive
+
+**END project:**
+- `DEBT.md` — `DEBT-20260629T100000` O/D/E rewritten to reflect only `clipToImageAlpha` remains (4 of 5 original methods resolved across Sprint 51/52)
+- `ARCHITECTURE.md` — deleted ~145-line stale OpenGL `graphics::Processor` documentation (component fully commented out in `View.h`), replaced with `jam::vulkan::Registry` pipeline documentation (construction/lifecycle, per-window Graphics, frame lifecycle, render path, thread contract); Thread Ownership table row updated (GL thread → Message thread — Vulkan runs synchronously in JUCE's paint dispatch, no separate GPU thread)
+
+### Alignment Check
+- [x] BLESSED principles followed — B: TextureCache/TransparencyStack are proper owned RAII objects (TransparencyTarget framebuffer cleanup is now automatic via the owning container, was manual external cleanup); L: every file/function complies with the **code-only** 300/30 limit (MANIFESTO.md:60 excludes inline documentation from the count) except two ARCHITECT-accepted residuals (see Debts Deferred); E: magic numbers named (TransformState fixed-point scheme), bail-out guards inverted to positive nesting (`uploadDirtyAtlasSlots`, `triangulatePath` ring loop); S/SSOT: `recordUploadBarrier`/`growStagingBufferIfNeeded`/`createDeviceLocalImage` (TextureCache), `computeDestBlend` (GlyphAtlas), data-table-driven Pipelines; S/Stateless: `TypeHash` removed as redundant (`jam::Hash<Enum>` already provides an avalanching hash for any enum); E/Encapsulation: `createAtlasImage` made private; D: pipeline creation is now data-driven, same table → same pipelines
+- [x] NAMES.md adhered — namespace block format applied with zero exceptions per ARCHITECT's explicit directive this session
+- [x] MANIFESTO.md principles applied — confirmed the 300-line limit's doxygen-exclusion clause (MANIFESTO.md:60) via independent re-measurement before continuing decomposition, correcting an earlier raw-line-count basis used by Auditor/Pathfinder/Engineer
+
+### Problems Solved
+- Real pre-existing bug found and fixed: `Pipelines::colorBlendState()` dangling pointer — stored the address of a temporary `VkPipelineColorBlendAttachmentState` argument, destroyed at end of full-expression; silently "worked" only by accidental stack-memory-reuse timing
+- Real gap found and fixed: `Graphics::create()` never checked `FrameBuffer` construction validity — a VMA allocation failure would silently produce a "successful" `Graphics`, crashing later at first draw instead of failing cleanly at construction (`FrameBuffer::isValid()` added, folded into `create()`'s atomic check)
+- `jam::HashMap`'s `Function::Map::get<Args...>()` build error — explicit non-reference template args on a forwarding-reference parameter pack produce rvalue-reference parameters that can't bind lvalues; fixed by matching `add<>()`'s explicit Args to what natural lvalue deduction at the `get()` call site produces
+- Bail-out guards inverted to positive nesting in `uploadDirtyAtlasSlots()` and `triangulatePath()`'s ring-skip
+- Stale `VulkanContext` doxygen references (3 instances) corrected to `Graphics`
+- `DEBT.md`/`ARCHITECTURE.md` synced to current Vulkan reality (dead OpenGL pipeline documentation removed)
+
+### Debts Paid
+- None (`DEBT-20260629T100000` text corrected to reflect partial resolution, but the debt itself remains open — `clipToImageAlpha` is still an unimplemented stub)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `clipToImageAlpha` unimplemented
+- `jam_VulkanGraphicsSetup.cpp` — 333 code-only lines (+33 over 300) — ARCHITECT-accepted residual ("300 is a guide, not a hard rule")
+- `jam_GlyphAtlas.cpp` — 309 code-only lines (+9 over 300) — ARCHITECT-accepted residual
+- `TextureCache::createTextureForImage`/`createAtlasImage` — share a `VkImageCreateInfo`+`VkImageViewCreateInfo` construction pattern, not unified (flagged, not actioned — outside the scoped task's named candidates)
+- `GlyphAtlas::compositeMonoImpl`/`compositeEmojiImpl` — still contain irreducible per-pixel blend math over 30 lines each, consistent with the existing `compositeRows()` extraction precedent from a prior sprint
+
+---
+
 ## Sprint 52: VulkanContext → jam::vulkan::Graphics CONTRACT Rewrite ✅
 
 **Date:** 2026-07-01

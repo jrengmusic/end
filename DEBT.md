@@ -10,8 +10,8 @@
 
 ## DEBT-20260629T100000
 
-**O:** VulkanLLGC has 5 methods that still need native Vulkan GPU work: `clipToPath` (stencil mask from tessellated Path), `clipToImageAlpha` (stencil from alpha channel), `beginTransparencyLayer`/`endTransparencyLayer` (offscreen color attachment + composite), `fillPath` (path tessellation via earcut or equivalent).
+**O:** `LowLevelGraphicsContext::clipToImageAlpha` still needs native Vulkan GPU work (stencil mask from an image's alpha channel). `clipToPath`, `fillPath`, `beginTransparencyLayer`/`endTransparencyLayer` were resolved in Sprint 51/52 with real Vulkan implementations (stencil pre-pass, earcut tessellation, offscreen composite respectively).
 
-**D:** These methods currently forward to `softwareRenderer` which writes into a `juce::Image` that is never presented (blitToSwapchain deleted). Output is invisible. END's tab bar does not exercise these paths, but any JUCE component using rounded rects, ellipses, path clips, or transparency layers will produce no visible output.
+**D:** `clipToImageAlpha` is a no-op stub: it calls `juce::ignoreUnused (sourceImage, transform)` and returns without writing to the stencil buffer, without intersecting `deviceSpaceClipList`, and without binding any pipeline. Any caller relying on image-alpha clipping gets an unclipped (full) region instead of the masked one.
 
-**E:** Each method gets a native Vulkan implementation: `clipToPath`/`clipToImageAlpha` via stencil buffer pre-pass + `vkCmdSetStencilReference`; `fillPath` via earcut tessellation to triangle list + indexed draw; `beginTransparencyLayer`/`endTransparencyLayer` via secondary offscreen color attachment + composite blit back to main. `drawLine` routes through `fillPath` (thick) or `fillRect` (thin 1px quad).
+**E:** `clipToImageAlpha` gets a native Vulkan implementation via stencil buffer pre-pass reading the source image's alpha channel + `vkCmdSetStencilReference`, mirroring the pattern already established by `clipToPath`.

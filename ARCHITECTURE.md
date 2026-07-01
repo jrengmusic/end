@@ -71,7 +71,7 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 | **Reader** (TTY) | high | terminal::Model atomics, Buffer\<Row\> cells, CellFifo push | Raw PTY bytes | ValueTree, CodeModel, mutex, allocation, block |
 | **Timer** (JUCE) | default | ValueTree properties (flush dirty atomics) | `needsFlush` atomic | Buffer\<Row\>, CodeModel |
 | **Message** (main) | user-interactive | ValueTree, CodeModel mutations (drain) | ValueTree (listener), CellFifo drain | Atomics (except flush) |
-| **GL** (OpenGL) | user-interactive | Shader uniforms, FBO initialise/release, program compile/link | Shader source (via config ParameterText) | Buffer\<Row\>, ValueTree, CodeModel |
+| **Message** (Vulkan paint) | user-interactive | Vulkan command buffer recording, swapchain/pipeline/atlas-image creation (`jam::vulkan::Graphics`), glyph rasterization + dirty-flag clears (`jam::GlyphAtlas`, MESSAGE THREAD only) | Component paint bounds, glyph/font state | Buffer\<Row\>, atomics (except flush) |
 
 ### HARD INVARIANTS
 
@@ -237,149 +237,88 @@ This pattern avoids separate width/height parameters that would fire two events 
 
 ---
 
-## Shader Pipeline — graphics::Processor
+## GPU Rendering Pipeline — jam::vulkan::Registry
 
-graphics::Processor owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
-Renders multi-pass Shadertoy pipeline: buffer passes (BufferA-D) to ping-pong FBOs, then Image to screen.
-All passes receive Shadertoy-compatible uniforms (iResolution, iTime, iTimeDelta, iFrame) and iChannel0-3 samplers.
+`jam::vulkan::Registry` replaces JUCE's default software `LowLevelGraphicsContext` with a
+Vulkan-backed implementation, accelerating all UI painting (terminal text, panes, chrome)
+when a Vulkan-capable GPU is available. Supersedes the former OpenGL `graphics::Processor`
+Shadertoy-style background-shader pipeline (removed — `View.h` keeps only a commented-out
+member as historical marker). Gated by `jam::GpuProbe::probe().isAvailable` and the `ID::gpu`
+config flag.
 
-### Uniform Struct
-
-Self-contained per-frame shader state. Stores all uniform values as `HashMap<Identifier, int>`,
-paired with a `Function::Map` of setter lambdas registered at init. Call site never touches
-individual keys — uses advance(), resize(), set(), getSize() only.
-
-- **Values:** iResolution (packed end::Size), iTime (accumulated ms), iTimeDelta (frame delta ms), iFrame (count).
-- **Setters:** stateless lambdas registered once. Convert int → GL uniform call (Size unpack, ms→seconds, direct int).
-- **advance():** computes frame delta from integer millisecond clock, accumulates iTime, increments iFrame.
-- **resize(w, h):** packs viewport dims into end::Size, writes iResolution.
-- **set(program):** iterates values, dispatches each through its setter onto the bound program.
-- **getSize():** unpacks iResolution for glViewport.
-
-### Pass Struct
-
-Pure data — GL program, optional ping-pong FBO pair, and ping-pong read index:
+### Construction / Lifecycle
 
 ```
-struct Pass
-{
-    unique_ptr<OpenGLShaderProgram> program;
-    optional<array<OpenGLFrameBuffer, 2>> buffer;
-    int readIndex { 0 };
-};
+View::registerEvents() ID::gpu handler (message thread, VT listener)
+  → canUseGpu = config flag and GpuProbe::probe().isAvailable
+  → if canUseGpu and no vulkanEngine: vulkanEngine = make_unique<jam::vulkan::Registry>()
+  → if not canUseGpu and vulkanEngine exists: vulkanEngine.reset()
 ```
 
-Buffer is emplaced at creation time for non-Image passes only. readBuffer() and writeBuffer()
-select the current read/write FBO via readIndex. swap() toggles after each frame. Image has
-no buffer — renders to default framebuffer.
+`Registry` construction creates the shared `jam::vulkan::Device` (one VkInstance /
+VkPhysicalDevice / VkDevice / VkQueue / VmaAllocator per application — not per window),
+creates the shared `jam::GlyphAtlas` (CPU-side glyph rasterization cache, shared across all
+windows), and installs itself as `juce::ComponentPeer::externalContextFactory`. Destruction
+clears the factory pointer; owned `Device` / `Graphics` / `GlyphAtlas` self-destruct via RAII.
 
-Stored in `programs` HashMap keyed by pass Identifier (Image, BufferA, etc.). HashMap insertion
-order matches bimap constructor order (bufferA → bufferB → bufferC → bufferD → image).
+### Per-Window Graphics
 
-### Shader Loading
+`Registry::createContext()` — the static factory JUCE calls per peer needing to paint — is
+gated on GPU availability + device validity. Lazily creates one `jam::vulkan::Graphics` per
+native window handle (`jam::HashMap<void*, unique_ptr<Graphics>>`), keyed by
+`juce::ComponentPeer::getNativeHandle()`. Handles swapchain resize when the peer's physical
+size changes. On success, calls `graphics->beginFrame()` + `beginRenderPass()` +
+`incrementContextCount()`, then constructs a `jam::vulkan::LowLevelGraphicsContext` for JUCE
+to record paint commands into. Returns `nullptr` to fall back to JUCE's default software
+renderer if Vulkan is unavailable, the device is invalid, context creation failed, or
+`beginFrame()` could not acquire a swapchain image.
 
-```
-config::Model::loadFromPath()
-  → pre-creates ParameterText for all bimap entries (Common through Image)
-  → shader.load() reads files, calls param->setValue(source) for existing files
-  → ParameterAdapter fires parameterChanged (ID::background) once per reload
-  → Processor events map dispatches loadShaders (single trigger — not per pass)
-  → executeOnGLThread: programs.clear(), read ParameterText atomics, compile, store Pass
-  → resize() updates Uniform viewport + initialises FBO pairs at scaled dims
-```
+### Frame Lifecycle (Per-Peer)
 
-loadShaders reads shader source via `param->getValue()` (ParameterText atomic) —
-never from VT properties. VT lags behind the atomic by one flush tick; the GL thread
-must read the atomic directly to get the current value.
+Multiple `LowLevelGraphicsContext` instances can share one Vulkan frame (e.g. nested paint
+calls) — `Graphics::activeContextCount` tracks how many are live. `beginFrame()` is
+idempotent (no-op if a frame is already active); on the first call of a new frame it resets
+the descriptor pool and re-allocates the projection descriptor set. `LowLevelGraphicsContext`'s
+destructor calls `context.endFrame()`, which decrements the count and only submits + presents
+when it reaches zero (last LLGC for the frame).
 
-### Resize Flow
+### Render Path (Per Draw Call)
 
-```
-View::resized()
-  → setViewState() packs end::Size, writes ID::size to VT
-  → Parameter<int> adapter fires parameterChanged (ID::size)
-  → Processor events map dispatches ID::size event
-  → event unpacks end::Size, calls resizer.set (IDtype::view, w, h)
-  → jam::Resizer coalesces (16ms timer)
-  → stop trigger: executeOnGLThread → resize (scaledW, scaledH)
-    → uniform.resize (updates iResolution)
-    → FBO loop: initialise + clear buffer pairs at new dims (GL spec: uninitialised content undefined)
-```
+`LowLevelGraphicsContext` overrides JUCE's `LowLevelGraphicsContext` virtual draw API
+(`fillRect`, `drawImage`, `fillPath`, `clipToPath`, `drawGlyphs`,
+`beginTransparencyLayer`/`endTransparencyLayer`, etc.). Vertices are pre-transformed on the
+CPU (`TransformState` accumulator — fast-path integer-translation tracking, falls back to a
+full `juce::AffineTransform` for rotation/scale); the GPU-side projection is a fixed
+orthographic matrix (`updateProjection()`), not a full MVP — there is no model or view
+matrix, only a 2D pixel-to-NDC projection.
 
-### Render Loop (GL Thread)
+Glyph rendering: `drawGlyphs()` resolves each glyph through the shared `jam::GlyphAtlas`
+(`getOrRasterize()`), bucketing quads by atlas slot type (`jam::GlyphAtlas::Type::mono` /
+`emoji`) into a `jam::HashMap`-backed structure, then issues one `vkCmdDrawIndexed` per
+non-empty slot type in a loop. Dirty atlas slots are uploaded to their GPU `Image` via a
+dedicated staging buffer (`uploadDirtyAtlasSlots()`), bracketed by
+`endRenderPass()`/`beginRenderPassLoad()` since transfer commands are illegal inside an
+active render pass.
 
-Multi-pass Shadertoy pipeline. Buffer passes render in HashMap insertion order
-(= bimap constructor order: BufferA → BufferB → BufferC → BufferD), then Image.
-
-```
-renderOpenGL()
-  → uniform.advance() (time + frame counter)
-  → get viewport size from uniform.getSize()
-
-  → for each pass with buffer (insertion order = A, B, C, D):
-      writeBuffer().makeCurrentAndClear()
-      glViewport
-      program->use()
-      setChannels() — bind BufferA-D read textures to iChannel0-3 texture units
-      uniform.set() — dispatch iResolution, iTime, iTimeDelta, iFrame
-      quad->draw()
-      writeBuffer().releaseAsRenderingTarget()
-      swap() — flip ping-pong read/write index
-
-  → clear default framebuffer
-  → glViewport
-  → Image pass:
-      program->use()
-      setChannels() — same binding, reads buffer outputs from previous passes
-      uniform.set()
-      quad->draw()
-  → unbindChannels() — clean up texture units 0-3
-```
-
-### Channel Binding Convention
-
-Hardwired Shadertoy standard: all passes receive identical binding.
-
-| Texture Unit | Sampler Uniform | Source |
-|---|---|---|
-| 0 | iChannel0 | BufferA read FBO |
-| 1 | iChannel1 | BufferB read FBO |
-| 2 | iChannel2 | BufferC read FBO |
-| 3 | iChannel3 | BufferD read FBO |
-
-Missing buffers are not bound — GLSL sampler returns black. Self-reference works
-because buffer reads from readBuffer() while writing to writeBuffer() (ping-pong).
-`setChannels()` only binds and sets uniforms for channels with existing buffer passes.
-Missing buffers are skipped entirely — no texture bound, no uniform set.
+Stencil-based clipping (`clipToPath()`) writes a stencil mask; all subsequent draw types
+(rect fill, image, path fill, glyphs) check `isStencilClipActive` and select a stencil-test
+pipeline variant + set dynamic stencil state, so clip state is respected deterministically
+regardless of draw order.
 
 ### Thread Contract
 
 | Method | Thread |
 |--------|--------|
-| attach / detach / isAttached | MESSAGE |
-| newOpenGLContextCreated / renderOpenGL / openGLContextClosing | GL |
-| parameterChanged | MESSAGE (AsyncUpdater delivery) |
-| loadShaders (GL callback) | GL (via executeOnGLThread) |
-| Resizer stop trigger | MESSAGE (juce::Timer) |
-| resize / FBO initialise | GL (via executeOnGLThread) |
+| `View::registerEvents()` ID::gpu handler (Registry construction/teardown) | MESSAGE (VT listener) |
+| `Registry::createContext()` (per-peer Graphics creation/resize/beginFrame) | MESSAGE (JUCE paint dispatch) |
+| `LowLevelGraphicsContext` draw overrides (fillRect/drawImage/fillPath/drawGlyphs/etc.) | MESSAGE (JUCE paint dispatch) |
+| `jam::GlyphAtlas` (getOrRasterize / rasterize / pack) | MESSAGE (explicit doxygen contract — MESSAGE THREAD only, all methods) |
+| `Graphics::endFrame()` (submit + present) | MESSAGE (LLGC destructor, called after `handlePaint()` returns) |
 
-**Parameter read contract:** All GL-thread code reads parameter values via
-the parameter atomic (`ParameterText::getValue()`, `Parameter<T>::get()`) —
-never from VT properties. VT properties lag behind the atomic by one flush
-tick. The GL thread cannot wait for flush; it reads the atomic directly.
-This applies to loadShaders, resize, and any future GL-thread parameter
-consumers. graphics::Processor's entire execution surface is the GL thread;
-all parameter reads in Processor use atomics.
-
-### Event → Setter → Trigger Pattern
-
-Processor follows the KANJUT event/trigger pattern:
-
-- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. Lambdas receive `const juce::var& newValue` directly — no re-read from VT or atomic.
-  - `ID::background` → `loadShaders()`. Config file watcher coalesces reload notifications: one `background` property change = one full recompile across all passes. `loadShaders` reads all pass sources from ParameterText atomics (GL-safe).
-  - `ID::size` → unpack `end::Size` from `newValue`, call `resizer.set()` with width and height.
-- **Resizer** — trigger mechanism. `set()` coalesces via timer, fires "stop" trigger with final dimensions.
-- **parameterChanged** is the single dispatch point. Processor listens on both config::Model (`ID::background`) and end::Model (`ID::size`).
+Unlike the former OpenGL pipeline (dedicated `juce::OpenGLContext` GL thread), the Vulkan
+pipeline runs entirely on the message thread — there is no separate GPU thread. Command
+buffer recording, swapchain/pipeline creation, and glyph atlas rasterization all happen
+synchronously within JUCE's paint dispatch.
 
 ---
 
