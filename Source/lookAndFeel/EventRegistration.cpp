@@ -1,17 +1,21 @@
 #include "LookAndFeel.h"
+#include "Bimap.h"
 
 namespace end
 {
 /*____________________________________________________________________________*/
 
-void LookAndFeel::registerTypeface()
+void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 {
-    // JUCE side: create Ptrs from embedded binaries so font name lookup resolves
-    // without requiring system-installed fonts. Lambda avoids 6x repetition.
-    auto add = [this] (const void* data, int size)
+    // One pass, one parse per font (SSOT font list) — creates the Ptr, stores
+    // it in typefaces for name-based lookup (getTypefaceForFont()), and
+    // registers the SAME Ptr identity with the atlas, all in a single lambda
+    // call per font instead of two separate passes re-parsing the same bytes.
+    auto add = [this, &atlas] (const void* data, int size)
     {
         auto ptr { juce::Typeface::createSystemTypefaceFor (data, size) };
         typefaces.addOrReplace (ptr->getName(), ptr);
+        atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
     };
 
     add (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
@@ -24,6 +28,23 @@ void LookAndFeel::registerTypeface()
     // STUB: jam::Typeface removed — glyph pipeline deleted. Code typeface registration
     // will be re-added when the new glyph pipeline is wired.
     // jam::Typeface::registerTypeface (...) removed.
+
+    // Applies the shipped/user-configured rasterization backend and coverage
+    // LUT gamma/contrast before this Registry's atlas ever paints a glyph.
+    applyFontRasterization();
+}
+
+void LookAndFeel::applyFontRasterization()
+{
+    auto* registry { jam::vulkan::Registry::getInstance() };
+    jassert (registry != nullptr);
+
+    const auto backendName { config.getValue (IDtype::graphics, ID::fontRasterizer).toString() };
+    const auto backend { static_cast<jam::GlyphAtlas::Backend> (FontRasterizerBackend::get (backendName)) };
+    const float gamma { config.getValue (IDtype::graphics, ID::fontGamma) };
+    const float contrast { config.getValue (IDtype::graphics, ID::fontContrast) };
+
+    registry->getAtlas().setRasterization (backend, gamma, contrast);
 }
 
 void LookAndFeel::initialiseColours()
@@ -143,6 +164,27 @@ void LookAndFeel::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
+                                  });
+
+    // Font-identity config coverage — fontRasterizer/fontGamma/fontContrast are
+    // the ONLY config.lua values requiring a route to applyFontRasterization().
+    // See this method's own doc comment for the full glyph-identity audit.
+    events.add<juce::ValueTree&> (ID::fontRasterizer,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyFontRasterization();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::fontGamma,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyFontRasterization();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::fontContrast,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyFontRasterization();
                                   });
 }
 

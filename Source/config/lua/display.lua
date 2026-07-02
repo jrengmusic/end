@@ -102,6 +102,23 @@ return {
 		post_processing = "",
 		-- Post-processing effect intensity (0.0 = original scene, 1.0 = fully processed).
 		post_processing_opacity = 1.0,
+
+		-- Glyph atlas mono rasterization backend: "edge_table", "freetype", or "native".
+		-- "edge_table" - unhinted juce::Typeface coverage rasterization (default).
+		-- "freetype"   - autofit-hinted, stem-darkened FreeType rasterization.
+		-- "native"     - OS-native font-smoothing (CoreText on macOS, DirectWrite on Windows).
+		font_rasterizer = "freetype",
+
+		-- Coverage LUT gamma exponent applied to every rasterized mono glyph byte.
+		-- 2.2 is the sRGB standard transfer-function exponent - coverage boost
+		-- pow(x, 1/2.2) approximates linear-space compositing for light-on-dark
+		-- text, correcting for sRGB-space blending under-weighting partial coverage.
+		font_gamma = 2.2,
+
+		-- Coverage LUT contrast applied alongside font_gamma (0.0 = no synthetic
+		-- darkening). FreeType's own autofitter and native font-smoothing already
+		-- bring their own boldening; this stays 0.0 by default.
+		font_contrast = 0.0,
 	},
 
 	-- ==========================================================================

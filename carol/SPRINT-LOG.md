@@ -2,6 +2,75 @@
 
 ---
 
+## Sprint 55: Vulkan Rendering Engine Redesign — Phases A/B2/C + Canon/SSOT Hardening ✅
+
+**Date:** 2026-07-01 → 2026-07-02
+**Duration:** ~2 days (multi-session, PLAN-vulkan-redesign.md locked as one continuous sprint)
+
+### Agents Participated
+- COUNSELOR: PLAN authorship + mid-execution amendments (Phase C added, C2 rewritten), root-cause synthesis (staging crash, MSAA-discard, typeface identity, dual-registration), canon-object/SSOT design (colour/geometry vocabulary rule, backend dispatch table, Owner contract), all Engineer/Auditor orchestration + independent file:line verification, ARCHITECTURE.md rewrite, MACHINIST handoff prompts (shader autocompile + include support)
+- Pathfinder: glyph-thinness + jagged-MSAA investigation, END font-loading survey, atlas raster-path internals, JAM vendoring precedent (jam_freetype discovery)
+- Librarian: FreeType↔JUCE integration research (typeface-bytes dead-end via HarfBuzz, glyph-ID compatibility, em-size math `getHeightInPoints`, stem-darkening API, build options)
+- Engineer (13 dispatches): A2C clip-mask fix, FreeType raster path, system-font resolver, typeface-identity + color-font gates, staging arena, opacity fold + Texture merge, 3-backend enum + gamma LUT + config, audit waves 1-2 (17+15 findings), shader SSOT includes, clean-room jam::Earcut, Registry→Application move, comment purge, enum renames, function decompositions
+- Auditor (2 comprehensive passes): canon-object inventory (17 findings), SSOT/hand-rolled-vs-API deep audit (15 findings) — every actionable finding resolved in-sprint
+- MACHINIST (ARCHITECT-side): shader autocompile (glslc custom commands + depfile), `-I` include support, `.spv.d` gitignore
+
+### Files Modified (~70 total, grouped)
+
+**JAM — jam_vulkan core (redesign):**
+- `context/jam_VulkanPrimitiveRecord.h` — 80-byte SSBO record (unified quad primitives), `uvRect` → `juce::Rectangle<float>` extent semantics, layout static_asserts
+- `context/jam_VulkanPipelines.h/.cpp` + `jam_VulkanPipelinesState.cpp` — data-driven `PipelineSpec` table (21 pipelines), `alphaToCoverage` axis (clipMaskInstanced only — fixes jagged mask edges), StagePair collapsed 12→8 / shaderCount 10→9 (byte-identical shader dedup), `Shader`/`DynamicState` enums + `std::array`, push-constant block 44→40 bytes (opacity folded into colour alpha; fixed latent out-of-range `textureScale` read)
+- `context/jam_VulkanGraphics.h/.cpp` — absorbed Texture struct (file deleted), per-frame staging arena (`allocateStaging`, offset-allocated, retire-on-grow via `jam::Owner`, fence-gated reset — fixes new-tab AGX/MoltenVK crash), `RenderPassAttachment`/`Timestamp` enums, bindless slot bookkeeping per-window
+- `context/jam_VulkanGraphicsSetup*.cpp` — split into 7 per-concern TUs (Surface/RenderPass/DrawState/SceneTarget/Calibration/SampleMeasurement/CalibrationPipeline), `measureCandidateSampleCount` decomposed to 5 functions, attachment arrays enum-indexed
+- `context/jam_VulkanLowLevelGraphicsContext*.{h,cpp}` — `TransformState` extracted to own header, `GlyphQuad` vocabulary types, `RectPushConstants`/`makeRectPushConstants` deleted (inline `Colour` compose + push), `Coord` alias → `juce::Point<float>`, C2 fail-fast asserts, opacity-fold at all emit sites
+- `resource/` — `jam_VulkanTextureCache.{h,cpp}` DELETED (folded into Graphics), `jam_VulkanTexture.h` DELETED (merged), `jam_VulkanUploadHelpers.{h,cpp}` NEW (`recordImageMemoryBarrier` generalized over 9 barrier sites), `Image::create2D` factory (10 create-info sites collapsed), `FrameBuffer`/`PrimitiveRecordBuffer`/`WindingScratchTarget`/`TransparencyStack` → `jam::Owner` RAII collections (+ pointer-stability fix on transparency levels)
+- `registry/jam_VulkanRegistry.h` — unconditional-existence contract, `gpuEnabled` ctor param + `setGpuEnabled()`, never-null `createContext` (CPU fallback SSOT branch)
+- `earcut/jam_Earcut.{h,cpp}` — clean-room single-ring ear clipping (index-linked, zero pointers, first-principles rewrite; vendored mapbox earcut deleted); absorbed as JAM module per ARCHITECT
+
+**JAM — jam_vulkan/font (new glyph pipeline):**
+- `font/jam_GlyphAtlas.h` + 7 split TUs (Core/Composite/EdgeTable/FreeType/Native/Cache/GpuMirror) — 3-backend mono rasterization (`edge_table`/`freetype`/`native`) via branchless member-fn-pointer table, gamma+contrast coverage LUT (SkMaskGamma-shape, identity-verified), FreeType face registry (uniform MemoryBlock ownership), lazy system-font resolution (CoreText/DirectWrite file lookup, negative-cached), `FT_HAS_COLOR` gate (emoji stays on ImageLayer path), GPU-mirror ownership, `Key::make` SSOT, `Region`/`GlyphBounds`/`MonoCoverageWriter` vocabulary types
+- `font/jam_GlyphAtlasMac.mm` — CoreText native backend from registered bytes (fixes embedded-font garble), per-(typeface,size) CTFontRef cache (was per-glyph create/release), system-font file resolver
+- `font/jam_LowLevelGraphicsGlyphRenderer.{h,cpp}` + `Mac.mm` — CPU-fallback LLGC (atlas-backed glyphs, JUCE software everything-else, native self-presentation)
+- `jam_freetype/jam_freetype.h` — `searchpaths: freetype/include` (vendored FT 2.13.3 now consumable)
+- `shaders/` — `mvp.glsl`/`push_constants_rect.glsl`/`push_constants_glyph.glsl`/`bindless_texture.glsl` NEW (SSOT includes, 9 shaders refactored, 7/10 byte-identical recompiles), `fill_rect_alpha.frag` DELETED (byte-identical dup), `image_alpha_mask.frag` unchanged logic + A2C pipeline-side, all affected `.spv` regenerated via proven glslc invocation
+- `cmake/AppBuilder.cmake` (MACHINIST) — per-shader glslc custom commands, depfile include tracking
+
+**END:**
+- `Source/Main.h/.cpp` — `vulkanEngine` ownership (Application member after `lookAndFeel`), `initialiseVulkan()` (unconditional Registry, frame budget + pipeline-cache path + gpuEnabled, typeface registration, font-config apply)
+- `Source/end/View.h/.cpp` + `EventRegistration.cpp` — Registry member/construction removed, gpu handler → `Registry::getInstance()->setGpuEnabled()`
+- `Source/lookAndFeel/LookAndFeel.h/.cpp` + `EventRegistration.cpp` — single-pass `registerTypeface(atlas)` (dual registration collapsed), `getTypefaceForFont()` override (typeface identity), font-config event handlers + `applyFontRasterization()` (font events live with font owner)
+- `Source/Bimap.h` (`end::FontRasterizerBackend`), `Source/Identifier.h` (`fontRasterizer/fontGamma/fontContrast`), `Source/config/Config.h` (validator), `Source/config/lua/display.lua` (defaults: `edge_table`, sRGB-derived `2.2`, `0.0`)
+- `Source/graphics/` — Processor/Compositor/Program DELETED (dead OpenGL pipeline, B2)
+- `ARCHITECTURE.md` — full rendering-section rewrite (dual-engine, draw architecture, glyph pipeline, shader SSOT, thread contract); stale GL/OpenGL content removed
+- `PLAN-vulkan-redesign.md` — Phase C added, steps amended in-flight
+
+### Alignment Check
+- [x] BLESSED principles followed — B: all Vk resources RAII (`Owner` for retired collections, `Image::create2D`), staging never destroyed while referenced; L: file splits to per-concern TUs, dead code deleted same-sprint (TextureCache, RectPushConstants, fill_rect_alpha, mapbox earcut, dual registration), YAGNI holds (no LRU bindless eviction, single sampler); E: opacity is brush state composed at emit (removed from `fromHex`), no bail-out guards (calibration setup restored to positive nesting), magic indices → named enums; S/SSOT: one PrimitiveRecord path, one staging arena, one barrier helper, one image factory, one Key factory, shader includes, canon vocabulary types (juce::Point/Rectangle/jam::Size/juce::Colour CPU-side, wire structs only at GPU boundary with one conversion site); D: clip-as-data by construction, session-locked MSAA, branchless backend dispatch, byte-identity verification on all shader moves
+- [x] NAMES.md adhered — ARCHITECT-corrected in-flight: `Texture` (not Entry/CachedTexture), `setBindlessIndex` (established verb), `Shader`/`DynamicState`/`Timestamp` (Slot suffix purged as positional filler), `RenderPassAttachment` (Vulkan noun), `jam::Earcut`, `FontRasterizerBackend`
+- [x] MANIFESTO.md principles applied — DCF §5 throughout: pre-existing violations fixed on discovery (push-constant layout mismatch, FrameBuffer bail-out guards, per-glyph CTFontRef churn, function-length decompositions); doxygen provenance purge (221→0 hits — comments document code, never execution)
+
+### Problems Solved
+- All 6 PLAN defects: clip-state desync (clip-as-data), path winding (stencil-then-cover + clean-room Earcut), nested clip intersection, per-layer stencil isolation, no-AA (calibrated MSAA + alpha-to-coverage on the clip mask), descriptor churn (bindless)
+- New-tab crash root-caused and fixed: staging buffer destroyed-while-referenced on grow + same-frame offset-0 overwrite → per-window offset-allocated arena with retire-on-grow
+- Glyph rendering quality: user-selectable rasterization backend (EdgeTable/FreeType/native), sRGB-derived gamma LUT, all hot-reloadable via config; embedded-font identity + native-backend byte-based CTFont; CPU-fallback renderer shares the same atlas (visual parity by construction)
+- Phase C goal structurally guaranteed: `externalContextFactory` never returns nullptr in ANY config (Registry unconditional, gpu flag selects engine only)
+- Two comprehensive audits (32 findings total) fully resolved; latent push-constant out-of-range read found and fixed via spirv-dis verification
+
+### Debts Paid
+- Stencil-clip-state leak (Sprint 54 deferred, no ID) — resolved by clip-as-data
+- Staging-buffer lifetime race (Sprint 54 deferred, no ID) — resolved by the staging arena
+- Jaggy stencil-clip edges (Sprint 54 deferred, no ID) — resolved by MSAA + alpha-to-coverage
+- *(no `DEBT-*` IDs to drain — none of the above had ledger entries)*
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `drawLine` native-line-pipeline gap (untouched this sprint)
+- Windows-unverified blocks: GDI presentation, DirectWrite resolver + native rasterizer, DirectWrite custom-collection TODO (embedded fonts under `native` backend garble on Windows until implemented) — ARCHITECT's Windows build exercises all
+- `GlyphConstraint`/`BoxDrawing` ported but unwired (needs cell-size plumbing decision)
+- CodeEditorComponent cell/glyph-shaping optimization (ARCHITECT to `carol debt add`)
+- PLAN Steps B1 (refresh-rate → frame budget), B3 (shaderc + PostProcessRegistry), B4 (post-process pipeline), B5 (remaining doc/debt closure) — next sprint(s)
+
+---
+
 ## Sprint 54: clipToImageAlpha — Native Vulkan Stencil-Alpha-Mask Clip ✅
 
 **Date:** 2026-07-01

@@ -205,6 +205,75 @@ struct Filter : public jam::Bimap<Filter>
     }
 };
 
+//==============================================================================
+/**
+ * @brief Bimap for the glyph atlas mono rasterization backend — "edge_table",
+ *        "freetype", or "native".
+ *
+ * Used by graphics.font_rasterizer config field. Integer keys deliberately
+ * mirror jam::GlyphAtlas::Backend so the looked-up key can be forwarded
+ * directly to jam::GlyphAtlas::setRasterization() via a static_cast, without a
+ * secondary mapping:
+ *   0 → "edge_table" — juce::Typeface::getLayersForGlyph() coverage, unhinted (default)
+ *   1 → "freetype"   — autofit-hinted, stem-darkened FreeType rasterization
+ *   2 → "native"     — OS-native font-smoothing (CoreText / DirectWrite)
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
+{
+    /** @brief Integer keys mirroring jam::GlyphAtlas::Backend's enumerator order. */
+    enum
+    {
+        edgeTable,///< Unhinted EdgeTable coverage (default).
+        freetype,///< Autofit-hinted, stem-darkened FreeType rasterization.
+        native,///< OS-native font-smoothing rasterization.
+    };
+
+    /** @brief Populates the bimap with all three entries. */
+    FontRasterizerBackend()
+    {
+        map = {
+            { FontRasterizerBackend::edgeTable, "edge_table" },
+            { FontRasterizerBackend::freetype,  "freetype"   },
+            { FontRasterizerBackend::native,    "native"     },
+        };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (FontRasterizerBackend::edgeTable); }
+
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    static int get (const juce::String& value) noexcept
+    {
+        return jam::Map::getKey (get()).at (value);
+    }
+
+    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
+
+    /** @brief Returns a fused Validator for the FontRasterizerBackend value set.
+     *
+     *  check  — accepts any string present in the FontRasterizerBackend bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
+    {
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
+    }
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end
 
@@ -514,6 +583,7 @@ struct Map
     file::Shaders shaders;
     file::BufferChannel fbo;
     end::Filter filter;
+    end::FontRasterizerBackend fontRasterizerBackend;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

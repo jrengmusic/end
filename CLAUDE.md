@@ -6,9 +6,9 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 51 — Vulkan LLGC Isomorphic Coordinate Model + Full Native GPU ✅ (2026-06-29)
+- **Last sprint:** Sprint 54 — clipToImageAlpha — Native Vulkan Stencil-Alpha-Mask Clip ✅ (2026-07-01)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
-- **Active debt:** DEBT-20260629T100000 (VulkanLLGC native GPU methods)
+- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap — sole remainder after re-scope)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  

@@ -32,14 +32,20 @@ void View::registerEvents()
         ID::gpu,
         [this] (juce::ValueTree&)
         {
-            const auto gpu { jam::GpuProbe::probe() };
-            bool canUseGpu { config.getValue (IDtype::display, ID::gpu) and gpu.isAvailable };
+            // jam::vulkan::Registry is constructed unconditionally, once, by
+            // end::Application, and never reset/reconstructed here — GPU
+            // availability/preference only selects which rendering engine
+            // createContext() dispatches to per paint (see end::Application's
+            // vulkanEngine doc comment, Main.h).
+            const bool canUseGpu {
+                config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
+            };
+
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
-            if (canUseGpu and not vulkanEngine)
-                vulkanEngine = std::make_unique<jam::vulkan::Registry>();
-            else if (not canUseGpu and vulkanEngine)
-                vulkanEngine.reset();
+            auto* registry { jam::vulkan::Registry::getInstance() };
+            jassert (registry != nullptr);
+            registry->setGpuEnabled (canUseGpu);
         });
 
     events.add<juce::ValueTree&> (

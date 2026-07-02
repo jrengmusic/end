@@ -48,7 +48,7 @@ View::~View()
 
 void View::resized()
 {
-    setViewState (Size (getWidth(), getHeight()));
+    setViewState (jam::Size<int16_t> (getWidth(), getHeight()));
 
     tabs.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
@@ -80,7 +80,7 @@ void View::createAndAttachParameters()
 
     //==============================================================================
     model.createAndAddParameter<jam::Parameter<int>> (
-        state, ID::size, end::Size (width, height).toInt());
+        state, ID::size, jam::Size<int16_t> (width, height).toInt());
 
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
@@ -92,7 +92,10 @@ void View::createAndAttachParameters()
     setSize (width, height);
 }
 
-void View::setViewState (Size size) { state.setProperty (ID::size, size.toInt(), nullptr); }
+void View::setViewState (jam::Size<int16_t> size)
+{
+    state.setProperty (ID::size, size.toInt(), nullptr);
+}
 
 void View::setTabOrientation()
 {

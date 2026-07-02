@@ -8,7 +8,6 @@
 #include "end/MessageOverlay.h"
 #include "action/Registry.h"
 #include "config/Config.h"
-#include "graphics/Processor.h"
 #include "Bimap.h"
 
 namespace end
@@ -62,26 +61,6 @@ public:
      */
     void resized() override;
 
-    /** @brief TEMPORARY visual test for clipToImageAlpha — draws a red circle via
-     *  an image-alpha clip mask. Remove once ARCHITECT has visually confirmed the
-     *  Vulkan stencil-alpha-mask pipeline (see DEBT-20260629T100000 history).
-     *  Component is otherwise transparent; Window glass shows through elsewhere.
-     */
-    void paint (juce::Graphics& g) override
-    {
-        constexpr int maskSize { 200 };
-
-        juce::Image circleMask (juce::Image::SingleChannel, maskSize, maskSize, true);
-        juce::Graphics maskGraphics (circleMask);
-        maskGraphics.setColour (juce::Colours::white);
-        maskGraphics.fillEllipse (0.0f, 0.0f, static_cast<float> (maskSize), static_cast<float> (maskSize));
-
-        g.saveState();
-        g.reduceClipRegion (circleMask, juce::AffineTransform::translation (40.0f, 40.0f));
-        g.fillAll (juce::Colours::red);
-        g.restoreState();
-    }
-
     /** @brief Routes key presses to the action registry.
      *  @param key                    The key press event.
      *  @param originatingComponent   Component that originated the key press (unused).
@@ -121,7 +100,7 @@ private:
     /** @brief Creates the packed ID::size parameter and grafts View, Tabs, and
      *         MessageOverlay state into the model tree via Attachment.
      *
-     *  Reads initial window size from config, packs into end::Size, creates
+     *  Reads initial window size from config, packs into jam::Size\<int16_t\>, creates
      *  a Parameter\<int\> on the view state for ID::size, then constructs
      *  Attachments for View, Tabs, and MessageOverlay. Called once from
      *  the constructor after registerEvents().
@@ -142,8 +121,19 @@ private:
      *  Registers handlers for: tabOrientation (applies tab orientation from
      *  config.lua config), focus (updates focusedPane state), theme (propagates
      *  LookAndFeel change), alwaysOnTop and titleBarButtons (dispatch to
-     *  jam::Window), gpu (attach/detach shader based on config and probe result).
+     *  jam::Window), gpu (toggles jam::vulkan::Registry::getInstance()'s
+     *  setGpuEnabled() from config and probe result, and the post-process
+     *  background-blur shader via jam::BackgroundBlur::setEnabled() — the
+     *  Registry itself is owned and constructed once by end::Application,
+     *  never by View, and is never reset/reconstructed here; see
+     *  end::Application's vulkanEngine doc comment, Main.h).
      *  Message display is handled directly by MessageOverlay via ParameterAttachment.
+     *
+     *  Font-identity config coverage (fontRasterizer/fontGamma/fontContrast,
+     *  the only config.lua values that change a glyph's rasterized bitmap for an
+     *  otherwise-unchanged jam::GlyphAtlas::Key) is owned by end::LookAndFeel —
+     *  the font owner — not View; see LookAndFeel::registerEvents()'s doc
+     *  comment for the full audit of every glyph-identity config value.
      *  Defined in EventRegistration.cpp.
      */
     void registerEvents();
@@ -151,11 +141,11 @@ private:
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     void setTabOrientation();
 
-    /** @brief Packs width + height into end::Size and writes as a single int
+    /** @brief Packs width + height into jam::Size<int16_t> and writes as a single int
      *         property (ID::size) on the view state tree.
-     *  @param size   Current component width and heightin pixels.
+     *  @param size   Current component width and height in pixels.
      */
-    void setViewState (Size size);
+    void setViewState (jam::Size<int16_t> size);
 
     //==============================================================================
     /** @brief Action registry — maps key bindings to action callbacks. */
@@ -177,12 +167,6 @@ private:
      *  the fallback.
      */
     jam::Function::Map<juce::Identifier, void> events;
-
-    // /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
-    // graphics::Processor processor;
-
-    /** @brief Vulkan rendering engine — replaces OpenGL when GPU available. */
-    std::unique_ptr<jam::vulkan::Registry> vulkanEngine;
 
 //==============================================================================
 #if JUCE_DEBUG

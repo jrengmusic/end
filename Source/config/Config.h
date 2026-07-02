@@ -201,6 +201,7 @@ public:
         add (IDtype::popup,      ID::position,       end::Position::getValidator());
         add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
         add (IDtype::graphics,   ID::filter,         end::Filter::getValidator());
+        add (IDtype::graphics,   ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
 
         return v;
     }();

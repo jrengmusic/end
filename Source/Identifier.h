@@ -25,6 +25,7 @@
     X (config, "config")                     \
     X (display, "display")                   \
     X (init, "init")                         \
+    X (cache, "cache")                       \
     X (end, "end")                           \
     X (keys, "keys")                         \
     X (popup, "popup")                       \
@@ -266,33 +267,36 @@
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
 // iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shader/wrapper.frag —
 // the C++ side uses them as iChannel slot identifiers in file::Shaders.
-#define IDENTIFIER_SHADER(X)                    \
-    X (iResolution, "iResolution")              \
-    X (iTime, "iTime")                          \
-    X (iTimeDelta, "iTimeDelta")                \
-    X (iFrame, "iFrame")                        \
-    X (iChannel0, "iChannel0")                  \
-    X (iChannel1, "iChannel1")                  \
-    X (iChannel2, "iChannel2")                  \
-    X (iChannel3, "iChannel3")                  \
-    X (common, "Common")                        \
-    X (image, "Image")                          \
-    X (bufferA, "BufferA")                      \
-    X (bufferB, "BufferB")                      \
-    X (bufferC, "BufferC")                      \
-    X (bufferD, "BufferD")                      \
-    X (background, "background")                \
-    X (backgroundOpacity, "background_opacity") \
-    X (postProcessing, "post_processing")       \
+#define IDENTIFIER_SHADER(X)                             \
+    X (iResolution, "iResolution")                       \
+    X (iTime, "iTime")                                   \
+    X (iTimeDelta, "iTimeDelta")                         \
+    X (iFrame, "iFrame")                                 \
+    X (iChannel0, "iChannel0")                           \
+    X (iChannel1, "iChannel1")                           \
+    X (iChannel2, "iChannel2")                           \
+    X (iChannel3, "iChannel3")                           \
+    X (common, "Common")                                 \
+    X (image, "Image")                                   \
+    X (bufferA, "BufferA")                               \
+    X (bufferB, "BufferB")                               \
+    X (bufferC, "BufferC")                               \
+    X (bufferD, "BufferD")                               \
+    X (background, "background")                         \
+    X (backgroundOpacity, "background_opacity")          \
+    X (postProcessing, "post_processing")                \
     X (postProcessingOpacity, "post_processing_opacity") \
-    X (frameRate, "frame_rate")                 \
-    X (resolutionScale, "resolution_scale")     \
-    X (filter, "filter")                        \
-    X (iOpacity, "iOpacity")                    \
-    X (iPostOpacity, "iPostOpacity")  \
-    X (outputTexture, "outputTexture")          \
-    X (output, "output")                   \
-    X (iScene, "iScene")                   \
+    X (frameRate, "frame_rate")                          \
+    X (resolutionScale, "resolution_scale")              \
+    X (filter, "filter")                                 \
+    X (fontRasterizer, "font_rasterizer")                \
+    X (fontGamma, "font_gamma")                          \
+    X (fontContrast, "font_contrast")                    \
+    X (iOpacity, "iOpacity")                             \
+    X (iPostOpacity, "iPostOpacity")                     \
+    X (outputTexture, "outputTexture")                   \
+    X (output, "output")                                 \
+    X (iScene, "iScene")                                 \
     X (scene, "scene")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)

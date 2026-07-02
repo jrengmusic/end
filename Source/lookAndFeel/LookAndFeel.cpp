@@ -6,7 +6,10 @@ namespace end
 
 LookAndFeel::LookAndFeel()
 {
-    registerTypeface();
+    // registerTypeface() cannot run here — it needs the Vulkan glyph atlas,
+    // which does not exist until end::View constructs its Registry (this
+    // LookAndFeel constructs first, per end::Application's member order,
+    // Main.h). Called once, externally, immediately after that construction.
     initialiseColours();
     loadGraphics();
     registerEvents();
@@ -131,6 +134,16 @@ juce::Font LookAndFeel::getTabFont() const
 }
 
 int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+
+juce::Typeface::Ptr LookAndFeel::getTypefaceForFont (const juce::Font& font)
+{
+    auto name { font.getTypefaceName() };
+
+    if (typefaces.contains (name))
+        return typefaces.at (name);
+
+    return juce::LookAndFeel::getTypefaceForFont (font);
+}
 
 juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
 {

@@ -54,14 +54,35 @@ public:
     };
 
     /**
-     * @brief Registers typefaces, initialises colours from config, loads SVG
-     *        graphics from GRAPHICS child properties, registers events, and adds
-     *        a listener to config.
+     * @brief Initialises colours from config, loads SVG graphics from GRAPHICS
+     *        child properties, registers events, and adds a listener to config.
+     *        Typeface registration happens later — see registerTypeface()'s
+     *        doc comment for why it cannot run here.
      */
     LookAndFeel();
 
     /** @brief Removes the listener from config. */
     ~LookAndFeel();
+
+    /**
+     * @brief Registers END's six embedded typefaces — one pass, one parse per
+     *        font (SSOT font list) — creating each Typeface::Ptr, storing it in
+     *        @ref typefaces for name-based lookup (getTypefaceForFont()), and
+     *        registering it with the Vulkan glyph atlas so its mono glyphs
+     *        rasterize through FreeType's autofitter instead of the EdgeTable
+     *        fallback.
+     *
+     * Cannot run at LookAndFeel construction time — the atlas (owned by
+     * jam::vulkan::Registry) does not exist yet then (end::View constructs its
+     * Registry after end::LookAndFeel, per end::Application's member order,
+     * Main.h). Called once, externally, immediately after Registry construction
+     * (end::View's constructor). Also applies the shipped/user-configured glyph
+     * rasterization backend/gamma/contrast (see applyFontRasterization()) before
+     * this atlas ever paints a glyph.
+     *
+     * @param atlas  The Vulkan glyph atlas to register with.
+     */
+    void registerTypeface (jam::GlyphAtlas& atlas);
 
     /**
      * @brief Single-key event dispatch through the events map.
@@ -132,6 +153,25 @@ public:
      *  Reads tab.text_padding from the display config (user-configurable).
      */
     int getTabPadding() const override;
+
+    /**
+     * @brief Resolves the exact Typeface::Ptr registered in @ref typefaces for
+     *        one of END's six embedded fonts, bypassing JUCE's TypefaceCache
+     *        platform lookup by name.
+     *
+     * TypefaceCache resolves juce::Font name lookups through a platform-specific
+     * path and would otherwise hand back a *different* Typeface object than the
+     * Ptr registerTypeface() created and registered with the Vulkan glyph atlas.
+     * Returning the same object identity here guarantees it
+     * flows unchanged from name-based Font construction through shaping into
+     * GlyphAtlas::Key::typeface, so the atlas's pointer-keyed FreeType face
+     * registry hits for END's embedded fonts instead of missing on every glyph.
+     *
+     * @param font The font whose typeface is being resolved.
+     * @return The registered Ptr when @p font names one of the six embedded
+     *         fonts; otherwise the base class result.
+     */
+    juce::Typeface::Ptr getTypefaceForFont (const juce::Font& font) override;
 
     /** @brief Display transform applied to a tab label before measuring and painting.
      *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
@@ -204,22 +244,39 @@ private:
      * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     — per-component colour refresh via setColours()
+     * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
+     *                     — re-applies applyFontRasterization() on config hot-reload
      */
     jam::Function::Map<juce::Identifier, void> events;
 
     //==============================================================================
     /**
-     * @brief Registers embedded JUCE typefaces and builds the composite code
-     *        typeface with platform emoji and nerd-font fallbacks.
+     * @brief Reads graphics.font_rasterizer/font_gamma/font_contrast from
+     *        config.lua and calls the Vulkan glyph atlas's setRasterization().
      *
-     * JUCE side: creates Typeface::Ptrs from JAM embedded binary data and stores
-     * them in @ref typefaces so font name lookup resolves without system-installed
-     * fonts. JAM side: constructs a jam::Typeface for the code font family from
-     * theme, adds platform emoji fallback (Apple Color Emoji / Segoe UI Emoji /
-     * Noto Color Emoji), DisplayMonoBook nerd-font fallback, SymbolsNerdFont
-     * fallback, and a DisplayMonoBold style variant. Defined in EventRegistration.cpp.
+     * Reaches the atlas via jam::vulkan::Registry::getInstance() rather than a
+     * stored reference — Registry now always exists once end::View's
+     * constructor has run (font events live with the font owner, but the atlas
+     * itself stays owned by Registry). Asserts the instance is non-null rather
+     * than silently no-op-ing: by the time any of this method's three callers
+     * (registerTypeface()'s tail, and the fontRasterizer/fontGamma/fontContrast
+     * event handlers below) can run, Registry construction has already
+     * happened. Called once from registerTypeface() right after registration
+     * (before this Registry's atlas ever paints a glyph), and again by the
+     * fontRasterizer/fontGamma/fontContrast event handlers on config hot-reload.
+     *
+     * Only these three properties warrant this call: they change the
+     * rasterized bitmap for an otherwise-unchanged jam::GlyphAtlas::Key (same
+     * typeface/glyphIndex/fontSize, different backend or coverage LUT) — font
+     * family and size changes are a different Key outright and need no
+     * explicit atlas action (see registerEvents()'s doc comment for the full
+     * glyph-identity config audit). GlyphAtlas::setRasterization() itself only
+     * rebuilds the LUT and flushes the cache when backend/gamma/contrast
+     * actually differ from their current values — reapplying identical values
+     * here is a correct no-op, not a gap, since no caller ever needs a flush
+     * without an actual change. Defined in EventRegistration.cpp.
      */
-    void registerTypeface();
+    void applyFontRasterization();
 
     /**
      * @brief Reads SVG content from the GRAPHICS child of config.state and
@@ -252,6 +309,33 @@ private:
      * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     → setColours(config.state)
+     * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
+     *                     → applyFontRasterization() (font events live with the
+     *                       font owner — relocated from end::View)
+     *
+     * Glyph-identity config coverage audit — every config value that can alter
+     * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/
+     * fontContrast route to applyFontRasterization(). tab.font_family/font_size/
+     * kerning_factor and jam::overlay's font_family/font_size do NOT need a
+     * dedicated handler: jam::GlyphAtlas::Key (jam_GlyphAtlas.h) identifies a
+     * cached glyph by {typeface pointer, glyphIndex, fontSize} — a new family
+     * resolves to a new typeface pointer and a new size is a new Key member, so
+     * both cache-miss and re-rasterize correctly on the very next paint with no
+     * atlas call required; kerning_factor never reaches Key at all (it shifts
+     * glyph pen positions, never glyph identity). getTabFont() and
+     * MessageOverlay::paint() already re-read config on every paint, and any
+     * theme.lua edit unconditionally fires ID::theme (config::Theme::loadFromPath)
+     * into the theme handler above, which repaints the whole component tree
+     * (juce::Component::sendLookAndFeelChange descends to every child) — so the
+     * new family/size is picked up immediately. status_bar/action_list
+     * font_family/font_size and the terminal code font are configured in
+     * theme.lua but have no live glyph-rendering call site yet (StatusBar/
+     * ActionList components do not exist in Source; registerTypeface() stubs
+     * the code typeface pending the new glyph pipeline) — nothing to route to
+     * until that pipeline exists. Only fontRasterizer/fontGamma/fontContrast
+     * change the rasterized bitmap for an UNCHANGED Key (same typeface/glyphIndex/
+     * fontSize, different backend or coverage LUT), which is exactly why
+     * GlyphAtlas::setRasterization() must be re-invoked explicitly on those three.
      * Defined in EventRegistration.cpp.
      */
     void registerEvents();
