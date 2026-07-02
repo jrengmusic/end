@@ -54,10 +54,12 @@ public:
     /** @brief Destructs the View, removing all listeners and the key listener. */
     ~View() override;
 
-    /** @brief Updates view-state dimensions and lays out tabs and the message overlay.
+    /** @brief Updates view-state dimensions and lays out the background, tabs,
+     *         and the message overlay.
      *
      *  Packs current width + height into ID::size via @c setViewState (single atomic
-     *  VT write), then bounds both @c tabs and @c messageOverlay to @c getLocalBounds().
+     *  VT write), then bounds @c background, @c tabs, and @c messageOverlay to
+     *  @c getLocalBounds().
      */
     void resized() override;
 
@@ -122,11 +124,15 @@ private:
      *  config.lua config), focus (updates focusedPane state), theme (propagates
      *  LookAndFeel change), alwaysOnTop and titleBarButtons (dispatch to
      *  jam::Window), gpu (toggles jam::vulkan::Registry::getInstance()'s
-     *  setGpuEnabled() from config and probe result, and the post-process
-     *  background-blur shader via jam::BackgroundBlur::setEnabled() — the
-     *  Registry itself is owned and constructed once by end::Application,
-     *  never by View, and is never reset/reconstructed here; see
-     *  end::Application's vulkanEngine doc comment, Main.h).
+     *  setGpuEnabled() from config and probe result, the post-process
+     *  background-blur shader via jam::BackgroundBlur::setEnabled(), and both
+     *  applyBackground()/applyPostProcess() — the Registry itself
+     *  is owned and constructed once by end::Application, never by View, and
+     *  is never reset/reconstructed here; see end::Application's vulkanEngine
+     *  doc comment, Main.h). background/backgroundOpacity/frameRate/
+     *  backgroundResolution route to applyBackground(); postProcessing/
+     *  postProcessingOpacity/postProcessingResolution route to
+     *  applyPostProcess(); filter (shared by both slots) routes to both.
      *  Message display is handled directly by MessageOverlay via ParameterAttachment.
      *
      *  Font-identity config coverage (fontRasterizer/fontGamma/fontContrast,
@@ -134,9 +140,59 @@ private:
      *  otherwise-unchanged jam::GlyphAtlas::Key) is owned by end::LookAndFeel —
      *  the font owner — not View; see LookAndFeel::registerEvents()'s doc
      *  comment for the full audit of every glyph-identity config value.
-     *  Defined in EventRegistration.cpp.
+     *
+     *  Two funnel pairs, each split by cost: background/gpu/filter route to
+     *  applyBackground() (full recompile — project identity, GPU toggle, and
+     *  filter all change what gets baked into the compiled SPIR-V), while
+     *  backgroundOpacity/frameRate/backgroundResolution route to the cheap
+     *  applyBackgroundParams() (no recompile, jam::vulkan::ShaderComponent::setParams()).
+     *  postProcessing/gpu/filter route to applyPostProcess() (full); filter
+     *  is shared by both slots so its handler calls both full funnels; gpu
+     *  likewise. postProcessingOpacity/postProcessingResolution route to the
+     *  cheap applyPostProcessParams(). Defined in EventRegistration.cpp.
      */
     void registerEvents();
+
+    /** @brief Gathers current config values and the effective GPU state
+     *  (config preference ANDed with jam::GpuProbe::probe().isAvailable — the
+     *  same effective truth end::Application resolves for the Registry ctor
+     *  and the gpu event handler resolves for setGpuEnabled()), compiles via
+     *  @c graphics::Compiler when GPU-enabled and a project is configured, and
+     *  installs the result on @c background via its @c setShader() tell-API
+     *  (@c nullptr on GPU-off/no-project; a failed compile calls nothing,
+     *  keeping @c background's last-good shader). Full recompile — routed to
+     *  by project/GPU/filter changes only (see registerEvents()'s doc
+     *  comment); opacity/resolution/frame-rate-only changes route to the
+     *  cheaper applyBackgroundParams() instead. Single gather site (SSOT) for
+     *  every background-identity config change — shared by initial load
+     *  (transitively, via the gpu handler firing at startup) and hot-reload.
+     *  Defined in EventRegistration.cpp.
+     */
+    void applyBackground();
+
+    /** @brief Cheap parameter-only update — no recompile. Gathers
+     *  opacity/resolutionScale/frameRate and forwards them to
+     *  @c background via its @c setParams() tell-API. Defined in
+     *  EventRegistration.cpp. */
+    void applyBackgroundParams();
+
+    /** @brief Gathers current post-processing config values and the effective
+     *  GPU state and installs (or clears) jam::vulkan::Registry's app-global
+     *  post-process chain accordingly. Full recompile — routed to by
+     *  project/GPU/filter changes only (see registerEvents()'s doc comment);
+     *  opacity/resolution-only changes route to the cheaper
+     *  applyPostProcessParams() instead. Single gather site (SSOT) for every
+     *  post-process-identity config change — shared by initial load
+     *  (transitively, via the gpu handler firing at startup) and hot-reload.
+     *  Defined in EventRegistration.cpp.
+     */
+    void applyPostProcess();
+
+    /** @brief Cheap parameter-only update — no recompile. Gathers
+     *  opacity/resolutionScale and forwards them to
+     *  jam::vulkan::Registry::setPostProcessParams(). Defined in
+     *  EventRegistration.cpp. */
+    void applyPostProcessParams();
 
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     void setTabOrientation();
@@ -150,6 +206,11 @@ private:
     //==============================================================================
     /** @brief Action registry — maps key bindings to action callbacks. */
     action::Registry registry;
+
+    /** @brief Self-managed background shader component — added as the
+     *  rearmost child (View::View()) so every other child paints over it.
+     */
+    jam::vulkan::ShaderComponent background;
 
     /** @brief Tab system — owns panes and terminal sessions. */
     Tabs tabs;

@@ -93,15 +93,23 @@ return {
 		-- Shader frame rate (1-120). Controls how many times per second
 		-- shader passes execute. Lower values reduce GPU load.
 		frame_rate = 30,
-		-- Resolution scale (0.1-1.0). Shader passes render at this fraction
-		-- of the screen resolution, then upscale to full size.
-		resolution_scale = 0.5,
+		-- Background shader resolution (0.0-1.0). Fraction of screen resolution
+		-- at which the background shader's intermediate passes (BufferA-D, Image)
+		-- render before upscale. Component/scene painting is always full resolution —
+		-- this only scales the shader's own offscreen buffers.
+		background_resolution = 0.5,
 		-- Texture filter mode for shader upscaling: "linear" (bilinear) or "nearest" (pixel-sharp).
+		-- Applies to both the background and post-processing upscale.
 		filter = "linear",
 		-- Post-processing shader project directory name. Empty string disables.
 		post_processing = "",
 		-- Post-processing effect intensity (0.0 = original scene, 1.0 = fully processed).
 		post_processing_opacity = 1.0,
+		-- Post-processing shader resolution (0.0-1.0). Fraction of screen resolution
+		-- at which the post-processing shader's intermediate passes (BufferA-D, Image)
+		-- render before upscale. Component/scene painting is always full resolution —
+		-- this only scales the shader's own offscreen buffers.
+		post_processing_resolution = 0.5,
 
 		-- Glyph atlas mono rasterization backend: "edge_table", "freetype", or "native".
 		-- "edge_table" - unhinted juce::Typeface coverage rasterization (default).

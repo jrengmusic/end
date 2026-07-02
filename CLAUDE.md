@@ -6,13 +6,14 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 54 — clipToImageAlpha — Native Vulkan Stencil-Alpha-Mask Clip ✅ (2026-07-01)
+- **Last sprint:** Sprint 55 — Vulkan Rendering Engine Redesign — Phases A/B2/C + Canon/SSOT Hardening ✅ (2026-07-02)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
-- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap — sole remainder after re-scope)
+- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap — sole ledger entry)
+- **Open PLAN:** `PLAN-vulkan-redesign.md` — Steps B1, B3, B4, B5 remaining
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  
-Graphics: `Source/graphics/` — Processor, Compositor, Program (Compilation, RenderPass)  
+Graphics: JAM `jam_vulkan` (Registry owned by Application; Processor/Compositor/Program deleted Sprint 55)  
 Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
 UI: `Source/end/` — View, Window, Tabs, Panes  
 Constants: `Identifier.h` · `Bimap.h`

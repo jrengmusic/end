@@ -355,6 +355,70 @@ source to its committed `.spv` via per-file custom commands with depfile trackin
 (include edits recompile dependents); the `.spv` files are embedded as binary data and
 are platform-neutral — compiled once, valid everywhere.
 
+### User Shader Pipeline — Background + Post-Process (Shadertoy-compatible, generalized)
+
+Two user-shader slots, both multi-pass: N named buffer passes (every regular, non-hidden
+file in the shader project directory, keyed by its extensionless stem, lexicographic
+order; `Common`/`Image` special) + mandatory Image pass. Driven entirely by config
+(`display.lua` graphics block; `config::Shader` enumerates the project directory into
+its state tree; hot reload = init path):
+
+```
+file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing event
+  → View funnel — full recompile (applyBackground / applyPostProcess) or cheap
+    param-only path (applyBackgroundParams / applyPostProcessParams)
+  → graphics::Compiler (shaderc, END-only) → jam::vulkan::Shader → consumer
+```
+
+- **`jam::vulkan::Shader`** — POD descriptor, pure data: `jam::Owner<Shader::Pass>`
+  (`Pass{name, spirv}`, name-hashed for O(1) lookup) + `contentHash` (wyhash over all pass
+  names+bytes — content-derived identity, no counter; identical recompile = cache hit).
+  Public const fields, zero getters. Presentation params (opacity, resolution, frame rate)
+  are NOT in the descriptor — they travel explicitly (`render (g, shader, opacity,
+  resolution)`, `setShader`/`setParams`, `setPostProcess`/`setPostProcessParams`), so
+  param-only config changes never recompile.
+- **`graphics::Compiler`** (`Source/graphics/Compiler.{h,cpp}`) wraps each pass with the
+  engine-owned prelude (set-0 bindless declarations, `ShaderUniforms` push-constant block —
+  byte-exact mirror of `jam_VulkanShaderUniforms.h`, `channels[21]` array —, one named
+  sampler macro per buffer pass (`texture (BufferA, uv)`) + `iChannel0-3` aliases to the
+  first four passes for Shadertoy paste-compat, through linear/nearest per `filter` —
+  compile-time, so `filter` changes recompile), compiles via SDK-static `shaderc_combined`
+  (END target only; JAM never links shaderc). Compile failure → `debug::Log` + nullptr;
+  callers keep the last-good shader. Opacity semantics differ per slot in the generated
+  `main()`: background = `userColor.a * opacity` (transparency); post-process =
+  `mix (texture (iScene, uv), userColor, opacity)` (effect intensity). The background
+  prelude omits the `iScene` macro — using it there is a compile error.
+- **`jam::vulkan::ShaderComponent`** — generic JUCE component in jam_vulkan (knows nothing
+  of config/gpu), bottom-most View child: owns its `Shader` + repaint timer (`frame_rate`
+  Hz, running only while a shader is installed). `paint()` = `render (g, *shader, opacity,
+  resolution)`. View tells (`setShader`/`setParams`), never pokes `repaint()`/timer.
+  GPU off or empty project → View installs nullptr; the shader never exists.
+- **`jam::vulkan::render (g, shader, opacity, resolution)`** — the injection seam
+  (`paint` = geometry/image/text, `render` = shader): downcasts `g.getInternalContext()`
+  to the Vulkan LLGC; buffer passes record offscreen mid-paint (scene pass suspended via
+  `endRenderPass()`/`resumeRenderPass()`, the TransparencyStack technique), then the Image
+  pass draws at the current clip bounds in paint order, full resolution, stencil untouched.
+- **`jam::vulkan::ShaderInstance`** — per-window GPU realization of a Shader, cached by
+  `contentHash` + scaled extent (pipelines from runtime SPIR-V, one ping-pong image pair
+  per buffer pass — every buffer pass ping-pongs, Image-pass pipeline lazily built per
+  target render pass + sample count). Stale entries retire deferred; entries unreferenced
+  past the swapchain-image bound are swept at `beginFrame()` (hot-reload never leaks).
+  Uniforms (`iTime`/`iTimeDelta`/`iFrame`/`iResolution`/`iMouse`/`iScene`/`channels[21]`/
+  `opacity`, exactly 128 bytes — the guaranteed push-constant floor) stamped engine-side
+  at record time; `stampChannels` is the single channel rule: buffer-pass bindless index
+  by ordinal, scene fallback on the post-process path, `noScene` elsewhere.
+- **Post-process** — app-global frame-graph stage, not a component:
+  `Registry::setPostProcess (unique_ptr<Shader>, opacity, resolution)` installs/clears;
+  each window's `Graphics::endFrame()` pulls it (contentHash compare) between scene
+  resolve and swapchain composite — the chain's Image pass IS the composite (samples
+  `iScene`, glass alpha preserved via the same no-blend full-RGBA write as the identity
+  composite). No chain → identity composite untouched.
+- **Resolution/filter** — `background_resolution` / `post_processing_resolution` (0.0-1.0)
+  scale ONLY the intermediate buffer passes; component/scene painting is always full
+  resolution. `filter` (linear/nearest, `jam::map::ImageResample` = string↔enum SSOT)
+  selects the sampler baked into the prelude — bindless set binding 2 carries the nearest
+  sampler alongside binding 1's linear.
+
 ### Frame Lifecycle (Per-Peer)
 
 Multiple `LowLevelGraphicsContext` instances can share one Vulkan frame (nested paint
@@ -374,6 +438,8 @@ submits + presents only when the count reaches zero.
 | `jam::GlyphAtlas` (all methods, explicit doxygen contract) | MESSAGE only |
 | `Graphics::endFrame()` (submit + present) / CPU fallback native presentation | MESSAGE (LLGC destructor) |
 | `LookAndFeel` font-config handlers (atlas rebuild) | MESSAGE (VT listener) |
+| View shader funnels (`applyBackground`/`applyPostProcess`, shaderc compile) | MESSAGE (VT listener) |
+| `jam::vulkan::ShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
 
 ---
 

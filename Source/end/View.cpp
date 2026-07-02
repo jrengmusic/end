@@ -17,6 +17,13 @@ View::View (jam::Model& m)
     registerEvents();
     createAndAttachParameters();
 
+    // background is added FIRST — JUCE paints children in child-index order
+    // (Component::paintComponentAndChildren()'s getChildren() walk), and
+    // addChildComponent() appends new children at the end of that list, so
+    // the first-added child lands at index 0 and paints before every
+    // subsequently-added sibling — the rearmost position, with no explicit
+    // toBack() needed.
+    addAndMakeVisible (background);
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
 
@@ -50,6 +57,7 @@ void View::resized()
 {
     setViewState (jam::Size<int16_t> (getWidth(), getHeight()));
 
+    background.setBounds (getLocalBounds());
     tabs.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
 }

@@ -1,5 +1,10 @@
 #include "Main.h"
 
+#if JUCE_MAC
+#include <CoreGraphics/CGDirectDisplay.h>
+#include <CoreVideo/CoreVideo.h>
+#endif
+
 namespace end
 {
 /*____________________________________________________________________________*/
@@ -36,16 +41,67 @@ void Application::initialise (const juce::String& commandLine)
     window->setVisible (true);
 }
 
+// SPEC.md:938 — 120fps GPU target, frame time < 5.8ms (70% of 8.33ms budget).
+static constexpr double highRefreshFrameBudgetMs { 5.8 };
+
+// SPEC.md:939 — 60fps CPU-safe fallback, frame time < 11.1ms (67% of 16.6ms
+// budget). Also the budget an indeterminate refresh-rate reading resolves to
+// (see indeterminateRefreshRateHz below), so "rate unknown" and "rate is 60Hz"
+// are deliberately the same, deterministic outcome.
+static constexpr double standardRefreshFrameBudgetMs { 11.1 };
+
+// Refresh rate at/above which highRefreshFrameBudgetMs applies instead of
+// standardRefreshFrameBudgetMs.
+static constexpr double highRefreshRateThresholdHz { 120.0 };
+
+// Deterministic stand-in for "refresh rate could not be determined" — chosen
+// below highRefreshRateThresholdHz so the indeterminate case always resolves
+// to standardRefreshFrameBudgetMs, never an unhandled branch.
+static constexpr double indeterminateRefreshRateHz { 60.0 };
+
+#if JUCE_MAC
+double Application::queryPrimaryDisplayRefreshRateHz() noexcept
+{
+    CVDisplayLinkRef displayLink { nullptr };
+    const auto createResult { CVDisplayLinkCreateWithCGDisplay (CGMainDisplayID(), &displayLink) };
+
+    auto refreshRateHz { indeterminateRefreshRateHz };
+
+    if (createResult == kCVReturnSuccess and displayLink != nullptr)
+    {
+        const auto nominalPeriod { CVDisplayLinkGetNominalOutputVideoRefreshPeriod (displayLink) };
+
+        if ((nominalPeriod.flags & kCVTimeIsIndefinite) == 0 and nominalPeriod.timeValue > 0)
+            refreshRateHz = static_cast<double> (nominalPeriod.timeScale) / static_cast<double> (nominalPeriod.timeValue);
+
+        CVDisplayLinkRelease (displayLink);
+    }
+
+    return refreshRateHz;
+}
+#else
+double Application::queryPrimaryDisplayRefreshRateHz() noexcept
+{
+    const auto* primaryDisplay { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
+
+    return (primaryDisplay != nullptr)
+        ? primaryDisplay->verticalFrequencyHz.value_or (indeterminateRefreshRateHz)
+        : indeterminateRefreshRateHz;
+}
+#endif
+
 void Application::initialiseVulkan()
 {
-    // Provisional 60Hz-safe budget (11.1 ms) until per-monitor refresh-rate
-    // detection supplies the real value — the literal lives at this END call
-    // site deliberately; Registry's contract forbids hidden defaults inside JAM.
-    constexpr double provisionalTargetFrameBudgetMs { 11.1 };
+    // Refresh-rate-derived per-frame time budget, detected once here (never
+    // polled) — feeds Registry's session-locked MSAA calibration.
+    const auto refreshRateHz { queryPrimaryDisplayRefreshRateHz() };
+    const auto targetFrameBudgetMs { refreshRateHz >= highRefreshRateThresholdHz
+        ? highRefreshFrameBudgetMs
+        : standardRefreshFrameBudgetMs };
 
     // Vulkan pipeline cache — resolved under END's own config directory
     // (file::Config::path, ~/.config/end/), never decided by JAM. Explicit
-    // per Registry's contract, mirroring provisionalTargetFrameBudgetMs above.
+    // per Registry's contract, mirroring targetFrameBudgetMs above.
     const auto cacheDir { jam::File::getOrCreateDirectory (file::Config::path, IDref::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, IDref::cache)) };
@@ -55,7 +111,7 @@ void Application::initialiseVulkan()
     jam::BackgroundBlur::setEnabled (canUseGpu);
 
     vulkanEngine = std::make_unique<jam::vulkan::Registry> (
-        provisionalTargetFrameBudgetMs, cacheFile, canUseGpu);
+        targetFrameBudgetMs, cacheFile, canUseGpu);
 
     // LookAndFeel owns font knowledge but not the atlas — the atlas (owned by
     // the Registry just constructed above) does not exist at LookAndFeel

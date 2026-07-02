@@ -1,4 +1,5 @@
 #include "View.h"
+#include "graphics/Compiler.h"
 
 namespace end
 {
@@ -46,7 +47,72 @@ void View::registerEvents()
             auto* registry { jam::vulkan::Registry::getInstance() };
             jassert (registry != nullptr);
             registry->setGpuEnabled (canUseGpu);
+
+            // Background/post-process shaders never exist independent of the
+            // effective GPU state (Locked Decision 4) — both funnels re-derive
+            // it themselves and discard/clear on every toggle away from GPU,
+            // recompile from current config on every toggle onto it. This is
+            // also the SAME call this View makes at initial config load — see
+            // this constructor's callAsync block, which fires this very
+            // handler once at startup.
+            applyBackground();
+            applyPostProcess();
         });
+
+    events.add<juce::ValueTree&> (ID::background,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyBackground();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::backgroundOpacity,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyBackgroundParams();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::frameRate,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyBackgroundParams();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::backgroundResolution,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyBackgroundParams();
+                                  });
+
+    events.add<juce::ValueTree&> (
+        ID::filter,
+        [this] (juce::ValueTree&)
+        {
+            // filter is shared by both slots (display.lua: applies to both the
+            // background and post-processing upscale) — baked into the
+            // compiled prelude (graphics::Compiler::channelMacros()/sceneMacro()),
+            // so a filter change requires a full recompile on both funnels,
+            // never the cheaper *Params() path.
+            applyBackground();
+            applyPostProcess();
+        });
+
+    events.add<juce::ValueTree&> (ID::postProcessing,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyPostProcess();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::postProcessingOpacity,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyPostProcessParams();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::postProcessingResolution,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyPostProcessParams();
+                                  });
 
     events.add<juce::ValueTree&> (
         ID::alwaysOnTop,
@@ -63,6 +129,90 @@ void View::registerEvents()
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
                 window->setWindowButtons (tree.getProperty (ID::titleBarButtons));
         });
+}
+
+void View::applyBackground()
+{
+    // Same effective-gpu truth end::Application resolves for the Registry
+    // ctor and the gpu event handler resolves for setGpuEnabled() — never
+    // raw config alone.
+    const bool gpuEnabled {
+        config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
+    };
+
+    const auto projectName { config.getValue (IDtype::graphics, ID::background).toString() };
+    const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
+    const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
+    const int frameRate { config.getValue (IDtype::graphics, ID::frameRate) };
+
+    if (gpuEnabled and projectName.isNotEmpty())
+    {
+        const auto shaderState { jam::Model::getChildWithName (config.state, IDtype::background) };
+        const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
+        const auto filter { jam::map::ImageResample::get (filterName) };
+
+        auto compiled { graphics::Compiler::compile (shaderState, filter) };
+
+        // nullptr (compile failure, diagnostic already logged inside Compiler)
+        // keeps whichever shader background currently holds — call nothing (last-good).
+        if (compiled != nullptr)
+            background.setShader (std::move (compiled), opacity, resolutionScale, frameRate);
+    }
+    else
+    {
+        background.setShader (nullptr, opacity, resolutionScale, frameRate);
+    }
+}
+
+void View::applyBackgroundParams()
+{
+    const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
+    const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
+    const int frameRate { config.getValue (IDtype::graphics, ID::frameRate) };
+
+    background.setParams (opacity, resolutionScale, frameRate);
+}
+
+void View::applyPostProcess()
+{
+    const bool gpuEnabled {
+        config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
+    };
+
+    const auto projectName { config.getValue (IDtype::graphics, ID::postProcessing).toString() };
+    const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
+    const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
+
+    auto* registry { jam::vulkan::Registry::getInstance() };
+    jassert (registry != nullptr);
+
+    if (gpuEnabled and projectName.isNotEmpty())
+    {
+        const auto shaderState { jam::Model::getChildWithName (config.state, IDtype::postProcessing) };
+        const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
+        const auto filter { jam::map::ImageResample::get (filterName) };
+
+        auto compiled { graphics::Compiler::compile (shaderState, filter) };
+
+        // nullptr (compile failure, diagnostic already logged inside Compiler)
+        // keeps whichever chain Registry currently holds — call nothing.
+        if (compiled != nullptr)
+            registry->setPostProcess (std::move (compiled), opacity, resolutionScale);
+    }
+    else
+    {
+        registry->setPostProcess (nullptr, opacity, resolutionScale);
+    }
+}
+
+void View::applyPostProcessParams()
+{
+    const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
+    const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
+
+    auto* registry { jam::vulkan::Registry::getInstance() };
+    jassert (registry != nullptr);
+    registry->setPostProcessParams (opacity, resolutionScale);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

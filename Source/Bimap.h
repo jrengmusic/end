@@ -142,71 +142,6 @@ struct DropMode : public jam::Bimap<DropMode>
 
 //==============================================================================
 /**
- * @brief Bimap for texture filter mode — "linear" or "nearest".
- *
- * Used by graphics.filter config field. Integer keys are GL enum
- * values so the looked-up key can be used directly as a GL parameter.
- *   GL_LINEAR  → "linear"   — bilinear filtering (default)
- *   GL_NEAREST → "nearest"  — pixel-sharp nearest-neighbour
- *
- * Registered in Application CONTEXT before config::Model construction.
- */
-struct Filter : public jam::Bimap<Filter>
-{
-    /** @brief Integer keys are GL texture filter enum values.
-     *  Looked-up keys are used directly as glTexParameteri arguments.
-     */
-    enum : GLenum
-    {
-        linear = juce::gl::GL_LINEAR,
-        nearest = juce::gl::GL_NEAREST,
-    };
-
-    /** @brief Populates the bimap with both entries. */
-    Filter()
-    {
-        map = {
-            { Filter::linear,  "linear"  },
-            { Filter::nearest, "nearest" },
-        };
-    }
-
-    const juce::String& getDefault() const noexcept override { return map.at (Filter::linear); }
-
-    static const auto& get() noexcept { return getInstance()->map; }
-
-    static int get (const juce::String& value) noexcept
-    {
-        return jam::Map::getKey (get()).at (value);
-    }
-
-    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
-
-    /** @brief Returns a fused Validator for the Filter value set.
-     *
-     *  check  — accepts any string present in the Filter bimap.
-     *  create — registers a ParameterText on the model for the given property.
-     */
-    static jam::lua::Validator getValidator()
-    {
-        return jam::lua::Validator { [] (const juce::var& v)
-                                     {
-                                         return v.isString()
-                                                and getInstance()->contains (v.toString());
-                                     },
-                                     [] (jam::Model& model,
-                                         juce::ValueTree& tree,
-                                         const juce::Identifier& id,
-                                         const juce::var& value)
-                                     {
-                                         model.createAndAddParameter<jam::ParameterText> (
-                                             tree, id, value.toString());
-                                     } };
-    }
-};
-
-//==============================================================================
-/**
  * @brief Bimap for the glyph atlas mono rasterization backend — "edge_table",
  *        "freetype", or "native".
  *
@@ -341,11 +276,11 @@ struct Config : public jam::Bimap<Config>
     }
 
     /** @brief User config directory: ~/.config/end/ */
-    inline static const juce::File path {
+    static inline const juce::File path {
         juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end")
     };
     /** @brief Bare lua extension (no wildcard) for file watcher checks. */
-    inline static const juce::String extension { "lua" };
+    static inline const juce::String extension { "lua" };
 
 private:
     const juce::String& getDefault() const noexcept override { return map.at (Config::display); }
@@ -407,9 +342,9 @@ struct Themes : public jam::Bimap<Themes>
     }
 
     /** @brief Themes root directory: ~/.config/end/themes/ */
-    inline static const juce::File path { Config::getPath (IDref::themes) };
+    static inline const juce::File path { Config::getPath (IDref::themes) };
     /** @brief Lua extension for theme files. */
-    inline static const juce::String extension { "lua" };
+    static inline const juce::String extension { "lua" };
 
 private:
     const juce::String& getDefault() const noexcept override { return map.at (Themes::theme); }
@@ -469,7 +404,7 @@ struct Flex : public jam::Bimap<Flex>
     }
 
     /** @brief SVG extension for flex files. */
-    inline static const juce::String extension { "svg" };
+    static inline const juce::String extension { "svg" };
 
 private:
     const juce::String& getDefault() const noexcept override { return map.at (Flex::tabBar); }
@@ -477,56 +412,19 @@ private:
 
 //==============================================================================
 /**
- * @brief Registry of Shadertoy pass file names — 6 section keys.
- *        Top-level registry. CRTP-derived from jam::Bimap\<Shaders\>.
+ * @brief Shader project directory resolver — plain static utility, not a
+ *        jam::Bimap\<T\> registry (no fixed pass-name set exists to map:
+ *        config::Shader::loadFromPath enumerates every regular (non-hidden)
+ *        file in each project directory directly, keyed by its extensionless
+ *        stem -- Common/Image special-cased, every other stem a named
+ *        buffer pass in lexicographic order).
  *
- * Maps each enum key to its Identifier stem which IS the on-disk filename
- * (no extension — Shadertoy bare-stem convention). The filesystem is the
- * manifest: present files are loaded, absent files are skipped.
- *
- * Enum order equals render order: common (shared library, prepended),
- * buffers A–D (intermediate BufferChannel passes), image (main output, last).
- * jam::Bimap::map is std::map — iteration follows ascending key order,
- * so no manual ordering array is needed.
- *
- * Owns the shaders root directory path (derived from File::getPath).
- * The live instance is owned by end::Application — static get() resolves
- * through jam::Instance\<Shaders\>.
+ * Owns the shaders root directory path (derived from File::getPath). No
+ * live instance required — every member is static, so nothing needs
+ * constructing in end::Map/end::Application's CONTEXT.
  */
-struct Shaders : public jam::Bimap<Shaders>
+struct Shaders
 {
-    /** @brief Integer keys for Shadertoy pass types.
-     *
-     *  Enum order = render order: common (skipped), buffers first, image
-     *  last. Bimap::map is std::map — iteration follows ascending key order.
-     *  loadShaders iterates the bimap directly; no manual ordering array needed.
-     */
-    enum
-    {
-        bufferA,///< Intermediate BufferChannel pass A.
-        bufferB,///< Intermediate BufferChannel pass B.
-        bufferC,///< Intermediate BufferChannel pass C.
-        bufferD,///< Intermediate BufferChannel pass D.
-        common,///< Shared library code, prepended to all passes.
-        image,///< Main output pass (always present). Last = renders last.
-    };
-
-    /** @brief Populates the bimap — render order matches enum key order. */
-    Shaders()
-    {
-        map = {
-            { Shaders::common,  IDref::common  },
-            { Shaders::image,   IDref::image   },
-            { Shaders::bufferA, IDref::bufferA },
-            { Shaders::bufferB, IDref::bufferB },
-            { Shaders::bufferC, IDref::bufferC },
-            { Shaders::bufferD, IDref::bufferD },
-        };
-    }
-
-    /** @brief Returns the int→Identifier-stem map from the live context instance. */
-    static const auto& get() noexcept { return getInstance()->map; }
-
     /**
      * @brief Returns the shader project subdirectory for the given name.
      *
@@ -539,31 +437,7 @@ struct Shaders : public jam::Bimap<Shaders>
     }
 
     /** @brief Shaders root directory: ~/.config/end/shaders/ */
-    inline static const juce::File path { Config::getPath (IDref::shaders) };
-
-private:
-    const juce::String& getDefault() const noexcept override { return map.at (Shaders::image); }
-};
-
-//==============================================================================
-struct BufferChannel : public jam::Bimap<BufferChannel>
-{
-    /** @brief Populates the bimap — render order matches enum key order. */
-    BufferChannel()
-    {
-        map = {
-            { Shaders::bufferA, IDref::iChannel0 },
-            { Shaders::bufferB, IDref::iChannel1 },
-            { Shaders::bufferC, IDref::iChannel2 },
-            { Shaders::bufferD, IDref::iChannel3 },
-        };
-    }
-
-    /** @brief Returns the int→Identifier-stem map from the live context instance. */
-    static const auto& get() noexcept { return getInstance()->map; }
-
-private:
-    const juce::String& getDefault() const noexcept override { return map.at (Shaders::bufferA); }
+    static inline const juce::File path { Config::getPath (IDref::shaders) };
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
@@ -580,10 +454,8 @@ struct Map
     file::Config file;
     file::Themes themes;
     file::Flex flex;
-    file::Shaders shaders;
-    file::BufferChannel fbo;
-    end::Filter filter;
     end::FontRasterizerBackend fontRasterizerBackend;
+    jam::map::ImageResample imageResample;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

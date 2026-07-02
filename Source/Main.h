@@ -64,6 +64,26 @@ private:
      *  its atlas, and enables the post-process background-blur shader — the
      *  whole GPU-availability-gated setup block, called once from initialise(). */
     void initialiseVulkan();
+
+    /** @brief Detects the primary display's native vertical refresh rate, in Hz.
+     *
+     *  Feeds initialiseVulkan()'s targetFrameBudgetMs selection — queried once,
+     *  never polled.
+     *
+     *  Windows/Linux: juce::Displays::Display::verticalFrequencyHz is populated
+     *  by JUCE's own findDisplays(), read via
+     *  juce::Desktop::getInstance().getDisplays().getPrimaryDisplay().
+     *
+     *  macOS: verticalFrequencyHz is never populated (confirmed by direct read
+     *  of juce_Windowing_mac.mm's findDisplays() — no assignment to that field
+     *  exists on this platform), so the rate is queried directly via
+     *  CoreVideo's CVDisplayLinkGetNominalOutputVideoRefreshPeriod against the
+     *  main display.
+     *
+     *  @return The detected refresh rate, or indeterminateRefreshRateHz
+     *          (Main.cpp) if no rate could be determined — a deterministic
+     *          fallback, never an unhandled/unspecified case. */
+    static double queryPrimaryDisplayRefreshRateHz() noexcept;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Application)
 };

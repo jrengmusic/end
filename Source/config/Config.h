@@ -12,11 +12,10 @@ namespace config
     @brief Shader source model — @c config::Directory subclass that holds a
            single shader tree (BACKGROUND or POST_PROCESSING) as its own @c state.
 
-    The constructor init-list builds the tree via @c jam::Model::fromFiles
-    (pass names from @c file::Shaders) using the given @p treeType and adopts
-    it through @c Directory's ValueTree ctor. The stored @c type member drives
-    both construction and @c loadFromPath so the same class serves both
-    background and post-processing instances without branching.
+    The constructor adopts an empty @p treeType-rooted tree through
+    @c Directory's ValueTree ctor -- pass names are unknown until
+    @c loadFromPath first enumerates the active shader project directory (an
+    empty project is a valid initial/no-project state, not an error).
 
     After construction, @c config::Model attaches each instance's @c state
     directly under the GRAPHICS child — both are first-class GRAPHICS children,
@@ -34,7 +33,7 @@ namespace config
 class Shader : public Directory
 {
 public:
-    /** @brief Constructs with a shader tree of the given type.
+    /** @brief Constructs with an empty shader tree of the given type.
      *  @param treeType  Tree type identifier (IDtype::background or IDtype::postProcessing).
      */
     explicit Shader (juce::Identifier treeType);
@@ -43,10 +42,17 @@ public:
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c file::Shaders::getPath and overlays
-     *  @c state properties via @c setValuesFrom. Fires
+     *  Locates the shader directory via @c file::Shaders::getPath, then fully
+     *  replaces @c state's properties: every regular (non-hidden) file in
+     *  that directory becomes one property, keyed by its filename stem via
+     *  @c getFileNameWithoutExtension() -- any extension, or none, works
+     *  identically (@c Common and @c Image special-cased, every other stem a
+     *  named buffer pass) -- the filesystem is the manifest, so a pass name
+     *  set that changed since the last load (a different project, or a
+     *  renamed/added/removed pass file) never leaves a stale property behind. Fires
      *  @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
-     *  listeners (graphics::Processor) pick up the new source.
+     *  listeners (graphics::Compiler, via end::View's funnels) pick up the
+     *  new source.
      *
      *  @param path    Active shader project name from config::Model.
      *  @param errors  Accumulation channel (unused by shader — no lua parse).
@@ -55,8 +61,6 @@ public:
     void loadFromPath (const juce::var& path, juce::String& errors) override;
 
 private:
-    juce::Identifier type;
-
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
 };
@@ -200,7 +204,7 @@ public:
         add (IDtype::config,     ID::tabOrientation, end::Position::getValidator());
         add (IDtype::popup,      ID::position,       end::Position::getValidator());
         add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
-        add (IDtype::graphics,   ID::filter,         end::Filter::getValidator());
+        add (IDtype::graphics,   ID::filter,         jam::map::ImageResample::getValidator());
         add (IDtype::graphics,   ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
 
         return v;

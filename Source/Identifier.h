@@ -261,43 +261,28 @@
     X (scrollbarBackground, "scrollbar_background")      \
     X (selectionColour, "selection_colour")
 
-// Shader pass name identifiers + embedded shader uniform names.
+// Shader pass name identifiers.
 // common ("Common") and image ("Image") shadow jam::ID lowercase versions intentionally —
-// these match the Shadertoy on-disk filenames (uppercase first letter).
+// these match the on-disk filename stems (Common.frag/Image.frag, uppercase first
+// letter) config::Shader::loadFromPath enumerates. Every OTHER buffer-pass name is
+// an arbitrary author-chosen filename stem, not an Identifier constant here —
+// graphics::Compiler reads them directly off shaderState's property names
+// (Source/graphics/Compiler.cpp).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
-// iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shader/wrapper.frag —
-// the C++ side uses them as iChannel slot identifiers in file::Shaders.
-#define IDENTIFIER_SHADER(X)                             \
-    X (iResolution, "iResolution")                       \
-    X (iTime, "iTime")                                   \
-    X (iTimeDelta, "iTimeDelta")                         \
-    X (iFrame, "iFrame")                                 \
-    X (iChannel0, "iChannel0")                           \
-    X (iChannel1, "iChannel1")                           \
-    X (iChannel2, "iChannel2")                           \
-    X (iChannel3, "iChannel3")                           \
-    X (common, "Common")                                 \
-    X (image, "Image")                                   \
-    X (bufferA, "BufferA")                               \
-    X (bufferB, "BufferB")                               \
-    X (bufferC, "BufferC")                               \
-    X (bufferD, "BufferD")                               \
-    X (background, "background")                         \
-    X (backgroundOpacity, "background_opacity")          \
-    X (postProcessing, "post_processing")                \
-    X (postProcessingOpacity, "post_processing_opacity") \
-    X (frameRate, "frame_rate")                          \
-    X (resolutionScale, "resolution_scale")              \
-    X (filter, "filter")                                 \
-    X (fontRasterizer, "font_rasterizer")                \
-    X (fontGamma, "font_gamma")                          \
-    X (fontContrast, "font_contrast")                    \
-    X (iOpacity, "iOpacity")                             \
-    X (iPostOpacity, "iPostOpacity")                     \
-    X (outputTexture, "outputTexture")                   \
-    X (output, "output")                                 \
-    X (iScene, "iScene")                                 \
-    X (scene, "scene")
+#define IDENTIFIER_SHADER(X)                                     \
+    X (common, "Common")                                         \
+    X (image, "Image")                                           \
+    X (background, "background")                                 \
+    X (backgroundOpacity, "background_opacity")                  \
+    X (postProcessing, "post_processing")                        \
+    X (postProcessingOpacity, "post_processing_opacity")         \
+    X (postProcessingResolution, "post_processing_resolution")   \
+    X (frameRate, "frame_rate")                                  \
+    X (backgroundResolution, "background_resolution")            \
+    X (filter, "filter")                                         \
+    X (fontRasterizer, "font_rasterizer")                        \
+    X (fontGamma, "font_gamma")                                  \
+    X (fontContrast, "font_contrast")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;

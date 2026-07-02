@@ -9,9 +9,7 @@ namespace config
 //==============================================================================
 
 Shader::Shader (juce::Identifier treeType)
-    : Directory (jam::Model::fromFiles (
-          treeType, file::Shaders::get(), [] (int) { return juce::String(); }))
-    , type (treeType)
+    : Directory (juce::ValueTree (treeType))
 {
 }
 
@@ -21,12 +19,17 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
 
     const juce::File dir { file::Shaders::getPath (path.toString()) };
 
+    for (int i = state.getNumProperties() - 1; i >= 0; --i)
+        state.removeProperty (state.getPropertyName (i), nullptr);
+
     if (dir.isDirectory())
     {
-        auto disk { jam::Model::fromFiles (type, file::Shaders::get(),
-            [dir] (int key) { return dir.getChildFile (file::Shaders::get().at (key)).loadFileAsString(); }) };
+        static constexpr auto allFilesWildcard { "*" };
 
-        setValuesFrom (disk);
+        for (const auto& shaderFile : dir.findChildFiles (juce::File::findFiles, false, allFilesWildcard))
+            if (not shaderFile.isHidden())
+                state.setProperty (juce::Identifier (shaderFile.getFileNameWithoutExtension()),
+                                   shaderFile.loadFileAsString(), nullptr);
     }
 
     state.sendPropertyChangeMessage (IDtype::graphics);

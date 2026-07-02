@@ -2,6 +2,74 @@
 
 ---
 
+## Sprint 56: User Shader Pipeline — Background render() + Post-Process Chain ✅
+
+**Date:** 2026-07-02
+**Duration:** ~1 day (single session; PLAN-shader-pipeline.md, supersedes PLAN-vulkan-redesign B3/B4; includes B1)
+
+### Agents Participated
+- COUNSELOR: design discussion → PLAN authorship (component-centric revision of B3/B4: render()/paint vocabulary, self-managed component, Registry chain, config-driven hot reload), Names Gate mediation (resumeRenderPass, ShaderInstance, TransparencyLayer, WindingScratch, ShaderComponent, ImageResample), Shader-descriptor redesign synthesis (POD/contentHash/N-pass/params-dissolution), root-cause of first-run failure (hardcoded *.frag vs extensionless on-disk format), all orchestration + verification, ARCHITECTURE.md sync, doxygen escapes
+- Pathfinder: shaderc SDK inspection (universal .a, 18MB dylib bound), shader-pipeline wiring-point survey (config::Shader/file::Shaders, funnels, LLGC seam, Graphics lifecycle, timer/validator precedents)
+- Engineer (12 dispatches): S0 rename, Shader data type, ShaderInstance machinery + uniform stamping, render()/renderShader seam, setPostProcess + endFrame composite, shaderc CMake, Compiler, ShaderComponent + funnels, config surface, descriptor redesign batch (POD/contentHash/channels[21]/named passes), ImageResample relocation + extension-agnostic enumeration, fix waves (depth-stencil state, cache eviction, barrier SSOT, audit findings, noStencilState visibility)
+- Auditor (2 passes): S0-S9 validation (5 findings) + redesign validation (4 findings) — all resolved in-sprint; race-reconciliation hunt (zero half-renames/duplicates)
+
+### Files Modified (~45 total, grouped)
+
+**JAM — jam_vulkan/shader (new):**
+- `jam_VulkanShader.h` — POD descriptor: `Owner<Shader::Pass{name, spirv, Hash}>` + wyhash `contentHash` (content-derived identity; identical recompile = cache hit); zero getters; no presentation params
+- `jam_VulkanShaderUniforms.h` — push constants: iMouse/iResolution/iTime/iTimeDelta/iFrame/iScene/`channels[21]`/opacity — exactly 128 bytes (derived, `==` static_assert); documented GLSL block contract mirrored by END's Compiler prelude
+- `jam_VulkanShaderComponent.h` — generic component (config/gpu-blind): `setShader(unique_ptr<Shader>, opacity, resolution, frameRateHz)` / `setParams(...)`, timer only while installed
+- `shaders/shader_pass.vert` (+spv) — shared fullscreen-triangle vertex stage with uv varying
+
+**JAM — jam_vulkan core:**
+- `resource/jam_VulkanShaderInstance.{h,cpp}` — per-window GPU realization: contentHash+extent-keyed rebuild, unconditional ping-pong pair per buffer pass, Image-pass pipeline lazily built per (render pass, sample count), `stampUniforms`/`stampChannels` SSOT, deferred retire + frame-tagged stale sweep at beginFrame (hot-reload never leaks), `fullscreenTriangleVertexCount` (unified incl. calibration draw)
+- `context/jam_VulkanGraphicsShaderPass.cpp` (new TU) — `ensureShaderInstance`/`getShaderInstance`/`recordShaderBufferPasses`/`recordSingleBufferPass`/`recordPostProcessCompositeDrawCommands`/`getOrCreateShaderInstanceLayout` (single set = extended bindless layout + push constants)
+- `context/jam_VulkanRender.h` + `jam_VulkanLowLevelGraphicsContextRender.cpp` — `jam::vulkan::render (g, shader, opacity, resolution)` downcast seam; `renderShader`: buffer passes mid-paint (endRenderPass/resumeRenderPass suspend-resume), Image pass at clip-bounds viewport, full res, stencil-safe (noStencilState, made public)
+- `context/jam_VulkanGraphics.{h,cpp}` — endFrame post-process branch (chain Image pass IS the composite, glass alpha preserved), frameCounter sweep, barrier SSOT (recordSceneCompositeDrawCommands → recordImageMemoryBarrier)
+- `context/jam_VulkanPipelines.{h,cpp}` + `GraphicsSetupDrawState.cpp` — bindless set binding 2 = shared nearestSampler (write-once, additive; 5 consumer .spv regenerated), noStencilState public
+- `registry/jam_VulkanRegistry.h` — `setPostProcess (unique_ptr<Shader>, opacity, resolution)` / `setPostProcessParams`, windows pull per frame; leak macro
+- Renames: `beginRenderPassLoad`→`resumeRenderPass` (NAMES Rule 3), `ShaderExecution`→`ShaderInstance`, `TransparencyTarget`→`TransparencyLayer`, `WindingScratchTarget`→`WindingScratch`; `inline static`→`static inline` sweep (12 files); manual delete-pairs → leak macros
+
+**JAM — jam_data_structures:**
+- `bimap/jam_ImageResample.h` (new) — canonical `jam::map::ImageResample` (nested `enum class Type{linear,nearest}`, string map, validator) — replaces both `jam::vulkan::FilterBimap` and `end::Filter` (GL-enum vestige deleted)
+
+**END:**
+- `Source/graphics/Compiler.{h,cpp}` (new) — shaderc GLSL→SPIR-V (confined to .cpp): engine-owned prelude (set-0 declarations, byte-exact push-constant block, named sampler macro per buffer pass + iChannel0-3 paste-compat aliases, iScene post-process only), per-mode Image main (background = alpha-multiply; post-process = mix(iScene, user, opacity)), compile error → debug::Log + last-good retained
+- `Source/config/Config.{h,cpp}` — `Shader::loadFromPath` enumerates every regular file in the project dir (extension-agnostic — root-caused first-run failure: hardcoded `*.frag` vs the established extensionless format; stem = pass name, hidden skipped); validator → ImageResample
+- `Source/end/View.{h,cpp}` + `EventRegistration.cpp` — `jam::vulkan::ShaderComponent background` (bottom-most child); funnels: `applyBackground`/`applyPostProcess` (recompile) + `applyBackgroundParams`/`applyPostProcessParams` (cheap); gpu handler drives both; init == reload
+- `Source/Main.{h,cpp}` — B1: `queryPrimaryDisplayRefreshRateHz` (CoreVideo nominal on mac — JUCE ScopedDisplayLink precedent, no new framework link; verticalFrequencyHz elsewhere), budget = rate≥120 ? 5.8 : 11.1 (named constants, SPEC.md:938-939), single init-time query
+- `Source/Bimap.h` / `Source/Identifier.h` — `file::Shaders` → plain path utility; dead identifiers purged (bufferA-D, iChannel0-3, iScene, iOpacity, iPostOpacity, outputTexture, output); `end::Filter` deleted
+- `Source/config/lua/display.lua` — `background_resolution` + `post_processing_resolution` (0.0-1.0, replaces `resolution_scale`), filter doc scoped to both slots
+- `CMakeLists.txt` — SDK-static `shaderc_combined` (find_path/find_library, FATAL_ERROR, END target only)
+- DELETED: `Source/graphics/Background.h` (absorbed as ShaderComponent), `Source/graphics/{wrapper.frag,output.frag,screen.vert}` (dead GL leftovers)
+- `ARCHITECTURE.md` — shader-pipeline section (descriptor model, seam, frame-graph stage, thread rows); `PLAN-shader-pipeline.md` written; `PLAN-vulkan-redesign.md` B3/B4 marked superseded
+
+### Alignment Check
+- [x] BLESSED principles followed (Shader = POD descriptor per E rule 1; params explicit; contentHash SSOT; Owner for RAII plurals; deferred retire everywhere; unconditional Registry contract preserved)
+- [x] NAMES.md adhered (all new names ARCHITECT-gated; Rule 3 renames: resumeRenderPass, ShaderInstance, TransparencyLayer, WindingScratch, ImageResample; Rule 6 respected)
+- [x] MANIFESTO.md principles applied (2 audit passes, 9 findings, all resolved; zero bail-out guards; Lean function extractions with documented judgment)
+
+### Problems Solved
+- Encapsulation violation in first Shader shape (getter wall) → POD descriptor ruling
+- Generation counter → content-derived hash (no mutable static; free recompile dedup)
+- Shadertoy 4-buffer cap generalized → N named passes, channels[21] (derived from 128-byte floor), named macros + compat aliases
+- Opacity semantics split per slot (background transparency vs post-process intensity) + iScene channel (mix-vs-BufferA bug caught pre-runtime)
+- Hot-reload GPU leak (pointer-keyed cache) → frame-tagged stale sweep
+- Vulkan validity gap (missing pDepthStencilState on scene-pass Image pipeline) → shared noStencilState
+- First-run nothing-rendered → hardcoded `*.frag` enumeration vs extensionless on-disk projects → extension-agnostic
+- Two-Engineer file race (COUNSELOR sequencing error, disclosed) → reconciled; Auditor hunt confirmed zero residue
+
+### Debts Paid
+- None (no `DEBT-*` ledger entries addressed)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (untouched, sole ledger entry)
+- Runtime verification pending: shader pipeline has compiled but never rendered pixels post-enumeration-fix (ARCHITECT build gate); Windows set (shaderc_combined.lib link, GDI/DirectWrite paths) unverified
+- `juce_opengl` module now has zero source consumers — removal decision ARCHITECT's at build time
+- PLAN-vulkan-redesign B3 (shaderc/PostProcessRegistry as written) obsolete — superseded; B5 doc/debt closure absorbed into this log
+
+---
+
 ## Sprint 55: Vulkan Rendering Engine Redesign — Phases A/B2/C + Canon/SSOT Hardening ✅
 
 **Date:** 2026-07-01 → 2026-07-02
