@@ -206,15 +206,6 @@ public:
     void drawResizerBar (juce::Graphics& g, juce::Component& bar) override;
 
 private:
-    /** @brief Rendering-context style table — self-registers as jam::Stamp::getInstance(). */
-    jam::Stamp stampInstance;
-
-    /** @brief Rendering-context grapheme cluster table — self-registers as jam::Grapheme::getInstance(). */
-    jam::Grapheme graphemeInstance;
-
-    /** @brief Hyperlink interning table (OSC 8) — self-registers as jam::Link::getInstance(). */
-    jam::Link linkInstance;
-
     // /** @brief Singleton config model reference — source for theme path and top-level config values. */
     config::Model& config { *config::Model::getInstance() };
 

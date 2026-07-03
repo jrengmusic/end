@@ -34,6 +34,23 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
+    //==============================================================================
+    // SPEC.md Phase 3 — ENDApplication owns the shared-resource contexts.
+    // Each self-registers as its own getInstance() singleton on construction.
+    // Declared before nexus/lookAndFeel/window (and anything transitively
+    // constructing terminal::Session or rendering through end::View) so the
+    // singleton slot is populated before first use, and destroyed after every
+    // consumer (reverse declaration order).
+
+    /** @brief Rendering-context style table — self-registers as jam::Stamp::getInstance(). */
+    jam::Stamp stampInstance;
+
+    /** @brief Rendering-context grapheme cluster table — self-registers as jam::Grapheme::getInstance(). */
+    jam::Grapheme graphemeInstance;
+
+    /** @brief Hyperlink interning table (OSC 8) — self-registers as jam::Link::getInstance(). */
+    jam::Link linkInstance;
+
     Model model;
     config::Model config;
     Nexus nexus;

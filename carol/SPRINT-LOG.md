@@ -2,6 +2,81 @@
 
 ---
 
+## Sprint 58: VT Correctness + Conformance Hardening (RFC-vt-correctness) + LUT Canon ✅
+
+**Date:** 2026-07-03
+**Duration:** ~1 session (RFC-vt-correctness.md → PLAN-vt-correctness.md, Steps 1–8d + post-8d rulings; ARCHITECT build gate passed clean)
+
+### Agents Participated
+- COUNSELOR: PLAN authorship from RFC (ARCHITECT ruled V1 verbatim over stale-baseline discrepancy), Names Gate mediation throughout (graphemeState, extendGraphemeCluster, graphemeClustering, clearSyncOutputIfExpired, syncOutputDeadlineMs, disableSyncOutput, activeMark, modeParameters, LookupTable, DecMode, jam::terminal::Model, SgrAction family, SyncOutputDeadlineVideo, DOUBLE_UNDERLINE), LUT-canon design synthesis with ARCHITECT (whole-machinery performance rule, dispatch-frequency tiers, identity-is-the-hash), all orchestration/verification, trivial fixes applied directly (Link::Entry ctors, linkInstance, ModeEntry relocation, doxygen dedups). **Disclosed violations:** serial question-gating against ARCHITECT's batching directive; ad-hoc `nowMs` name sanction (vetoed); Bimap tier/Vocabulary proposals = new-pattern invention where Bimap existed (rejected by ARCHITECT, withdrawn — DecMode became ordinary subclass #23); one Auditor fix-shape relayed unverified (namespace-scope struct, corrected to class scope, then dissolved entirely)
+- Pathfinder (2): RFC-implicated-site survey (revealed V1 write path already landed — RFC baseline stale); module-wide static-lookup-table inventory (18 patterns)
+- Engineer (~14 dispatches): V1 re-walk + 26 graphemeState reset sites, V2 2026 machinery, V3 mark vocabulary/transport/activeMark propagation (3 row-transition sites), V5 linkId carrier + jam::Link + stampLink, V7 SKiT absorption (15 files), V6 suite (49 cases; b3f0fea suite proven never-committed — fresh build of recorded shape), V4 record, Step 8 mode redesign (DecMode bimap + jam::terminal::Model + Video mode-statelessness), 8c LookupTable canon + 5 conversions, 8d five DispatchTable families + modeParameters cache, SGR 21, DECRQM tighten, audit-findings resolutions, virtual-seam strip + deadline-injection test, DecMode-as-Bimap-subclass. **Incident (disclosed per protocol):** one Engineer destroyed jam_VideoSGR.cpp via bad Write mid-task (uncommitted work, git unrecoverable), reconstructed from its own read transcript; COUNSELOR independently verified the full file line-by-line; ARCHITECT build + suite pin confirm
+- Auditor (3 passes): Steps 1–5 (F1 HIGH linkId dropped on cluster extension — fixed; F2 ModeEntry — triggered the mode-storage redesign arc; F3 DECALN reset made explicit), Steps 8/8c/8d (4 findings incl. SSOT dual write path — all resolved), final post-8d batch (PASS; surfaced pre-existing SGR-4 field corruption — fixed + pinned)
+
+### Files Modified (~50 JAM + 2 END, grouped)
+
+**jam_graphics:**
+- `detail/jam_Char.h` — `linkId()`/`withLinkId()` carrier, padding bits 41–56; linkId = tableIndex+1 contract; layout doc
+- `detail/jam_Link.h` (new) — `jam::Link : SharedResources<Link>`, `Entry{uri,id}` + explicit ctors (virtual overrides forbid aggregate init — Stamp precedent); explicit-id/implicit-uri dedup domains
+- `detail/jam_CodeLine.h` — `Mark` enum (none/prompt/input/output/promptContinuation) + `mark` field
+- `detail/jam_Row.h` — `markShift`/`markMask` (flags bits 3–5); mark travels with rows through scroll
+- `jam_graphics.h` — Link registration
+
+**jam_core:**
+- `utilities/jam_LookupTable.h` (new) — CANON: constexpr direct-indexed LUT, int-keyed, fallback, .rodata; identity-is-the-hash; objects only at boundaries
+- `bimap/jam_Bimap.h` — `Value` template param (`juce::String` default — 22 consumers zero-diff)
+- `identifier/jam_IdentifierTerminal.h` — +graphemeClustering, +imageDecoded, +previewFile; registerLink deleted (zero consumers)
+- `jam_core.h` — LookupTable registration
+
+**jam_terminal:**
+- `protocol/jam_VtVocabulary.h` — GRAPHEME_CLUSTERING=2027, DECRQM final, DOUBLE_UNDERLINE=21; dead csiFinal::STATUS deleted
+- `video/jam_CursorState.{h,cpp}` — printCodepoint (renamed), extendGraphemeCluster (+jasserts, linkId-preserving), per-screen graphemeState + 26 discontinuity resets, activeMark, stampLink, syncResetMs/syncOutputDeadlineMs (protected)/clearSyncOutputIfExpired/disableSyncOutput, modeParameters cache (resolved once, atomic load/store), C0 DispatchTable, wide-at-margin isContinued fix, 14 mode bools + modePtr/ModeEntry deleted
+- `video/jam_VideoCSI.cpp` — CSI DispatchTable (two-stage composite (inter,final) key via jam::Union, 1280 slots), DECRQM '$' tighten, DECRQSS $y fix, honest 2026/2027 reports
+- `video/jam_VideoESC.cpp` / `jam_VideoOSC.cpp` — ESC/OSC DispatchTables; OSC bail-out guards → positive nesting; DECALN via fromCodepoint
+- `video/jam_VideoSGR.cpp` — SGR fifth family (SgrAction, 64 rows); attributeSet/Reset/underlineStyle LUTs; applyExtendedColor/applyUnderlineColor extractions; SGR 21 live (double underline per ECMA-48); **SGR-4 field-corruption fix** (clear-then-set); **sub-param re-dispatch fix** (isSubSeparator guard — 4:3 no longer sets ITALIC); applySGR/handleSGR doc inversion fixed
+- `video/jam_VideoMode.cpp` — DecMode-bimap dispatch through setModeFlag (single write path), SYNC_OUTPUT deadline arm
+- `video/jam_VideoOSCExt.cpp` — OSC 133 activeMark state machine + row stamping; OSC 8 interns jam::Link (index+1), event round-trip deleted
+- `bimap/jam_DecMode.h` (new) — `jam::terminal::map::DecMode : jam::Bimap<DecMode, juce::Identifier>` — ordinary subclass #23, getDefault = empty Identifier (miss sentinel)
+- `model/jam_Model.{h,cpp}` (new) — `jam::terminal::Model` (jam::Model): MODES registered iterating DecMode, defaults at registration, RIS reset; END consumes/extends (P12 amendment recorded)
+- `transport/jam_CellFifo.h` — header mark bits 2–4 pack/drain; join takes first-row mark
+- `parser/` — printCodepoint call sites; UTF-8 length LUT
+- `keyboard/jam_Keyboard.cpp` — isEnhancedKey LUT
+- `image/` (15 new) — SKiT absorbed from endless working tree (Skit, Sixel/Kitty/ITerm2 decoders, ImageDecode platform TUs); jam_terminal.{h,cpp,mm} registration; DA1 Sixel bit pre-existing; callAsync+moved-HeapBlocks transfer preserved
+- `tests/` (new) — Catch2 standalone target: TestTerm fixture (TermBase template, SyncOutputDeadlineVideo deadline injection — no virtual, no production seam), 70+ cases (emoji corpus, wide-at-margin, 2026/2027, marks, links, dispatch equivalence, SGR regressions)
+
+**END:**
+- `PLAN-vt-correctness.md` (new) — locked PLAN + full ruling trail
+- `Source/Main.h` — owns ALL SharedResources instances (`jam::Stamp`, `jam::Grapheme`, `jam::Link`) — ARCHITECT-directed move restoring SPEC.md:534 conformance; declared after `context`, ahead of every consumer (correct teardown order)
+- `Source/lookAndFeel/LookAndFeel.h` — SharedResources instances removed; owns typeface registration only
+
+### Alignment Check
+- [x] BLESSED principles followed (LUT canon: Bound/.rodata, SSOT single mode list + single write path, Stateless Video modes → Model, Deterministic dispatch-as-data; ARCHITECT rulings enforced: no new pattern where one exists — COUNSELOR's Bimap-tier inventions rejected and withdrawn; executor switches ruled exempt from L-30 as the canon's sanctioned form)
+- [x] NAMES.md adhered (every name ARCHITECT-gated or convention-derived-and-disclosed; vetoes honored: segState→graphemeState, foldIntoPreviousCell→extendGraphemeCluster, nowMs→no seam at all, modeParams→modeParameters, ValueBimap/Vocabulary→withdrawn)
+- [x] MANIFESTO.md principles applied (3 audit passes, every finding resolved in-sprint incl. pre-existing: linkId cluster drop, ModeEntry, DECALN, dual write path, bail-outs, copy-init, handleSGR L, SGR-4 corruption, sub-param re-dispatch; two COUNSELOR protocol violations + one Engineer file-destruction incident disclosed, reconstruction independently verified)
+
+### Problems Solved
+- RFC V1 baseline stale vs code (write path already landed) → ARCHITECT ruled verbatim re-walk; residue delivered: mode 2027, per-screen graphemeState + 26 reset sites
+- OSC 133 marks: boundary-row-only stamping → activeMark running state, full per-row propagation incl. wide-at-margin third transition site; promptContinuation reachable
+- linkId sentinel collision (first link = index 0 = "no link") → index+1 contract, docs both sides
+- DECRQM/DECRQSS dispatch dead ('$' is intermediate, csiFinal::STATUS unreachable) → composite-key routing + spec-tightened full wire form
+- Mode-state reflection (modePtr/member-pointer tables — ARCHITECT: bad design) → dissolved into jam::terminal::Model (SSOT) + DecMode bimap + cached Parameter* calculation inputs; Video stateless on modes
+- LUT canon formalized (whole-machinery performance rule; dispatch tiers; constexpr direct-index, identity-is-the-hash; jam::Union composite keys; objects at boundaries only) → jam::LookupTable + five DispatchTable families (CSI/ESC/OSC/C0/SGR)
+- SGR 21 dead+mislabeled → live double underline per ECMA-48/xterm consensus
+- SGR-4 underline-field corruption (OR onto occupied 3-bit field → curly) → clear-then-set arm + regression pins
+- SGR sub-parameter re-dispatch (4:3 set ITALIC, 4:5 set BLINK) → isSubSeparator guard, spec semantics
+- Conformance suite: b3f0fea "revival" exposed as never-committed → fresh 70+-case suite, permanent JAM home, standalone target
+- Engineer file-destruction incident (jam_VideoSGR.cpp, uncommitted) → transcript reconstruction, COUNSELOR line-by-line verification, build+suite confirm
+- SharedResources ownership diverged from SPEC (LookAndFeel held Stamp/Grapheme; Link initially placed beside them) → all three moved to end::Application (Main.h); LookAndFeel = typeface registration only
+- Post-build doxygen warnings (duplicate @param on applyExtendedColor/applyUnderlineColor/handleSGR, unescaped `<final>` tag) → definition-side @params dropped (header canonical), tag backticked
+
+### Debts Paid
+- None (no DEBT.md entries in this sprint's scope)
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `drawLine` native-line-pipeline gap (pre-existing sole remaining entry; untouched by this sprint)
+
+---
+
 ## Sprint 58: CRT Post-Process Presets + Bindless Slot Lifecycle + previous* Vocabulary ✅
 
 **Date:** 2026-07-03
