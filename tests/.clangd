@@ -1,0 +1,78 @@
+CompileFlags:
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/tests/build/
+  Remove:
+    - -arch
+    - -mmacosx-version-min*
+  Add:
+    - --target=arm64-apple-darwin
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam/jam_vulkan
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/build/jam_terminal_tests_App_artefacts/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/Source
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam/___sdk___/vulkan/macOS/include
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam/jam_vulkan/vma/include
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../../JUCE/modules/juce_graphics/fonts/harfbuzz
+    - -I/Users/jreng/Documents/Poems/dev/end/tests
+    - -I/Users/jreng/Documents/Poems/JUCE/modules
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam/jam_freetype/freetype/include
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/build/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/../../jam/jam_style/.
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
+    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
+    - -I/Users/jreng/Documents/Poems/dev/end/tests/build/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
+    - -DDONT_SET_USING_JUCE_NAMESPACE=1
+    - -DGL_SILENCE_DEPRECATION
+    - -DJUCE_APPLICATION_NAME_STRING=
+    - -DJUCE_APPLICATION_VERSION_STRING=
+    - -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
+    - -DJUCE_IN_APP_PURCHASES=0
+    - -DJUCE_IOS=0
+    - -DJUCE_LINUX=0
+    - -DJUCE_MAC=1
+    - -DJUCE_MODULE_AVAILABLE_jam_core=1
+    - -DJUCE_MODULE_AVAILABLE_jam_data_structures=1
+    - -DJUCE_MODULE_AVAILABLE_jam_debug=1
+    - -DJUCE_MODULE_AVAILABLE_jam_freetype=1
+    - -DJUCE_MODULE_AVAILABLE_jam_graphics=1
+    - -DJUCE_MODULE_AVAILABLE_jam_lua=1
+    - -DJUCE_MODULE_AVAILABLE_jam_style=1
+    - -DJUCE_MODULE_AVAILABLE_jam_terminal=1
+    - -DJUCE_MODULE_AVAILABLE_jam_vulkan=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_processors=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1
+    - -DJUCE_MODULE_AVAILABLE_juce_core=1
+    - -DJUCE_MODULE_AVAILABLE_juce_data_structures=1
+    - -DJUCE_MODULE_AVAILABLE_juce_events=1
+    - -DJUCE_MODULE_AVAILABLE_juce_graphics=1
+    - -DJUCE_MODULE_AVAILABLE_juce_gui_basics=1
+    - -DJUCE_MODULE_AVAILABLE_juce_gui_extra=1
+    - -DJUCE_MODULE_AVAILABLE_juce_opengl=1
+    - -DJUCE_STANDALONE_APPLICATION=1
+    - -DJUCE_WINDOWS=0
+    - -DNDEBUG=1
+    - -DTARGET_OS_IPHONE=0
+    - -DVMA_VULKAN_VERSION=1002000
+    - -D_NDEBUG=1
+    - -D__APPLE__=1
+    - -Wno-deprecated-declarations
+    - -Wno-unused-parameter
+
+Index:
+  Background: Build
+
+Diagnostics:
+  UnusedIncludes: None
+  MissingIncludes: None
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes

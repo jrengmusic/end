@@ -2,6 +2,49 @@
 
 ---
 
+## Sprint 59: Conformance Suite Green + PLAN/RFC Retirement ✅
+
+**Date:** 2026-07-03
+**Duration:** ~1 session (build authorization → root-cause diagnosis → cross-repo relocation → 84/84 green → audit → PLAN/RFC retirement)
+
+### Agents Participated
+- COUNSELOR: orchestration; Decision Gate mediation on the HEADER_FILE_ONLY build defect (presented scoped-CMake-fix options, ARCHITECT instead directed cross-repo relocation, superseding RFC-vt-correctness.md V6 — confirmed via explicit gate); independent verification of every Pathfinder/Engineer/Auditor finding against source before relay (caught a stale concurrent git-status snapshot that missed the RFC/PLAN deletions and the already-committed charPropsT2 fix — re-checked both); trivial 2-line doxygen fix applied directly (`jam_CSI.h:229-231`)
+- Pathfinder (5 dispatches): test-suite build-setup survey (CMakeLists.txt wiring, never-built status, tool versions); post-fix git status/log verification across both repos (commit style, DEBT.md contents, file-tracking confirmation, END.ode/.clangd diff inspection)
+- Engineer (2 dispatches): first dispatch attempted build-in-place, surfaced the JUCE module `GLOB_RECURSE`/`HEADER_FILE_ONLY` exclusion defect via diagnostic instrumentation (added and reverted, file left byte-identical), correctly stopped at Decision Gate instead of patching `BuildSetup.cmake` outside authorized scope; second dispatch executed the relocation (`jam_terminal/tests/` → `end/tests/`, CMake path recalculation, header rewrite), configured/built/ran the suite, root-caused and fixed the `CSI::addSeparator()` off-by-one (4 failures), verified the pre-existing `charPropsT2` restoration against canonical source — suite reached 84/84 green (200 assertions)
+- Auditor (1 pass): full clean sweep of the relocated suite, both fixes, and adjacent defect-class scan (other LUTs, other bit-packing sites) per ARCHITECT's "no pre-existing immunity" directive — PASS, one HIGH finding (stale doxygen example contradicting the fix)
+
+### Files Modified
+**JAM:**
+- `jam_terminal/parser/jam_CSI.h:255` — `CSI::addSeparator()` sub-separator bit index `count` → `count + 1`, matching `isSubSeparator()`'s own documented contract (was stamping the parameter just closed instead of the one following the separator)
+- `jam_terminal/parser/jam_CSI.h:229-231` — stale doxygen example corrected to match the fixed bit assignment (bit 1 / `isSubSeparator(1)`, not bit 0)
+- `jam_graphics/detail/jam_CharProps.cpp` (charPropsT2, ~1280 entries) — truncation found and fixed during this sprint's green cycle; already committed separately by ARCHITECT mid-session (commit `de57889`) — independently reverified against canonical `endless/Source/terminal/CharPropsData.h` source, no further action
+- `jam_terminal/tests/` — deleted entirely (relocated to END; suite was never committed in this repo)
+
+**END:**
+- `tests/` (new — 8 files: `CMakeLists.txt`, `TestMain.cpp`, `TestTerm.h`, `catch2/catch.hpp`, `WritePathTests.cpp`, `SyncOutputTests.cpp`, `MarkTests.cpp`, `HyperlinkTests.cpp`, `DispatchTests.cpp`, `LookupTableTests.cpp`) — conformance suite relocated from JAM's `jam_terminal/tests/`; `CMakeLists.txt` `JAM_ROOT`/`JUCE_PATH` recalculated for new depth, header comment rewritten (JUCE `GLOB_RECURSE` root cause documented, RFC V6 supersession noted)
+- `PLAN-vt-correctness.md` — deleted (spent: fully executed, audited, verified)
+- `RFC-vt-correctness.md` — deleted (spent: fully absorbed into the executed PLAN)
+- `CLAUDE.md` — Current State updated (Sprint 59, PLAN/RFC retirement)
+
+### Alignment Check
+- [x] BLESSED principles followed (root-cause fixes only, no papering over failures, no disabled/skipped tests; **B** — relocation resolves the ownership ambiguity that caused silent exclusion from compilation)
+- [x] NAMES.md adhered (no new names introduced this sprint)
+- [x] MANIFESTO.md principles applied (Decision Gate honored — Engineer stopped rather than patching `BuildSetup.cmake` outside authorized scope; clean-sweep audit performed with no pre-existing immunity per ARCHITECT's explicit directive; one finding resolved before sprint completion)
+
+### Problems Solved
+- Conformance suite (84 cases, never built on this machine) failed to link — root cause: JUCE's module `GLOB_RECURSE` (`JUCEModuleSupport.cmake` `_juce_module_sources`) swept the suite's `.cpp` files (living inside `jam_terminal/`'s own folder) and marked them `HEADER_FILE_ONLY TRUE` under JAM's `JUCE_ENABLE_MODULE_SOURCE_GROUPS ON` policy — never compiled despite being listed in the target's `SOURCES`
+- ARCHITECT-directed fix: relocate the suite outside any JUCE module folder entirely (`end/tests/`), superseding RFC-vt-correctness.md V6's "suite's home is JAM" ruling
+- CSI sub-separator off-by-one (`jam_CSI.h`) surfaced by the now-running suite: broke `4:n` curly-underline dispatch (post-pass guard failed) and `38:2:...` RGB-foreground dispatch (head code wrongly treated as a sub-parameter, skipped in the main dispatch loop) — root-caused against the struct's own documented contract, fixed, doxygen corrected
+- PLAN-vt-correctness.md and RFC-vt-correctness.md retired — both fully spent, deleted per ARCHITECT's word
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 58: VT Correctness + Conformance Hardening (RFC-vt-correctness) + LUT Canon ✅
 
 **Date:** 2026-07-03

@@ -6,10 +6,10 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 56 — User Shader Pipeline — Background render() + Post-Process Chain ✅ (2026-07-02)
+- **Last sprint:** Sprint 59 — Conformance Suite Green + PLAN/RFC Retirement ✅ (2026-07-03)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
-- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap) · DEBT-20260702T152430 (shader opacity — fixed this sprint, drains at log)
-- **Open PLAN:** `PLAN-vulkan-hpp-adoption.md` — Steps 1–7 executed (vk:: sweep + opacity fix), pending ARCHITECT build gate + log
+- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap)
+- **Open PLAN:** none — `PLAN-vt-correctness.md` and `RFC-vt-correctness.md` deleted (fully executed, audited, verified; conformance suite is the surviving artifact at `tests/`)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  
