@@ -2,6 +2,56 @@
 
 ---
 
+## Sprint 58: CRT Post-Process Presets + Bindless Slot Lifecycle + previous* Vocabulary ✅
+
+**Date:** 2026-07-03
+**Duration:** ~1 session
+
+### Agents Participated
+- COUNSELOR: preset design from cool-retro-term extraction, curvature-geometry root-cause chain (band → corner-fit crop → alpha-immutability analysis → boundary-preserving bulge), bindless-leak verification (independent re-read of trace), texture-cache design from JUCE's own CachedImageList precedent, Names Gates (resetBindlessIndex, resetResources, previous* family, shaderInstanceStaleFrameBound — all ARCHITECT-ratified, "retired" banned), orchestration
+- Pathfinder (×3): END user-shader on-disk format + Compiler prelude contract; cool-retro-term shader/preset extraction (verbatim GLSL + 15 presets + uniform scaling factors); bindless index lifecycle trace (allocation-site table, per-resize cost ≈18 slots); drawImage texture-cache trace
+- Librarian: juce::ImagePixelData::Listener research (firing sites, threading, identity, juce_opengl CachedImageList eviction precedent)
+- Engineer (×7): 4 preset projects written + 4 geometry/sampling iterations (corner-fit, sampleScene straight-alpha composite, faithful inset+band, boundary-preserving bulge — each glslc-verified against the exact Compiler prelude); bindless recycle fix; texture-cache eviction; retired*→previous* sweep + resetResources extraction
+- Auditor (1 pass): bindless recycling + texture eviction — PASS, zero violations; L1 (beginFrame length) resolved in-sprint via resetResources, L2/L3 observational-closed
+
+### Files Modified
+
+**JAM — bindless slot lifecycle:**
+- `jam_vulkan/context/jam_VulkanGraphics.h/.cpp` — `freeBindlessIndices` recycle pool + `resetBindlessIndex()`; `setBindlessIndex()` pops pool first; scene/straightAlpha slots Graphics-lifetime-stable (descriptor rewritten in place on resize); ImagePixelData::Listener implementation (evict on deletion/mutation → `previousTextures`, destructor deregistration, JUCE_ASSERT_MESSAGE_THREAD preconditions); `resetResources()` extraction (post-fence reclamation: winding scratch, staging, shader instances, textures)
+- `jam_vulkan/context/jam_VulkanGraphicsSetupSceneTarget.cpp` — `= -1` slot resets removed (both targets)
+- `jam_vulkan/resource/jam_VulkanTransparencyStack.h/.cpp` — `outPreviousBindlessIndex` out-param, released immediately at caller (resize-only, waitIdle'd)
+- `jam_vulkan/resource/jam_VulkanWindingScratch.h/.cpp` — `previousBindlessIndices` deferred release (mid-frame growth), drained in `resetResources()`
+- texture cache re-keyed `const juce::Image*` → `juce::ImagePixelData*` (dangling key + address-reuse aliasing fixed; copies share identity)
+
+**JAM — previous* vocabulary sweep (grep-zero on "retir"):**
+- `jam_VulkanGraphics.*`, `jam_VulkanGraphicsShaderPass.cpp`, `jam_VulkanWindingScratch.*` (`resetRetired`→`resetPrevious`), `jam_FrameBuffer.*` + `jam_VulkanPrimitiveRecordBuffer.*` (`previousBuffers`), `jam_VulkanTransparencyStack.*`, `jam_VulkanRegistry.h`, `jam_VulkanShaderInstance.h`, `jam_VulkanPipelines.*` (historical → "removed"), `jam_GlyphConstraint.h` — identifiers + all prose
+
+**END:**
+- `ARCHITECTURE.md` — deferred-destroy references synced to previous* vocabulary
+
+**Config (`~/.config/end/shaders/`, not a repo file):**
+- `default amber`, `monochrome green`, `commodore pet`, `plasma` — 4 multi-pass CRT presets (`Common`/`BufferA`/`Image`): iScene bloom pre-pass + composite (curvature, hsync, jitter, rgb-shift, scanline/subpixel rasterization, chroma conversion, noise, glow line, flicker); params baked with cool-retro-term's internal factors (frameSize ×0.05, curvature ×0.6); effect code byte-identical across presets
+
+### Alignment Check
+- [x] BLESSED principles followed (framework OOTB: eviction mirrors JUCE's CachedImageList, no hand-rolled machinery; SSOT: one alloc site, one release site, one pool; Auditor PASS zero violations, all release points verified behind fence/waitIdle)
+- [x] NAMES.md adhered (all new names ARCHITECT-gated: resetBindlessIndex, resetResources, previous* family, shaderInstanceStaleFrameBound; "retired" banned and swept)
+- [x] MANIFESTO.md principles applied (positive checks only, asserted preconditions, no magic numbers, doxygen moved with every change)
+
+### Problems Solved
+- Post-process CRT presets over transparent glass: engine alpha is per-pixel immutable (V8 contract) so geometric warp displaces rgb but not alpha — iterated to boundary-preserving bulge (window edge pins to scene edge, magnification interior-only) + `sampleScene()` compositing empty scene over preset background; ARCHITECT-verified working
+- Window resize → blank window: bindless array (128) exhausted ~18 slots/resize by monotonic counter with zero release paths → recycle pool + lifetime-stable scene slots; resize now index-neutral
+- drawImage texture cache keyed by caller-owned juce::Image address (dangling + aliasing on address reuse, permanent slots, stale content on mutation) → ImagePixelData* key + listener-driven eviction with post-fence drain
+- beginFrame length finding (Auditor L1) → resetResources extraction
+- "retired" vocabulary vague per ARCHITECT → banned, previous*/set-reset vocabulary swept module-wide
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `drawLine` native-line-pipeline gap (standing sole ledger entry; untouched this sprint)
+
+---
+
 ## Sprint 57: vulkan-hpp Adoption — Full vk:: Sweep + Opacity Fix + Straight-Alpha Post-Process ✅
 
 **Date:** 2026-07-02/03

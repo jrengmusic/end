@@ -342,9 +342,9 @@ the GPU path by construction.
   pipeline enables alpha-to-coverage so mask edges keep sub-pixel coverage (per-fragment
   discard alone would defeat MSAA at the mask boundary).
 - **Staging arena** — per-window, offset-allocated from one persistently-mapped buffer;
-  growth retires (never destroys) the old buffer until the frame fence; reset after
-  the beginFrame() fence wait. Atlas uploads write into the CALLING window's arena — no
-  cross-window staging races, no same-frame overwrite.
+  growth moves the old buffer to `previousStagingBuffers` (never destroys it) until the
+  frame fence; reset after the beginFrame() fence wait. Atlas uploads write into the
+  CALLING window's arena — no cross-window staging races, no same-frame overwrite.
 - **Pipeline cache** — persistent `vk::PipelineCache` blob at the END-resolved cache file;
   loaded at Graphics init, serialized at shutdown. Driver/OS updates invalidate it
   silently (one cold launch); shader changes simply miss and merge.
@@ -433,8 +433,9 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
 - **`jam::vulkan::ShaderInstance`** — per-window GPU realization of a Shader, cached by
   `contentHash` + scaled extent (pipelines from runtime SPIR-V, one ping-pong image pair
   per buffer pass — every buffer pass ping-pongs, Image-pass pipeline lazily built per
-  target render pass + sample count). Stale entries retire deferred; entries unreferenced
-  past the swapchain-image bound are swept at `beginFrame()` (hot-reload never leaks).
+  target render pass + sample count). Stale entries move to `previousShaderInstances`
+  (deferred destroy); entries unreferenced past the swapchain-image bound are swept at
+  `beginFrame()` (hot-reload never leaks).
   Uniforms (`iTime`/`iTimeDelta`/`iFrame`/`iResolution`/`iMouse`/`iScene`/`channels[21]`/
   `opacity`, exactly 128 bytes — the guaranteed push-constant floor) stamped engine-side
   at record time; `stampChannels` is the single channel rule: buffer-pass bindless index
