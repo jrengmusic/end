@@ -2,6 +2,65 @@
 
 ---
 
+## Sprint 57: vulkan-hpp Adoption — Full vk:: Sweep + Opacity Fix + Straight-Alpha Post-Process ✅
+
+**Date:** 2026-07-02/03
+**Duration:** ~1 session (RFC-vulkan-hpp-adoption.md → PLAN-vulkan-hpp-adoption.md, Steps 1–7 + V8 straight-alpha addendum)
+
+### Agents Participated
+- COUNSELOR: PLAN authorship from RFC (+ mid-sprint RFC-update integration: Device conformance fixes, present-mode negotiation, vk-bootstrap rejection), opacity root-cause (static read: no-blend Image pipeline vs alpha-scaling formula), Names Gate (selectPresentMode, getAtlasImage, straightAlpha stem), premultiplied-scene analysis → straight-alpha contract design, vendoring-source verification (`___sdk___` 350/350), include-isolation direction, all orchestration/verification, ARCHITECTURE.md/CLAUDE.md sync
+- Pathfinder: jam_vulkan inventory (37 Vulkan-API files ≈9.5K LOC, unity build = 1 TU), VMA seam map, error-handling/never-null-chain inventory, opacity data-path trace
+- Engineer (~14 dispatches): opacity blend fix, header vendoring + config site + build flag, sweep steps 3–6 (device+resources, Pipelines, GraphicsSetup+Graphics, LLGC+ShaderPass+ShaderInstance), doc fixes, vulkan_hash opt-in + RenderPassHash removal, getAtlasImage rename, zero-arg spacing normalization (601 sites), compile-error wave (DeviceQueueCreateInfo bug + 4+16 ambiguous operator= sites), include isolation (vk_video + BEFORE precedence) + platform-header completion, straight-alpha pass implementation + gate fixes
+- Auditor (8 passes): opacity fix, vendoring/config, V3 (caught C-enum caller ripple + style), V4 (field-by-field pipeline-value identity), V5 (frame-loop result handling, selectPresentMode), V6 sweep-complete grep gate + END boundary, V7 docs-vs-code, V8 straight-alpha (caught HIGH bindless-capacity gate gap) — all findings resolved in-sprint
+
+### Files Modified (~60 total, grouped)
+
+**JAM — vendored surface:**
+- `jam_vulkan/vulkan/` — wholesale matched SDK 1.4.350 set: C headers + vulkan.hpp/.hpp companions (raii/shared excluded), all 19 platform headers, `vk_video/` (12) — one pinned generation, static_assert-enforced
+- `jam_vulkan/jam_vulkan.h` — config site (VULKAN_HPP_NO_EXCEPTIONS, VULKAN_HPP_ASSERT/ASSERT_ON_RESULT = jassert) before `vulkan/vulkan.hpp`; `vulkan_hash.hpp` opt-in (first consumer: ShaderInstance pipeline cache key)
+- `cmake/AppBuilder.cmake` — `-fno-strict-aliasing` merged into jam_vulkan TU flags (NOT MSVC); `${JAM_ROOT}/jam_vulkan` include dir with BEFORE precedence (vendored set wins over `___sdk___`; SDK path now serves GLM/GpuProbe only)
+
+**JAM — vk:: sweep (whole module, ~9.5K LOC across 37 files):**
+- device/, resource/ (Buffer/Image/UploadHelpers/FrameBuffer/PrimitiveRecordBuffer/TransparencyStack/WindingScratch), Pipelines{,State}, GraphicsSetup* + Graphics, LLGC family + ShaderPass + ShaderInstance, GlyphAtlas signatures — plain vk:: only; Result overloads on all setup paths (never-null factory contract preserved); enhanced enumerations with .result checked; VMA seam = 2 vmaCreate* temporaries; module-wide grep gate clean; END touches zero Vulkan (invariant re-verified)
+- `device/jam_VulkanDevice.{h,cpp}` — conformance: portability_enumeration (+eEnumeratePortabilityKHR) presence-checked, portability_subset presence-checked, JUCE_DEBUG-only validation layer + debug-utils messenger (debug::Log, eError → jassertfalse)
+- `context/jam_VulkanGraphicsSetupSurface.cpp` — `selectPresentMode` (MAILBOX-prefer, FIFO fallback per spec guarantee) replaces hardcoded FIFO
+- `font/` — `getAtlasVkImage` → `getAtlasImage`
+- Module-wide: zero-arg calls normalized to `foo()` per JRENG-CODING-STANDARD.md:45 (ARCHITECT ruling; 601 sites — COUNSELOR had propagated the spaced form, corrected)
+- Compile-error wave: `vk::DeviceQueueCreateInfo` ctor-arg bug (queueCount/pQueuePriorities restored), 4+16 ambiguous `operator=` braced-assignment sites given explicit RHS types
+
+**JAM — opacity fix + straight-alpha (post-process correctness):**
+- `resource/jam_VulkanShaderInstance.{h,cpp}` — `createFullscreenPipeline`/`getOrCreateImagePassPipeline` take caller-chosen blend attachment: in-scene background = `alphaBlendAttachment()` (opacity finally has visual effect; glass alpha not stomped), buffer passes + composite = `opaqueBlendAttachment()` (both moved public, noStencilState precedent)
+- `shaders/straight_alpha.frag` (+spv) — engine pass un-premultiplying the resolved scene (`s.rgb/s.a`, alpha kept); picked up by AppBuilder glob automatically
+- `context/jam_VulkanGraphics{.h,.cpp,SetupSceneTarget.cpp,ShaderPass.cpp}` — `straightAlphaImage`/framebuffer/pipeline/bindless slot (create+resize lifecycle mirrors scene target), `recordStraightAlphaPass()` (barrier conventions per buffer passes), post-process path rewired: iScene + channel fallback = straight-alpha image; gate extended (`straightAlphaBindlessIndex >= 0`), preconditions asserted
+- `shader/jam_VulkanShaderUniforms.h` — opacity/iScene docs rewritten to per-target blend + straight-alpha contract
+
+**END:**
+- `Source/graphics/Compiler.{h,cpp}` — post-process Image main: `fragColor = vec4 (mix (scene.rgb, userColor.rgb, opacity) * scene.a, scene.a)` — straight-alpha in, re-premultiplied out, glass alpha immutable (user alpha ignored); background branch untouched
+- `ARCHITECTURE.md` — Vulkan Vocabulary section (vendored pair, config, error policy, VMA seam, conformance, present mode, straight-alpha pass); targetFrameBudgetMs paragraph synced to Main.cpp
+- `CLAUDE.md` — Current State corrected (sprint, open PLAN, vulkan-hpp line, debt ledger)
+- `PLAN-vulkan-hpp-adoption.md` written; `PLAN-vulkan-redesign.md` deleted (fully superseded, RFC-verified)
+
+### Alignment Check
+- [x] BLESSED principles followed (plain vk:: = vocabulary not lifetime model — B untouched; ~150+ LOC deleted; one config site + one vendored generation SSOT; behavioral identity field-verified per step; hand-rolled RenderPassHash replaced by vulkan_hash.hpp on first consumption)
+- [x] NAMES.md adhered (selectPresentMode, straightAlpha stem, getAtlasImage — all ARCHITECT-gated)
+- [x] MANIFESTO.md principles applied (8 audit passes, every finding resolved in-sprint incl. HIGH bindless-capacity gate; never-null factory contract re-walked; zero-arg spacing corrected to standard after ARCHITECT ruling — COUNSELOR error disclosed)
+
+### Problems Solved
+- Shader opacity inert on both slots → Image-pass pipeline hardcoded no-blend; per-target blend attachment (alpha in-scene, opaque elsewhere)
+- Post-process invert corrupted glass (premultiplied scene + user alpha passthrough) → straight-alpha contract: engine un-premultiply pass, re-premultiplying composite, immutable glass alpha
+- Vendored headers shadowed by `___sdk___` include path → BEFORE-precedence isolation + vk_video/platform-header completion (vulkan_macos.h fatal traced to MoltenVK macro activation)
+- `foo ()` spacing violation propagated by COUNSELOR across the sweep → 601-site normalization per standard
+- DeviceQueueCreateInfo positional-ctor bug (float into queueCount) + ambiguous vk:: struct `operator=` class (20 sites) — caught at first build + proactive grep
+- Bindless-capacity gate gap on straight-alpha path (Auditor HIGH) → gate extended, identity-composite degradation preserved
+
+### Debts Paid
+- `DEBT-20260702T152430` — shader opacity runtime defect: per-target blend attachment fix (background alpha-blended in-scene); verified by ARCHITECT crt test surfacing the follow-on straight-alpha work, both landed
+
+### Debts Deferred
+- `DEBT-20260629T100000` — `drawLine` native-line-pipeline gap (pre-existing sole remaining entry; line pipeline untouched by this sprint)
+
+---
+
 ## Sprint 56: User Shader Pipeline — Background render() + Post-Process Chain ✅
 
 **Date:** 2026-07-02

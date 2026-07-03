@@ -42,6 +42,7 @@ CompileFlags:
     - -DJUCE_WEB_BROWSER=1
     - -DVMA_VULKAN_VERSION=1002000
     - -D_DEBUG=1
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_vulkan
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/___sdk___/vulkan/macOS/include

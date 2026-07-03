@@ -64,6 +64,16 @@ Explicitly NOT provided (confirmed absent): VMA integration, swapchain recreatio
 
 Headers must come from **one matched generation, wholesale**. `vk_platform.h` alone is version-stable (SPDX-only diff).
 
+### vk-bootstrap survey (Librarian, post-RFC session addendum — evaluated and rejected as dependency)
+
+`charles-lunarg/vk-bootstrap` (LunarG-affiliated maintainer, tags version-synced to SDK — `v1.4.350` exists). Four builders (Instance, PhysicalDeviceSelector, Device, Swapchain), init-only. No exceptions (`Result<T>`, all `noexcept`). **Rejected as dependency:** ~3,300 LOC vendored to replace ~240 LOC of working code; outputs raw C types (zero vulkan-hpp awareness — second vocabulary at init exactly when the sweep unifies on `vk::`); surface creation and VMA not covered. Lean opposes; no pillar advocates. ARCHITECT-directed disposition: adopt its *patterns* as reference, not the library (MIT-licensed; patterns are standard spec idioms anyway).
+
+Factual findings surfaced by the survey against current `jam_VulkanDevice.cpp` (cited, independent of any adoption):
+1. `createInstance()` (lines 22-51) never requests `VK_KHR_portability_enumeration` nor sets `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` — MoltenVK-conformant instance path absent.
+2. `createLogicalDevice()` (lines 152-158) pushes `VK_KHR_portability_subset` unconditionally under `JUCE_MAC` without querying device support.
+3. No validation-layer/debug-messenger wiring exists anywhere in Device setup.
+4. Present mode hardcoded FIFO; swapchain recreation does full teardown (`oldSwapchain` = `VK_NULL_HANDLE`).
+
 ## Principles and Rationale
 
 ### Decision: adopt, under four conditions (each ARCHITECT-locked this session)
@@ -126,6 +136,24 @@ No code scaffold produced — this was a research/audit session; the deliverable
 
 **Prime conversion targets (highest boilerplate first, per Pathfinder):** `context/jam_VulkanPipelinesState.cpp` (~80%), `context/jam_VulkanPipelines.h` (~53%), `context/jam_VulkanGraphicsSetupDrawState.cpp` (~47%), `context/jam_VulkanGraphicsSetupCalibrationPipeline.cpp` (~42%), `context/jam_VulkanGraphicsSetupSceneTarget.cpp` (~36%).
 
+**Present-mode negotiation (ARCHITECT-directed addition — pattern adopted from vk-bootstrap, rewritten BLESSED-compliant):**
+```cpp
+// Setup path — Result-checked per locked error policy. FIFO is spec-guaranteed
+// (VK_KHR_surface: "VK_PRESENT_MODE_FIFO_KHR ... required to be supported"),
+// so the fallback is total: positive selection, no bail-out guard.
+vk::PresentModeKHR selectPresentMode (vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+    const auto modes { physicalDevice.getSurfacePresentModesKHR (surface) };
+    jassert (modes.result == vk::Result::eSuccess);
+
+    const bool hasMailbox { std::find (modes.value.begin(), modes.value.end(),
+                                       vk::PresentModeKHR::eMailbox) != modes.value.end() };
+
+    return hasMailbox ? vk::PresentModeKHR::eMailbox : vk::PresentModeKHR::eFifo;
+}
+```
+BLESSED trace: Explicit (enumerate-then-select, no hidden default), Deterministic (spec-guaranteed fallback, same input → same mode), Bounds (selection domain is the enumerated set), no bail-out guard (fallback is total by spec citation). Function name subject to Names Gate — ARCHITECT approval before introduction. Consumed by `Graphics` swapchain creation in place of hardcoded `VK_PRESENT_MODE_FIFO_KHR`.
+
 ## BLESSED Compliance Checklist
 
 - [x] Bounds — scope bounded to jam_vulkan internals; END untouched; explicit exclusion list (raii/UniqueHandle/su)
@@ -143,6 +171,9 @@ None blocking — all load-bearing decisions resolved this session (header pair,
 2. lldb type summaries for `vk::Flags<>`/scoped enums in `.lldbinit` — quality-of-life, not blocking (natvis is VS-only).
 3. `-fno-strict-aliasing` presence in current JAM flags — verify, add if absent.
 
+4. ~~vk-bootstrap survey findings 1-3~~ RESOLVED (ARCHITECT-directed): **all three Device fixes are in sweep scope** — VK_KHR_portability_enumeration + ENUMERATE_PORTABILITY_BIT at instance creation, portability_subset presence-checked before enable, validation-layer/debug-messenger wiring (debug builds, routed through jassert/debug::Log). ~20 lines each; Device setup is rewritten by the sweep regardless.
+5. MAILBOX runtime behavior on END's paint model: MAILBOX unblocks presentation vs FIFO's vblank pacing — `targetFrameBudgetMs` calibration and the synchronous message-thread paint path were measured under FIFO. Post-sweep validation should confirm pacing characteristics under MAILBOX on both MoltenVK and Windows; preference order is trivially swappable in `selectPresentMode` if measurement says FIFO.
+
 ## Handoff Notes
 
 1. **Sprint scope is locked: full vk:: sweep + opacity defect fix, one sprint** (ARCHITECT-confirmed in-sprint). Defect: background/post-process shader opacity has no runtime effect, both render passes. Wired through config → `graphics::Compiler` → `jam::vulkan::render(g, shader, opacity, resolution)` seam but produces zero visual difference — value lost between injection seam and draw (suspect: uniform upload or blend state in pipeline creation — exactly the code the sweep rewrites). Debt ODE already written for `carol debt add`; if captured, drains at log time.
@@ -153,3 +184,5 @@ None blocking — all load-bearing decisions resolved this session (header pair,
 6. **Never-null factory contract is the constraint the error policy protects:** `Registry::createContext` must keep returning CPU fallback on GPU-path failure in release builds. Any conversion of a setup-path call to an enhanced-mode (value-returning) overload silently breaks this under NDEBUG — Auditor should specifically check setup paths use Result overloads.
 7. **Doxygen protocol applies to the sweep:** JAM index `~/Documents/Poems/dev/jam/docs/xml/index.xml` before grep; regen after API-shape changes; doxygen comments move with signatures.
 8. Discrepancy note resolved during research: earlier Pathfinder claim of SDK-include was wrong — JAM vendors its C headers (`jam_vulkan/vulkan/`, dated 28 Jun). Dispatch config is therefore zero work (static linking + vendored headers already the pattern).
+9. **Present-mode negotiation is ARCHITECT-directed sweep scope** (this RFC's Scaffold): replace hardcoded FIFO with enumerate-prefer-MAILBOX-fallback-FIFO per the BLESSED-compliant pattern above. Pattern provenance vk-bootstrap (reference only — the library itself is rejected as dependency, see Research Summary). Open Question 5's runtime validation rides the multi-pass testing requirement (note 2).
+10. **Vendoring source clarification (post-RFC session):** COUNSELOR sourced the 1.4.350 pair from `~/Documents/Poems/dev/jam/___sdk___/vulkan/macOS/include/vulkan/` — verified self-consistent 350/350 (vulkan_core.h defines 350, vulkan.hpp asserts 350). Same generation the RFC pinned; compliant. Confirm the complete `.hpp` companion set is copied from that single directory (macros/enums/handles/structs/funcs/to_string + opt-in format_traits/hash) — the static_assert catches generation mismatch but not a partial `.hpp` set.

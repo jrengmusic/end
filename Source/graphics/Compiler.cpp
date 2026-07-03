@@ -90,13 +90,15 @@ juce::String Compiler::assemblePass (const juce::String& passSource, const juce:
     // name jam::vulkan::ShaderUniforms documents. Only the Image pass mixes
     // -- and the two modes mix DIFFERENT things, per
     // jam::vulkan::ShaderUniforms::opacity's documented per-mode contract:
-    // post-process mixes the user shader's own output against the resolved
-    // scene (sampled through iScene, stamped by
-    // Graphics::recordPostProcessCompositeDrawCommands() with its own
-    // resolved-scene bindless index -- never channels[0], which keeps its
-    // ordinary buffer-pass-or-scene-fallback meaning); background has no
-    // scene to mix against and instead scales the user shader's own alpha by
-    // opacity. Buffer passes write mainImage()'s raw output in both modes.
+    // post-process mixes the user shader's own rgb against iScene's rgb --
+    // iScene resolves to the STRAIGHT-alpha scene (Graphics::recordStraightAlphaPass()
+    // un-premultiplies the resolved scene before this pass ever samples it --
+    // never channels[0], which keeps its ordinary buffer-pass-or-scene-fallback
+    // meaning) -- then re-premultiplies the mixed rgb by iScene's own alpha,
+    // carried through unchanged: glass alpha is immutable end-to-end, never
+    // read from or blended against userColor.a; background has no scene to
+    // mix against and instead scales the user shader's own alpha by opacity.
+    // Buffer passes write mainImage()'s raw output in both modes.
     source << (isImagePass
         ? (isBackground
             ? "void main()\n"
@@ -109,7 +111,8 @@ juce::String Compiler::assemblePass (const juce::String& passSource, const juce:
               "{\n"
               "    vec4 userColor;\n"
               "    mainImage (userColor, uv * iResolution);\n"
-              "    fragColor = mix (texture (iScene, uv), userColor, opacity);\n"
+              "    vec4 scene = texture (iScene, uv);\n"
+              "    fragColor = vec4 (mix (scene.rgb, userColor.rgb, opacity) * scene.a, scene.a);\n"
               "}\n")
         : "void main()\n"
           "{\n"

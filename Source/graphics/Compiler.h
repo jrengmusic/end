@@ -95,7 +95,11 @@ private:
      *                          (no resolved scene to mix against -- the
      *                          component-transparency formula), false for
      *                          @c IDtype::postProcessing's (the effect-
-     *                          intensity mix against the resolved scene).
+     *                          intensity rgb mix against the straight-alpha
+     *                          resolved scene, re-premultiplied by the
+     *                          scene's own immutable alpha afterward -- see
+     *                          @c jam::vulkan::ShaderUniforms::opacity's doc
+     *                          comment for the exact GLSL formula).
      */
     static juce::String assemblePass (const juce::String& passSource, const juce::String& commonSource,
                                        const juce::StringArray& bufferPassNames, jam::map::ImageResample::Type filter,

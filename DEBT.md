@@ -8,23 +8,6 @@
 
 ---
 
-## DEBT-20260702T152430
-
- Observation:
-  Background and post-process shader opacity values have no runtime effect — output renders identically regardless
-  of opacity setting, in both render passes. Single-pass configuration only tested so far; multi-pass (BufferA–D
-  feedback, scene composite, glass alpha) untested post-Vulkan-migration.
-
-  Divergence:
-  Opacity is wired through the config → Compiler → jam::vulkan::render(g, shader, opacity, resolution) seam, yet
-  changing it produces zero visual difference — the value is lost somewhere between the injection seam and the draw
-  (uniform upload or blend state in pipeline creation).
-
-  Expectation:
-  Opacity uniform reaches the GPU and modulates pass output — parity with the old OpenGL pipeline's iPostOpacity
-  behavior. Multi-pass post-processing verified as rigorously as single-pass.
-
----
 
 ## DEBT-20260629T100000
 

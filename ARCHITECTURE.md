@@ -256,8 +256,10 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
 - `end::Application` owns `vulkanEngine` (`std::unique_ptr<jam::vulkan::Registry>`),
   declared after `lookAndFeel` (Registry constructs after LookAndFeel, destructs before it).
 - Constructed **unconditionally, exactly once**, in `Application::initialiseVulkan()`:
-  - `targetFrameBudgetMs` — provisional 60Hz-safe 11.1 ms literal at the END call site
-    (per-monitor refresh-rate detection replaces it later); JAM has no hidden default.
+  - `targetFrameBudgetMs` — derived from the primary display's refresh rate at init
+    (`Main.cpp`: CoreVideo nominal rate on macOS, `verticalFrequencyHz` elsewhere;
+    ≥120 Hz → 5.8 ms, otherwise 11.1 ms; detected once, never polled); JAM has no
+    hidden default.
   - `pipelineCacheFile` — `~/.config/end/cache/vulkan_pipeline.cache`, END-resolved.
   - `gpuEnabled` — `config gpu flag AND jam::GpuProbe::probe().isAvailable`.
 - Immediately after construction: `lookAndFeel.registerTypeface (vulkanEngine->getAtlas())`
@@ -268,9 +270,35 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
   `Registry::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
   `createContext()` dispatches to per paint, never whether the Registry, its Device, or
   the shared atlas exist. The atlas and every registered typeface survive GPU toggles.
-- Registry owns: the shared `jam::vulkan::Device` (one VkInstance/VkDevice/VkQueue/VMA
-  allocator per application), the shared `jam::GlyphAtlas`, and per-window
+- Registry owns: the shared `jam::vulkan::Device` (one `vk::Instance`/`vk::Device`/
+  `vk::Queue`/VMA allocator per application), the shared `jam::GlyphAtlas`, and per-window
   `jam::vulkan::Graphics` instances keyed by native window handle.
+
+### Vulkan Vocabulary — vulkan-hpp (plain vk::)
+
+jam_vulkan speaks vulkan-hpp exclusively — no raw C Vulkan API anywhere in module code.
+- **Vendored matched pair** — SDK 1.4.350 header generation (C + `.hpp` set) at
+  `jam_vulkan/vulkan/`, pinned identical across machines; `vulkan.hpp`'s
+  `VK_HEADER_VERSION` static_assert enforces the pairing at compile time.
+- **Config site** — one, `jam_vulkan.h`: `VULKAN_HPP_NO_EXCEPTIONS`,
+  `VULKAN_HPP_ASSERT`/`VULKAN_HPP_ASSERT_ON_RESULT` = `jassert`, before the include.
+  `-fno-strict-aliasing` on the module TU (AppBuilder.cmake). `vulkan_hash.hpp` opted in
+  (std::hash for vk:: handles — ShaderInstance's pipeline cache key).
+- **Plain `vk::` types only** — no `vk::raii`/`UniqueHandle`; JAM's own wrappers
+  (Buffer/Image, unique_ptr ownership) remain the RAII layer. Dispatch is static
+  (link-time symbols, zero indirection).
+- **Error policy** — setup/creation paths use `vk::Result`-returning overloads checked
+  explicitly, feeding the never-null factory's bool/nullptr propagation (CPU fallback
+  intact in release). Enhanced value-returning calls only for enumerations/queries, with
+  `.result` checked before `.value`.
+- **VMA seam** — VMA keeps C types; raw `VkBuffer`/`VkImage` appear only as
+  `vmaCreate*` out-param temporaries, wrapped immediately.
+- **Device conformance** — instance requests `VK_KHR_portability_enumeration` (+ flag)
+  when present; `VK_KHR_portability_subset` presence-checked before enable; validation
+  layer + debug-utils messenger wired in debug builds only (messages → `jam::debug::Log`,
+  errors → `jassertfalse`), compiled out of release entirely.
+- **Present mode** — `Graphics::selectPresentMode()`: enumerate, prefer MAILBOX, fall
+  back FIFO (spec-guaranteed) — replaces the previous hardcoded FIFO.
 
 ### Engine Dispatch (per paint)
 
@@ -301,7 +329,7 @@ the GPU path by construction.
 - **Bindless images** — set 1 is a `texture2D[]` sampled-image array (UPDATE_AFTER_BIND,
   partially bound) + one shared linear sampler. Each texture gets a stable array slot at
   upload; no per-draw descriptor allocation. Slot bookkeeping is per-window (per Graphics)
-  — the atlas's VkImages are shared, their array slots are not.
+  — the atlas's `vk::Image`s are shared, their array slots are not.
 - **Push constants** — one shared 40-byte block: `colour` (opacity pre-multiplied into
   alpha CPU-side; brush alpha × context opacity collapse at emit time), `clip`, `textureScale`.
 - **Clip as data** — `State::stencilClipDepth` lives inside the saved/restored state
@@ -315,9 +343,9 @@ the GPU path by construction.
   discard alone would defeat MSAA at the mask boundary).
 - **Staging arena** — per-window, offset-allocated from one persistently-mapped buffer;
   growth retires (never destroys) the old buffer until the frame fence; reset after
-  `vkWaitForFences`. Atlas uploads write into the CALLING window's arena — no cross-window
-  staging races, no same-frame overwrite.
-- **Pipeline cache** — persistent `VkPipelineCache` blob at the END-resolved cache file;
+  the beginFrame() fence wait. Atlas uploads write into the CALLING window's arena — no
+  cross-window staging races, no same-frame overwrite.
+- **Pipeline cache** — persistent `vk::PipelineCache` blob at the END-resolved cache file;
   loaded at Graphics init, serialized at shutdown. Driver/OS updates invalidate it
   silently (one cold launch); shader changes simply miss and merge.
 
@@ -385,9 +413,13 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
   compile-time, so `filter` changes recompile), compiles via SDK-static `shaderc_combined`
   (END target only; JAM never links shaderc). Compile failure → `debug::Log` + nullptr;
   callers keep the last-good shader. Opacity semantics differ per slot in the generated
-  `main()`: background = `userColor.a * opacity` (transparency); post-process =
-  `mix (texture (iScene, uv), userColor, opacity)` (effect intensity). The background
-  prelude omits the `iScene` macro — using it there is a compile error.
+  `main()`: background = `userColor.a * opacity` (transparency); post-process = an
+  rgb-only effect-intensity mix against the STRAIGHT-alpha scene, re-premultiplied by
+  the scene's own immutable alpha afterward — `vec4 scene = texture (iScene, uv);
+  fragColor = vec4 (mix (scene.rgb, userColor.rgb, opacity) * scene.a, scene.a)`. The
+  background prelude omits the `iScene` macro — using it there is a compile error.
+  `iScene` on the post-process path resolves to the engine's `straightAlphaImage`
+  (see below), never the premultiplied scene directly.
 - **`jam::vulkan::ShaderComponent`** — generic JUCE component in jam_vulkan (knows nothing
   of config/gpu), bottom-most View child: owns its `Shader` + repaint timer (`frame_rate`
   Hz, running only while a shader is installed). `paint()` = `render (g, *shader, opacity,
@@ -410,9 +442,17 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
 - **Post-process** — app-global frame-graph stage, not a component:
   `Registry::setPostProcess (unique_ptr<Shader>, opacity, resolution)` installs/clears;
   each window's `Graphics::endFrame()` pulls it (contentHash compare) between scene
-  resolve and swapchain composite — the chain's Image pass IS the composite (samples
-  `iScene`, glass alpha preserved via the same no-blend full-RGBA write as the identity
-  composite). No chain → identity composite untouched.
+  resolve and swapchain composite — the chain's Image pass IS the composite. Before any
+  buffer/Image pass records, `Graphics::recordStraightAlphaPass()` (engine-owned
+  `straight_alpha.frag`, `jam_vulkan/shaders/`) un-premultiplies the resolved
+  (premultiplied) scene into `straightAlphaImage`; every channel/`iScene` fallback on
+  this composite then resolves to `straightAlphaImage`'s bindless index, never the
+  premultiplied scene directly — glass alpha is immutable (a user shader's own alpha is
+  never read), and this composite's own generated formula re-premultiplies by the
+  scene's alpha before its no-blend full-RGBA write (same technique the identity
+  composite uses). No chain → identity composite untouched (still samples the
+  premultiplied scene directly — no un-premultiply step, since no user shader ever
+  reads it).
 - **Resolution/filter** — `background_resolution` / `post_processing_resolution` (0.0-1.0)
   scale ONLY the intermediate buffer passes; component/scene painting is always full
   resolution. `filter` (linear/nearest, `jam::map::ImageResample` = string↔enum SSOT)
