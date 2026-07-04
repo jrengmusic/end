@@ -93,7 +93,7 @@ double Application::queryPrimaryDisplayRefreshRateHz() noexcept
 void Application::initialiseVulkan()
 {
     // Refresh-rate-derived per-frame time budget, detected once here (never
-    // polled) — feeds Registry's session-locked MSAA calibration.
+    // polled) — feeds VulkanEngine's session-locked MSAA calibration.
     const auto refreshRateHz { queryPrimaryDisplayRefreshRateHz() };
     const auto targetFrameBudgetMs { refreshRateHz >= highRefreshRateThresholdHz
         ? highRefreshFrameBudgetMs
@@ -101,7 +101,7 @@ void Application::initialiseVulkan()
 
     // Vulkan pipeline cache — resolved under END's own config directory
     // (file::Config::path, ~/.config/end/), never decided by JAM. Explicit
-    // per Registry's contract, mirroring targetFrameBudgetMs above.
+    // per VulkanEngine's contract, mirroring targetFrameBudgetMs above.
     const auto cacheDir { jam::File::getOrCreateDirectory (file::Config::path, IDref::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, IDref::cache)) };
@@ -110,14 +110,14 @@ void Application::initialiseVulkan()
 
     jam::BackgroundBlur::setEnabled (canUseGpu);
 
-    vulkanEngine = std::make_unique<jam::vulkan::Registry> (
+    vulkanEngine = std::make_unique<jam::VulkanEngine> (
         targetFrameBudgetMs, cacheFile, canUseGpu);
 
     // LookAndFeel owns font knowledge but not the atlas — the atlas (owned by
-    // the Registry just constructed above) does not exist at LookAndFeel
+    // the VulkanEngine just constructed above) does not exist at LookAndFeel
     // construction time, so registration happens here instead, the earliest
     // point both exist together.
-    lookAndFeel.registerTypeface (vulkanEngine->getAtlas());
+    lookAndFeel.registerTypeface (*jam::GlyphAtlas::getInstance());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -21,9 +21,9 @@ View::View (jam::UUID uuid, jam::Model& model, Session& sessionRef)
     // 2e37f6d) — cell metrics come from the FT face's own advance/ascender/
     // height at the exact size rasterize() sizes it to, rather than JUCE's
     // juce::GlyphArrangement::getStringWidth()/getAscent() estimate.
-    auto* registry { jam::vulkan::Registry::getInstance() };
-    jassert (registry != nullptr);
-    const auto metrics { registry->getAtlas().calcMetrics (resolvedTypeface, font.getHeight()) };
+    auto* atlas { jam::GlyphAtlas::getInstance() };
+    jassert (atlas != nullptr);
+    const auto metrics { atlas->calcMetrics (resolvedTypeface, font.getHeight()) };
 
     cellWidthPx  = juce::roundToInt (static_cast<float> (metrics.cellWidth) * cellWidthRatio);
     cellHeightPx = juce::roundToInt (static_cast<float> (metrics.cellHeight) * lineHeightRatio);

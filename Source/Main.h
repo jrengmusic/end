@@ -34,31 +34,6 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
-    //==============================================================================
-    // SPEC.md Phase 3 — ENDApplication owns the shared-resource contexts.
-    // Each self-registers as its own getInstance() singleton on construction.
-    // Declared before nexus/lookAndFeel/window (and anything transitively
-    // constructing terminal::Session or rendering through end::View) so the
-    // singleton slot is populated before first use, and destroyed after every
-    // consumer (reverse declaration order).
-
-    /** @brief Rendering-context style table — self-registers as jam::Stamp::getInstance(). */
-    jam::Stamp stampInstance;
-
-    /** @brief Rendering-context grapheme cluster table — self-registers as jam::Grapheme::getInstance(). */
-    jam::Grapheme graphemeInstance;
-
-    /** @brief Hyperlink interning table (OSC 8) — self-registers as jam::Link::getInstance(). */
-    jam::Link linkInstance;
-
-    /** @brief Typeface identity table (juce::Typeface::Ptr + hb_font_t pair) —
-     *  self-registers as jam::Typeface::getInstance(). PLAN-terminal-editor.md
-     *  Step 2.5 — "hand in hand with Glyph" (jam_Typeface.h doc comment):
-     *  nobody uses Typeface without the atlas, so this member is declared
-     *  alongside stampInstance/graphemeInstance/linkInstance rather than owned
-     *  by jam::vulkan::Registry. */
-    jam::Typeface typefaceInstance;
-
     Model model;
     config::Model config;
     Nexus nexus;
@@ -66,19 +41,25 @@ private:
     //==============================================================================
     LookAndFeel lookAndFeel;
 
-    /** @brief Vulkan registry — constructed unconditionally in initialiseVulkan(),
-     *  after lookAndFeel exists, and never reset/reconstructed thereafter (see
-     *  EventRegistration.cpp's ID::gpu handler). GPU availability/preference only
-     *  selects, via jam::vulkan::Registry::getInstance()->setGpuEnabled(), which
-     *  rendering engine createContext() dispatches to per paint (native Vulkan
-     *  vs the CPU-fallback jam::LowLevelGraphicsGlyphRenderer) — never whether
-     *  this Registry, its Device, or its shared glyph atlas exist. The atlas and
+    /** @brief Unified Vulkan resource-ownership tree — constructed unconditionally
+     *  in initialiseVulkan(), after lookAndFeel exists, and never reset/
+     *  reconstructed thereafter (see EventRegistration.cpp's ID::gpu handler).
+     *  Owns the shared Device, every SharedResources<T> interning table
+     *  (Typeface, Stamp, Grapheme, Link — each self-registers as its own
+     *  getInstance() singleton on construction), the shared glyph atlas, and
+     *  per-window Graphics instances — member-declaration order inside
+     *  jam::VulkanEngine governs teardown (reverse-order destruction). GPU
+     *  availability/preference only selects, via
+     *  jam::VulkanEngine::getInstance()->setGpuEnabled(), which rendering
+     *  engine createContext() dispatches to per paint (native Vulkan vs the
+     *  CPU-fallback jam::LowLevelGraphicsGlyphRenderer) — never whether this
+     *  VulkanEngine, its Device, or its shared glyph atlas exist. The atlas and
      *  every registered typeface therefore survive every GPU toggle. Declared
      *  after lookAndFeel so construction order lets registerTypeface() reach an
      *  already-constructed LookAndFeel, and destructs before lookAndFeel
      *  (reverse declaration order) while window (declared after, torn down
      *  first) never outlives it. */
-    std::unique_ptr<jam::vulkan::Registry> vulkanEngine;
+    std::unique_ptr<jam::VulkanEngine> vulkanEngine;
 
     std::unique_ptr<end::Window> window;
 

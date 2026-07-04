@@ -32,7 +32,7 @@ void View::registerEvents()
         ID::gpu,
         [this] (juce::ValueTree&)
         {
-            // jam::vulkan::Registry is constructed unconditionally, once, by
+            // jam::VulkanEngine is constructed unconditionally, once, by
             // end::Application, and never reset/reconstructed here — GPU
             // availability/preference only selects which rendering engine
             // createContext() dispatches to per paint (see end::Application's
@@ -43,9 +43,9 @@ void View::registerEvents()
 
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
-            auto* registry { jam::vulkan::Registry::getInstance() };
-            jassert (registry != nullptr);
-            registry->setGpuEnabled (canUseGpu);
+            auto* engine { jam::VulkanEngine::getInstance() };
+            jassert (engine != nullptr);
+            engine->setGpuEnabled (canUseGpu);
 
             // Background/post-process shaders never exist independent of the
             // effective GPU state (Locked Decision 4) — both funnels re-derive
@@ -132,7 +132,7 @@ void View::registerEvents()
 
 void View::applyBackground()
 {
-    // Same effective-gpu truth end::Application resolves for the Registry
+    // Same effective-gpu truth end::Application resolves for the VulkanEngine
     // ctor and the gpu event handler resolves for setGpuEnabled() — never
     // raw config alone.
     const bool gpuEnabled {
@@ -190,8 +190,8 @@ void View::applyPostProcess()
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
     const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
 
-    auto* registry { jam::vulkan::Registry::getInstance() };
-    jassert (registry != nullptr);
+    auto* engine { jam::VulkanEngine::getInstance() };
+    jassert (engine != nullptr);
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
@@ -207,13 +207,13 @@ void View::applyPostProcess()
         auto compiled { jam::vulkan::ShaderCompiler::compile (shaderState, false, shaderFormat, filter) };
 
         // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
-        // keeps whichever chain Registry currently holds — call nothing.
+        // keeps whichever chain VulkanEngine currently holds — call nothing.
         if (compiled != nullptr)
-            registry->setPostProcess (std::move (compiled), opacity, resolutionScale);
+            engine->setPostProcess (std::move (compiled), opacity, resolutionScale);
     }
     else
     {
-        registry->setPostProcess (nullptr, opacity, resolutionScale);
+        engine->setPostProcess (nullptr, opacity, resolutionScale);
     }
 }
 
@@ -222,9 +222,9 @@ void View::applyPostProcessParams()
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
     const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
 
-    auto* registry { jam::vulkan::Registry::getInstance() };
-    jassert (registry != nullptr);
-    registry->setPostProcessParams (opacity, resolutionScale);
+    auto* engine { jam::VulkanEngine::getInstance() };
+    jassert (engine != nullptr);
+    engine->setPostProcessParams (opacity, resolutionScale);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

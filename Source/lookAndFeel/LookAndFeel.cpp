@@ -7,8 +7,8 @@ namespace end
 LookAndFeel::LookAndFeel()
 {
     // registerTypeface() cannot run here — it needs the Vulkan glyph atlas,
-    // which does not exist until end::View constructs its Registry (this
-    // LookAndFeel constructs first, per end::Application's member order,
+    // which does not exist until end::Application constructs vulkanEngine
+    // (this LookAndFeel constructs first, per end::Application's member order,
     // Main.h). Called once, externally, immediately after that construction.
     initialiseColours();
     loadGraphics();

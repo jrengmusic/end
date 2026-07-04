@@ -32,8 +32,8 @@
  * `jam::Stamp` / `jam::Grapheme` / `jam::Link` are process-scoped
  * `SharedResources<T>` singletons (`jam::Instance<T>` CRTP — see
  * `jam_core/instance/jam_Instance.h`). Every `Test::Term` owns one instance
- * of each (mirrors `END::LookAndFeel.h:210-216`'s `stampInstance` /
- * `graphemeInstance` / `linkInstance` members) so every fixture construction
+ * of each (mirrors `jam::VulkanEngine`'s `stamp` / `grapheme` / `link`
+ * members, `jam_vulkan/engine/jam_VulkanEngine.h`) so every fixture construction
  * starts a fresh interning table — indices are deterministic per test case.
  *
  * @par Model ownership (PLAN-vt-correctness.md Step 8)

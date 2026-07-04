@@ -157,18 +157,18 @@ The old pattern used `DisplayCallbacks` — a struct of `std::function` closures
 
 ### 1.8 Rendering Engine — First-Class Vulkan Architecture (RESOLVED in Phase 4)
 
-`jam::vulkan::Registry` is the application's rendering authority — not a bolt-on, but first-class architecture. It owns the shared `jam::vulkan::Device` (one per application), the shared `jam::GlyphAtlas` (one per application), and per-window `jam::vulkan::Graphics` instances. 
+`jam::VulkanEngine` (Application-owned, via `end::Application::vulkanEngine`) is the application's rendering authority — not a bolt-on, but first-class architecture, and the unified resource-ownership tree for the Vulkan rendering backend. It owns six singular/interning members — the shared `jam::vulkan::Device` (one per application), the `jam::Typeface`/`jam::Stamp`/`jam::Grapheme`/`jam::Link` `SharedResources<T>` interning tables, and the shared `jam::GlyphAtlas` (one per application) — plus the per-window `jam::vulkan::Graphics` collection. Member-declaration order inside `jam::VulkanEngine` governs teardown (reverse-order destruction): Device first (destructs last, since every GPU resource depends on it), then Typeface/Stamp/Grapheme/Link, then GlyphAtlas, then the per-window Graphics collection.
 
 **Dual-engine dispatch (never-null factory pattern):**
 - GPU path: `jam::vulkan::LowLevelGraphicsContext` (Vulkan LLGC) on available hardware
 - CPU fallback: `jam::LowLevelGraphicsGlyphRenderer` (software rasterizer with shared atlas) when GPU unavailable/disabled
 
-`Registry::createContext()` (installed as `juce::ComponentPeer::externalContextFactory`) **never returns nullptr** — JUCE's default renderers are structurally unreachable.
+`VulkanEngine::createContext()` (installed as `juce::ComponentPeer::externalContextFactory`) **never returns nullptr** — JUCE's default renderers are structurally unreachable.
 
 **Font/Atlas lifecycle (GL-thread binding resolved):**
-- Typeface singletons (`jam::Typeface::getInstance()`) owned by Application, self-register on construction
-- GlyphAtlas owned by Registry, created at Registry construction
-- Font rasterization config (gamma, contrast, backend) applied at Registry init; hot-reload updates via config listeners, no mid-frame mutation
+- Typeface singleton (`jam::Typeface::getInstance()`) is a `jam::VulkanEngine` member, self-registers on construction
+- GlyphAtlas is a `jam::VulkanEngine` member, self-registers on construction (`jam::GlyphAtlas::getInstance()`), reachable directly without going through VulkanEngine
+- Font rasterization config (gamma, contrast, backend) applied at VulkanEngine init; hot-reload updates via config listeners, no mid-frame mutation
 - Thread contract: message thread owns config/font changes, Vulkan paint dispatch is message-thread-synchronous (no dedicated GPU thread), atomicity by design — no guards needed
 
 ---
@@ -301,7 +301,7 @@ Same proven pattern from the previous iteration:
 | App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, end::Model, end::View, Nexus. Two independent trees. File watcher. Not namespaced. |
 | Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
 | App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Runtime state tree. Paired with `end::View`. |
-| App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel, Vulkan Registry. Centralizes keyboard dispatch. |
+| App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel. Centralizes keyboard dispatch. |
 | Session host | `Nexus` | Owns all Sessions. Manages lifecycle. Routes IPC in daemon mode. |
 | Terminal instance | `terminal::Session` | = AudioProcessor. Owns Model, Processor, CodeModel, CodeView. |
 | Per-session state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Session. |
@@ -605,7 +605,7 @@ The full terminal rendering pipeline end-to-end, Vulkan rendering as first-class
 - `terminal::Session` — owns Processor (unique_ptr), Model, CodeModel, CodeView, Resizer. Factory methods. `start()` deferred init. `drain()` facade (pulls CellFifo into CodeModel).
 - `terminal::View` — parents CodeView, listens on Model, calls `Session::drain()` on screenDirty, resize path.
 - `terminal::Model` — full APVTS atomic parameter set, timer flush, ParameterText.
-- **Vulkan Rendering (first-class architecture)** — `jam::vulkan::Registry` owns Device, GlyphAtlas, per-window Graphics. Dual-engine dispatch: GPU (Vulkan LLGC) or CPU fallback (software + shared atlas). Never-null factory. Font/atlas GL-thread binding resolved via message-thread-synchronous paint dispatch (no dedicated GPU thread).
+- **Vulkan Rendering (first-class architecture)** — `jam::VulkanEngine` owns Device, Typeface, Stamp, Grapheme, Link, GlyphAtlas, per-window Graphics. Dual-engine dispatch: GPU (Vulkan LLGC) or CPU fallback (software + shared atlas). Never-null factory. Font/atlas GL-thread binding resolved via message-thread-synchronous paint dispatch (no dedicated GPU thread).
 - Typeface system wired — full glyph pipeline: Atlas, HarfBuzz shaping, FontCollection, BoxDrawing, GlyphConstraint, embolden, platform font dispatch (CoreText/FreeType).
 - CodeModel/CodeView — ParagraphsModel, wrap-aware projection, SIGWINCH-safe resize.
 - CellFifo drain — history ring (committed lines) + active ring (live viewport), liveTailExtent tracking.

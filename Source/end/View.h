@@ -123,10 +123,10 @@ private:
      *  Registers handlers for: tabOrientation (applies tab orientation from
      *  config.lua config), focus (updates focusedPane state), theme (propagates
      *  LookAndFeel change), alwaysOnTop and titleBarButtons (dispatch to
-     *  jam::Window), gpu (toggles jam::vulkan::Registry::getInstance()'s
+     *  jam::Window), gpu (toggles jam::VulkanEngine::getInstance()'s
      *  setGpuEnabled() from config and probe result, the post-process
      *  background-blur shader via jam::BackgroundBlur::setEnabled(), and both
-     *  applyBackground()/applyPostProcess() — the Registry itself
+     *  applyBackground()/applyPostProcess() — the VulkanEngine itself
      *  is owned and constructed once by end::Application, never by View, and
      *  is never reset/reconstructed here; see end::Application's vulkanEngine
      *  doc comment, Main.h). background/backgroundOpacity/frameRate/
@@ -155,7 +155,7 @@ private:
 
     /** @brief Gathers current config values and the effective GPU state
      *  (config preference ANDed with jam::GpuProbe::probe().isAvailable — the
-     *  same effective truth end::Application resolves for the Registry ctor
+     *  same effective truth end::Application resolves for the VulkanEngine ctor
      *  and the gpu event handler resolves for setGpuEnabled()), compiles via
      *  @c jam::vulkan::ShaderCompiler when GPU-enabled and a project is configured, and
      *  installs the result on @c background via its @c setShader() tell-API
@@ -177,7 +177,7 @@ private:
     void applyBackgroundParams();
 
     /** @brief Gathers current post-processing config values and the effective
-     *  GPU state and installs (or clears) jam::vulkan::Registry's app-global
+     *  GPU state and installs (or clears) jam::VulkanEngine's app-global
      *  post-process chain accordingly. Full recompile — routed to by
      *  project/GPU/filter changes only (see registerEvents()'s doc comment);
      *  opacity/resolution-only changes route to the cheaper
@@ -190,7 +190,7 @@ private:
 
     /** @brief Cheap parameter-only update — no recompile. Gathers
      *  opacity/resolutionScale and forwards them to
-     *  jam::vulkan::Registry::setPostProcessParams(). Defined in
+     *  jam::VulkanEngine::setPostProcessParams(). Defined in
      *  EventRegistration.cpp. */
     void applyPostProcessParams();
 

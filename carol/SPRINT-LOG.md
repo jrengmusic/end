@@ -2,6 +2,60 @@
 
 ---
 
+## Sprint 61: Shadertoy iMouse Plumbing + jam::VulkanEngine Ownership Restructure ✅
+
+**Date:** 2026-07-04
+**Duration:** ~1 session (RFC A-tasks → VulkanEngine design discussion → restructure → audit green)
+
+### Agents Participated
+- COUNSELOR: RFC-obj-mesh-textures-imouse.md intake; A1/A2 orchestration; VulkanEngine design discussion grounded against code (verified the four tables already self-register via SharedResources→Instance, Device/GlyphAtlas plain classes, construction timing safe — first Stamp use is lazy Session creation post-initialiseVulkan; flagged the Typeface-vs-GlyphAtlas teardown inversion and the SPEC Phase-3 contradiction); gated sequencing (restructure before B/C) and names (jam::VulkanEngine, engine/ dir, getScaleFactor) with ARCHITECT; direct trivial fixes (vulkan:: qualification compile fix, getScaleFactor rename sweep, TestTerm.h stale doc)
+- Engineer (1 dispatch): full Registry → VulkanEngine restructure across both repos — engine header, Instance derivations, two-hop collapse, END member removal, reference sweep, SPEC/ARCHITECTURE sync; plus the earlier A1/A2 iMouse implementation
+- Auditor (1 pass): plan-fidelity + semantic + JRENG + BLESSED audit of the restructure — PASS, 2 Low findings (stale TestTerm.h doc → fixed; stale generated doxygen artifacts → `ninja doxygen` regenerates)
+
+### Files Modified
+**JAM — iMouse (RFC items A1/A2):**
+- `jam_vulkan/shader/jam_VulkanShaderComponent.h` — intercepts own clicks; mouseDown/Drag/Up track sign-encoded iMouse[4] (xy current-while-down, abs(zw) click-start, sign(z) down, w>0 click frame; Y-flip at emit)
+- `jam_vulkan/resource/jam_VulkanShaderInstance.h/.cpp` — stampUniforms carries iMouse[4] verbatim (copied, never tracked)
+- `jam_vulkan/context/jam_VulkanRender.h`, `jam_VulkanGraphics.h/.cpp`, `jam_VulkanLowLevelGraphicsContext.h`, `jam_VulkanLowLevelGraphicsContextRender.cpp` — mouse threaded through the existing opacity/resolution seam; post-process slot stays {0,0,0,0} (app-global, no component coordinates — documented)
+
+**JAM — VulkanEngine restructure (E0):**
+- `jam_vulkan/registry/jam_VulkanRegistry.h` — DELETED (dir removed)
+- `jam_vulkan/engine/jam_VulkanEngine.h` (new) — `jam::VulkanEngine : Instance<VulkanEngine>`; member order device → typeface → stamp → grapheme → link → glyphAtlas → contexts → postProcess state (declaration order IS the teardown contract; Typeface before GlyphAtlas preserves the atlas-dies-before-typeface-table guarantee); Device/GlyphAtlas plain direct members; getAtlas() deleted; public API otherwise unchanged
+- `jam_vulkan/device/jam_VulkanDevice.h` — `: public jam::Instance<Device>`
+- `jam_vulkan/font/jam_GlyphAtlas.h` — `: public jam::Instance<GlyphAtlas>`
+- `jam_vulkan/jam_vulkan.h` — include swap (engine/ last, after all deps)
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContextGlyph.cpp` — drawGlyphs collapses to `jam::GlyphAtlas::getInstance()`
+- `jam_vulkan/context/jam_VulkanGraphics.h/.cpp` + `jam_VulkanMetal.mm` — `getBackingScaleFactor` → `getScaleFactor` (decl/def/call/doc); doc sweeps
+- doc-comment sweeps: `jam_Typeface.h`, `jam_VulkanPipelines.h/.cpp`, `jam_VulkanPrimitiveRecord.h`, `jam_VulkanShaderUniforms.h`, `jam_VulkanShaderCompiler.h`, `jam_VulkanShader.h`, `jam_LowLevelGraphicsGlyphRenderer.h`, `jam_GlyphArrangement.h`, `jam_LowLevelGraphicsGlyphRendererMac.mm`
+
+**END:**
+- `Source/Main.h/.cpp` — stampInstance/graphemeInstance/linkInstance/typefaceInstance members removed; `vulkanEngine` → `std::unique_ptr<jam::VulkanEngine>`; `registerTypeface (*jam::GlyphAtlas::getInstance())`
+- `Source/lookAndFeel/LookAndFeel.h/.cpp`, `lookAndFeel/EventRegistration.cpp`, `terminal/View.cpp` — two-hop atlas sites → `jam::GlyphAtlas::getInstance()`; stale "end::View constructs its Registry" prose corrected to Application
+- `Source/end/EventRegistration.cpp`, `end/View.h` — engine sites → `jam::VulkanEngine::getInstance()`; doc sweeps
+- `SPEC.md` — Phase-3 ownership rewritten (VulkanEngine owns the six singular/interning members + Graphics collection); stray View-owns-engine claim removed
+- `ARCHITECTURE.md` — Shared Resources, Layer Separation, Rendering Engine, Engine Dispatch, Resize Path, Glyph Pipeline, Thread Contract, Hierarchy sections synced
+- `tests/TestTerm.h:35` — fixture doc repointed to jam::VulkanEngine's members
+
+### Alignment Check
+- [x] BLESSED principles followed (Bounds: one ownership tree, compiler-enforced same-class teardown order replaces the cross-class Application/Registry ordering dependency; SSOT: single ownership root; Lean: two-hop indirection deleted with getAtlas())
+- [x] NAMES.md adhered (Rule -1: jam::VulkanEngine, engine/ dir, getScaleFactor all ARCHITECT-ratified before execution)
+- [x] MANIFESTO.md principles applied (all Auditor findings resolved; zero stale Registry references)
+
+### Problems Solved
+- Two-hop `Registry::getInstance()->getAtlas()` indirection eliminated — Device/GlyphAtlas self-register, consumers reach them directly
+- Cross-class teardown dependency (Application member list vs Registry internals) collapsed into one member-declaration order inside VulkanEngine; Typeface-vs-GlyphAtlas inversion caught in design review and ordered deliberately
+- SPEC Phase-3 "Application owns the shared-resource contexts" superseded and synced
+- `getBackingScaleFactor` unqualified-lookup compile error (VulkanEngine now in namespace jam) — qualified, then renamed getScaleFactor per ARCHITECT
+- Shadertoy iMouse live for component-owned background shaders (RFC item 3 delivered)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None (DEBT-20260629T100000 `drawLine` untouched, remains the sole open ledger entry)
+
+---
+
 ## Sprint 60: RetroArch slangp Author-Intent Sweep + Vocabulary Canon Restructure ✅
 
 **Date:** 2026-07-04

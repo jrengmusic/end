@@ -16,27 +16,35 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
 
 ## Shared Resources — Globally-Owned Instances
 
-**Phase 3 (current):** ENDApplication owns four shared-resource globally-owned instances via `jam::Instance<T>`. Each self-registers on construction and is declared **before** any consumer (Nexus, LookAndFeel, Registry, Window) so the Instance slot is populated at first use. Declaration order is critical:
+**Phase 4 (current):** `jam::VulkanEngine` (Application-owned, `end::Application::vulkanEngine`) is the unified resource-ownership tree for four shared-resource globally-owned instances via `jam::Instance<T>`, plus the shared Device and shared GlyphAtlas. Each self-registers on construction. Member-declaration order inside `jam::VulkanEngine` is the teardown contract (reverse-order destruction):
 
 | Instance | Type | Owner | Registered as |
 |----------|------|-------|----------------|
-| **Stamp** | `jam::Stamp` | Application member | `jam::Stamp::getInstance()` |
-| **Grapheme** | `jam::Grapheme` | Application member | `jam::Grapheme::getInstance()` |
-| **Link** | `jam::Link` | Application member | `jam::Link::getInstance()` |
-| **Typeface** | `jam::Typeface` | Application member | `jam::Typeface::getInstance()` |
+| **Typeface** | `jam::Typeface` | `jam::VulkanEngine` member | `jam::Typeface::getInstance()` |
+| **Stamp** | `jam::Stamp` | `jam::VulkanEngine` member | `jam::Stamp::getInstance()` |
+| **Grapheme** | `jam::Grapheme` | `jam::VulkanEngine` member | `jam::Grapheme::getInstance()` |
+| **Link** | `jam::Link` | `jam::VulkanEngine` member | `jam::Link::getInstance()` |
+| **Device** | `jam::vulkan::Device` | `jam::VulkanEngine` member | `jam::vulkan::Device::getInstance()` |
+| **GlyphAtlas** | `jam::GlyphAtlas` | `jam::VulkanEngine` member | `jam::GlyphAtlas::getInstance()` |
 
-These are declared alongside one another (Main.h:45-60) **before** `LookAndFeel`, **before** `vulkanEngine`, **before** `window`. Destruction order is reverse: window → vulkanEngine → lookAndFeel → typeface/link/grapheme/stamp, ensuring every consumer is torn down before its dependencies.
+`end::Application` declares `vulkanEngine` (`std::unique_ptr<jam::VulkanEngine>`) **after** `lookAndFeel`, **before** `window` (Main.h). Destruction order is reverse: window → vulkanEngine (which itself tears down, in reverse member-declaration order: contexts → glyphAtlas → link/grapheme/stamp/typeface → device) → lookAndFeel, ensuring every consumer is torn down before its dependencies.
 
-**Dependency graph (Application member order):**
+**Dependency graph (jam::VulkanEngine member order, inside Application::vulkanEngine):**
 ```
-stampInstance
-graphemeInstance
-linkInstance
-typefaceInstance
+device (destructs LAST — every GPU resource depends on it)
     ↓
+typeface / stamp / grapheme / link
+    ↓
+glyphAtlas (constructed from device; keys carry typeface pointers)
+    ↓
+contexts (per-window Graphics, destructs FIRST)
+```
+
+**Application member order:**
+```
 lookAndFeel (uses/registers typefaces)
     ↓
-vulkanEngine (Registry; depends on lookAndFeel to exist first)
+vulkanEngine (jam::VulkanEngine; depends on lookAndFeel to exist first)
     ↓
 window (end::View, depends on all above)
 ```
@@ -47,9 +55,9 @@ window (end::View, depends on all above)
 
 ```
  Application (ENDApplication, end::View, Tabs, Panes)
-    — orchestrates; owns all top-level lifetimes (Stamp, Grapheme, Link,
-      Typeface globally-owned instances; config::Model, LookAndFeel, 
-      jam::vulkan::Registry, window)
+    — orchestrates; owns all top-level lifetimes (config::Model, LookAndFeel,
+      jam::VulkanEngine — itself owning the Stamp/Grapheme/Link/Typeface
+      globally-owned instances, Device, and GlyphAtlas — window)
     |
     v
  Config (config::Model, config::Display, config::Nexus, ...)
@@ -168,7 +176,7 @@ Keystroke → Message Thread → TTY::write()
             → terminal::View calls drain on Session
             → CellFifo drained into CodeModel
             → CodeView::calc() → repaint
-         → JUCE paint dispatch → jam::vulkan::Registry::createContext()
+         → JUCE paint dispatch → jam::VulkanEngine::createContext()
             → Vulkan LLGC (GPU) or jam::LowLevelGraphicsGlyphRenderer (CPU)
             — never JUCE's own default renderers
 ```
@@ -195,7 +203,7 @@ Two independent resize paths — swapchain and terminal grid:
 
 ### Swapchain / Scene-Target Resize (jam::vulkan)
 
-- Handled per paint inside `Registry::createContext()`: when the peer's physical
+- Handled per paint inside `VulkanEngine::createContext()`: when the peer's physical
   extent no longer matches the swapchain extent, `Graphics::resize()` recreates
   the swapchain, stencil image, MSAA scene target (color + stencil + resolve),
   and framebuffers at the new extent.
@@ -304,20 +312,22 @@ This pattern avoids separate width/height parameters that would fire two events 
 
 ---
 
-## Rendering Engine — jam::vulkan::Registry (Dual Engine, Never Null)
+## Rendering Engine — jam::VulkanEngine (Dual Engine, Never Null)
 
-`jam::vulkan::Registry` replaces JUCE's default renderers (`CoreGraphicsContext` /
+`jam::VulkanEngine` replaces JUCE's default renderers (`CoreGraphicsContext` /
 `Direct2DGraphicsContext` / software) for ALL painting — terminal text, panes, chrome.
-JUCE's own renderers are structurally unreachable: `Registry::createContext()`, installed
+JUCE's own renderers are structurally unreachable: `VulkanEngine::createContext()`, installed
 as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
 
 ### Ownership / Lifecycle
 
-- `end::Application` owns four shared-resource globally-owned instances (Stamp, Grapheme, Link, Typeface)
-  and `vulkanEngine` (`std::unique_ptr<jam::vulkan::Registry>`).
-  - Globally-owned instances declared **before** `lookAndFeel` (lines 45-60, Main.h).
-  - `vulkanEngine` declared **after** `lookAndFeel` (lines 81, Main.h).
-  - Critical order: instances → lookAndFeel → vulkanEngine → window.
+- `end::Application` owns `vulkanEngine` (`std::unique_ptr<jam::VulkanEngine>`), declared
+  **after** `lookAndFeel`, **before** `window` (Main.h).
+  - `jam::VulkanEngine` is itself the unified resource-ownership tree for the four
+    shared-resource globally-owned instances (Typeface, Stamp, Grapheme, Link), the shared
+    Device, and the shared GlyphAtlas — see "Shared Resources" above for its internal
+    member-declaration/teardown order.
+  - Critical order: lookAndFeel → vulkanEngine → window.
 - Constructed **unconditionally, exactly once**, in `Application::initialiseVulkan()`:
   - `targetFrameBudgetMs` — derived from the primary display's refresh rate at init
     (`Main.cpp`: CoreVideo nominal rate on macOS, `verticalFrequencyHz` elsewhere;
@@ -325,17 +335,18 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
     hidden default.
   - `pipelineCacheFile` — `~/.config/end/cache/vulkan_pipeline.cache`, END-resolved.
   - `gpuEnabled` — `config gpu flag AND jam::GpuProbe::probe().isAvailable`.
-- **typefaceInstance** (Application member, self-registers via `jam::Typeface::getInstance()`)
-  exists before Registry construction. LookAndFeel registers these typefaces with the Registry's
-  shared glyph atlas during `lookAndFeel.registerTypeface(vulkanEngine->getAtlas())`, which
+- **jam::Typeface** (a `jam::VulkanEngine` member, self-registers via `jam::Typeface::getInstance()`)
+  exists as soon as VulkanEngine is constructed. LookAndFeel registers these typefaces with the
+  shared glyph atlas during `lookAndFeel.registerTypeface(*jam::GlyphAtlas::getInstance())`, which
   creates the JUCE name-resolution map entry AND FreeType face together for each font.
-  Font rasterization config applied to the atlas after Registry construction.
+  Font rasterization config applied to the atlas after VulkanEngine construction.
 - **Never reset/reconstructed.** The `ID::gpu` config handler only calls
-  `Registry::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
-  `createContext()` dispatches to per paint, never whether the Registry, its Device, or
+  `jam::VulkanEngine::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
+  `createContext()` dispatches to per paint, never whether the VulkanEngine, its Device, or
   the shared atlas exist. The atlas and every registered typeface survive GPU toggles.
-- Registry owns: the shared `jam::vulkan::Device` (one `vk::Instance`/`vk::Device`/
-  `vk::Queue`/VMA allocator per application), the shared `jam::GlyphAtlas`, and per-window
+- VulkanEngine owns: the shared `jam::vulkan::Device` (one `vk::Instance`/`vk::Device`/
+  `vk::Queue`/VMA allocator per application), the shared `jam::Typeface`/`jam::Stamp`/
+  `jam::Grapheme`/`jam::Link` interning tables, the shared `jam::GlyphAtlas`, and per-window
   `jam::vulkan::Graphics` instances keyed by native window handle.
 
 ### Vulkan Vocabulary — vulkan-hpp (plain vk::)
@@ -367,7 +378,7 @@ jam_vulkan speaks vulkan-hpp exclusively — no raw C Vulkan API anywhere in mod
 ### Engine Dispatch (per paint)
 
 ```
-Registry::createContext (peer)
+VulkanEngine::createContext (peer)
   gpuEnabled and GpuProbe available and device valid
     → lazily create per-window Graphics; resize swapchain on extent mismatch
     → beginFrame() + beginRenderPass() → jam::vulkan::LowLevelGraphicsContext
@@ -426,10 +437,10 @@ dispatched through a branchless member-function-pointer table:
 
 - Coverage conditioning: a gamma+contrast LUT (config: `font_gamma` — sRGB-derived 2.2
   default — and `font_contrast`) applied at the single atlas-write site, backend-blind.
-- **Embedded fonts:** `jam::Typeface::getInstance()` is self-registered by Application's
-  `typefaceInstance` member before Registry construction. At `Registry::getInstance()->getAtlas()`
-  initialization, LookAndFeel registers each embedded typeface with the atlas via
-  `LookAndFeel::getTypefaceForFont()` override, which guarantees the same Typeface object
+- **Embedded fonts:** `jam::Typeface::getInstance()` is self-registered by VulkanEngine's
+  `typeface` member at VulkanEngine construction. Immediately after, LookAndFeel registers
+  each embedded typeface with the atlas (reached directly via `jam::GlyphAtlas::getInstance()`)
+  via `LookAndFeel::getTypefaceForFont()` override, which guarantees the same Typeface object
   identity flows from name-based Font construction into atlas keys.
 - System fonts (user config): resolved lazily on first miss — font file located via
   CoreText/DirectWrite, loaded, cached as an FT face. Failures negative-cache.
@@ -437,8 +448,8 @@ dispatched through a branchless member-function-pointer table:
   them into the BGRA emoji atlas.
 - Backend/gamma/contrast changes (config hot-reload) flush the atlas and rebuild the LUT —
   handled by `LookAndFeel`'s own config event handlers (font events live with the font
-  owner), reaching the atlas via `Registry::getInstance()`. Font family/size changes need
-  no handler: they produce new atlas keys and re-rasterize naturally.
+  owner), reaching the atlas directly via `jam::GlyphAtlas::getInstance()`. Font family/size
+  changes need no handler: they produce new atlas keys and re-rasterize naturally.
 
 ### Shaders
 
@@ -515,7 +526,7 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
   at record time; `stampChannels` is the single channel rule: buffer-pass bindless index
   by ordinal, scene fallback on the post-process path, `noScene` elsewhere.
 - **Post-process** — app-global frame-graph stage, not a component:
-  `Registry::setPostProcess (unique_ptr<Shader>, opacity, resolution)` installs/clears;
+  `VulkanEngine::setPostProcess (unique_ptr<Shader>, opacity, resolution)` installs/clears;
   each window's `Graphics::endFrame()` pulls it (contentHash compare) between scene
   resolve and swapchain composite — the chain's Image pass IS the composite. Before any
   buffer/Image pass records, `Graphics::recordStraightAlphaPass()` (engine-owned
@@ -546,9 +557,9 @@ submits + presents only when the count reaches zero.
 
 | Method | Thread |
 |--------|--------|
-| `Application::initialiseVulkan()` (Registry construction, typeface registration) | MESSAGE (app init) |
+| `Application::initialiseVulkan()` (VulkanEngine construction, typeface registration) | MESSAGE (app init) |
 | `ID::gpu` handler → `setGpuEnabled()` | MESSAGE (VT listener) |
-| `Registry::createContext()` (engine dispatch, per-peer Graphics, resize, beginFrame) | MESSAGE (JUCE paint dispatch) |
+| `VulkanEngine::createContext()` (engine dispatch, per-peer Graphics, resize, beginFrame) | MESSAGE (JUCE paint dispatch) |
 | Both engines' draw overrides | MESSAGE (JUCE paint dispatch) |
 | `jam::GlyphAtlas` (all methods, explicit doxygen contract) | MESSAGE only |
 | `Graphics::endFrame()` (submit + present) / CPU fallback native presentation | MESSAGE (LLGC destructor) |
@@ -645,11 +656,11 @@ Every View at one level is the presentation surface at the level below. Each lay
 ### Hierarchy
 
 ```
-Application:  end::Model      — end::View      — jam::vulkan::Registry (message thread)
+Application:  end::Model      — end::View      — jam::VulkanEngine (message thread)
 Terminal:     terminal::Model  — terminal::View  — terminal::Processor (reader thread)
 ```
 
-- **jam::vulkan::Registry** — rendering authority: engine dispatch, per-window Graphics, shared Device + GlyphAtlas. Message thread.
+- **jam::VulkanEngine** — rendering authority: engine dispatch, per-window Graphics, shared Device + GlyphAtlas + Typeface/Stamp/Grapheme/Link. Message thread.
 - **terminal::Processor** — reader thread orchestrator: Parser, Video, CellFifo, TTY.
 - **terminal::Session** — DAW host per terminal instance. Owns CodeModel (document buffer) and Processor (engine).
 - **View** — message thread: parents CodeView, calls drain(), owns Font. Detachable — Session persists without View (daemon mode).

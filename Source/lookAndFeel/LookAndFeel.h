@@ -82,11 +82,12 @@ public:
      * with unique, stable addresses.
      *
      * Cannot run at LookAndFeel construction time — the atlas (owned by
-     * jam::vulkan::Registry) does not exist yet then (end::View constructs its
-     * Registry after end::LookAndFeel, per end::Application's member order,
-     * Main.h). Called once, externally, immediately after Registry construction
-     * (end::View's constructor). Also applies the shipped/user-configured glyph
-     * rasterization backend/gamma/contrast (see applyFontRasterization()) and
+     * jam::VulkanEngine) does not exist yet then (end::Application constructs
+     * vulkanEngine after end::LookAndFeel, per end::Application's member order,
+     * Main.h). Called once, externally, immediately after VulkanEngine
+     * construction (Application::initialiseVulkan()). Also applies the
+     * shipped/user-configured glyph rasterization backend/gamma/contrast (see
+     * applyFontRasterization()) and
      * the embolden state (see applyEmbolden()) before this atlas ever paints a
      * glyph.
      *
@@ -286,15 +287,16 @@ private:
      * @brief Reads graphics.font_rasterizer/font_gamma/font_contrast from
      *        config.lua and calls the Vulkan glyph atlas's setRasterization().
      *
-     * Reaches the atlas via jam::vulkan::Registry::getInstance() rather than a
-     * stored reference — Registry now always exists once end::View's
-     * constructor has run (font events live with the font owner, but the atlas
-     * itself stays owned by Registry). Asserts the instance is non-null rather
-     * than silently no-op-ing: by the time any of this method's three callers
-     * (registerTypeface()'s tail, and the fontRasterizer/fontGamma/fontContrast
-     * event handlers below) can run, Registry construction has already
-     * happened. Called once from registerTypeface() right after registration
-     * (before this Registry's atlas ever paints a glyph), and again by the
+     * Reaches the atlas via jam::GlyphAtlas::getInstance() directly rather
+     * than a stored reference — the atlas now always exists once
+     * Application::initialiseVulkan() has run (font events live with the font
+     * owner, but the atlas itself stays owned by jam::VulkanEngine). Asserts
+     * the instance is non-null rather than silently no-op-ing: by the time any
+     * of this method's three callers (registerTypeface()'s tail, and the
+     * fontRasterizer/fontGamma/fontContrast event handlers below) can run,
+     * VulkanEngine construction has already happened. Called once from
+     * registerTypeface() right after registration (before this atlas ever
+     * paints a glyph), and again by the
      * fontRasterizer/fontGamma/fontContrast event handlers on config hot-reload.
      *
      * Only these three properties warrant this call: they change the
@@ -315,7 +317,7 @@ private:
      *        atlas's setEmbolden() (PLAN-terminal-editor.md Step 2.5 —
      *        `FT_Outline_Embolden` restoration at the FreeType rasterize site).
      *
-     * Reaches the atlas via jam::vulkan::Registry::getInstance(), same
+     * Reaches the atlas via jam::GlyphAtlas::getInstance() directly, same
      * precedent as applyFontRasterization() (font events live with the font
      * owner). Called once from registerTypeface()'s tail — the same place
      * applyFontRasterization() runs — and again by the embolden event handler

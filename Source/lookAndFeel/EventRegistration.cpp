@@ -33,32 +33,32 @@ void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
     add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
 
     // Applies the shipped/user-configured rasterization backend and coverage
-    // LUT gamma/contrast before this Registry's atlas ever paints a glyph.
+    // LUT gamma/contrast before this atlas ever paints a glyph.
     applyFontRasterization();
     applyEmbolden();
 }
 
 void LookAndFeel::applyFontRasterization()
 {
-    auto* registry { jam::vulkan::Registry::getInstance() };
-    jassert (registry != nullptr);
+    auto* atlas { jam::GlyphAtlas::getInstance() };
+    jassert (atlas != nullptr);
 
     const auto backendName { config.getValue (IDtype::graphics, ID::fontRasterizer).toString() };
     const auto backend { static_cast<jam::GlyphAtlas::Backend> (FontRasterizerBackend::get (backendName)) };
     const float gamma { config.getValue (IDtype::graphics, ID::fontGamma) };
     const float contrast { config.getValue (IDtype::graphics, ID::fontContrast) };
 
-    registry->getAtlas().setRasterization (backend, gamma, contrast);
+    atlas->setRasterization (backend, gamma, contrast);
 }
 
 void LookAndFeel::applyEmbolden()
 {
-    auto* registry { jam::vulkan::Registry::getInstance() };
-    jassert (registry != nullptr);
+    auto* atlas { jam::GlyphAtlas::getInstance() };
+    jassert (atlas != nullptr);
 
     const bool embolden { config.getValue (IDtype::code, ID::embolden) };
 
-    registry->getAtlas().setEmbolden (embolden);
+    atlas->setEmbolden (embolden);
 }
 
 void LookAndFeel::initialiseColours()
