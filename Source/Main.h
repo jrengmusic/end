@@ -51,6 +51,14 @@ private:
     /** @brief Hyperlink interning table (OSC 8) — self-registers as jam::Link::getInstance(). */
     jam::Link linkInstance;
 
+    /** @brief Typeface identity table (juce::Typeface::Ptr + hb_font_t pair) —
+     *  self-registers as jam::Typeface::getInstance(). PLAN-terminal-editor.md
+     *  Step 2.5 — "hand in hand with Glyph" (jam_Typeface.h doc comment):
+     *  nobody uses Typeface without the atlas, so this member is declared
+     *  alongside stampInstance/graphemeInstance/linkInstance rather than owned
+     *  by jam::vulkan::Registry. */
+    jam::Typeface typefaceInstance;
+
     Model model;
     config::Model config;
     Nexus nexus;

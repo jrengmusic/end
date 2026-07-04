@@ -209,6 +209,74 @@ struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
     }
 };
 
+//==============================================================================
+/**
+ * @brief Bimap for the terminal caret geometry — "block", "underline", or "bar".
+ *
+ * Used by theme.lua cursor.style (PLAN-terminal-editor.md Step 2.5). Integer
+ * keys deliberately mirror jam::CaretShape's enumerator order so the
+ * looked-up key can be forwarded directly to jam::CodeView::setCaretShape()
+ * via a static_cast, without a secondary mapping:
+ *   0 → "block"     — DECSCUSR 0/1/2 (default)
+ *   1 → "underline" — DECSCUSR 3/4
+ *   2 → "bar"       — DECSCUSR 5/6
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct CursorShape : public jam::Bimap<CursorShape>
+{
+    /** @brief Integer keys mirroring jam::CaretShape's enumerator order. */
+    enum
+    {
+        block,///< DECSCUSR 0/1/2 (default).
+        underline,///< DECSCUSR 3/4.
+        bar,///< DECSCUSR 5/6.
+    };
+
+    /** @brief Populates the bimap with all three entries. */
+    CursorShape()
+    {
+        map = {
+            { CursorShape::block,     "block"     },
+            { CursorShape::underline, "underline" },
+            { CursorShape::bar,       "bar"       },
+        };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (CursorShape::block); }
+
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    static int get (const juce::String& value) noexcept
+    {
+        return jam::Map::getKey (get()).at (value);
+    }
+
+    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
+
+    /** @brief Returns a fused Validator for the CursorShape value set.
+     *
+     *  check  — accepts any string present in the CursorShape bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
+    {
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
+    }
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end
 
@@ -455,6 +523,7 @@ struct Map
     file::Themes themes;
     file::Flex flex;
     end::FontRasterizerBackend fontRasterizerBackend;
+    end::CursorShape cursorShape;
     jam::map::ImageResample imageResample;
     jam::map::WindowFX window;
     jam::map::Segment segment;

@@ -136,27 +136,6 @@ if(NOT MSVC)
 endif()
 
 # ============================================================================
-# SHADERC (static libshaderc_combined, END target only — JAM never links it)
-# ============================================================================
-
-find_path(SHADERC_INCLUDE_DIR shaderc/shaderc.hpp
-    HINTS "$ENV{VULKAN_SDK}/include" "/usr/local/include"
-)
-find_library(SHADERC_COMBINED shaderc_combined
-    HINTS "$ENV{VULKAN_SDK}/lib" "/usr/local/lib"
-)
-
-if(NOT SHADERC_INCLUDE_DIR)
-    message(FATAL_ERROR "shaderc/shaderc.hpp not found (checked $ENV{VULKAN_SDK}/include, /usr/local/include)")
-endif()
-if(NOT SHADERC_COMBINED)
-    message(FATAL_ERROR "shaderc_combined library not found (checked $ENV{VULKAN_SDK}/lib, /usr/local/lib)")
-endif()
-
-target_include_directories(${TARGET_NAME} PRIVATE "${SHADERC_INCLUDE_DIR}")
-target_link_libraries(${TARGET_NAME} PRIVATE "${SHADERC_COMBINED}")
-
-# ============================================================================
 # PLATFORM CONFIGURATION
 # ============================================================================
 

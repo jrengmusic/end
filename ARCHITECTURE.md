@@ -2,9 +2,9 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). Terminal pipeline pre-implementation.
+**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). Terminal pipeline Phase 3 (Session/Model/Processor/View).
 
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-04
 
 ---
 
@@ -14,11 +14,41 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
 
 ---
 
+## Shared Resources — Globally-Owned Instances
+
+**Phase 3 (current):** ENDApplication owns four shared-resource globally-owned instances via `jam::Instance<T>`. Each self-registers on construction and is declared **before** any consumer (Nexus, LookAndFeel, Registry, Window) so the Instance slot is populated at first use. Declaration order is critical:
+
+| Instance | Type | Owner | Registered as |
+|----------|------|-------|----------------|
+| **Stamp** | `jam::Stamp` | Application member | `jam::Stamp::getInstance()` |
+| **Grapheme** | `jam::Grapheme` | Application member | `jam::Grapheme::getInstance()` |
+| **Link** | `jam::Link` | Application member | `jam::Link::getInstance()` |
+| **Typeface** | `jam::Typeface` | Application member | `jam::Typeface::getInstance()` |
+
+These are declared alongside one another (Main.h:45-60) **before** `LookAndFeel`, **before** `vulkanEngine`, **before** `window`. Destruction order is reverse: window → vulkanEngine → lookAndFeel → typeface/link/grapheme/stamp, ensuring every consumer is torn down before its dependencies.
+
+**Dependency graph (Application member order):**
+```
+stampInstance
+graphemeInstance
+linkInstance
+typefaceInstance
+    ↓
+lookAndFeel (uses/registers typefaces)
+    ↓
+vulkanEngine (Registry; depends on lookAndFeel to exist first)
+    ↓
+window (end::View, depends on all above)
+```
+
+---
+
 ## Layer Separation
 
 ```
  Application (ENDApplication, end::View, Tabs, Panes)
-    — orchestrates; owns all top-level lifetimes (config, LookAndFeel,
+    — orchestrates; owns all top-level lifetimes (Stamp, Grapheme, Link,
+      Typeface globally-owned instances; config::Model, LookAndFeel, 
       jam::vulkan::Registry, window)
     |
     v
@@ -31,8 +61,8 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
     |
     v
  Terminal / Session (terminal::Session)
-    — DAW host per terminal instance. Owns CodeModel (document buffer)
-      and Processor (engine). Phase 4: also owns terminal::Model and Resizer.
+    — DAW host per terminal instance. Owns CodeModel (document buffer),
+      terminal::Model (VT state SSOT), and Processor (engine).
     |
     v
  Terminal / Processor (terminal::Processor)
@@ -41,7 +71,8 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
     |
     v
  Terminal / Model (terminal::Model)
-    — APVTS bridge; atomics (reader), ValueTree (message); timer flush
+    — Per-session APVTS bridge; atomics (reader), ValueTree (message); timer flush.
+      NOT a globally-owned instance — one per terminal::Session.
     |
     v
  Terminal / View (terminal::View)
@@ -70,8 +101,8 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 | Thread | QoS | Writes | Reads | NEVER |
 |--------|-----|--------|-------|-------|
 | **Reader** (TTY) | high | terminal::Model atomics, Buffer\<Row\> cells, CellFifo push | Raw PTY bytes | ValueTree, CodeModel, mutex, allocation, block |
-| **Timer** (JUCE) | default | ValueTree properties (flush dirty atomics) | `needsFlush` atomic | Buffer\<Row\>, CodeModel |
-| **Message** (main) | user-interactive | ValueTree, CodeModel mutations (drain) | ValueTree (listener), CellFifo drain | Atomics (except flush) |
+| **Timer** (JUCE) | default | terminal::Model's ValueTree properties (flush dirty atomics) | `needsFlush` atomic on terminal::Model | Buffer\<Row\>, CodeModel |
+| **Message** (main) | user-interactive | terminal::Model ValueTree, CodeModel mutations (drain) | terminal::Model ValueTree (listener), CellFifo drain | Atomics (except flush) |
 | **Message** (Vulkan paint) | user-interactive | Vulkan command buffer recording, swapchain/pipeline/atlas-image creation (`jam::vulkan::Graphics`), glyph rasterization + dirty-flag clears (`jam::GlyphAtlas`, MESSAGE THREAD only) | Component paint bounds, glyph/font state | Buffer\<Row\>, atomics (except flush) |
 
 There is **no dedicated GPU thread** — the entire Vulkan pipeline (and the CPU-fallback renderer) runs synchronously inside JUCE's paint dispatch on the message thread.
@@ -94,13 +125,13 @@ There is **no dedicated GPU thread** — the entire Vulkan pipeline (and the CPU
 
 ### Scalar Data — Parameters, Mode Flags, Strings, Metadata
 
-Sparse, low-volume, consumed by UI listeners.
+Sparse, low-volume, consumed by UI listeners. Per-session (one per terminal::Session).
 
 ```
-READER → atomic slots on terminal::Model → timer flush → ValueTree → MESSAGE reads via listener
+READER → atomic slots on terminal::Model → timer flush → terminal::Model ValueTree → MESSAGE reads via listener
 ```
 
-terminal::Model is the SSOT for all scalar state. `flush()` copies dirty atomics to ValueTree properties. MESSAGE thread reads exclusively from ValueTree (via `ValueTree::Listener`). `ParameterText` pattern for cross-thread strings (double-buffered, seqlock generation).
+**terminal::Model is the per-session SSOT for all scalar state** (not a globally-owned instance). Each Session owns one terminal::Model. `flush()` copies dirty atomics to ValueTree properties. MESSAGE thread reads exclusively from ValueTree (via `ValueTree::Listener`). `ParameterText` pattern for cross-thread strings (double-buffered, seqlock generation).
 
 ### Bulk Data — Cell Content
 
@@ -199,12 +230,16 @@ When `screenDirty` fires on terminal::Model's ValueTree:
 
 ---
 
-## Two Independent State Trees
+## State Trees — Global and Session-Scoped
+
+### Global Owned Instances (Application Lifetime)
+
+Two independent global state trees (both `jam::Instance<T>` globally-owned instances):
 
 ```
-config::Model (independent tree)           end::Model (independent tree)
-  CONFIG                                    END
-    GRAPHICS                                  VIEW
+config::Model (IDtype::config)              end::Model (IDtype::end)
+  CONFIG                                      END
+    GRAPHICS                                    VIEW
       SHADER (ParameterText per pass)           ID::size (packed jam::Size<int16_t>, Parameter<int>)
       gpu, fontRasterizer,                      ID::focusedPane
       fontGamma, fontContrast                 TABS
@@ -215,10 +250,35 @@ config::Model (independent tree)           end::Model (independent tree)
     WHELMED
 ```
 
-- **config::Model** — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file). Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config (string-enum via `end::FontRasterizerBackend` bimap) and hot-reload live.
-- **end::Model** — runtime state. Changes during app lifetime. Components graft their state nodes via `jam::Model::Attachment` (RAII).
+- **config::Model** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file). Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config (string-enum via `end::FontRasterizerBackend` bimap) and hot-reload live.
+- **end::Model** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state. Changes during app lifetime. Components graft their state nodes via `jam::Model::Attachment` (RAII).
 
-No config values on end::Model. No runtime state on config::Model. Consumers that need both register as listener on both trees.
+**Invariant:** No config values on end::Model. No runtime state on config::Model. Consumers that need both register as listener on both trees.
+
+### Session-Scoped Ephemeral (Per-Session Lifetime)
+
+One per terminal::Session (NOT a globally-owned instance):
+
+```
+terminal::Model (IDtype::terminal, per-session)
+  SESSION
+    MODES
+    NORMAL (screen 0)
+      TEXT (cell state)
+    ALTERNATE (screen 1)
+      TEXT (cell state)
+```
+
+- **terminal::Model** — Per-session, owned by `terminal::Session`. NOT a globally-owned instance (not `jam::Instance<T>`) — multiple concurrent sessions each own independent terminal::Model instances. Lifecycle coupled with Session. VT state SSOT for the terminal (RFC-terminal-editor.md P12). Atomics (reader) and ValueTree (message) follow the scalar-data pattern. Direction A/B as described in Cross-Thread Data Contract.
+
+**Phase 3 (current):** One terminal per Session.  
+**Phase ∞ (WIP):** Session may host multiple terminals; terminal ownership TBD.
+
+---
+
+**Future (WIP):** terminal::Model will attach to end::Model. Currently independent.
+
+**No cross-tree references:** config → end → terminal dependency is one-way data flow. No upward references.
 
 ---
 
@@ -253,8 +313,11 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
 
 ### Ownership / Lifecycle
 
-- `end::Application` owns `vulkanEngine` (`std::unique_ptr<jam::vulkan::Registry>`),
-  declared after `lookAndFeel` (Registry constructs after LookAndFeel, destructs before it).
+- `end::Application` owns four shared-resource globally-owned instances (Stamp, Grapheme, Link, Typeface)
+  and `vulkanEngine` (`std::unique_ptr<jam::vulkan::Registry>`).
+  - Globally-owned instances declared **before** `lookAndFeel` (lines 45-60, Main.h).
+  - `vulkanEngine` declared **after** `lookAndFeel` (lines 81, Main.h).
+  - Critical order: instances → lookAndFeel → vulkanEngine → window.
 - Constructed **unconditionally, exactly once**, in `Application::initialiseVulkan()`:
   - `targetFrameBudgetMs` — derived from the primary display's refresh rate at init
     (`Main.cpp`: CoreVideo nominal rate on macOS, `verticalFrequencyHz` elsewhere;
@@ -262,10 +325,11 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
     hidden default.
   - `pipelineCacheFile` — `~/.config/end/cache/vulkan_pipeline.cache`, END-resolved.
   - `gpuEnabled` — `config gpu flag AND jam::GpuProbe::probe().isAvailable`.
-- Immediately after construction: `lookAndFeel.registerTypeface (vulkanEngine->getAtlas())`
-  registers the six embedded fonts with the shared glyph atlas (one pass, one parse per
-  font — creates the JUCE name-resolution map entry AND the FreeType face together), then
-  applies font rasterization config.
+- **typefaceInstance** (Application member, self-registers via `jam::Typeface::getInstance()`)
+  exists before Registry construction. LookAndFeel registers these typefaces with the Registry's
+  shared glyph atlas during `lookAndFeel.registerTypeface(vulkanEngine->getAtlas())`, which
+  creates the JUCE name-resolution map entry AND FreeType face together for each font.
+  Font rasterization config applied to the atlas after Registry construction.
 - **Never reset/reconstructed.** The `ID::gpu` config handler only calls
   `Registry::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
   `createContext()` dispatches to per paint, never whether the Registry, its Device, or
@@ -362,8 +426,10 @@ dispatched through a branchless member-function-pointer table:
 
 - Coverage conditioning: a gamma+contrast LUT (config: `font_gamma` — sRGB-derived 2.2
   default — and `font_contrast`) applied at the single atlas-write site, backend-blind.
-- Embedded fonts: registered with bytes at Registry construction;
-  `LookAndFeel::getTypefaceForFont()` override guarantees the same Typeface object
+- **Embedded fonts:** `jam::Typeface::getInstance()` is self-registered by Application's
+  `typefaceInstance` member before Registry construction. At `Registry::getInstance()->getAtlas()`
+  initialization, LookAndFeel registers each embedded typeface with the atlas via
+  `LookAndFeel::getTypefaceForFont()` override, which guarantees the same Typeface object
   identity flows from name-based Font construction into atlas keys.
 - System fonts (user config): resolved lazily on first miss — font file located via
   CoreText/DirectWrite, loaded, cached as an FT face. Failures negative-cache.
@@ -395,23 +461,31 @@ its state tree; hot reload = init path):
 file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing event
   → View funnel — full recompile (applyBackground / applyPostProcess) or cheap
     param-only path (applyBackgroundParams / applyPostProcessParams)
-  → graphics::Compiler (shaderc, END-only) → jam::vulkan::Shader → consumer
+  → jam::vulkan::ShaderCompiler (shaderc, vendored + isolated in jam_vulkan) → jam::vulkan::Shader → consumer
 ```
 
-- **`jam::vulkan::Shader`** — POD descriptor, pure data: `jam::Owner<Shader::Pass>`
-  (`Pass{name, spirv}`, name-hashed for O(1) lookup) + `contentHash` (wyhash over all pass
+- **`jam::vulkan::Shader`** — POD descriptor, pure data: `jam::Owner<ShaderPass>`
+  (`ShaderPass{name, spirv}`, name-hashed for O(1) lookup) + `contentHash` (wyhash over all pass
   names+bytes — content-derived identity, no counter; identical recompile = cache hit).
   Public const fields, zero getters. Presentation params (opacity, resolution, frame rate)
   are NOT in the descriptor — they travel explicitly (`render (g, shader, opacity,
   resolution)`, `setShader`/`setParams`, `setPostProcess`/`setPostProcessParams`), so
   param-only config changes never recompile.
-- **`graphics::Compiler`** (`Source/graphics/Compiler.{h,cpp}`) wraps each pass with the
-  engine-owned prelude (set-0 bindless declarations, `ShaderUniforms` push-constant block —
-  byte-exact mirror of `jam_VulkanShaderUniforms.h`, `channels[21]` array —, one named
-  sampler macro per buffer pass (`texture (BufferA, uv)`) + `iChannel0-3` aliases to the
-  first four passes for Shadertoy paste-compat, through linear/nearest per `filter` —
-  compile-time, so `filter` changes recompile), compiles via SDK-static `shaderc_combined`
-  (END target only; JAM never links shaderc). Compile failure → `debug::Log` + nullptr;
+- **`jam::vulkan::ShaderCompiler`** (`jam_vulkan/shader/jam_VulkanShaderCompiler.{h,cpp}`) wraps
+  each pass with the engine-owned prelude (set-0 bindless declarations, `ShaderUniforms`
+  push-constant block — byte-exact mirror of `jam_VulkanShaderUniforms.h`, `channels[21]`
+  array —, one named sampler macro per buffer pass (`texture (BufferA, uv)`) + `iChannel0-3`
+  aliases to the first four passes for Shadertoy paste-compat, through linear/nearest per
+  `filter` — compile-time, so `filter` changes recompile). Prelude/macro/`main()` text is
+  BinaryData-backed template files (`jam_vulkan/shader/shaderToy*.frag`) substituted via
+  `jam::Format::replaceholder`, never inline string literals. `jam_vulkan` owns no
+  consumer-specific property-name identifiers — every caller supplies its own common/image
+  property names and background/post-processing mode explicitly (`compile()`'s parameters);
+  this keeps the compiler decoupled from any one consumer's `Identifier.h` (JAM is a shared
+  framework, consumed by more than one project). Compiles via `shaderc_combined`, vendored
+  and isolated under `jam_vulkan/shaderc/<platform>/` (`AppBuilder.cmake`'s `IMPORTED` static
+  target, gated on `_ca_mod STREQUAL "jam_vulkan"` — no machine SDK lookup, no
+  `$ENV{VULKAN_SDK}`/`/usr/local` discovery). Compile failure → `debug::Log` + nullptr;
   callers keep the last-good shader. Opacity semantics differ per slot in the generated
   `main()`: background = `userColor.a * opacity` (transparency); post-process = an
   rgb-only effect-intensity mix against the STRAIGHT-alpha scene, re-premultiplied by
@@ -579,7 +653,7 @@ Terminal:     terminal::Model  — terminal::View  — terminal::Processor (read
 - **terminal::Processor** — reader thread orchestrator: Parser, Video, CellFifo, TTY.
 - **terminal::Session** — DAW host per terminal instance. Owns CodeModel (document buffer) and Processor (engine).
 - **View** — message thread: parents CodeView, calls drain(), owns Font. Detachable — Session persists without View (daemon mode).
-- **Nexus** — Session manager. Owns all terminal::Session instances. Instance<Nexus> singleton.
+- **Nexus** — Session manager. Owns all terminal::Session instances. Globally-owned instance via `jam::Instance<Nexus>`.
 
 ---
 

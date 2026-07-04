@@ -1,5 +1,9 @@
 
 **********************************************************
 
-Log started: 3 Jul 2026 4:55:01pm
+Log started: 4 Jul 2026 3:06:50pm
+
+jam::vulkan::ShaderCompiler: BufferA -- BufferA:286: error: 'iChannel1' : undeclared identifier
+BufferA:286: error: 'texture' : no matching overloaded function found
+BufferA:286: error: '=' :  cannot convert from ' const float' to ' temp highp 4-component vector of float'
 

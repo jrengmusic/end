@@ -127,22 +127,46 @@ juce::Font LookAndFeel::getTabFont() const
     auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
     const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
 
-    return juce::Font { juce::FontOptions()
+    auto font { juce::Font { juce::FontOptions()
                             .withName (fontFamily)
                             .withPointHeight (fontSize)
-                            .withKerningFactor (kerning) };
+                            .withKerningFactor (kerning) } };
+
+    return font;
 }
 
 int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
 
+juce::String LookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
+{
+    return name + "/" + style;
+}
+
 juce::Typeface::Ptr LookAndFeel::getTypefaceForFont (const juce::Font& font)
 {
     auto name { font.getTypefaceName() };
+    auto style { font.getTypefaceStyle() };
+    auto key { typefaceKey (name, style) };
 
-    if (typefaces.contains (name))
-        return typefaces.at (name);
+    if (typefaces.contains (key))
+    {
+        auto ptr { typefaces.at (key) };
+        return ptr;
+    }
 
-    return juce::LookAndFeel::getTypefaceForFont (font);
+    // "Book" is the regular weight of both embedded families — juce::Font
+    // requests style "Regular" by default, which none of the six embedded
+    // faces carry, so the exact key above misses on every unstyled Font.
+    auto bookKey { typefaceKey (name, "Book") };
+
+    if (typefaces.contains (bookKey))
+    {
+        auto ptr { typefaces.at (bookKey) };
+        return ptr;
+    }
+
+    auto fallback { juce::LookAndFeel::getTypefaceForFont (font) };
+    return fallback;
 }
 
 juce::BorderSize<int> LookAndFeel::getTabBarPadding() const

@@ -17,12 +17,6 @@ View::View (jam::Model& m)
     registerEvents();
     createAndAttachParameters();
 
-    // background is added FIRST — JUCE paints children in child-index order
-    // (Component::paintComponentAndChildren()'s getChildren() walk), and
-    // addChildComponent() appends new children at the end of that list, so
-    // the first-added child lands at index 0 and paints before every
-    // subsequently-added sibling — the rearmost position, with no explicit
-    // toBack() needed.
     addAndMakeVisible (background);
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
@@ -33,17 +27,16 @@ View::View (jam::Model& m)
     juce::MessageManager::callAsync (
         [this]
         {
-            // Fire window events for initial state — addListener doesn't replay.
-            // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
             events.get (ID::gpu, config.state);
             events.get (ID::alwaysOnTop, config.state);
             events.get (ID::titleBarButtons, config.state);
+
+            tabs.addNewTab();
             grabKeyboardFocus();
         });
 
     //==============================================================================
     setTabOrientation();
-    tabs.addNewTab();
 }
 
 View::~View()

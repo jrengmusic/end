@@ -82,6 +82,7 @@
     X (blink, "blink")                             \
     X (blinkInterval, "blink_interval")            \
     X (force, "force")                             \
+    X (cursorChar, "char")                         \
     X (editorBackground, "editor_background")      \
     X (editorOutline, "editor_outline")            \
     X (caret, "caret")                             \
@@ -266,8 +267,8 @@
 // these match the on-disk filename stems (Common.frag/Image.frag, uppercase first
 // letter) config::Shader::loadFromPath enumerates. Every OTHER buffer-pass name is
 // an arbitrary author-chosen filename stem, not an Identifier constant here —
-// graphics::Compiler reads them directly off shaderState's property names
-// (Source/graphics/Compiler.cpp).
+// jam::vulkan::ShaderCompiler reads them directly off shaderState's property names
+// (jam_vulkan/shader/jam_VulkanShaderCompiler.cpp).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
 #define IDENTIFIER_SHADER(X)                                     \
     X (common, "Common")                                         \
@@ -282,7 +283,8 @@
     X (filter, "filter")                                         \
     X (fontRasterizer, "font_rasterizer")                        \
     X (fontGamma, "font_gamma")                                  \
-    X (fontContrast, "font_contrast")
+    X (fontContrast, "font_contrast")                            \
+    X (shaderFormat, "shader_format")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;
@@ -307,21 +309,38 @@
     X (renderer, "renderer")        \
     X (message, "message")
 
+// terminal::Model P12 schema (RFC-terminal-editor.md P12, PLAN-terminal-editor.md
+// Step 5) — names not already carried by jam::ID (jam_IdentifierTerminal.h already
+// hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/cwd/title/
+// applicationCursor/applicationKeypad/bracketedPaste/mouseTracking/
+// mouseMotionTracking/mouseAllTracking/mouseSgr/focusEvents/win32InputMode/
+// pasteEchoRemaining/syncOutputActive/screenDirty/bell/promptRow/shellExited/
+// modes(group tag) — those are reused directly, not duplicated here).
+#define IDENTIFIER_TERMINAL_STATE(X)             \
+    X (session, "session")                       \
+    X (alternate, "alternate")                    \
+    X (gridSize, "grid_size")                    \
+    X (winsize, "winsize")                       \
+    X (cellSize, "cell_size")                    \
+    X (foregroundProcess, "foreground_process")  \
+    X (clearRequested, "clear_requested")
+
 // ============================================================================
-#define END_MAKE_VIEW(ViewName, EXPANDER) \
-    struct ViewName                       \
-    {                                     \
-        IDENTIFIER_CONFIG (EXPANDER)      \
-        IDENTIFIER_COMMON (EXPANDER)      \
-        IDENTIFIER_THEME (EXPANDER)       \
-        IDENTIFIER_KEYS (EXPANDER)        \
-        IDENTIFIER_APP (EXPANDER)         \
-        IDENTIFIER_POPUPS (EXPANDER)      \
-        IDENTIFIER_ACTIONS (EXPANDER)     \
-        IDENTIFIER_WHELMED (EXPANDER)     \
-        IDENTIFIER_BACKEND (EXPANDER)     \
-        IDENTIFIER_SHADER (EXPANDER)      \
-        IDENTIFIER_MODEL (EXPANDER)       \
+#define END_MAKE_VIEW(ViewName, EXPANDER)     \
+    struct ViewName                           \
+    {                                         \
+        IDENTIFIER_CONFIG (EXPANDER)          \
+        IDENTIFIER_COMMON (EXPANDER)          \
+        IDENTIFIER_THEME (EXPANDER)           \
+        IDENTIFIER_KEYS (EXPANDER)            \
+        IDENTIFIER_APP (EXPANDER)             \
+        IDENTIFIER_POPUPS (EXPANDER)          \
+        IDENTIFIER_ACTIONS (EXPANDER)         \
+        IDENTIFIER_WHELMED (EXPANDER)         \
+        IDENTIFIER_BACKEND (EXPANDER)         \
+        IDENTIFIER_SHADER (EXPANDER)          \
+        IDENTIFIER_MODEL (EXPANDER)           \
+        IDENTIFIER_TERMINAL_STATE (EXPANDER)  \
     };
 
 END_MAKE_VIEW (ID, AS_IDENTIFIER)

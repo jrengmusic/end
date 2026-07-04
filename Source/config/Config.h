@@ -42,16 +42,26 @@ public:
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c file::Shaders::getPath, then fully
-     *  replaces @c state's properties: every regular (non-hidden) file in
-     *  that directory becomes one property, keyed by its filename stem via
-     *  @c getFileNameWithoutExtension() -- any extension, or none, works
-     *  identically (@c Common and @c Image special-cased, every other stem a
-     *  named buffer pass) -- the filesystem is the manifest, so a pass name
-     *  set that changed since the last load (a different project, or a
-     *  renamed/added/removed pass file) never leaves a stale property behind. Fires
-     *  @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
-     *  listeners (graphics::Compiler, via end::View's funnels) pick up the
+     *  Locates the shader directory via @c file::Shaders::getPath, then detects
+     *  which source format that directory is: walks @c jam::vulkan::
+     *  ShaderFormat::getExtension() (only @c slang has an entry — a @c .slangp
+     *  manifest wildcard) and tests the directory for a matching file; no match
+     *  means @c jam::vulkan::ShaderFormat::shadertoy (absence of any manifest
+     *  extension IS shadertoy's own detection, zero if/else). The resolved
+     *  format ordinal is then handed to @c jam::vulkan::ShaderFormat::read(),
+     *  which owns both formats' own directory-to-ValueTree reading (shadertoy's
+     *  fixed Common/Image/BufferX files read directly; slang's own @c .slangp
+     *  @c shaders/shaderN directive parsing) — this method never parses either
+     *  format itself.
+     *
+     *  The read tree is overlaid onto @c state via @c setValuesFrom, and
+     *  @c ID::shaderFormat is stamped with the resolved format ordinal (a plain
+     *  int — @c jam::vulkan::ShaderFormat::shadertoy or @c ::slang) so callers
+     *  always read a definite, resolved format — never an empty or missing
+     *  value, even before any project has ever been loaded.
+     *
+     *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
+     *  listeners (jam::vulkan::ShaderCompiler, via end::View's funnels) pick up the
      *  new source.
      *
      *  @param path    Active shader project name from config::Model.
@@ -206,6 +216,7 @@ public:
         add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
         add (IDtype::graphics,   ID::filter,         jam::map::ImageResample::getValidator());
         add (IDtype::graphics,   ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
+        add (jam::IDtype::cursor, jam::ID::style,     end::CursorShape::getValidator());
 
         return v;
     }();

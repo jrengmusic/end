@@ -1,5 +1,4 @@
 #include "View.h"
-#include "graphics/Compiler.h"
 
 namespace end
 {
@@ -89,7 +88,7 @@ void View::registerEvents()
         {
             // filter is shared by both slots (display.lua: applies to both the
             // background and post-processing upscale) — baked into the
-            // compiled prelude (graphics::Compiler::channelMacros()/sceneMacro()),
+            // compiled prelude (jam::vulkan::ShaderCompiler::channelMacros()/sceneMacro()),
             // so a filter change requires a full recompile on both funnels,
             // never the cheaper *Params() path.
             applyBackground();
@@ -151,9 +150,17 @@ void View::applyBackground()
         const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
         const auto filter { jam::map::ImageResample::get (filterName) };
 
-        auto compiled { graphics::Compiler::compile (shaderState, filter) };
+        // config::Shader::loadFromPath() always stamps ID::shaderFormat with a
+        // definite format ordinal (jam::vulkan::ShaderFormat::shadertoy or
+        // ::slang) before this state is ever readable here — config::Model's
+        // constructor runs loadFromPath() to completion, and
+        // jam::Instance<config::Model>::getInstance() (which View::config
+        // resolves through) cannot return before that constructor finishes.
+        const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
 
-        // nullptr (compile failure, diagnostic already logged inside Compiler)
+        auto compiled { jam::vulkan::ShaderCompiler::compile (shaderState, true, shaderFormat, filter) };
+
+        // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
         // keeps whichever shader background currently holds — call nothing (last-good).
         if (compiled != nullptr)
             background.setShader (std::move (compiled), opacity, resolutionScale, frameRate);
@@ -192,9 +199,14 @@ void View::applyPostProcess()
         const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
         const auto filter { jam::map::ImageResample::get (filterName) };
 
-        auto compiled { graphics::Compiler::compile (shaderState, filter) };
+        // See applyBackground()'s matching comment — ID::shaderFormat is
+        // always a definite format ordinal by the time this state is
+        // readable here.
+        const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
 
-        // nullptr (compile failure, diagnostic already logged inside Compiler)
+        auto compiled { jam::vulkan::ShaderCompiler::compile (shaderState, false, shaderFormat, filter) };
+
+        // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
         // keeps whichever chain Registry currently holds — call nothing.
         if (compiled != nullptr)
             registry->setPostProcess (std::move (compiled), opacity, resolutionScale);

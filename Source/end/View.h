@@ -157,7 +157,7 @@ private:
      *  (config preference ANDed with jam::GpuProbe::probe().isAvailable — the
      *  same effective truth end::Application resolves for the Registry ctor
      *  and the gpu event handler resolves for setGpuEnabled()), compiles via
-     *  @c graphics::Compiler when GPU-enabled and a project is configured, and
+     *  @c jam::vulkan::ShaderCompiler when GPU-enabled and a project is configured, and
      *  installs the result on @c background via its @c setShader() tell-API
      *  (@c nullptr on GPU-off/no-project; a failed compile calls nothing,
      *  keeping @c background's last-good shader). Full recompile — routed to

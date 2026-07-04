@@ -20,7 +20,8 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
 
 void Panes::createPane (jam::UUID uuid)
 {
-    // STUB: jam::Font removed — glyph pipeline deleted. Session created without font.
+    // Session needs no font — terminal::View reads font identity from config
+    // and applies it to the jam::CodeView it parents.
     auto& session { end::Nexus::getInstance()->create (uuid) };
     auto pane { std::make_unique<terminal::View> (uuid, model, session) };
     auto* panePtr { pane.get() };
@@ -54,7 +55,8 @@ void Panes::visibilityChanged()
 void Panes::split (jam::UUID uuid, const juce::Identifier& direction)
 {
     jam::UUID newUUID;
-    // STUB: jam::Font removed — glyph pipeline deleted. Session created without font.
+    // Session needs no font — terminal::View reads font identity from config
+    // and applies it to the jam::CodeView it parents.
     auto& session { end::Nexus::getInstance()->create (newUUID) };
     auto pane { std::make_unique<terminal::View> (newUUID, model, session) };
     auto* panePtr { pane.get() };

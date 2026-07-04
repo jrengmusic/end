@@ -1,7 +1,8 @@
 # SPEC.md — END: Ephemeral Nexus Display
 
-**Version:** 0.0.1 — Rewrite
-**Date:** 2026-06-04
+**Version:** 0.0.1 — Implementation in Progress
+**Date:** 2026-06-04 (original), updated 2026-07-04
+**Current Phase:** 14 (Final Polish — Advanced Shaders) | Phases 3-13 COMPLETE
 
 ---
 
@@ -56,9 +57,9 @@ The previous iteration started as priority 2 with priority 1 as an afterthought.
 |--------|-------|-----------|----------------|
 | `Buffer<Row>` | `Video` (reader thread) | VT engine scratch surface. Dual channel (normal/alternate). Destroyed on resize. | NOT the document. NOT the SSOT. NOT persistent. |
 | `CellFifo` | `Processor` (reader thread) | Lock-free SPSC transport. Two rings (history + active). Drop-oldest under flood. Data passes through and is consumed. | NOT storage. NOT scrollback. NOT persistent. Under flood, oldest entries are dropped — this is correct. |
-| `CodeModel` | `Controller` (message thread) | The document SSOT. `ParagraphsModel` — bounded deque of `jam::String` lines. History lines survive resize. FIFO eviction drops oldest when over `scrollbackLines` capacity. | NOT owned by Processor. NOT written by the reader thread. NOT touched by resize. |
-| `CodeView` | `Controller` (message thread, parented by View) | Dumb rendering widget. Reads `const CodeModel&`. Wraps at paint time via `getWrappedLines(viewWidth)`. | NOT the document. NOT a state owner. NOT a ValueTree::Component. |
-| `terminal::Model` | `Controller` | APVTS bridge. Atomics (reader writes), ValueTree (message reads). Timer flushes dirty atomics to ValueTree. | NOT a config store. NOT a document store. Only scalar state (cursor, modes, flags, text params). |
+| `CodeModel` | `Session` (message thread) | The document SSOT. `ParagraphsModel` — bounded deque of `jam::String` lines. History lines survive resize. FIFO eviction drops oldest when over `scrollbackLines` capacity. | NOT owned by Processor. NOT written by the reader thread. NOT touched by resize. |
+| `CodeView` | `Session` (message thread, parented by View) | Dumb rendering widget. Reads `const CodeModel&`. Wraps at paint time via `getWrappedLines(viewWidth)`. | NOT the document. NOT a state owner. NOT a ValueTree::Component. |
+| `terminal::Model` | `Session` | APVTS bridge. Atomics (reader writes), ValueTree (message reads). Timer flushes dirty atomics to ValueTree. | NOT a config store. NOT a document store. Only scalar state (cursor, modes, flags, text params). |
 
 ### 1.2 APVTS Analogy
 
@@ -71,14 +72,14 @@ The closest analogy is a **spectrum analyzer plugin**, not a synthesizer. In a s
 | JUCE Audio Plugin | END |
 |-------------------|-----|
 | Host (DAW) | `Nexus` — owns terminal instances, manages lifecycle, routes IPC |
-| `AudioProcessor` | `terminal::Controller` — owns Model, Processor, CodeModel, CodeView |
+| `AudioProcessor` | `terminal::Session` — owns Model, Processor, CodeModel, CodeView |
 | `ProcessorChain` | `terminal::Processor` — reader thread pipeline, references Model |
-| `APVTS` | `terminal::Model` — state bridge, owned by Controller |
+| `APVTS` | `terminal::Model` — state bridge, owned by Session |
 | `PluginEditor` | `terminal::View` — GUI, listens on Model, created/destroyed independently |
 | `SpectrumFIFO` | `CellFifo` — lock-free SPSC transport, reader pushes, message drains |
 | `SpectrumProcessor::outputDB` | `CodeModel` — processed output ready for display |
 
-Key property: the Editor (View) is detachable. In daemon mode, the Controller keeps running without a View — identical to a DAW running a plugin headless. The View is created when a GUI client connects, destroyed when it disconnects. The Controller and its state survive.
+Key property: the Editor (View) is detachable. In daemon mode, the Session keeps running without a View — identical to a DAW running a plugin headless. The View is created when a GUI client connects, destroyed when it disconnects. The Session and its state survive.
 
 ### 1.3 Thread Contract
 
@@ -91,7 +92,7 @@ Key property: the Editor (View) is detachable. In daemon mode, the Controller ke
 
 **HARD INVARIANT:** The reader thread NEVER touches `CodeModel`. The message thread NEVER writes atomics (except during flush). The GL thread NEVER writes ValueTree or CodeModel. Violation of any of these is a **B violation** (thread binding) — not a bug to fix, an architecture to reject.
 
-**`Controller::drain()` runs on the message thread ONLY.** It is called by `terminal::View` in response to `screenDirty` ValueTree listener (which fires after timer flush). It pulls from `CellFifo` (message-thread read side of the SPSC ring) and mutates `CodeModel`. An agent must never call `drain()` from the reader thread.
+**`Session::drain()` runs on the message thread ONLY.** It is called by `terminal::View` in response to `screenDirty` ValueTree listener (which fires after timer flush). It pulls from `CellFifo` (message-thread read side of the SPSC ring) and mutates `CodeModel`. An agent must never call `drain()` from the reader thread.
 
 ### 1.4 Data Flow — Unidirectional, Always
 
@@ -101,7 +102,7 @@ Scalar state:
 
 Bulk cell data:
   READER → Video writes Buffer<Row> → CellFifo push (drop-oldest SPSC)
-  MESSAGE → Controller::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
+  MESSAGE → Session::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
 ```
 
 No thread pushes to another. All communication is pull-based. No mutex on any hot path. No wait, no stall, no yield.
@@ -154,11 +155,21 @@ The old pattern used `DisplayCallbacks` — a struct of `std::function` closures
 
 **The Registry must support a payload mechanism** — either typed action variants (handler receives `juce::var` or a typed payload struct), or per-entry registered closures that capture their parameters at registration time (each popup entry registers its own `void()` that already knows its command/args/cwd). The exact design is Phase 3 execution work, but the requirement is captured here: `void()` is insufficient.
 
-### 1.8 Open Seam — Font / Atlas GL-Thread Binding (UNRESOLVED)
+### 1.8 Rendering Engine — First-Class Vulkan Architecture (RESOLVED in Phase 4)
 
-`jam::Typeface` and `jam::glyph::Atlas` are Context-owned global shared state. In the previous iteration, config reload mutated them on the **message thread** (`Typeface::setSize()` destroys/recreates HarfBuzz + CTFont handles, clears caches) while the **GL thread** was mid-shape on the same handles (`setComponentPaintingEnabled(true)` routes component paint onto the GL thread). This is a use-after-free — the recurring reload→font→atlas assert and the principal blocker of the previous iteration. The `atlasDirty` flag deferred only the atlas *rebuild* to the GL thread; the font *handles* were torn down immediately on the message thread, unprotected.
+`jam::vulkan::Registry` is the application's rendering authority — not a bolt-on, but first-class architecture. It owns the shared `jam::vulkan::Device` (one per application), the shared `jam::GlyphAtlas` (one per application), and per-window `jam::vulkan::Graphics` instances. 
 
-This is a **B violation** (thread binding). The rewrite must bind font/atlas mutation to a single thread and coordinate it (suspend-style, mirroring `Processor::suspendProcessing` during resize) — mutation must never run on the message thread while the GL thread reads. **The exact mechanism is not yet decided** and must be designed before Phase 4 rendering work. Recorded here so it is not lost.
+**Dual-engine dispatch (never-null factory pattern):**
+- GPU path: `jam::vulkan::LowLevelGraphicsContext` (Vulkan LLGC) on available hardware
+- CPU fallback: `jam::LowLevelGraphicsGlyphRenderer` (software rasterizer with shared atlas) when GPU unavailable/disabled
+
+`Registry::createContext()` (installed as `juce::ComponentPeer::externalContextFactory`) **never returns nullptr** — JUCE's default renderers are structurally unreachable.
+
+**Font/Atlas lifecycle (GL-thread binding resolved):**
+- Typeface singletons (`jam::Typeface::getInstance()`) owned by Application, self-register on construction
+- GlyphAtlas owned by Registry, created at Registry construction
+- Font rasterization config (gamma, contrast, backend) applied at Registry init; hot-reload updates via config listeners, no mid-frame mutation
+- Thread contract: message thread owns config/font changes, Vulkan paint dispatch is message-thread-synchronous (no dedicated GPU thread), atomicity by design — no guards needed
 
 ---
 
@@ -229,11 +240,11 @@ No config values on end::Model. No runtime state on config::Model. Consumers tha
 
 The lua subsystem is its own MVC triad: `config::Model` (state + VM), Main (Controller — watcher, triggers re-read), consumers (Views that listen on config::Model's tree).
 
-**Nexus is the Host.** It owns all `terminal::Controller` instances in a map. Controllers survive View destruction (daemon mode). In standalone mode, Nexus exists with `Mode::standalone` — same ownership model, no IPC.
+**Nexus is the Host.** It owns all `terminal::Session` instances in a map. Sessions survive View destruction (daemon mode). In standalone mode, Nexus exists with `Mode::standalone` — same ownership model, no IPC.
 
-**terminal::Controller is the AudioProcessor.** It owns the terminal instance: Model (APVTS), Processor (ProcessorChain), CodeModel (output), CodeView (renderer). Processor references Model but does not own it.
+**terminal::Session is the AudioProcessor.** It owns the terminal instance: Model (APVTS), Processor (ProcessorChain), CodeModel (output), CodeView (renderer). Processor references Model but does not own it.
 
-**terminal::View is the PluginEditor.** Created/destroyed independently of the Controller. Parents CodeView for rendering (addAndMakeVisible) but does not own it — Controller owns CodeView's lifetime. View listens on Model and calls `Controller::drain()` when `screenDirty` fires.
+**terminal::View is the PluginEditor.** Created/destroyed independently of the Session. Parents CodeView for rendering (addAndMakeVisible) but does not own it — Session owns CodeView's lifetime. View listens on Model and calls `Session::drain()` when `screenDirty` fires.
 
 **Keyboard dispatch is centralized.** end::View is a `juce::KeyListener` — catches all key events first, dispatches to the active PaneView. Global actions (prefix key, command palette, tab/pane navigation) handled at end::View. Terminal-specific input (CSI u encoding, selection, scroll) handled by the active PaneView.
 
@@ -290,10 +301,10 @@ Same proven pattern from the previous iteration:
 | App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, end::Model, end::View, Nexus. Two independent trees. File watcher. Not namespaced. |
 | Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
 | App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Runtime state tree. Paired with `end::View`. |
-| App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel, GL context. Centralizes keyboard dispatch. |
-| Session host | `Nexus` | Owns all Controllers. Manages lifecycle. Routes IPC in daemon mode. |
-| Terminal instance | `terminal::Controller` | = AudioProcessor. Owns Model, Processor, CodeModel, CodeView. |
-| Per-session state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Controller. |
+| App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel, Vulkan Registry. Centralizes keyboard dispatch. |
+| Session host | `Nexus` | Owns all Sessions. Manages lifecycle. Routes IPC in daemon mode. |
+| Terminal instance | `terminal::Session` | = AudioProcessor. Owns Model, Processor, CodeModel, CodeView. |
+| Per-session state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Session. |
 | Reader pipeline | `terminal::Processor` | = ProcessorChain. Owns Parser, Video, CellFifo. References Model. |
 | Terminal GUI | `terminal::View` | = PluginEditor. Controller of CodeView. Listens on terminal::Model + config::Model. Detachable. |
 | Document renderer | `jam::CodeView` | Dumb jam_gui widget. Cell-space API. No state, no tree, no listener. |
@@ -544,7 +555,7 @@ Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse inp
 - GL pipeline — `renderOpenGL()` with background shader slot and post-process FBO capture slot (empty, compiling). JUCE GL compositing via `setComponentPaintingEnabled(true)`.
 
 **Stubs (compiled, owned, empty — filled in Phase 4+):**
-- `terminal::Controller` — owns Model, Processor, CodeModel, CodeView. Empty internals.
+- `terminal::Session` — owns Model, Processor, CodeModel, CodeView. Empty internals.
 - `terminal::Model` — `jam::Model`, empty (no parameters yet).
 - `terminal::Processor` — references Model, empty.
 - `terminal::Video` — `jam::terminal::Video` subclass, empty overrides.
@@ -584,299 +595,114 @@ end::Model (root)                         config::Model (root)
 
 **Exit state:** Application launches. Window with animated tabs (add, close, reorder, SVG-styled). Panes split and navigate via keyboard (prefix key + h/j/k/l). Config hot-reloads visual appearance. Mouse input reaches the active PaneView. Focus tracking writes activePaneID. Every terminal stub compiled and correctly owned. No terminal content, no VT processing.
 
-### Phase 4 — VT Pipeline + Rendering + Resize + Scrollback
+### Phase 4 — VT Pipeline + Rendering + Resize + Scrollback ✅ COMPLETE
 
-The full terminal rendering pipeline end-to-end, including the font/atlas GL-thread binding resolution (§1 Open Seam).
+The full terminal rendering pipeline end-to-end, Vulkan rendering as first-class architecture, and content preservation across resize.
 
-**Scope:**
-- `terminal::Video` — override virtual hooks, fire events into `terminal::Model`. RFC-missing-video-dispatch implemented at jam_terminal base: full SGR (underline styles/color, overline, super/subscript), OSC 4/10/11, DECRQSS.
+**Completed scope:**
+- `terminal::Video` — override virtual hooks, fire events into `terminal::Model`. Full SGR (underline styles/color, overline, super/subscript), OSC 4/10/11, DECRQSS.
 - `terminal::Processor` — owns Parser, Video, CellFifo, TTY (from jam_terminal). References Model. Reader thread pipeline. `prepare()` resize. `suspendProcessing()`.
-- `terminal::Controller` — owns Processor (unique_ptr), Model, CodeModel, CodeView, Resizer. Factory methods. `start()` deferred init. `drain()` facade (pulls CellFifo into CodeModel).
-- `terminal::View` — parents CodeView, listens on Model, calls Controller::drain() on screenDirty, resize path.
+- `terminal::Session` — owns Processor (unique_ptr), Model, CodeModel, CodeView, Resizer. Factory methods. `start()` deferred init. `drain()` facade (pulls CellFifo into CodeModel).
+- `terminal::View` — parents CodeView, listens on Model, calls `Session::drain()` on screenDirty, resize path.
 - `terminal::Model` — full APVTS atomic parameter set, timer flush, ParameterText.
-- Typeface system wired — full glyph pipeline: Atlas, HarfBuzz shaping, FontCollection, BoxDrawing, GlyphConstraint, embolden, platform font dispatch (CoreText/FreeType). Font/atlas GL-thread binding resolved.
+- **Vulkan Rendering (first-class architecture)** — `jam::vulkan::Registry` owns Device, GlyphAtlas, per-window Graphics. Dual-engine dispatch: GPU (Vulkan LLGC) or CPU fallback (software + shared atlas). Never-null factory. Font/atlas GL-thread binding resolved via message-thread-synchronous paint dispatch (no dedicated GPU thread).
+- Typeface system wired — full glyph pipeline: Atlas, HarfBuzz shaping, FontCollection, BoxDrawing, GlyphConstraint, embolden, platform font dispatch (CoreText/FreeType).
 - CodeModel/CodeView — ParagraphsModel, wrap-aware projection, SIGWINCH-safe resize.
-- CellFifo drain — history ring (committed lines) + active ring (live viewport), liveTailExtent tracking. Content doubling bug (DEBT-20260602T000000) resolved by architecture.
-- Resize preservation — Resizer suspends Processor, prepare() resizes Video grid only, CodeView re-wraps lazily. History untouched. Resize garbage (DEBT-20260530T100000) resolved by architecture.
+- CellFifo drain — history ring (committed lines) + active ring (live viewport), liveTailExtent tracking.
+- Resize preservation — Resizer suspends Processor, prepare() resizes Video grid only, CodeView re-wraps lazily. History untouched.
 - Scrollback — history lines survive in CodeModel, scroll via CodeView's juce::Viewport.
 - Shell integration — OSC 133 auto-inject (zsh/bash/fish/pwsh), working directory tracking.
 - OSC suite — 0/2, 7, 8, 9/777, 12, 52, 133.
 - Notifications — native desktop (macOS UNUserNotificationCenter, Windows/Linux fallback).
+- **Conformance suite:** All VT correctness tests passing (relocated to tests/conformance/).
 
-**Must pass:** `test/render-test.sh` (SGR attributes, true color), `test/emoji_test.sh` (Unicode width, VS16/VS15, ZWJ, flags, skin tones, CJK, combining marks, Nerd Font), `test/braille_test.txt` (procedural braille), `test/font-compare.sh` (ligatures, glyph alignment).
+**Phase 4 architecture artifact:** Conformance suite + proven APVTS-analog threading model + Vulkan rendering foundation.
 
-**Model additions (Phase 4):**
-```
-config::Model tree:
-  CONFIG
-    NEXUS
-      SHELL       ← program, args, integration (nexus.lua — partial parse for TTY)
-      TERMINAL    ← scrollbackLines, scrollStep, padding* (needed by Processor/View)
+### Phases 5-13 ✅ COMPLETE
 
-end::Model tree:
-  SESSION (terminal::Model, grafted)
-    activeScreen, cursor, cursorShape, keyboardFlags
-    MODES (all DEC mode flags)
-    NORMAL / ALTERNATE (per-screen state)
-    TEXT (title, cwd, foregroundProcess)
-    pasteEchoRemaining, syncOutputActive, outputBlock*, promptRow
-    snapshotDirty, clearBuffer
-    DISPLAY (cellWidth, cellHeight, baseline, fontSize — computed by View from config::Model config)
-```
+**Phase 5 — Input + Selection** ✅
+- Keyboard: CSI u encoding (full flag stack per screen), selection keys, scroll navigation
+- Mouse: SGR forwarding, drag selection, click dispatch, wheel scroll
+- Selection: visual/line/block modes, keyboard selection in scrollback, copy to clipboard
 
-**config::Model additions (Phase 4):** nexus.lua parsed for SHELL and TERMINAL sections. Daemon/gpu/autoReload not yet parsed.
+**Phase 6 — Hyperlinks and URI** ✅
+- Link scanning: heuristic + OSC 8 (cell-native)
+- LinkDetector, LinkManager, hint mode, directory navigation
+- File dispatch: OS default, editor, Whelmed, image preview
 
-**Exit state:** Shell prompt visible. Typing works (basic — keys forwarded to PTY, no CSI u yet). Output renders with full SGR/OSC fidelity. Scrollback preserves history. Resize is lossless. All test scripts pass. Font rendering matches reference terminal.
+**Phase 7 — SKiT Image Preview** ✅
+- Sixel, Kitty, iTerm2 decoder/renderer
+- Inline rendering, LRU texture eviction
 
-### Phase 5 — Input + Selection
+**Phase 8 — Whelmed (Edit)** ✅
+- Markdown editing in monospace CodeView
+- Style-resolution pass (ParsedDocument → styled CodeModel)
+- Config-driven theme
 
-Keyboard encoding and mouse handling.
+**Phase 9 — Whelmed (Read)** ✅
+- `jam::TextView` widget for proportional rendering
+- Styled markdown display (headings, lists, tables, inline code)
+- Edit↔read toggle
 
-**Scope:**
-- Keyboard — end::View dispatches to active PaneView. terminal::View handles CSI u encoding (full flag stack per screen), selection keys, scroll navigation.
-- Mouse — terminal::View handles SGR forwarding, drag selection, click dispatch, wheel scroll.
-- Selection — visual/line/block modes, keyboard selection in scrollback, copy to clipboard.
+**Phase 10 — Whelmed (Mermaid)** ✅
+- Mermaid parser and renderer
+- Inline diagram composition (text + code + diagrams, single scroll)
 
-**Model additions (Phase 5):**
-```
-end::Model tree:
-  TABS
-    modalType       ← authored by terminal::View (selection mode entry/exit)
-    selectionType   ← authored by terminal::View (visual/line/block)
-```
+**Phase 11 — Popup Terminals** ✅
+- ModalWindow + PTY, Lua-configurable
+- Accessible via prefix key or command palette
 
-**Exit state:** Full keyboard encoding (CSI u protocol, all flag levels). Mouse selection, drag, wheel scroll. Vim-style visual/line/block selection with keyboard. Copy to clipboard. All input working in the pane/tab system.
+**Phase 12 — Command Palette** ✅
+- Fuzzy-searchable action launcher
+- Lists: built-in + popup + custom Lua
+- Inline shortcut remapping
 
-### Phase 6 — Hyperlinks and URI
-Normal screen as native finder/explorer.
+**Phase 13 — Native Finder** ✅
+- `jam::Fuzzy` integration
+- Sources: files, scrollback, history, actions
+- Match highlighting, preview pane, status bar
 
-**Scope:**
-- Link scanning — heuristic (token classification) + OSC 8 (cell-native hyperlinks)
-- `LinkDetector` — URL pattern + file extension + directory classification
-- `LinkManager` — hit-test, dispatch, hint labels, pagination
-- Output block gate — file links within OSC 133 C-D markers only
-- Directory navigation — `cd` + optional `ls` to PTY
-- File dispatch — OS default, editor command, Whelmed (markdown), image preview
-- Hint mode — flash-jump labels, keyboard navigation
-- Mouse click dispatch on links
+### Phase 14 — Advanced Shader Pipeline 🔄 IN FINAL TESTING
 
-**Model additions (Phase 6):**
-```
-config::Model tree:
-  CONFIG
-    NEXUS
-      HYPERLINKS  ← editor handler, clickable extensions, list_directory (nexus.lua extended)
+User-configurable multi-format shader pipeline (background + post-process) with advanced resource loading.
 
-end::Model tree:
-  SESSION (terminal::Model)
-    hintPage      ← authored by LinkManager (hint mode pagination)
-    hintTotalPages ← authored by LinkManager (hint mode entry)
-```
-Note: `hintPage`/`hintTotalPages` are END-specific identifiers (AppIdentifier.h), not jam::ID.
+**Completed scope:**
+- **Shadertoy compatibility** ✅ — fullscreen quad rendering with standard uniforms (`iTime`, `iResolution`, `iMouse`, `iFrame`, `iTimeDelta`)
+- **RetroArch Slang-P format** ✅ — multi-pass shader chains with buffer feedback, scaling modes (integer/viewport/custom), filter modes
+- **Background + post-process pipeline** — background renders before JUCE composition; post-process captures composited scene via FBO, applies shader, composites result
+- **Hot-reload** — shader source files watched, recompilation on change with error reporting
+- **Vulkan SPIR-V compilation** — `shaderc` (vendored) compiles GLSL/SPIRV sources; pipeline cache persisted, driver/OS updates silently invalidate
+- **Resource loader (WIP)** 🔄 — extra resources (OBJ geometry, PNG/JPG images, custom data files) loadable within shaders
+  - OBJ loader — triangulated meshes with vertex pulling
+  - Image sampler binding — external textures in bindless set
+  - Per-pass resource lifecycle
 
-**config::Model additions (Phase 6):** nexus.lua HYPERLINKS section added (extends Phase 4's SHELL + TERMINAL parse).
-
-**Exit state:** `ls` output is interactive. URLs clickable. Files openable. Directories navigable. Keyboard hint mode works.
-
-### Phase 7 — SKiT Image Preview
-Inline image rendering in the terminal grid.
-
-**Scope:**
-- Sixel decoder + renderer (cell-grid placement)
-- Kitty graphics decoder + renderer
-- iTerm2 inline image decoder (OSC 1337) + renderer
-- Platform decode — macOS (CGImageSource), Windows (WIC), GIF multi-frame with disposal
-- PreviewComponent — juce::Component child of terminal::View, side-by-side with CodeView. View::resized() splits bounds. CodeView reflows via PTY resize (standard resize path).
-- Preview trigger — hyperlink click, SKiT protocol, file opener
-- LRU texture eviction
-
-**Model additions (Phase 7):**
-```
-end::Model tree:
-  SESSION (terminal::Model) — via VIEW node (END-specific, AppIdentifier.h)
-    preview       ← authored by terminal::View (preview active flag)
-    splitCol      ← authored by terminal::View (column where terminal clips for preview)
-```
-
-**Exit state:** Images render inline. `ls` with image files shows previews. Sixel/Kitty/iTerm2 protocols work end-to-end.
-
-### Phase 8 — Whelmed (Edit)
-Built-in markdown renderer/editor, rewritten on correct Model-View topology. Three distinct rendering surfaces composited into a single scrollable document.
-
-Whelmed is significantly different from the terminal: it renders proportional `jam::Char` (wide hint `PROPORTIONAL`, §RFC-text-editor 4.3), inline Mermaid graphics, and hybrid read/write modes. The old Whelmed was read-only preview with `juce::AttributedString` output — rendering bugs (underscores, newlines), broken Mermaid parser. Full rewrite required.
-
-#### Architecture — Two-Pass Pipeline
-
-The existing `jam::Markdown::Parser` (in `jam_markdown`) produces a flat `ParsedDocument` — arena-allocated text + `Block[]` + `InlineSpan[]`, all trivially copyable, offset-indexed. Block types: Markdown, CodeFence, Mermaid, Table. Inline spans: Bold, Italic, Code, Link. The parser is proven and does not change.
-
-The new architecture adds a **style-resolution pass** between the parser and the rendering widgets:
-
-```
-Raw markdown text
-      ↓
-jam::Markdown::Parser → ParsedDocument (intermediate representation)
-      ↓
-Style resolution pass (InlineStyle → jam::Stamp::Entry, config-driven)
-      ↓
-jam::String lines (PROPORTIONAL jam::Char atoms, styleId per run)
-      ↓
-CodeModel (document)
-      ↓
-┌──────────────────────────────────┐
-│                                  │
-CodeView (edit mode)       TextView (read mode)
-monospace raw source     proportional styled output
-```
-
-The style-resolution pass lives in Whelmed (it needs the theme/config). It walks `ParsedDocument` blocks and spans, resolves `InlineStyle` flags → `jam::Stamp::Entry` (fg/bg/flags from config colours), and emits `jam::String` lines with `jam::Char::make(codepoint, PROPORTIONAL, styleId)` per character. Code fence blocks emit `jam::Char` with monospace `NARROW` wide hint.
-
-Mermaid blocks (`BlockType::Mermaid`) are skipped by the style pass — the rendering layer handles them as inline image Components (same pattern as Phase 4 SKiT preview).
-
-**Open design question (deferred to Phase 5 sprint):** one CodeModel (swap content on mode switch) vs two CodeModels (source always in one, styled output in another). The parser IR (`ParsedDocument`) is the bridge — either way the source of truth is the raw text, the styled output is a derived cache.
-
-**Phase 8 scope** — CodeView edit mode (raw markdown, monospace, existing widget):
-Raw markdown editing using the existing `jam::CodeView` (monospace, same widget as terminal).
-
-**Scope:**
-- `whelmed::View` — `PaneView` subclass, correct META-MVC layering.
-- CodeModel fed with raw markdown text (one `jam::String` per line, `NARROW` chars).
-- CodeView renders monospace markdown source — editing mode.
-- InputHandler — keyboard editing, selection, scroll.
-- Integration via `Panes::createWhelmed()`, DOCUMENT ValueTree grafted alongside SESSION.
-- Mode switch (edit↔read) — stub for read mode in this sub-phase.
-
-**Model additions (Phase 8):**
-```
-config::Model tree:
-  CONFIG
-    WHELMED       ← typography, colours, navigation keys (whelmed.lua — first parse)
-
-end::Model tree:
-  PANE (uuid)
-    DOCUMENT      ← grafted alongside SESSION when Whelmed opens
-      filePath    ← authored by Panes::createWhelmed()
-      displayName ← authored by Panes::createWhelmed() (file basename)
-      scrollOffset ← authored by whelmed::View
-      editMode    ← authored by whelmed::View (edit/read toggle)
-```
-
-**config::Model additions (Phase 8):** whelmed.lua parsed for the first time.
-
-**Exit state:** Opening a `.md` file shows raw markdown in a monospace editor pane. Editing works.
-
-### Phase 9 — Whelmed (Read)
-New `jam::TextView` widget in jam_gui for proportional `jam::Char` rendering. The reading surface for styled markdown output.
-
-**Scope:**
-- `jam::TextView` — new jam_gui widget. Dumb widget like CodeView (TETRIS E-contract, cell-space setters, `calc()`). Renders proportional `jam::Char` — styled text (headings, paragraphs, lists, inline code, tables). Uses `jam::Char::PROPORTIONAL` wide hint; shaper uses HarfBuzz glyph advance instead of cell-unit advance.
-- Style-resolution pass — `ParsedDocument` → `jam::String` lines with styled `jam::Char` atoms (styleId per run from config theme). Runs on background thread, same threading pattern as terminal reader.
-- Whelmed read mode: TextView renders styled output. CodeView hidden.
-- Hybrid switching: CodeView for editing, TextView for reading.
-- Table rendering: column distribution, per-cell styling from `InlineSpan` resolution.
-- Fix rendering bugs (underscore, newline handling) by architecture — proportional `jam::Char` rendering designed correctly from the start, not patched onto `juce::AttributedString`.
-
-**Exit state:** Opening a `.md` file shows styled rendered markdown (proportional fonts, headings, lists, tables, inline code). Edit↔read toggle works.
-
-### Phase 10 — Whelmed (Mermaid)
-Inline Mermaid diagram rendering. Dedicated sprint — parser is far from working.
-
-**Scope:**
-- Mermaid parser — fenced code blocks with `mermaid` language tag (`BlockType::Mermaid` already identified by `jam::Markdown::Parser`) → parsed diagram AST.
-- Mermaid renderer — AST → SVG → `juce::Path` → rasterized image.
-- Inline composition — mermaid images as child Components within the document scroll surface, positioned between text blocks. Single scrollable surface: styled text (TextView) + code blocks (monospace `jam::Char`) + mermaid diagrams (image Components).
-- Image rendering reuses the same Component pattern as Phase 7 SKiT preview.
-
-**Exit state:** Mermaid fenced blocks render as inline diagrams in the Whelmed read view. Full document: styled text + code blocks + mermaid diagrams in one scrollable pane.
-
-### Phase 11 — Popup Terminals
-Tmux-style modal popup terminals, configurable via Lua.
-
-**Scope:**
-- Popup as `ModalWindow` + PTY — floating terminal over the active pane, JUCE modal state blocks PTY input to underlying pane.
-- Configurable per entry: command, args, cwd, cols, rows, keybinding.
-- Popup actions registered in `action::Registry`, dispatched via `Registry::perform()` (no DisplayCallbacks).
-- Popup closes on process exit or Escape.
-
-**Model additions (Phase 11):**
-```
-config::Model tree:
-  CONFIG
-    POPUPS        ← popup entries (popups.lua — first parse)
-```
-
-**config::Model additions (Phase 11):** popups.lua parsed for the first time.
-
-**Exit state:** Popup terminals spawn and close. Configurable via Lua. Accessible via prefix key or command palette.
-
-### Phase 12 — Command Palette
-Fuzzy-searchable action launcher.
-
-**Scope:**
-- `action::List` — `jam::Window` (glass overlay) with fuzzy search input and scrollable action list.
-- Lists all registered actions (built-in + popup + custom Lua) with current keybinding display.
-- Inline shortcut remapping (action::List keyboard override → `config::Model::overrideShortcut` → disk patch → watcher → reload).
-- MessageOverlay — lands here (config reload feedback, resize ruler display).
-
-**Model additions (Phase 12):**
-```
-config::Model tree:
-  CONFIG
-    ACTIONS       ← custom action entries (actions.lua — first parse). Execute Functions live in config::Model's sol2 VM.
-    DISPLAY
-      ACTIONLIST  ← closeOnRun, position, nameFamily, paddingTop, etc. (display.lua extended)
-```
-
-**config::Model additions (Phase 12):** actions.lua parsed for the first time. DISPLAY subtree extended with ACTIONLIST properties.
-
-**Exit state:** Command palette opens, searches, executes actions (built-in + popup + custom Lua). Inline shortcut remapping works. MessageOverlay shows config reload confirmation and resize dimensions.
-
-### Phase 13 — Native Finder
-`jam::Fuzzy` integration for fuzzy file/scrollback/history/action search.
-
-**Scope:**
-- `jam::Fuzzy` module (Finder, Pattern, Slab, FuzzyScoring) — consumed as black box.
-- `Finder` component — hosted via `ModalWindow`, same pattern as popup.
-- Sources: files (external command), scrollback (CodeModel lines), history (shell history file), actions (Registry entries).
-- Match highlighting via `Fuzzy::matchV2` positions.
-- Preview pane (text preview, image preview via SKiT).
-- StatusBarOverlay — lands here (modal/selection state display, needed for finder modal indication).
-
-**Model additions (Phase 13):**
-```
-config::Model tree:
-  CONFIG
-    DISPLAY
-      STATUSBAR   ← position, fontFamily, fontSize, fontStyle (display.lua extended)
-```
-
-**config::Model additions (Phase 13):** DISPLAY subtree extended with STATUSBAR properties.
-
-**Exit state:** Fuzzy finder opens for files/scrollback/history/actions. Match highlighting. Preview. StatusBarOverlay shows active modal state.
-
-### Phase 14 — Shadertoy Shaders
-User-configurable GLSL shader pipeline (background + post-process).
-
-**Scope:**
-- Background shader — fullscreen quad rendered in `renderOpenGL()` before JUCE composites components. User drops in fragment shader GLSL file. Standard Shadertoy uniforms (`iTime`, `iResolution`, `iMouse`).
-- Post-process shader — FBO captures composited frame, applies user's overlay shader as a second pass. JUCE GL compositing + FBO capture (§1 GL pipeline decision).
-- Hot-reload — shader source file watched alongside lua config.
-- Dialog — lands here (confirmation for shader compile errors, general modal confirmations).
+**Shader framework features:**
+- Multi-pass chains with history buffers
+- Feedback loops (buffer-to-buffer)
+- Custom resolution scaling per pass
+- Linear vs nearest filter selection
+- GLSL `#include` support via prelude injection
+- Vendor-specific extensions (macOS extensions, Windows DX/VK feature sets)
 
 **Model additions (Phase 14):**
 ```
 config::Model tree:
   CONFIG
     DISPLAY
-      shaderBackground ← path to background GLSL (display.lua extended)
-      shaderOverlay    ← path to post-process GLSL (display.lua extended)
+      background        ← shader project path (display.lua)
+      postProcessing    ← shader project path (display.lua)
+      backgroundParams  ← opacity, resolution, frameRate (runtime)
+      postProcessParams ← opacity, resolution, frameRate (runtime)
 ```
 
-**Exit state:** User can drop in Shadertoy-compatible GLSL for background effects and post-processing overlays. Hot-reloadable.
+**Exit state:** User can drop in Shadertoy-compatible GLSL, RetroArch Slang-P multi-pass chains, or custom shader projects with resource assets. Advanced passes with geometry and texture loading. Hot-reloadable. Final refactor and testing in progress.
 
-### Phase 15 — Daemon and Session Persistence
+### Phase 15 — Daemon and Session Persistence ⏳ PENDING
+
 Detachable GUI, session persistence, multi-window.
 
-**Scope:**
+**Planned scope:**
 - `Nexus` — full implementation: `Mode::daemon`, `Mode::client`, events ValueTree lifecycle listeners
 - `nexus::Daemon` — TCP server, per-client Channel, session callback wiring, broadcast
 - `nexus::Link` — client connector, retry timer, PDU dispatch
@@ -902,7 +728,7 @@ end::Model tree:
     port          ← authored by Daemon (TCP port written to nexus file)
 ```
 
-**CONFIG additions (Phase 15):** nexus.lua fully parsed — daemon, gpu, autoReload sections added (Phase 4 parsed SHELL + TERMINAL, Phase 6 added HYPERLINKS). All six lua modules now fully parsed: display, keys, nexus, popups, actions, whelmed.
+**CONFIG additions (Phase 15):** nexus.lua fully parsed — daemon, gpu, autoReload sections added (Phase 4 parsed SHELL + TERMINAL, Phase 6 added HYPERLINKS). All six lua modules fully parsed: display, keys, nexus, popups, actions, whelmed.
 
 **Exit state:** END is feature-complete.
 

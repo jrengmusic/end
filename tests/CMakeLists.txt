@@ -11,6 +11,16 @@
 # Living outside any JUCE module folder avoids that entirely.
 # Catch2 v2.13.10 single-header vendored at catch2/catch.hpp.
 #
+# ModelTests.cpp (RFC-terminal-editor.md S7.4 validation gate) additionally
+# validates END's own `terminal::Model` (Source/terminal/Model.h — header-only
+# P12 SSOT, distinct from JAM's jam::terminal::Model consumed elsewhere in
+# this suite) — schema shape, Direction A store()->flush() sync, Direction B
+# setter->parameterChanged wake seam, jam::ParameterText round-trip/
+# truncation. terminal::Model is header-only (straight-line
+# createAndAddParameter registration, no storage TU); END's Identifier.h
+# constants are likewise header-only `static inline const` — the added
+# "../Source" include directory is all resolution requires.
+#
 # Usage (ARCHITECT only — agents never build/run):
 #   cmake -S tests -B tests/build -G Ninja
 #   cmake --build tests/build
@@ -55,6 +65,7 @@ configure_app(
         "${CMAKE_CURRENT_SOURCE_DIR}/HyperlinkTests.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/DispatchTests.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/LookupTableTests.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/ModelTests.cpp"
     MODULES
         juce_core
         juce_events
@@ -71,6 +82,7 @@ configure_app(
 
 target_include_directories(jam_terminal_tests_App PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Source"
 )
 
 message(STATUS "jam_terminal_tests: standalone conformance suite configured (not wired into any app build)")

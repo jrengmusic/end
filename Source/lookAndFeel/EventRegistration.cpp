@@ -8,14 +8,21 @@ namespace end
 void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 {
     // One pass, one parse per font (SSOT font list) — creates the Ptr, stores
-    // it in typefaces for name-based lookup (getTypefaceForFont()), and
-    // registers the SAME Ptr identity with the atlas, all in a single lambda
-    // call per font instead of two separate passes re-parsing the same bytes.
+    // it in typefaces under its {name, style} composite key (typefaceKey()) for
+    // name+style lookup (getTypefaceForFont()), and registers the SAME Ptr
+    // identity with the atlas, all in a single lambda call per font instead of
+    // two separate passes re-parsing the same bytes.
     auto add = [this, &atlas] (const void* data, int size)
     {
         auto ptr { juce::Typeface::createSystemTypefaceFor (data, size) };
-        typefaces.addOrReplace (ptr->getName(), ptr);
+        auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
+        typefaces.addOrReplace (key, ptr);
         atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
+
+        // PLAN-terminal-editor.md Step 2.5 — jam::Typeface (hb_font_t interning
+        // for jam::GlyphArrangement's cmap lookup + tryLigature() shaping) is
+        // registered from the SAME (ptr, data, size) triple, one pass.
+        jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
     };
 
     add (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
@@ -25,13 +32,10 @@ void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
     add (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
     add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
 
-    // STUB: jam::Typeface removed — glyph pipeline deleted. Code typeface registration
-    // will be re-added when the new glyph pipeline is wired.
-    // jam::Typeface::registerTypeface (...) removed.
-
     // Applies the shipped/user-configured rasterization backend and coverage
     // LUT gamma/contrast before this Registry's atlas ever paints a glyph.
     applyFontRasterization();
+    applyEmbolden();
 }
 
 void LookAndFeel::applyFontRasterization()
@@ -47,15 +51,24 @@ void LookAndFeel::applyFontRasterization()
     registry->getAtlas().setRasterization (backend, gamma, contrast);
 }
 
+void LookAndFeel::applyEmbolden()
+{
+    auto* registry { jam::vulkan::Registry::getInstance() };
+    jassert (registry != nullptr);
+
+    const bool embolden { config.getValue (IDtype::code, ID::embolden) };
+
+    registry->getAtlas().setEmbolden (embolden);
+}
+
 void LookAndFeel::initialiseColours()
 {
     colourMap = jam::ColourMap::fromValueTree (config.state);
 
-    // STUB: jam::CodeView and jam::CaretComponent removed — glyph pipeline deleted.
-    // setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
-    // setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
-    // setColourId (IDtype::code, ID::caret, jam::CaretComponent::caretColourId);
-    setColourId (IDtype::code, ID::highlight, juce::TextEditor::highlightColourId);
+    setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
+    setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
+    setColourId (IDtype::code, ID::caret, juce::CaretComponent::caretColourId);
+    setColourId (IDtype::code, ID::highlight, jam::CodeView::selectionColourId);
     setColourId (IDtype::code, ID::selectionCursor, selectionCursorColourId);
     setColourId (IDtype::code, ID::editorBackground, juce::TextEditor::backgroundColourId);
     setColourId (IDtype::code, ID::editorOutline, juce::TextEditor::outlineColourId);
@@ -185,6 +198,14 @@ void LookAndFeel::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       applyFontRasterization();
+                                  });
+
+    // code.embolden — same font-owner precedent as fontRasterizer/fontGamma/
+    // fontContrast (PLAN-terminal-editor.md Step 2.5).
+    events.add<juce::ValueTree&> (ID::embolden,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyEmbolden();
                                   });
 }
 

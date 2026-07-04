@@ -67,18 +67,28 @@ public:
     /**
      * @brief Registers END's six embedded typefaces — one pass, one parse per
      *        font (SSOT font list) — creating each Typeface::Ptr, storing it in
-     *        @ref typefaces for name-based lookup (getTypefaceForFont()), and
+     *        @ref typefaces under its {name, style} composite key (see
+     *        typefaceKey()) for name+style lookup (getTypefaceForFont()), and
      *        registering it with the Vulkan glyph atlas so its mono glyphs
      *        rasterize through FreeType's autofitter instead of the EdgeTable
      *        fallback.
+     *
+     * Name-only keys collide: the two families (Display, DisplayMono) each
+     * register three weights (Bold/Book/Medium) that share one juce::Typeface
+     * name, so a name-only key lets addOrReplace() release two of every three
+     * Ptrs, recycling their heap addresses into later createSystemTypefaceFor()
+     * calls and desyncing the atlas's pointer-keyed FreeType face registry from
+     * the live Typeface identities. The composite key keeps all six Ptrs alive
+     * with unique, stable addresses.
      *
      * Cannot run at LookAndFeel construction time — the atlas (owned by
      * jam::vulkan::Registry) does not exist yet then (end::View constructs its
      * Registry after end::LookAndFeel, per end::Application's member order,
      * Main.h). Called once, externally, immediately after Registry construction
      * (end::View's constructor). Also applies the shipped/user-configured glyph
-     * rasterization backend/gamma/contrast (see applyFontRasterization()) before
-     * this atlas ever paints a glyph.
+     * rasterization backend/gamma/contrast (see applyFontRasterization()) and
+     * the embolden state (see applyEmbolden()) before this atlas ever paints a
+     * glyph.
      *
      * @param atlas  The Vulkan glyph atlas to register with.
      */
@@ -167,9 +177,16 @@ public:
      * GlyphAtlas::Key::typeface, so the atlas's pointer-keyed FreeType face
      * registry hits for END's embedded fonts instead of missing on every glyph.
      *
+     * Two probes against @ref typefaces before falling back to the base class:
+     * the exact {name, style} key first, then {name, "Book"} — "Book" is the
+     * regular weight of both embedded families (Display, DisplayMono), and
+     * juce::Font requests style "Regular" by default, which none of the six
+     * embedded faces carry.
+     *
      * @param font The font whose typeface is being resolved.
      * @return The registered Ptr when @p font names one of the six embedded
-     *         fonts; otherwise the base class result.
+     *         fonts (exact style or the family's Book weight); otherwise the
+     *         base class result.
      */
     juce::Typeface::Ptr getTypefaceForFont (const juce::Font& font) override;
 
@@ -212,7 +229,13 @@ private:
     //==============================================================================
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
      *  via juce::Font name lookup without requiring system-installed fonts.
+     *
+     *  Keyed by the {name, style} composite built by typefaceKey(), NOT by name
+     *  alone — the two embedded families each register three weights sharing
+     *  one juce::Typeface name; a name-only key collides across weights (see
+     *  registerTypeface()'s doc comment).
      *  @see registerTypeface
+     *  @see typefaceKey
      */
     jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
 
@@ -243,6 +266,21 @@ private:
      */
     jam::Function::Map<juce::Identifier, void> events;
 
+    /**
+     * @brief Builds the composite key @ref typefaces is keyed by: name and
+     *        style joined by "/".
+     *
+     * Both registerTypeface() (EventRegistration.cpp) and getTypefaceForFont()
+     * use this single definition so the key building never drifts between
+     * insertion and lookup. See @ref typefaces and registerTypeface() for why
+     * a name-only key is unsafe.
+     *
+     * @param name  juce::Typeface::getName() / juce::Font::getTypefaceName().
+     * @param style juce::Typeface::getStyle() / juce::Font::getTypefaceStyle().
+     * @return The composite key, e.g. "Display/Book".
+     */
+    static juce::String typefaceKey (const juce::String& name, const juce::String& style);
+
     //==============================================================================
     /**
      * @brief Reads graphics.font_rasterizer/font_gamma/font_contrast from
@@ -271,6 +309,19 @@ private:
      * without an actual change. Defined in EventRegistration.cpp.
      */
     void applyFontRasterization();
+
+    /**
+     * @brief Reads code.embolden from config.lua and calls the Vulkan glyph
+     *        atlas's setEmbolden() (PLAN-terminal-editor.md Step 2.5 —
+     *        `FT_Outline_Embolden` restoration at the FreeType rasterize site).
+     *
+     * Reaches the atlas via jam::vulkan::Registry::getInstance(), same
+     * precedent as applyFontRasterization() (font events live with the font
+     * owner). Called once from registerTypeface()'s tail — the same place
+     * applyFontRasterization() runs — and again by the embolden event handler
+     * on config hot-reload. Defined in EventRegistration.cpp.
+     */
+    void applyEmbolden();
 
     /**
      * @brief Reads SVG content from the GRAPHICS child of config.state and
@@ -306,10 +357,13 @@ private:
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
      *                     → applyFontRasterization() (font events live with the
      *                       font owner — relocated from end::View)
+     * - ID::embolden      → applyEmbolden() (PLAN-terminal-editor.md Step 2.5 —
+     *                       same font-owner precedent as fontRasterizer/
+     *                       fontGamma/fontContrast)
      *
      * Glyph-identity config coverage audit — every config value that can alter
      * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/
-     * fontContrast route to applyFontRasterization(). tab.font_family/font_size/
+     * fontContrast/embolden route to the atlas. tab.font_family/font_size/
      * kerning_factor and jam::overlay's font_family/font_size do NOT need a
      * dedicated handler: jam::GlyphAtlas::Key (jam_GlyphAtlas.h) identifies a
      * cached glyph by {typeface pointer, glyphIndex, fontSize} — a new family

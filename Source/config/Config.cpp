@@ -18,20 +18,14 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
     juce::ignoreUnused (errors);
 
     const juce::File dir { file::Shaders::getPath (path.toString()) };
+    int format { jam::vulkan::ShaderFormat::shadertoy };
 
-    for (int i = state.getNumProperties() - 1; i >= 0; --i)
-        state.removeProperty (state.getPropertyName (i), nullptr);
+    for (auto& [key, ext] : jam::vulkan::ShaderFormat::getExtension())
+        if (not dir.findChildFiles (juce::File::findFiles, false, ext).isEmpty())
+            format = key;
 
-    if (dir.isDirectory())
-    {
-        static constexpr auto allFilesWildcard { "*" };
-
-        for (const auto& shaderFile : dir.findChildFiles (juce::File::findFiles, false, allFilesWildcard))
-            if (not shaderFile.isHidden())
-                state.setProperty (juce::Identifier (shaderFile.getFileNameWithoutExtension()),
-                                   shaderFile.loadFileAsString(), nullptr);
-    }
-
+    setValuesFrom (jam::vulkan::ShaderFormat::load (format, state.getType(), dir));
+    state.setProperty (ID::shaderFormat, format, nullptr);
     state.sendPropertyChangeMessage (IDtype::graphics);
 }
 
@@ -41,13 +35,20 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
 
 Theme::Theme()
     : Directory (jam::Model::fromLua (
-          IDtype::themes, file::Themes::get(),
-          [] (int key) { return BinaryData::getString (file::Themes::getName (key)); },
+          IDtype::themes,
+          file::Themes::get(),
+          [] (int key)
+          {
+              return BinaryData::getString (file::Themes::getName (key));
+          },
           &config::Model::validators))
 {
-    auto flex { jam::Model::fromFiles (
-        IDtype::flex, file::Flex::get(),
-        [] (int key) { return BinaryData::getString (file::Flex::getName (key)); }) };
+    auto flex { jam::Model::fromFiles (IDtype::flex,
+                                       file::Flex::get(),
+                                       [] (int key)
+                                       {
+                                           return BinaryData::getString (file::Flex::getName (key));
+                                       }) };
 
     state.appendChild (flex, nullptr);
 }
@@ -89,13 +90,24 @@ void Theme::loadFromPath (const juce::var& path, juce::String& errors)
 
     if (dir.isDirectory())
     {
-        auto disk { jam::Model::fromLua (IDtype::themes, file::Themes::get(),
-            [dir] (int key) { return dir.getChildFile (file::Themes::getName (key)).loadFileAsString(); },
-            &config::Model::validators, &errors) };
+        auto disk { jam::Model::fromLua (
+            IDtype::themes,
+            file::Themes::get(),
+            [dir] (int key)
+            {
+                return dir.getChildFile (file::Themes::getName (key)).loadFileAsString();
+            },
+            &config::Model::validators,
+            &errors) };
 
         const juce::File flexDir { dir.getChildFile (IDref::flex) };
-        auto flexDisk { jam::Model::fromFiles (IDtype::flex, file::Flex::get(),
-            [flexDir] (int key) { return flexDir.getChildFile (file::Flex::getName (key)).loadFileAsString(); }) };
+        auto flexDisk { jam::Model::fromFiles (
+            IDtype::flex,
+            file::Flex::get(),
+            [flexDir] (int key)
+            {
+                return flexDir.getChildFile (file::Flex::getName (key)).loadFileAsString();
+            }) };
 
         disk.appendChild (flexDisk, nullptr);
 
@@ -111,8 +123,12 @@ void Theme::loadFromPath (const juce::var& path, juce::String& errors)
 
 Model::Model()
     : jam::Model (jam::Model::fromLua (
-          IDtype::config, file::Config::get(),
-          [] (int key) { return BinaryData::getString (file::Config::getName (key)); },
+          IDtype::config,
+          file::Config::get(),
+          [] (int key)
+          {
+              return BinaryData::getString (file::Config::getName (key));
+          },
           &validators))
 {
     // theme, background, and postProcessing members are now constructed — attach their subtrees.
@@ -131,7 +147,8 @@ Model::Model()
 
 void Model::registerParameters()
 {
-    jam::Model::applyFunctionRecursively (state,
+    jam::Model::applyFunctionRecursively (
+        state,
         [this] (const juce::ValueTree& tree)
         {
             const auto tag { tree.getType() };
@@ -141,8 +158,10 @@ void Model::registerParameters()
                 const auto& tagValidators { validators.at (tag) };
                 auto target { tree };
 
-                jam::Model::forEachProperty (tree,
-                    [this, &tagValidators, &target] (const juce::Identifier& id, const juce::var& value)
+                jam::Model::forEachProperty (
+                    tree,
+                    [this, &tagValidators, &target] (
+                        const juce::Identifier& id, const juce::var& value)
                     {
                         if (tagValidators.contains (id) and tagValidators.at (id).create)
                             tagValidators.at (id).create (*this, target, id, value);
@@ -156,24 +175,29 @@ void Model::registerParameters()
     // Register each as ParameterText with glslBufferSize. The two-level key
     // (treeType, propertyId) prevents collision between (BACKGROUND, Image) and
     // (POST_PROCESSING, Image).
-    jam::Model::forEachProperty (background.state,
+    jam::Model::forEachProperty (
+        background.state,
         [this] (const juce::Identifier& id, const juce::var& value)
         {
             if (value.isString())
-                createAndAddParameter<jam::ParameterText> (background.state, id, value.toString(), glslBufferSize);
+                createAndAddParameter<jam::ParameterText> (
+                    background.state, id, value.toString(), glslBufferSize);
         });
 
-    jam::Model::forEachProperty (postProcessing.state,
+    jam::Model::forEachProperty (
+        postProcessing.state,
         [this] (const juce::Identifier& id, const juce::var& value)
         {
             if (value.isString())
-                createAndAddParameter<jam::ParameterText> (postProcessing.state, id, value.toString(), glslBufferSize);
+                createAndAddParameter<jam::ParameterText> (
+                    postProcessing.state, id, value.toString(), glslBufferSize);
         });
 }
 
 void Model::saveToPath()
 {
-    jam::File::getOrCreateDirectory (file::Config::path.getParentDirectory(), file::Config::path.getFileName());
+    jam::File::getOrCreateDirectory (
+        file::Config::path.getParentDirectory(), file::Config::path.getFileName());
 
     for (auto& [key, value] : file::Config::get())
     {
@@ -196,9 +220,15 @@ void Model::loadFromPath()
 {
     juce::String errors;
 
-    auto disk { jam::Model::fromLua (IDtype::config, file::Config::get(),
-        [] (int key) { return file::Config::getPath (file::Config::getName (key)).loadFileAsString(); },
-        &validators, &errors) };
+    auto disk { jam::Model::fromLua (
+        IDtype::config,
+        file::Config::get(),
+        [] (int key)
+        {
+            return file::Config::getPath (file::Config::getName (key)).loadFileAsString();
+        },
+        &validators,
+        &errors) };
 
     // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
     // notifications and consumers must read fresh source at that point.
@@ -211,7 +241,9 @@ void Model::loadFromPath()
 
     setValuesFrom (disk);
 
-    const juce::String message { errors.isEmpty() ? getValue (IDtype::display, ID::successMessage).toString() : errors };
+    const juce::String message { errors.isEmpty()
+                                     ? getValue (IDtype::display, ID::successMessage).toString()
+                                     : errors };
     appModel.setMessage (message);
 }
 
@@ -224,7 +256,8 @@ void Model::startWatcher()
 
 void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
-    if (event == jam::File::Watcher::Event::fileUpdated and file.hasFileExtension (file::Config::extension))
+    if (event == jam::File::Watcher::Event::fileUpdated
+        and file.hasFileExtension (file::Config::extension))
         loadFromPath();
 }
 
