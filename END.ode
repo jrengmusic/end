@@ -1,7 +1,7 @@
 
 **********************************************************
 
-Log started: 4 Jul 2026 5:41:22pm
+Log started: 4 Jul 2026 6:57:38pm
 
 jam::vulkan::ShaderCompiler: Image -- Image:164: error: 'tex2Daa' : no matching overloaded function found
 Image:164: error: 'rgb' : vector swizzle selection out of range

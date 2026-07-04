@@ -85,6 +85,20 @@ today's Vulkan winners underneath. jam_vulkan IS the font domain (both engines).
 - Blank-first-window defect investigated/fixed in the same round.
 - Collision care: edits confined to jam_vulkan/font/ + jam_gui + jam_graphics
   stub removal + END; jam_vulkan/context|registry|resource|shaders untouched.
+- Codepoint follow-through (this session): emoji/CJK/PUA fallback resolution
+  restored (old shapeCodepoint order verbatim: run-cmap → emoji font → per-
+  codepoint system fallback, cached); grapheme-cluster hb shaping via emoji
+  hbFont from on-disk bytes; native-backend colour routing to EdgeTable (both
+  platforms); ImageLayer transform-scale + ink-trim (strike-padding removal,
+  old CTFontGetBoundingRectsForGlyphs semantics).
+- **Emoji cell-fit — ARCHITECT-commanded deferral (2026-07-04):** ratified
+  target is cell-fit (span-aware: double-width vs narrow boxes), mechanism is
+  the GlyphAtlas::Key extension (codepoint + cell dims threaded through LLGC
+  appendGlyphQuadIfRasterized — jam_GlyphConstraint.h:19-29's documented
+  "required extension"). BLOCKED until the VulkanEngine/BindlessTexture jam
+  sprint lands (GlyphAtlas ownership/lifecycle WIP). Same extension then also
+  wires PUA GlyphConstraint scaling. Until then emoji renders natural-size,
+  baseline-seated, ink-trimmed.
 
 ### Step 2 — JAM: CodeView rewrite (delete-first)
 `jam_gui/code_view/` — old implementation deleted first (Refactor-Rewrite

@@ -128,14 +128,19 @@ juce::Font LookAndFeel::getTabFont() const
     const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
 
     auto font { juce::Font { juce::FontOptions()
-                            .withName (fontFamily)
-                            .withPointHeight (fontSize)
-                            .withKerningFactor (kerning) } };
+                                 .withName (fontFamily)
+                                 .withPointHeight (fontSize)
+                                 .withKerningFactor (kerning) } };
 
     return font;
 }
 
 int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+
+int LookAndFeel::getPaneResizerBarSize() const noexcept
+{
+    return config.getValue (IDtype::pane, ID::resizeBarThickness);
+}
 
 juce::String LookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
 {

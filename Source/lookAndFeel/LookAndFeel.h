@@ -223,6 +223,12 @@ public:
      */
     void drawResizerBar (juce::Graphics& g, juce::Component& bar) override;
 
+    /** @brief Pane resizer bar thickness in pixels from pane config.
+     *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
+     *  Panes to size jam::PaneManager's resizer bars.
+     */
+    int getPaneResizerBarSize() const noexcept;
+
 private:
     // /** @brief Singleton config model reference — source for theme path and top-level config values. */
     config::Model& config { *config::Model::getInstance() };
