@@ -1,19 +1,25 @@
 /**
  * @file ModelTests.cpp
- * @brief `terminal::Model` P12 scripted-stub validation (RFC-terminal-editor.md
- *        S7.4 validation gate, PLAN-terminal-editor.md Step 5).
+ * @brief `terminal::Model` scripted-stub validation.
  *
- * Exercises `terminal::Model` (Source/terminal/Model.h, header-only — END's own P12
- * SSOT state machine, distinct from `jam::terminal::Model` which TestTerm.h's
- * fixture uses for plain VT mode state) directly, with no TTY, no Processor,
- * no Video — the "scripted Processor stub" the S7.4 gate calls for is the
+ * Exercises `terminal::Model` (Source/terminal/Model.h, header-only —
+ * `jam::terminal::Model` subclass, INHERITING every VT-state-machine group
+ * (SESSION/MODES/NORMAL/ALTERNATE/TEXT — `jam_terminal/model/jam_Model.h`)
+ * and extending SESSION/TEXT with app/TTY-domain properties that have no
+ * VT-machine meaning) directly, with no TTY, no Processor, no Video — the
+ * "scripted Processor stub" this validation calls for is the
  * `StubListener` below, which mimics `terminal::Processor`'s
  * `jam::Model::Listener` shape (Processor.h) without the reader-thread wake.
  *
  * @par Coverage
  * - Schema shape: SESSION/MODES/NORMAL/ALTERNATE/TEXT children in that order
- *   under a TERMINAL root, every group's declared parameter set present with
- *   no extras, Direction B parameters living directly on the root.
+ *   under a TERMINAL root (SESSION/MODES/NORMAL/ALTERNATE/TEXT nodes created
+ *   by the inherited `jam::terminal::Model` base constructor; SESSION/TEXT
+ *   then extended in place by `terminal::Model::registerParameters()` —
+ *   `juce::Identifier` equality is by interned string content, so
+ *   `getOrCreateChildWithName()` finds the SAME node the base created),
+ *   every group's declared parameter set present with no extras, Direction B
+ *   parameters living directly on the root.
  * - Direction A (reader -> message): `getParameter<jam::Parameter<int>>()->
  *   setValue()` is the real reader-thread write path — atomic store + dirty
  *   mark (`ParameterAdapter::flushToTree()` is CAS-gated on `needsUpdate`,
@@ -42,8 +48,7 @@ namespace
 {
 /** @brief Stub `jam::Model::Listener` mimicking `terminal::Processor`'s shape
  *  (Processor.h) — captures the last `parameterChanged()` call for assertion
- *  instead of nudging a TTY poll wake fd (RFC-terminal-editor.md P12
- *  Direction B wake seam). */
+ *  instead of nudging a TTY poll wake fd (the Direction B wake seam). */
 struct StubListener : public jam::Model::Listener
 {
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override
@@ -71,7 +76,7 @@ void requireExactProperties (const juce::ValueTree& tree,
 } // namespace
 
 // ============================================================================
-// Schema shape (RFC-terminal-editor.md P12, PLAN-terminal-editor.md Step 5)
+// Schema shape
 // ============================================================================
 
 TEST_CASE ("terminal::Model registers SESSION/MODES/NORMAL/ALTERNATE/TEXT under a TERMINAL root, in that order", "[model][schema]")
@@ -88,7 +93,7 @@ TEST_CASE ("terminal::Model registers SESSION/MODES/NORMAL/ALTERNATE/TEXT under 
     REQUIRE (state.getChild (4).getType() == jam::IDtype::text);
 }
 
-TEST_CASE ("SESSION carries exactly its 7 declared P12 parameters, no extras", "[model][schema]")
+TEST_CASE ("SESSION carries exactly its 7 declared parameters, no extras", "[model][schema]")
 {
     terminal::Model model;
     auto session { model.state.getChildWithName (IDtype::session) };
@@ -105,26 +110,39 @@ TEST_CASE ("SESSION carries exactly its 7 declared P12 parameters, no extras", "
         });
 }
 
-TEST_CASE ("MODES carries exactly its 9 declared P12 parameters, no extras", "[model][schema]")
+TEST_CASE ("MODES carries exactly its 13 declared parameters (full DecMode bimap + insertMode), no extras", "[model][schema]")
 {
+    // Prior to jam::terminal::Model owning the full VT-state-machine
+    // parameter set, this END-local MODES node hand-duplicated a 9-entry
+    // subset of the DecMode bimap — a latent mismatch with
+    // jam::terminal::Video's ctor, which has always resolved all 12 bimap
+    // entries + insertMode (13) into its modeParameters hot tier
+    // (jam_CursorState.cpp). terminal::Model now INHERITS
+    // jam::terminal::Model::registerModes() (jam_Model.cpp) instead of
+    // re-declaring a partial list, so this node carries the same complete
+    // 13-parameter vocabulary Video actually requires.
     terminal::Model model;
     auto modes { model.state.getChildWithName (jam::IDtype::modes) };
 
     requireExactProperties (modes,
         {
             jam::ID::applicationCursor,
+            jam::ID::reverseVideo,
+            jam::ID::autoWrap,
             jam::ID::applicationKeypad,
-            jam::ID::bracketedPaste,
             jam::ID::mouseTracking,
             jam::ID::mouseMotionTracking,
             jam::ID::mouseAllTracking,
-            jam::ID::mouseSgr,
             jam::ID::focusEvents,
+            jam::ID::mouseSgr,
+            jam::ID::bracketedPaste,
             jam::ID::win32InputMode,
+            jam::ID::graphemeClustering,
+            jam::ID::insertMode,
         });
 }
 
-TEST_CASE ("NORMAL screen carries exactly its 5 declared P12 SCREEN parameters, no extras", "[model][schema]")
+TEST_CASE ("NORMAL screen carries exactly its 5 declared SCREEN parameters, no extras", "[model][schema]")
 {
     terminal::Model model;
     auto normal { model.state.getChildWithName (jam::IDtype::normal) };
@@ -139,7 +157,7 @@ TEST_CASE ("NORMAL screen carries exactly its 5 declared P12 SCREEN parameters, 
         });
 }
 
-TEST_CASE ("ALTERNATE screen carries exactly its 5 declared P12 SCREEN parameters, no extras", "[model][schema]")
+TEST_CASE ("ALTERNATE screen carries exactly its 5 declared SCREEN parameters, no extras", "[model][schema]")
 {
     terminal::Model model;
     auto alternate { model.state.getChildWithName (IDtype::alternate) };
@@ -154,7 +172,7 @@ TEST_CASE ("ALTERNATE screen carries exactly its 5 declared P12 SCREEN parameter
         });
 }
 
-TEST_CASE ("TEXT carries exactly its 3 declared P12 parameters, no extras", "[model][schema]")
+TEST_CASE ("TEXT carries exactly its 3 declared parameters, no extras", "[model][schema]")
 {
     terminal::Model model;
     auto text { model.state.getChildWithName (jam::IDtype::text) };
@@ -192,7 +210,7 @@ TEST_CASE ("Direction A: setValue() on a SESSION parameter reaches the ValueTree
     REQUIRE (gridSize != nullptr);
 
     // setValue() is the real Direction A write path (test thread stands in
-    // for the reader thread — RFC-terminal-editor.md P12 Direction A):
+    // for the reader thread):
     // Parameter<int>::setValue() (jam_ParameterBase.h) stores the atomic AND
     // calls sendValueChangedMessageToListeners(), which reaches
     // ParameterAdapter::parameterValueChanged() and sets needsUpdate = true

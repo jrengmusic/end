@@ -17,9 +17,10 @@ void Application::shutdown()
     // runs strictly before window's own automatic (member-declaration-order)
     // destruction deletes the peer, so peer->getNativeHandle() (read inside
     // removePeer()) is still valid here. Releases this window's Graphics —
-    // and, through its destructor, this window's slot in every shared
-    // glyph-atlas bindless slot book (jam::vulkan::VulkanEngine::removePeer()'s
-    // doc comment) — before the peer itself goes away.
+    // and, through its destructor's BindlessInstance member, this window's
+    // registered slot assignment in every shared glyph-atlas texture's
+    // registry (jam::vulkan::VulkanEngine::removePeer()'s doc comment) —
+    // before the peer itself goes away.
     if (auto* peer { window->getPeer() })
         vulkanEngine->removePeer (peer);
 }

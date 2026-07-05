@@ -13,6 +13,14 @@ View::View (jam::Model& m)
     addKeyListener (this);
     setWantsKeyboardFocus (true);
     toFront (true);
+
+    // Deep mouse listener (wantsEventsForAllNestedChildComponents = true) —
+    // background sits beneath every other child, so a topmost pane normally
+    // consumes its own mouse events before they ever reach background's own
+    // mouseDown()/mouseDrag() overrides; this additionally observes the SAME
+    // event stream, forwarded (never stolen) to background's orbit camera —
+    // see mouseDown()/mouseDrag()'s own doc comments.
+    addMouseListener (this, true);
     registerActions();
     registerEvents();
     createAndAttachParameters();
@@ -30,6 +38,7 @@ View::View (jam::Model& m)
             events.get (ID::gpu, config.state);
             events.get (ID::alwaysOnTop, config.state);
             events.get (ID::titleBarButtons, config.state);
+            events.get (jam::ID::enabled, config.state);
 
             tabs.addNewTab();
             grabKeyboardFocus();
@@ -58,6 +67,44 @@ void View::resized()
 bool View::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
     return registry.keyPressed (key);
+}
+
+void View::mouseDown (const juce::MouseEvent& e)
+{
+    lastOrbitDragPosition = e.position;
+
+    if (mouseEnabled and jam::map::MouseButton::isDown (e.mods, resetButtonConfig))
+        resetButtonDragged = false;
+}
+
+void View::mouseDrag (const juce::MouseEvent& e)
+{
+    if (mouseEnabled)
+    {
+        if (background.hasMesh() and jam::map::MouseButton::isDown (e.mods, orbitButtonConfig))
+            background.addOrbitDelta (e.position.x - lastOrbitDragPosition.x, e.position.y - lastOrbitDragPosition.y);
+
+        // Tracked independently of the orbit branch above — orbit and reset
+        // may be configured to different buttons (RATIFIED SCHEMA), so a
+        // drag of the reset button alone (not the orbit button) must still
+        // disqualify mouseUp()'s own click-reset below.
+        if (jam::map::MouseButton::isDown (e.mods, resetButtonConfig))
+            resetButtonDragged = true;
+    }
+
+    lastOrbitDragPosition = e.position;
+}
+
+void View::mouseUp (const juce::MouseEvent& e)
+{
+    if (mouseEnabled and background.hasMesh() and jam::map::MouseButton::isDown (e.mods, resetButtonConfig) and not resetButtonDragged)
+        background.resetCamera();
+}
+
+void View::mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails& details)
+{
+    if (mouseEnabled and background.hasMesh())
+        background.addZoomDelta (details.deltaY);
 }
 
 void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)

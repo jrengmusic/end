@@ -213,7 +213,7 @@ struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
 /**
  * @brief Bimap for the terminal caret geometry — "block", "underline", or "bar".
  *
- * Used by theme.lua cursor.style (PLAN-terminal-editor.md Step 2.5). Integer
+ * Used by theme.lua cursor.style. Integer
  * keys deliberately mirror jam::CaretShape's enumerator order so the
  * looked-up key can be forwarded directly to jam::CodeView::setCaretShape()
  * via a static_cast, without a secondary mapping:
@@ -528,6 +528,7 @@ struct Map
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;
+    jam::map::MouseButton mouseButton;
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

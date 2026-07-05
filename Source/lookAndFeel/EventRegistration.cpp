@@ -19,8 +19,8 @@ void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
         typefaces.addOrReplace (key, ptr);
         atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
 
-        // PLAN-terminal-editor.md Step 2.5 — jam::Typeface (hb_font_t interning
-        // for jam::GlyphArrangement's cmap lookup + tryLigature() shaping) is
+        // jam::Typeface (hb_font_t interning for jam::GlyphArrangement's
+        // cmap lookup + tryLigature() shaping) is
         // registered from the SAME (ptr, data, size) triple, one pass.
         jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
     };
@@ -201,7 +201,7 @@ void LookAndFeel::registerEvents()
                                   });
 
     // code.embolden — same font-owner precedent as fontRasterizer/fontGamma/
-    // fontContrast (PLAN-terminal-editor.md Step 2.5).
+    // fontContrast.
     events.add<juce::ValueTree&> (ID::embolden,
                                   [this] (juce::ValueTree&)
                                   {

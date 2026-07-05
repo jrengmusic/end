@@ -127,6 +127,27 @@ return {
 		-- darkening). FreeType's own autofitter and native font-smoothing already
 		-- bring their own boldening; this stays 0.0 by default.
 		font_contrast = 0.0,
+
+		-- Mouse interaction: the Shadertoy iMouse uniform and, for shaders
+		-- declaring a mesh, camera orbit/reset/zoom. Button values: "left",
+		-- "middle", "right", or "none" (disables that one binding). The same
+		-- button may be assigned to more than one field.
+		mouse = {
+			-- Master switch. false disables iMouse (always reads zero) and
+			-- every camera interaction below (orbit/reset/zoom), regardless
+			-- of the individual button choices.
+			enabled = true,
+			-- Button that feeds the Shadertoy iMouse uniform.
+			imouse = "left",
+			-- Drag this button to orbit the camera (mesh-declaring shaders only).
+			orbit = "middle",
+			-- Click (press+release, no drag) this button to reset the camera
+			-- to its defaults.
+			reset = "middle",
+			-- Camera zoom is always driven by the mouse wheel — fixed, not a
+			-- configurable button choice. Documented here for completeness only.
+			zoom = "wheel",
+		},
 	},
 
 	-- ==========================================================================

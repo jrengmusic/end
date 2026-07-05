@@ -1,19 +1,19 @@
 /**
  * @file LookupTableTests.cpp
- * @brief `jam::LookupTable` canon contract + Step-8c conversion coverage.
+ * @brief `jam::LookupTable` canon contract + conversion coverage.
  *
- * Coverage: PLAN-vt-correctness.md Step 8c (canon SSOT LUT pattern). Two
+ * Coverage: the canon SSOT LUT pattern. Two
  * layers:
  *   1. `jam::LookupTable` itself — fallback/in-range/out-of-range contract,
  *      exercised directly (jam_core, not jam_terminal-specific).
  *   2. LUT-vs-previous-switch behavior identity for every jam_terminal
- *      conversion this step landed: SGR attribute set/clear (incl. the
- *      22/23/24 clear codes), OSC 133 subcmd -> `jam::CodeLine::Mark`,
+ *      conversion covered: SGR attribute set/clear (incl. the
+ *      22/23/24 clear codes), OSC 133 subcmd -> `jam::TextLine::Mark`,
  *      UTF-8 lead-byte length classes (2/3/4-byte + invalid-lead-byte
  *      safety), and the Sixel VT340 default palette's first/last slots
  *      (0, 15, 255).
  *
- * @par Step 8d — four-family DispatchTable normalization (CSI/ESC/OSC/C0)
+ * @par Four-family DispatchTable normalization (CSI/ESC/OSC/C0)
  * Dispatch-equivalence spot checks below cover the composite-key CSI
  * disambiguation rows (DECRQM, DECSCUSR-vs-DECRQSS, primary-vs-secondary
  * DA), the ESC no-intermediate action LUT (RI, DECSC/DECRC), the OSC
@@ -225,7 +225,7 @@ TEST_CASE ("CSI 38:2:R:G:B m (colon sub-separator RGB form) sets the foreground 
 }
 
 // ============================================================================
-// OSC 133 subcmd -> jam::CodeLine::Mark — canon LookupTable (jam_VideoOSCExt.cpp)
+// OSC 133 subcmd -> jam::TextLine::Mark — canon LookupTable (jam_VideoOSCExt.cpp)
 // ============================================================================
 
 TEST_CASE ("OSC 133 A/B/C map through the LookupTable to prompt/input/output", "[video][osc133][lookuptable]")
@@ -233,13 +233,13 @@ TEST_CASE ("OSC 133 A/B/C map through the LookupTable to prompt/input/output", "
     Test::Term t { 20, 4 };
 
     t.feed ("\x1b]133;A\x07");
-    REQUIRE (t.line (0).mark() == jam::CodeLine::Mark::prompt);
+    REQUIRE (t.line (0).mark() == jam::TextLine::Mark::prompt);
 
     t.feed ("\x1b]133;B\x07");
-    REQUIRE (t.line (0).mark() == jam::CodeLine::Mark::input);
+    REQUIRE (t.line (0).mark() == jam::TextLine::Mark::input);
 
     t.feed ("\x1b]133;C\x07");
-    REQUIRE (t.line (0).mark() == jam::CodeLine::Mark::output);
+    REQUIRE (t.line (0).mark() == jam::TextLine::Mark::output);
 }
 
 // ============================================================================
@@ -327,7 +327,7 @@ TEST_CASE ("Sixel default palette register 255 (last slot, fallback row) decodes
 }
 
 // ============================================================================
-// CSI composite-key dispatch — canon DispatchTable (jam_VideoCSI.cpp, Step 8d)
+// CSI composite-key dispatch — canon DispatchTable (jam_VideoCSI.cpp)
 // ============================================================================
 
 TEST_CASE ("DECRQM (CSI ? Pd $ p) reports the queried mode's state via the composite-key CSI dispatch", "[video][csi][lookuptable][step8d]")
@@ -388,7 +388,7 @@ TEST_CASE ("Primary DA (CSI c) and secondary DA (CSI > c) resolve to distinct co
 }
 
 // ============================================================================
-// ESC no-intermediate action LUT (jam_VideoESC.cpp, Step 8d)
+// ESC no-intermediate action LUT (jam_VideoESC.cpp)
 // ============================================================================
 
 TEST_CASE ("ESC M (RI) scrolls the region down through the ESC action LUT when the cursor is at the scroll-region top", "[video][esc][lookuptable][step8d]")
@@ -417,7 +417,7 @@ TEST_CASE ("ESC 7 / ESC 8 (DECSC/DECRC) save and restore cursor position through
 }
 
 // ============================================================================
-// OSC command-number action LUT (jam_VideoOSC.cpp, Step 8d)
+// OSC command-number action LUT (jam_VideoOSC.cpp)
 // ============================================================================
 
 TEST_CASE ("OSC 0 fires the title event with the raw payload bytes through the OSC action LUT", "[video][osc][lookuptable][step8d]")
@@ -439,7 +439,7 @@ TEST_CASE ("OSC 8 opens a hyperlink through the OSC action LUT's hyperlink row (
 }
 
 // ============================================================================
-// C0 action LUT (jam_CursorState.cpp, Step 8d)
+// C0 action LUT (jam_CursorState.cpp)
 // ============================================================================
 
 TEST_CASE ("C0 HT (0x09) advances the cursor to the next tab stop through the C0 action LUT", "[video][c0][lookuptable][step8d]")
@@ -473,7 +473,7 @@ TEST_CASE ("C0 BEL (0x07) fires the bell action without moving the cursor or wri
 
 // ============================================================================
 // modeFlag() hot-tier remedy — cached Parameter<int>* read-after-DECSET
-// (jam_CursorState.h/.cpp `modeParameters`, Step 8d)
+// (jam_CursorState.h/.cpp `modeParameters`)
 // ============================================================================
 
 TEST_CASE ("modeFlag() reads the cached Parameter<int>* correctly after DECRST 2027 disables grapheme clustering", "[video][mode][lookuptable][step8d]")

@@ -106,9 +106,9 @@ configure_app(
         jam_graphics
         jam_gui
         jam_look_and_feel
-        jam_javascript
         jam_lua
         jam_markdown
+        jam_mermaid
         jam_animation
         jam_debug
         jam_terminal

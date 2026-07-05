@@ -70,6 +70,93 @@ public:
      */
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
 
+    /** @brief Config-driven button routing for this deep mouse listener —
+     *  resolved once per graphics.mouse config change by applyMouseConfig()
+     *  into @c mouseEnabled/@c orbitButtonConfig/@c resetButtonConfig below
+     *  (cached members, not re-read here — same "resolved value cached on
+     *  the consumer" contract as end::LookAndFeel's own glyph-rasterization
+     *  members, LookAndFeel.h). @c mouseEnabled false disables every branch
+     *  below regardless of button. Otherwise: @c orbitButtonConfig held
+     *  drives @c background's orbit camera (mouseDrag()'s own doc comment);
+     *  @c resetButtonConfig released with no intervening drag of that SAME
+     *  button resets it (mouseUp()'s own doc comment) — the two configured
+     *  buttons may be the same (click-vs-drag disambiguation below) or
+     *  different (independent gestures, no cross-interference); wheel always
+     *  drives zoom (mouseWheelMove()'s own doc comment) — fixed, never
+     *  button-configurable. iMouse routing is entirely jam::vulkan::
+     *  ShaderComponent's own concern (setMouseConfig(), applyMouseConfig()'s
+     *  own doc comment), never this deep listener's.
+     *
+     *  Captures @p e's own position as the starting point for the next
+     *  mouseDrag() delta below, and — on a @c resetButtonConfig down —
+     *  clears @c resetButtonDragged so mouseUp() can tell a click from a
+     *  drag of that button. Registered as a DEEP mouse listener over the
+     *  whole View subtree (addMouseListener (this, true), View::View()) —
+     *  jam::vulkan::ShaderComponent (@c background) sits beneath every other
+     *  child, so a topmost pane/component normally consumes its own mouse
+     *  events first, and background's own mouseDown()/mouseDrag() overrides
+     *  never fire; this deep listener additionally observes the SAME event
+     *  stream (forwarded, not stolen — the topmost component still handles
+     *  its own click normally) purely to feed background's orbit camera.
+     *  Never disturbs @c lastOrbitDragPosition's own bookkeeping below,
+     *  shared by every button.
+     *  @param e  The mouse-down event, in its originating component's own coordinates.
+     */
+    void mouseDown (const juce::MouseEvent& e) override;
+
+    /** @brief Configured orbit button only, gated on @c mouseEnabled and
+     *  @c background.hasMesh() (the active background shader's own
+     *  Shader::meshPath non-empty — the data-side signal a mesh-backed orbit
+     *  camera exists to feed at all; see mouseDown()'s own doc comment for
+     *  why this deep listener exists): forwards this drag's delta since the
+     *  last mouseDown()/mouseDrag() call to @c background.addOrbitDelta().
+     *  Independently, whenever @c e's own button is @c resetButtonConfig
+     *  (whether or not it is ALSO the orbit button), marks
+     *  @c resetButtonDragged so the matching mouseUp() knows this was a drag
+     *  of the reset button, not a click — tracked separately from the orbit
+     *  branch above since @c orbitButtonConfig and @c resetButtonConfig may
+     *  differ (RATIFIED SCHEMA), and a drag of the reset button alone must
+     *  still disqualify mouseUp()'s own click-reset regardless of whether it
+     *  also orbited.
+     *  @param e  The mouse-drag event, in its originating component's own coordinates.
+     */
+    void mouseDrag (const juce::MouseEvent& e) override;
+
+    /** @brief Configured reset button only: resolves the click-vs-drag
+     *  distinction — when @c resetButtonDragged was never set by mouseDrag()
+     *  above (a click of this button, no intervening drag of the SAME
+     *  button), resets @c background's orbit camera to its own defaults; a
+     *  preceding drag of this same button already orbited the camera via
+     *  mouseDrag() above, so no reset fires on that release. @p e's own mods
+     *  reflects the button state just BEFORE this release (juce::MouseEvent::
+     *  mods's own doc comment, juce_MouseEvent.h: "When used for mouse-up
+     *  events, this will indicate the state of the mouse buttons just before
+     *  they were released, so that you can tell which button they let go
+     *  of."), so jam::map::MouseButton::isDown() here is checking "this
+     *  mouseUp is the configured reset button's own release." Gated on
+     *  @c mouseEnabled and @c background.hasMesh() (same gate as mouseDown()/
+     *  mouseDrag() above).
+     *  @param e  The mouse-up event, in its originating component's own coordinates.
+     */
+    void mouseUp (const juce::MouseEvent& e) override;
+
+    /** @brief Forwards this wheel event's own vertical delta to
+     *  @c background.addZoomDelta(), gated on @c mouseEnabled and
+     *  @c background.hasMesh() (same gate and forwarding reasoning as
+     *  mouseDrag()'s own doc comment) — the SAME deep-listener event stream
+     *  mouseDown()/mouseDrag() already observe (this class's own mouseDown()
+     *  doc comment): the deep juce::MouseListener registration
+     *  (addMouseListener (this, true), View::View()) calls this override for
+     *  wheel events over any nested child, not only over View itself,
+     *  exactly as it already does for mouseDown()/mouseDrag(). Coexists with
+     *  terminal scrollback under the wheel — both fire from the same event,
+     *  accepted double-action. Zoom's own trigger (the wheel) is fixed,
+     *  never button-configurable — only @c mouseEnabled gates it.
+     *  @param e       The mouse-wheel event, in its originating component's own coordinates.
+     *  @param details  The wheel movement's own delta/reversed/smooth/inertial state.
+     */
+    void mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override;
+
     /** @brief Single-key dispatch through the events map.
      *
      *  Checks whether @p property is a key in @c events; if so, dispatches
@@ -149,7 +236,14 @@ private:
      *  postProcessing/gpu/filter route to applyPostProcess() (full); filter
      *  is shared by both slots so its handler calls both full funnels; gpu
      *  likewise. postProcessingOpacity/postProcessingResolution route to the
-     *  cheap applyPostProcessParams(). Defined in EventRegistration.cpp.
+     *  cheap applyPostProcessParams().
+     *
+     *  graphics.mouse.enabled/imouse/orbit/reset all route to
+     *  applyMouseConfig() — no cost split (no recompile involved at all, a
+     *  cache-refresh + one background.setMouseConfig() tell-call; see
+     *  applyMouseConfig()'s own doc comment). graphics.mouse.zoom carries no
+     *  handler here — fixed/documented-only, never read (display.lua's own
+     *  mouse.zoom comment). Defined in EventRegistration.cpp.
      */
     void registerEvents();
 
@@ -194,6 +288,24 @@ private:
      *  EventRegistration.cpp. */
     void applyPostProcessParams();
 
+    /** @brief Gathers graphics.mouse config (enabled/imouse/orbit/reset),
+     *  resolves the three button fields via jam::map::MouseButton::get(),
+     *  caches @c mouseEnabled/@c orbitButtonConfig/@c resetButtonConfig for
+     *  this deep listener's own per-event dispatch (mouseDown()/mouseDrag()/
+     *  mouseUp()/mouseWheelMove() above — read on every mouse event, so
+     *  cached here rather than re-read from config each time, same
+     *  cache-on-config-change contract as end::LookAndFeel's own glyph-
+     *  rasterization members), and tells @c background its own matching
+     *  enabled/imouse/orbit values via @c setMouseConfig() (jam::vulkan::
+     *  ShaderComponent's own iMouse-stamping + local orbit-capture gate — a
+     *  separate call site from this deep listener's own dispatch, both
+     *  reflecting the SAME resolved config). zoom carries no field read here
+     *  — fixed/documented-only. Single gather site (SSOT) for every
+     *  mouse-identity config change — shared by initial load (callAsync
+     *  block, View::View()) and hot-reload. Defined in EventRegistration.cpp.
+     */
+    void applyMouseConfig();
+
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     void setTabOrientation();
 
@@ -228,6 +340,44 @@ private:
      *  the fallback.
      */
     jam::Function::Map<juce::Identifier, void> events;
+
+    /** @brief The last mouseDown()/mouseDrag() event position seen by this
+     *  deep mouse listener — mirrors jam::vulkan::ShaderComponent's own
+     *  lastDragPosition (jam_VulkanShaderComponent.h), tracked separately
+     *  here since this listener observes whichever component actually owns
+     *  the event, never background itself directly (mouseDown()'s own doc
+     *  comment). */
+    juce::Point<float> lastOrbitDragPosition { 0.0f, 0.0f };
+
+    /** @brief Whether a drag of @c resetButtonConfig occurred since the last
+     *  mouseDown() of that SAME button — cleared there, set by mouseDrag()
+     *  on any motion of that button, read by mouseUp() to distinguish a
+     *  click of that button (reset the camera) from a drag of it (already
+     *  orbited, no reset). Button-agnostic — mirrors the mechanism this
+     *  class always used, now scoped to whichever button graphics.mouse.reset
+     *  currently names rather than a hardcoded middle button. */
+    bool resetButtonDragged { false };
+
+    /** @brief Cached resolved graphics.mouse config — refreshed by
+     *  applyMouseConfig() on every mouse.* config change (and once at
+     *  startup, View::View()'s own callAsync block), read by mouseDown()/
+     *  mouseDrag()/mouseUp()/mouseWheelMove() above on every mouse event
+     *  (applyMouseConfig()'s own doc comment: cached rather than re-read
+     *  from config per event). @c mouseEnabled false disables every branch
+     *  in those four overrides regardless of button. Defaults match today's
+     *  pre-config behaviour (enabled, orbit/reset both middle) so a build
+     *  that never fires applyMouseConfig() sees unchanged behaviour. */
+    bool mouseEnabled { true };
+
+    /** @brief See @c mouseEnabled's own doc comment. Defaults to
+     *  jam::map::MouseButton::Type::middle, matching this class's own
+     *  pre-config hardcoded convention. */
+    jam::map::MouseButton::Type orbitButtonConfig { jam::map::MouseButton::Type::middle };
+
+    /** @brief See @c mouseEnabled's own doc comment. Defaults to
+     *  jam::map::MouseButton::Type::middle, matching this class's own
+     *  pre-config hardcoded convention. */
+    jam::map::MouseButton::Type resetButtonConfig { jam::map::MouseButton::Type::middle };
 
 //==============================================================================
 #if JUCE_DEBUG

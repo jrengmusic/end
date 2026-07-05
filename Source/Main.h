@@ -25,7 +25,12 @@ public:
 private:
     //==============================================================================
 #if JUCE_DEBUG
-    jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile (
+    /** @brief Diagnostic log sink — canonical location: file::Config::path
+     *  (\~/.config/end/end.ode, jam::Format::toFileName), never the launch
+     *  cwd — the same deterministic path regardless of how the app was
+     *  started (IDE, Finder, terminal), so runtime diagnostics always land
+     *  in one known, readable file. */
+    jam::debug::Log::Scope logScope { file::Config::path.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, ".ode")) };
 #endif
 

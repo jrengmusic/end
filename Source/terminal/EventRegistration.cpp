@@ -37,8 +37,7 @@ void View::applyCursorConfig()
     codeView->setCaretBlinkInterval (config.getValue (jam::IDtype::cursor, ID::blinkInterval));
 
     // PLUMB only — glyph-char caret rendering is flagged, not built (the
-    // emoji/glyph-caret bundle, PLAN-terminal-editor.md Step 2.5). Stored for
-    // Step 6's DECSCUSR gate to consume.
+    // emoji/glyph-caret bundle). Stored for the DECSCUSR gate to consume.
     cursorChar  = config.getValue (jam::IDtype::cursor, ID::cursorChar).toString();
     cursorForce = config.getValue (jam::IDtype::cursor, ID::force);
 }

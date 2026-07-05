@@ -69,7 +69,7 @@ today's Vulkan winners underneath. jam_vulkan IS the font domain (both engines).
   with Glyph" — nobody uses Typeface without the atlas). hb via JUCE's embedded
   harfbuzz include path (old END precedent, de22c5c CMakeLists).
 - `jam_vulkan/font/jam_GlyphArrangement.*`: restored old `glyph::Arrangement`
-  semantics — `shape()` → Entry[], `buildDrawRuns()` → Run[] batched by
+  semantics — `shape()` → Entry[], `arrange()` (né buildDrawRuns, renamed 2026-07-05) → Run[] batched by
   (typeface, isEmoji, colour), cell-arithmetic positions, cmap via own hb_font
   nominal lookup; `tryLigature` verbatim (ASCII/same-style window 3→2, ligature
   iff 1 glyph out, cellWidth-normalized advances, skip=len−1, `setLigatures`

@@ -2,8 +2,8 @@
  * @file SyncOutputTests.cpp
  * @brief V2 conformance — DEC mode 2026 (SYNC_OUTPUT) auto-reset.
  *
- * Coverage: RFC-vt-correctness.md V2 decision (loop-top guard, no timer) +
- * PLAN-vt-correctness.md Step 2. `Video::clearSyncOutputIfExpired()` is
+ * Coverage: the ratified SYNC_OUTPUT auto-reset design (loop-top guard, no
+ * timer). `Video::clearSyncOutputIfExpired()` is
  * public — this suite exercises it directly (no friendship, no member
  * manipulation).
  *
@@ -22,9 +22,8 @@ TEST_CASE ("mode 2026 defaults to reset", "[video][mode2026][v2]")
     // Video::syncOutputActive is deliberately NOT a jam::terminal::map::DecMode
     // bimap entry / jam::terminal::Model MODES parameter (jam_CursorState.h
     // syncOutputActive doc: "kept outside the bimap because that branch also
-    // fires the ID::syncOutput event") — Test::Term::mode() cannot observe
-    // it. Query via DECRQM instead, the surface Video itself exposes for
-    // this mode.
+    // fires the syncOutput event") — Test::Term::mode() cannot observe it.
+    // Query via DECRQM instead, the surface Video itself exposes for this mode.
     Test::Term t { 10, 2 };
     t.feed ("\x1b[?2026$p");
     REQUIRE (t.lastResponse() == "\x1b[?2026;2$y");
@@ -33,8 +32,7 @@ TEST_CASE ("mode 2026 defaults to reset", "[video][mode2026][v2]")
 TEST_CASE ("DECSET 2026 sets sync output; DECRQM reports set", "[video][mode2026][v2]")
 {
     // See WritePathTests.cpp "Mode 2027" section header — the $p/$q
-    // dispatch-routing fix (PLAN-vt-correctness.md Step 8, carried fix a)
-    // applies identically here.
+    // dispatch-routing fix applies identically here.
     Test::Term t { 10, 2 };
     t.feed ("\x1b[?2026h");
 

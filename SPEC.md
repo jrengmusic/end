@@ -408,14 +408,14 @@ Foundation types and rendering:
 The VT engine extracted as a reusable module. Foundation for END and all future JAM TUI applications (TIT, CAKE).
 
 - `parser/` — `Parser` (DFA byte decoder), `DispatchTable` (O(1) state machine), `CSI` (parameter accumulator)
-- `video/` — `Video` (base VT command processor, no app coupling, protected virtual hooks), `CursorState`, `Winsize`
+- `video/` — `Video` (base VT command processor, no app coupling, caller-owned `Events` LookupTable dispatch), `CursorState`, `Winsize`
 - `transport/` — `CellFifo` (two-ring SPSC: history + active)
 - `cell/` — `Palette` (256-slot mutable colour table)
 - `tty/` — `TTY` (abstract base + reader thread), `UnixTTY` (forkpty), `WindowsTTY` (ConPTY, sideloaded, NtCreateNamedPipeFile). Constructor takes config path for conpty extraction dir — no app coupling. Event identifiers (`data`, `drainComplete`, `shellExited`) in `jam::terminal::`.
 - `ui/core/` — `Writer`, `Graphics`, `Screen`, `Component`, `escapes`, `Metrics`, `Input`, `KeyPress` (absorbed from jam_tui)
 - `ui/widgets/` — `Label`, `Menu`, `ListPane`, `SplitPane`, `Dialog`, `Console`, `TextPane`, `Spinner`, `ThemeResolver`, `Braille`, `MarkdownRenderer`, `LookAndFeel` (absorbed from jam_tui)
 
-Video base class exposes protected virtual hooks — END's `terminal::Video` subclass overrides to fire application events. The base carries zero knowledge of ValueTree or END's application namespace.
+Video fires through a caller-owned `jam::terminal::Events` aggregate — enum-keyed (`Events::Id`), signature-grouped `jam::LookupTable`s of trivially-copyable `Slot` trampolines, ctor-bound by reference; consumers register construction-time entries (END's Processor routes them into `terminal::Model`). The base carries zero knowledge of ValueTree or END's application namespace. (Amended 2026-07-05: ARCHITECT overruled the earlier protected-virtual-hooks ruling — manual hook methods are the god-object override surface; composition via LookupTable dispatch keeps Video consumers registered, O(1), compiler-checked per signature group, with an explicit no-op fallback slot.)
 
 ### 3.1 Identifier Architecture — Single Namespace, Module-Owned Definitions
 
@@ -455,7 +455,7 @@ The module header (`jam_terminal.h`) includes `jam_identifier_terminal.h`. The `
 
 In the old END, `terminal::id::` held ~100 identifiers mixing three concerns:
 1. **VT state properties** (activeScreen, cursor, DEC modes, OSC params) → moved to `IDENTIFIER_TERMINAL` in jam_terminal
-2. **Event-map keys** (pushLine, screenDirty, bell, writeToHost, ...) → **eliminated**. Video's event-firing sites become protected virtual hooks on `jam::terminal::Video`. No identifiers needed — method names replace string-keyed dispatch.
+2. **Event-map keys** (pushLine, screenDirty, bell, writeToHost, ...) → **eliminated from the identifier table**. Video's events dispatch through `jam::terminal::Events` — enum keys (`Events::Id`, verbatim old key names) indexing signature-grouped `jam::LookupTable`s. No `juce::Identifier`s needed — enum keys replace string-keyed dispatch. (Amended 2026-07-05 — supersedes the protected-virtual-hooks wording.)
 3. **END-specific state** (DISPLAY node type, hintPage, preview, splitCol, bytesReceived) → stays in END's `AppIdentifier.h`
 
 ---
@@ -493,7 +493,7 @@ Extract END's VT engine into `jam_terminal` module. Foundation for END and all f
 
 **jam_terminal module creation (depends on jam_graphics):**
 - `parser/` — `Parser` (DFA byte decoder), `DispatchTable` (O(1) `(ParserState, byte) → (nextState, ParserAction)` table, immutable after construction), `CSI` (trivially copyable parameter accumulator, `static_assert`). Namespace → `jam::terminal`.
-- `video/` — `Video` base class: VT command processor, owns `jam::Buffer<jam::Row>` (dual channel normal/alternate), pen state, cursor, modes, scroll region, tab stops, grapheme segmentation state. **No app coupling.** Where the old Video fired events via `jam::Function::Map<juce::Identifier, void>`, the base class calls **protected virtual hooks** (e.g. `onLineDeparted`, `onScreenDirty`, `onBell`, `onTitle`, `onCwd`, `onClipboard`, `onRegisterLink`, `onCursorFlush`, `onModeFlush`, etc.). END's `terminal::Video` subclass overrides these to fire into `terminal::Model`. The base carries zero knowledge of ValueTree, `juce::Identifier`, or END's application namespace. Also: `CursorState` (packed int32), `Winsize` (packed int64). RFC-missing-video-dispatch implemented here: full SGR sub-parameter disambiguation via `CSI::isSubSeparator()`, OSC 4/10/11 set/query, DECRQSS (`reportStatusString` via existing `sendResponse` path).
+- `video/` — `Video` base class: VT command processor, owns `jam::Buffer<jam::Row>` (dual channel normal/alternate), pen state, cursor, modes, scroll region, tab stops, grapheme segmentation state. **No app coupling.** Where the old Video fired events via `jam::Function::Map<juce::Identifier, void>` (string-keyed hash + type-erased variadic), Video fires through a ctor-bound, caller-owned `jam::terminal::Events` — `Events::Id` enum keys (verbatim old event-key names: pushLine, screenDirty, bell, writeToHost, ...) indexing **signature-grouped `jam::LookupTable`s** of trivially-copyable `Slot` trampolines (fn-pointer + context), explicit no-op fallback slot, construction-time registration. END's Processor registers entries routing into `terminal::Model`. The base carries zero knowledge of ValueTree, `juce::Identifier`, or END's application namespace. (Amended 2026-07-05 — supersedes protected-virtual-hooks wording; ARCHITECT ruling: manual hook methods are the wrong design, composition retained, hot path solved by LookupTable.) Also: `CursorState` (packed int32), `Winsize` (packed int64). RFC-missing-video-dispatch implemented here: full SGR sub-parameter disambiguation via `CSI::isSubSeparator()`, OSC 4/10/11 set/query, DECRQSS (`reportStatusString` via existing `sendResponse` path).
 - `transport/` — `CellFifo` (two independent `jam::BufferSPSC` rings: history + active. Producer-side drop-oldest. Seqlock per slot. `pushHistory`/`pushActive` on reader, `drainHistory`/`drainActive` on message).
 - `cell/` — `Palette` (256-slot `std::array<juce::Colour, 256>`, seeded from ANSI_16 + cube + gray formulas, mutable via `setPaletteColour` for OSC 4).
 - `tty/` — `TTY` abstract base (owns reader thread, `jam::Function::Map` event dispatch: `jam::ID::data`, `jam::ID::drainComplete`, `jam::ID::shellExited`). `UnixTTY` (forkpty, macOS/Linux). `WindowsTTY` (ConPTY via sideloaded `conpty.dll` + `OpenConsole.exe` from BinaryData, `NtCreateNamedPipeFile` full-duplex pipe, overlapped I/O, `PSEUDOCONSOLE_WIN32_INPUT_MODE`). Constructor takes config path for conpty extraction dir — no app coupling.
@@ -600,7 +600,7 @@ end::Model (root)                         config::Model (root)
 The full terminal rendering pipeline end-to-end, Vulkan rendering as first-class architecture, and content preservation across resize.
 
 **Completed scope:**
-- `terminal::Video` — override virtual hooks, fire events into `terminal::Model`. Full SGR (underline styles/color, overline, super/subscript), OSC 4/10/11, DECRQSS.
+- `terminal::Video` — Processor registers `jam::terminal::Events` entries routing into `terminal::Model` (amended 2026-07-05, see §3.1). Full SGR (underline styles/color, overline, super/subscript), OSC 4/10/11, DECRQSS.
 - `terminal::Processor` — owns Parser, Video, CellFifo, TTY (from jam_terminal). References Model. Reader thread pipeline. `prepare()` resize. `suspendProcessing()`.
 - `terminal::Session` — owns Processor (unique_ptr), Model, CodeModel, CodeView, Resizer. Factory methods. `start()` deferred init. `drain()` facade (pulls CellFifo into CodeModel).
 - `terminal::View` — parents CodeView, listens on Model, calls `Session::drain()` on screenDirty, resize path.
@@ -662,7 +662,7 @@ The full terminal rendering pipeline end-to-end, Vulkan rendering as first-class
 - Sources: files, scrollback, history, actions
 - Match highlighting, preview pane, status bar
 
-### Phase 14 — Advanced Shader Pipeline 🔄 IN FINAL TESTING
+### Phase 14 — Advanced Shader Pipeline ✅
 
 User-configurable multi-format shader pipeline (background + post-process) with advanced resource loading.
 
@@ -672,10 +672,10 @@ User-configurable multi-format shader pipeline (background + post-process) with 
 - **Background + post-process pipeline** — background renders before JUCE composition; post-process captures composited scene via FBO, applies shader, composites result
 - **Hot-reload** — shader source files watched, recompilation on change with error reporting
 - **Vulkan SPIR-V compilation** — `shaderc` (vendored) compiles GLSL/SPIRV sources; pipeline cache persisted, driver/OS updates silently invalidate
-- **Resource loader (WIP)** 🔄 — extra resources (OBJ geometry, PNG/JPG images, custom data files) loadable within shaders
-  - OBJ loader — triangulated meshes with vertex pulling
-  - Image sampler binding — external textures in bindless set
-  - Per-pass resource lifecycle
+- **Resource loader** ✅ — extra resources (OBJ geometry, external image LUTs) loadable within shaders via a per-project `.slangp` resource manifest (`textures=`/`mesh=`, content-based format detection, name-based Shadertoy channel binding)
+  - OBJ loader (`jam::WavefrontObj`) — triangulated meshes, vertex-pulling SSBO upload, auto-fit orbit camera, offscreen depth-tested gather target composited back into the existing combine pipeline
+  - Image sampler binding — external LUT textures (`jam::vulkan::BindlessTexture`) resolved by name into the bindless set (Shadertoy channel macros or slang reflected texture names)
+  - Per-pass resource lifecycle — LUTs and mesh GPU resources owned per `ShaderInstance`, released with it
 
 **Shader framework features:**
 - Multi-pass chains with history buffers
@@ -696,7 +696,7 @@ config::Model tree:
       postProcessParams ← opacity, resolution, frameRate (runtime)
 ```
 
-**Exit state:** User can drop in Shadertoy-compatible GLSL, RetroArch Slang-P multi-pass chains, or custom shader projects with resource assets. Advanced passes with geometry and texture loading. Hot-reloadable. Final refactor and testing in progress.
+**Exit state:** User can drop in Shadertoy-compatible GLSL, RetroArch Slang-P multi-pass chains, or custom shader projects with resource assets. Advanced passes with geometry and texture loading. Hot-reloadable.
 
 ### Phase 15 — Daemon and Session Persistence ⏳ PENDING
 

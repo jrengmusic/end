@@ -128,6 +128,30 @@ void View::registerEvents()
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
                 window->setWindowButtons (tree.getProperty (ID::titleBarButtons));
         });
+
+    events.add<juce::ValueTree&> (jam::ID::enabled,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyMouseConfig();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::imouse,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyMouseConfig();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::orbit,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyMouseConfig();
+                                  });
+
+    events.add<juce::ValueTree&> (ID::reset,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      applyMouseConfig();
+                                  });
 }
 
 void View::applyBackground()
@@ -225,6 +249,20 @@ void View::applyPostProcessParams()
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);
     engine->setPostProcessParams (opacity, resolutionScale);
+}
+
+void View::applyMouseConfig()
+{
+    const bool enabled { config.getValue (IDtype::mouse, jam::ID::enabled) };
+    const auto imouseButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::imouse).toString()) };
+    const auto orbitButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::orbit).toString()) };
+    const auto resetButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::reset).toString()) };
+
+    mouseEnabled = enabled;
+    orbitButtonConfig = orbitButton;
+    resetButtonConfig = resetButton;
+
+    background.setMouseConfig (enabled, imouseButton, orbitButton);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

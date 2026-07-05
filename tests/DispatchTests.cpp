@@ -1,7 +1,7 @@
 /**
  * @file DispatchTests.cpp
  * @brief SGR/CSI/OSC dispatch basics, DECAWM, alt-screen switch, scroll
- *        regions — conformance coverage per PLAN-vt-correctness.md Step 6.
+ *        regions — conformance coverage.
  */
 
 #include "catch2/catch.hpp"

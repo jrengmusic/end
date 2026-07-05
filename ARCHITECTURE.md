@@ -404,7 +404,9 @@ the GPU path by construction.
 - **Bindless images** — set 1 is a `texture2D[]` sampled-image array (UPDATE_AFTER_BIND,
   partially bound) + one shared linear sampler. Each texture gets a stable array slot at
   upload; no per-draw descriptor allocation. Slot bookkeeping is per-window (per Graphics)
-  — the atlas's `vk::Image`s are shared, their array slots are not.
+  — the atlas's `vk::Image`s are shared, their array slots are not. `jam::vulkan::BindlessTexture`
+  (below) formalizes this shared-image/per-window-slot split as a reusable type — the glyph
+  atlas and every external-texture (LUT) producer are both its consumers.
 - **Push constants** — one shared 40-byte block: `colour` (opacity pre-multiplied into
   alpha CPU-side; brush alpha × context opacity collapse at emit time), `clip`, `textureScale`.
 - **Clip as data** — `State::stencilClipDepth` lives inside the saved/restored state
@@ -544,6 +546,153 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
   resolution. `filter` (linear/nearest, `jam::map::ImageResample` = string↔enum SSOT)
   selects the sampler baked into the prelude — bindless set binding 2 carries the nearest
   sampler alongside binding 1's linear.
+
+### External Textures — `jam::vulkan::BindlessTexture` + Resource Manifest
+
+**`jam::vulkan::BindlessTexture`** (`jam_vulkan/resource/`) — the shared GPU-resident-texture
+type: owns one `jam::vulkan::Image` + a per-window bindless-slot registry
+(`jam::HashMap<void*, int>`, keyed by native window handle — the atlas's own shared-image/
+per-window-slot split, formalized) + the caller-staged upload/re-upload (`upload()`:
+memcpy into the caller's already-reserved staging-arena region, barrier → buffer-to-image
+copy → barrier; re-upload re-copies into the existing image, never reallocates — VMA has
+no in-place image update). It assigns no slot and writes no descriptor itself —
+`jam::vulkan::Graphics` remains the orchestrator (`assignBindlessIndex()` +
+`writeBindlessTextureDescriptor()`), recording the result back via
+`registerBindlessIndex()`. One SSOT upload path, two producers:
+- **The glyph atlas** — `jam::GlyphAtlas::gpuImages` is a `jam::HashMap<Type,
+  jam::vulkan::BindlessTexture>` (one per atlas GPU slot type); the atlas no longer owns its
+  own upload/slot-bookkeeping copy, it is a `BindlessTexture` consumer.
+- **The file-decoder path** — `juce::ImageFileFormat::loadFrom` → `BitmapData` →
+  `BindlessTexture::upload()`, DEVICE_LOCAL + DEDICATED for static LUTs — the second producer
+  sharing the exact same upload path (no atlas-path copy).
+
+**Resource manifest** — a single `.slangp` file per shader project (any filename,
+extension-only discovery — first match) is THE resource manifest for both formats. For a
+`slang` project it's the format's own full RetroArch preset, unchanged (`shaders=`/per-pass
+directives, `textures=`, `#pragma parameter` overrides). For a `shadertoy` project it's a
+resource-manifest-only `.slangp` — `textures=` (`a=path`, `a_linear`, `a_wrap_mode`,
+`a_mipmap` per RetroArch's own convention, `gfx/video_shader_parse.c` vocabulary) plus `mesh=`
+(the OBJ mesh connection, below) — no `shaders=`/passes at all.
+
+Format itself is content-derived (`config::Shader::loadFromPath()`, `Source/config/
+Config.cpp`): the directory's own `.slangp` (when one exists) is parsed via
+`jam::vulkan::ShaderPreset::parse()` — the ONE lex every reader shares — and a parsed result
+with one or more passes is `slang`; an absent `.slangp`, or a zero-pass one, is `shadertoy`.
+
+Channel binding is name-based: an entry literally named `iChannel2` binds that reference
+directly (`ShaderCompiler::channelMacros()` already emits one `#define` per texture name — the
+name IS the macro) — no explicit `channel` key, no `iChannelN` alias machinery for textures.
+Each `ShaderPreset::Texture`'s own push-constant `channels[]` slot is therefore pure
+declaration order — `bufferPassCount + index` into the `textures=` list, computed where
+consumed (`ShaderCompiler::channelMacros()`, `ShaderInstance::build()`) rather than carried as
+a field.
+
+`mesh=` is an END-extension key (not RetroArch vocabulary) carried in the same manifest for
+both formats — its value (an OBJ path, relative to the project directory, the same
+absolutization as every `textures=` path) becomes `jam::vulkan::ShaderPreset::meshPath`, read
+by `ShaderCompiler::compile()` into `jam::vulkan::Shader::meshPath`.
+
+**External-texture (LUT) pipeline** — name resolution differs per format, same manifest data:
+- **Shadertoy** — `ShaderCompiler::channelMacros()` emits one `#define` per named texture,
+  binding its own author-assigned name directly to its resolved channel's `sampler2D`
+  expression — no `iChannelN` alias; the manifest name IS the sole identifier.
+- **Slang** — `Graphics::resolveSlangTextureBindings()` resolves a reflected texture name
+  against `execution.getExternalTextures()` **first**, before the engine's own
+  `PassOutputN`/`Original`/`Source` vocabulary — a manifest LUT name is first-class, the same
+  standing as an author's own pass alias.
+- **`jam::vulkan::ShaderInstance`** owns each execution's LUT `BindlessTexture`s
+  (`externalTextures`, keyed by name) and their resolved channel slots
+  (`externalTextureChannels`) — but builds neither itself; `Graphics::ensureShaderInstance()`'s
+  post-build orchestration calls `Graphics::buildExternalTexture()` (needs the staging
+  arena/command buffer/bindless-slot allocator `ShaderInstance::build()` doesn't have).
+  `stampChannels()` is the single channel-stamping rule: buffer-pass bindless index by
+  ordinal, scene fallback on the post-process path, then every named external texture
+  overwrites its own slot with its registered bindless index (a texture whose decode/upload
+  failed is simply skipped — graceful degradation).
+
+### Mesh Subsystem — `jam::WavefrontObj` + Vertex Pulling
+
+**`jam::WavefrontObj`** (`jam_graphics/mesh/`) — clean-room OBJ/MTL loader, deps stay
+`juce_core`-family only (no `vk::`, no 3D-math) so both the native Vulkan renderer and a
+future runtime-JS asset seam can consume the same parsed mesh data. SoA `Shape`/`Mesh`
+(`juce::Array` PODs) + full-standard `Material` (Phong + PBR fields; the render path consumes
+diffuse + normal). Beyond the JUCE example parser: relative/negative face-vertex index
+resolution, out-of-bounds detection and degenerate-face skip (warn-and-continue, never
+fatal), n-gon triangulation via `jam::Earcut` (dominant-plane projection + Newell's method for
+the face normal), smoothing-group-aware normal generation when a shape carries no `vn` data,
+and per-shape `(v, vt, vn)` triple dedup via `jam::HashMap<TripleIndex, Index,
+TripleIndex::Hash>`. Keyword dispatch (`v`/`vn`/`vt`/`f`/`g`/`o`/`s`/`usemtl`/`mtllib` and the
+MTL keyword set) is table-driven via `jam::Function::Map`, never an if/else chain.
+Diagnostics accumulate into the caller's `juce::StringArray` (warn-and-continue); the only
+fatal condition is an unreadable `mtllib` file, surfaced as a `juce::Result` failure.
+
+**`jam::Earcut`** (single-ring ear-clipping triangulation) relocated from the former
+`jam_vulkan/earcut/` to `jam_graphics/mesh/` — now shared by both path-fill triangulation
+(`LLGCPath.cpp`'s `appendEarcutTriangulatedRing`, simple paths) and `WavefrontObj`'s own n-gon
+triangulation, since `jam_vulkan` already depends on `jam_graphics` (one dependency direction
+only — the reverse is forbidden).
+
+**GPU upload** — `jam::vulkan::Vertex` POD (`position[3]` + `normal[3]` + `uv[2]`) +
+`jam::vulkan::Mesh` (`jam_vulkan/resource/`) interleave every `WavefrontObj::Shape`'s SoA
+geometry into ONE device-local vertex-pulling SSBO (`eStorageBuffer | eTransferDst` — **not**
+`eVertexBuffer`; the mesh-backed pass reads `{position, normal, uv}` out of this SSBO manually,
+indexed by `gl_VertexIndex`, no `vkCmdBindVertexBuffers` call anywhere in the consumption path)
++ one device-local index buffer, staged-uploaded **once** (never per-frame) via the
+buffer-to-buffer analog of the existing image-staging path (`copyBuffer()` standing in for
+`copyBufferToImage()`, a `vk::MemoryBarrier` standing in for the image path's layout-transition
+barriers). `Mesh` is window-agnostic — unlike `BindlessTexture`'s per-window slot registry, a
+built `Mesh` is valid and shareable across every window. The interleave pass also accumulates
+the object's AABB (the auto-fit camera's consumer, below) and one `MaterialRange`
+(`firstIndex`/`numIndices` into the shared index buffer + that shape's copied `Material`) per
+shape — the mesh-backed draw loop iterates these to bind/stamp each shape's material for its
+own index sub-range.
+
+**`jam::vulkan::OrbitCamera`** (`jam_vulkan/resource/`) — pure glm math + interaction, no
+`vk::` handles:
+- `computeAutoFitModelMatrix()` — static, called exactly once by `ShaderInstance::build()`
+  from the built `Mesh`'s own AABB: recenters the box onto the origin and uniformly scales it
+  so its largest half-extent hits a fixed target radius. Baked once into the MODEL matrix, so
+  every mesh — regardless of its real-world scale — already renders normalized into a
+  comfortable unit-ish cube by the time any camera sees it; the interactive camera below needs
+  no AABB backchannel of its own.
+- The interactive orbit (`addOrbitDelta()`) rides the SAME `mouseDrag()` events
+  `jam::vulkan::ShaderComponent`'s iMouse tracking already intercepts — separate state,
+  separate purpose, not iMouse itself.
+- `getViewMatrix()`/`getProjectionMatrix()` (`GLM_FORCE_DEPTH_ZERO_TO_ONE`, right-handed —
+  glm's own default, `GLM_FORCE_LEFT_HANDED` deliberately NOT defined — combined with the
+  manual Vulkan-NDC Y-flip; left-handed + that same Y-flip would compound into an odd number
+  of axis inversions, mirroring the render) / `getNormalMatrix()` (view-only
+  inverse-transpose — `computeAutoFitModelMatrix()`'s own matrix is uniform-scale-only, so
+  folding it into the normal-matrix correction would be mathematically inert).
+
+**Mesh-backed material-range draw** — every gather/offscreen shader render pass
+(`Graphics::getOrCreateShaderOffscreenRenderPass (vk::Format)`) carries an unconditional second
+(depth) attachment now — `eD32Sfloat` (this codebase's first depth format; the 3 stencil-only
+main passes, `jam_VulkanGraphicsSetupRenderPass.cpp`, stay untouched), `loadOp=eClear`,
+`storeOp=eDontCare`, never sampled outside its own render pass's own depth test
+(`RenderResources::depthImage`, one shared depth image per target, per buffer pass and the
+mandatory Image pass's own gather target alike — inert scratch space for a meshless target,
+since every fullscreen-triangle pipeline built against this shape leaves depth test/write
+disabled, `Pipelines::noStencilState()`). There is no separate mesh render target/render pass
+anymore: when `shader.meshPath` is non-empty AND the OBJ parse/upload succeeded (`hasMesh()`),
+`Graphics::recordMeshGatherDrawCommands()` records its own material-range/feature-edge draws
+directly INTO `imagePassGatherTarget`'s own already-active render-pass instance, immediately
+AFTER the ordinary, unmodified Image-pass fullscreen draw (which serves as the mesh's own
+backdrop unchanged, no clone) — draw order: Image-pass fullscreen draw → per-`MaterialRange`
+fill draw (depth test+write **enabled**, `eLess`; material diffuse pushed as a per-range push
+constant; a default-material range draws instead with a low-alpha transparent-fill variant) →
+one whole-mesh feature-edge line-art overlay draw. A parse/upload failure gracefully leaves the
+ordinary, unmodified Image pass alone (zero behavior change for meshless shaders — this call is
+simply never made). The result is then sampled by the SAME `background_combine.frag` combine
+draw that already consumes `imagePassGatherTarget`, composited back as a bindless texture
+through the existing combine pipeline; no new combine path, no separate bindless slot. The mesh
+draw substitution exists on the **background path only** — the app-global post-process path
+renders meshless (the same documented limitation as its all-zeros iMouse: no owning component,
+no camera interaction). `mesh_default.vert`/`.frag` (`jam_vulkan/shaders/`) are engine-owned
+static SPIR-V — the same offline `glslc` → `.spv` → BinaryData route as
+`background_combine.frag`/`straight_alpha.frag` — a Lambert/headlight lit shader sampling MTL
+diffuse, fed an MVP + normal-matrix UBO (binding 0) and the vertex-pulling SSBO (binding 1),
+with per-`MaterialRange` diffuse as a fragment push constant.
 
 ### Frame Lifecycle (Per-Peer)
 

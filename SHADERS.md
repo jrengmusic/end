@@ -9,7 +9,7 @@ Shadertoy, RetroArch Slang, and practical examples for END v0.0.1.
 ### Shadertoy Background
 ```bash
 mkdir -p ~/.config/end/shaders/my_shader
-# Create: Image.glsl (required)
+# Create: Image (required — no file extension)
 ```
 
 Edit `~/.config/end/display.lua`:
@@ -26,8 +26,8 @@ Press `Cmd+R`. Done.
 ### Slang (.slangp) Background
 ```bash
 mkdir -p ~/.config/end/shaders/my_slang
-# Create: shader.slangp (required manifest)
-# Create: pass.glsl or any .glsl files referenced in manifest
+# Create: any_name.slangp (manifest — any filename, .slangp extension; first match wins)
+# Create: pass.slang or any source files referenced in the manifest
 ```
 
 Same config, reload with `Cmd+R`.
@@ -38,11 +38,13 @@ Same config, reload with `Cmd+R`.
 
 | Aspect | Shadertoy | Slang |
 |--------|-----------|-------|
-| **Files** | Fixed: Image.glsl, BufferA-D.glsl, Common.glsl | Flexible: shader.slangp manifest + any .glsl files |
-| **Detection** | Absence of .slangp | Presence of shader.slangp |
-| **Passes** | Up to 4 buffers + final Image | Unlimited passes, named in manifest |
+| **Files** | Extensionless: `Image`, `BufferA`…`BufferU`, `Common` | Flexible: any `*.slangp` manifest + any source filenames |
+| **Detection** | Content-based (see below) | Content-based (see below) |
+| **Passes** | Up to 21 buffers (`ShaderUniforms::maxChannelCount`) + final Image | Same 21-buffer ceiling, named in the manifest |
 | **Complexity** | Simple, paste-friendly | Advanced, explicit control |
 | **Use Case** | One-shot effects, prototypes | Multi-pass chains, RetroArch presets |
+
+**Detection is content-based, never filename-based.** END always looks for the first `*.slangp` file in a project directory (any name, extension-only match), parses it, and reads the RESULT: a manifest that parses to one or more passes (a `shaders=` directive) is Slang; an absent manifest, or one that parses to zero passes (a resource-manifest-only `.slangp` — `textures=`/`mesh=`, no `shaders=`), is Shadertoy. A Shadertoy project may legitimately carry its own `.slangp` — see **Universal Resource Manifest** below.
 
 ---
 
@@ -51,17 +53,18 @@ Same config, reload with `Cmd+R`.
 ### Directory Structure
 ```
 ~/.config/end/shaders/plasma/
-├── Image.glsl           ← Final output (REQUIRED)
-├── BufferA.glsl         ← Optional intermediate pass
-├── BufferB.glsl         ← Optional intermediate pass
-├── BufferC.glsl         ← Optional intermediate pass
-├── BufferD.glsl         ← Optional intermediate pass
-└── Common.glsl          ← Optional shared code
+├── Image              ← Final output (REQUIRED, no extension)
+├── BufferA            ← Optional intermediate pass
+├── BufferB            ← Optional intermediate pass
+├── …                  ← Up to BufferU (21 buffer passes total, ShaderUniforms::maxChannelCount)
+└── Common             ← Optional shared code
 ```
+
+Real projects on this machine, exactly as they sit on disk: `~/.config/end/shaders/plasma/{Image,BufferA,Common}`, `~/.config/end/shaders/weird/{Image,BufferA,Common}`, `~/.config/end/shaders/sirenian-dawn/{Image,BufferA}`, `~/.config/end/shaders/ether/Image` — every pass file is extensionless. There is no `.glsl`/`.frag` suffix anywhere in this format.
 
 ### Minimal Working Example
 ```glsl
-// Image.glsl
+// Image
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
@@ -76,18 +79,23 @@ uniform float iTime;        // Elapsed seconds
 uniform float iTimeDelta;   // Frame duration (1/frame_rate)
 uniform int iFrame;         // Frame number
 uniform vec3 iResolution;   // (width, height, aspect)
-uniform vec4 iMouse;        // (x, y, clickX, clickY) in pixels
+uniform vec4 iMouse;        // (x, y, clickX, clickY) in pixels, sign-encoded (see note below)
 
-// Buffer pass history (iChannel0-3)
+// Buffer pass history — iChannel0-3 are paste-compat ALIASES for buffer
+// ordinals 0-3 only. Buffer passes past the 4th have no iChannelN alias —
+// reference them by their own canon BufferX name directly.
 uniform sampler2D iChannel0; // Last frame of BufferA
 uniform sampler2D iChannel1; // Last frame of BufferB
 uniform sampler2D iChannel2; // Last frame of BufferC
 uniform sampler2D iChannel3; // Last frame of BufferD
+uniform sampler2D BufferE;   // 5th buffer pass and beyond — name only, no alias
 ```
+
+**iMouse note:** real, sign-encoded Shadertoy mouse state is only stamped for BACKGROUND shaders, gated by `display.lua`'s `graphics.mouse.enabled` (false zeroes it unconditionally) and driven by whichever button `graphics.mouse.imouse` names ("left", "middle", "right", or "none" — see `display.lua`'s own `mouse` block for every field). A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
 
 ### Example: Feedback Trail
 ```glsl
-// BufferA.glsl — accumulation pass
+// BufferA — accumulation pass
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
@@ -97,7 +105,7 @@ void main()
     fragColor = vec4(col, 1.0);
 }
 
-// Image.glsl — final composite
+// Image — final composite
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
@@ -110,31 +118,30 @@ void main()
 
 ## Slang Format (Advanced)
 
+END discovers a project's manifest by **extension only** — the first `*.slangp` file found in the project directory, whatever it's named. `shader.slangp`, `my_slang.slangp`, `crt-lottes.slangp` — all equally valid, and none of the examples below require a rename. A project declares exactly one (if you leave more than one `.slangp` in a directory, only the first match — filesystem order, not guaranteed alphabetical — is read).
+
 ### Directory Structure
 ```
 ~/.config/end/shaders/my_slang/
-├── shader.slangp          ← MANIFEST (REQUIRED, exact name)
-├── pass0.glsl             ← Source files (any names)
-├── pass1.glsl
-├── common.glsl            ← Optional shared code
+├── my_slang.slangp        ← MANIFEST — any filename, .slangp extension
+├── pass0.slang            ← Source files (any names; corpus convention is .slang)
+├── pass1.slang
+├── common.glsl            ← Optional shared code, pulled in via #include
 ├── texture.png            ← Optional resources
 └── model.obj              ← Optional geometry
 ```
 
-### Manifest Anatomy (shader.slangp)
+### Manifest Anatomy (my_slang.slangp)
 ```ini
 # Total passes (required)
 shaders = 2
 
-# Shared code (optional)
-common = common.glsl
-
 # Per-pass directives
-shader0 = pass0.glsl
+shader0 = pass0.slang
 scale0 = 1.0
 filter_linear0 = true
 
-shader1 = pass1.glsl
+shader1 = pass1.slang
 scale1 = 1.0
 filter_linear1 = true
 
@@ -142,10 +149,12 @@ filter_linear1 = true
 MyParam = 0.5
 ```
 
+There is no `common=` manifest key in slang format — that is Shadertoy's `Common` file slot. Shared slang code is pulled in with a plain `#include "common.glsl"` inside each pass source that needs it.
+
 ### Per-Pass Options
 ```ini
 # Source file (required)
-shaderN = source.glsl
+shaderN = source.slang
 
 # Resolution scale (1.0 = source/default)
 scaleN = 0.5
@@ -156,10 +165,10 @@ scale_type_yN = source
 scaleN = 1.5
 
 # Filtering
-filter_linearN = true     # true=smooth, false=sharp
+filter_linearN = true     # true=smooth, false=sharp (absent falls back to the global filter config key)
 
 # Wrap mode
-wrap_modeN = repeat       # border/edge/repeat/mirroredRepeat
+wrap_modeN = repeat       # clamp_to_border / clamp_to_edge / repeat / mirrored_repeat (absent = clamp_to_border)
 
 # Framebuffer format
 srgb_framebufferN = false
@@ -172,12 +181,71 @@ mipmap_inputN = true      # Mipmaps for texture feeding INTO this pass
 frame_count_modN = 0      # Modulo frame counter (0=no wrap)
 
 # Alias
-aliasN = History          # Alternative iChannel name (optional)
+aliasN = History          # Alternative iChannel name (optional; falls back to a #pragma name in the source)
 ```
 
 ---
 
+## Universal Resource Manifest (Both Formats)
+
+Every shader project — Shadertoy or Slang — declares external textures and a mesh through the SAME `.slangp` manifest vocabulary. A Shadertoy project's own manifest simply never declares `shaders=`, so it stays Shadertoy-detected; a Slang project carries this alongside its passes in the one manifest it already has.
+
+```ini
+# Semicolon-separated list of texture names (RetroArch's own textures= grammar)
+textures = "name1;name2"
+
+# Per-name directives — <name> itself is the path
+name1 = texture.png
+name1_linear = true          # bilinear filter (absent falls back to the global filter config key)
+name1_wrap_mode = repeat     # clamp_to_border / clamp_to_edge / repeat / mirrored_repeat
+name1_mipmap = true
+
+name2 = lut.png
+
+# Renders a Wavefront OBJ as this project's own output (END extension key,
+# not RetroArch vocabulary) — auto-fit orbit camera, drag to orbit. Shapes
+# with no assigned MTL material render as cyan line-art over a transparent,
+# low-alpha cyan fill.
+mesh = model.obj
+
+# Animates the mesh's own vertices (position/normal, object space) via a
+# plain mainMesh(inout vec3, inout vec3) snippet — the engine's own default
+# lit pipeline/look is unchanged, only animated — END extension key, not
+# RetroArch vocabulary. See "Mesh Shader" below.
+mesh_shader = spin.slang
+```
+
+### Mesh Shader (`mesh_shader=`) — a vertex-animation hook, not a replacement
+
+**Format contract:** the correct way to author a custom shader is EITHER Shadertoy format (extensionless `Image`/`Common`/`BufferA`…, plus an optional `.slangp` resource manifest — textures/mesh only, no `shaders=`) OR slang-shaders format (`.slangp` with a `shaders=` chain of `.slang` files) — never mixed. `mesh_shader=` is orthogonal to that choice — the SAME resource-manifest key either format's `.slangp` may declare, alongside `mesh=`/`textures=`.
+
+`mesh_shader=` points at a plain GLSL snippet — its entire content is exactly one function:
+
+```glsl
+void mainMesh (inout vec3 position, inout vec3 normal)
+```
+
+your own object-space vertex transform, mirroring Shadertoy's `mainImage` paradigm one level down. Declare **nothing else** — no uniform blocks, no descriptor sets, no `#pragma stage` markers, no engine tokens. The engine's own mesh vertex-stage templates declare everything and splice your `mainMesh` in, so you read the standard `iTime`/`iTimeDelta`/`iFrame`/`iResolution`/`iMouse` names bare, exactly like any other shader pass — zero bespoke uniform vocabulary, zero data plumbing.
+
+`mesh_shader=` **animates** the engine's own default mesh look — it never replaces it. The default rendering contract is completely untouched: per-`MaterialRange` lit/transparent fills, the default transparent cyan fill for material-less shapes, the blender-style feature-edge line-art overlay — every one of these still draws exactly as documented above. `mainMesh` runs once per vertex, in object space, before the `mvp`/normal-matrix transform, for every one of those draws (including both endpoints of every feature-edge quad) — so the WHOLE default look animates in lock-step, fill and line art alike.
+
+Absent (no `mesh_shader=` key), or a `mesh_shader=` file that fails to compile, the engine falls back to its own no-op `mainMesh` — the exact default, unanimated look, logged via the engine's diagnostic log on a compile failure, never a crash.
+
+**Reference example** — `~/.config/end/shaders/j3d/` is a pure slang-format project: `j3d.slangp` declares `shaders = 1`, `shader0 = j3d.slang` (the backdrop pass — the rotating banded gradient, ported from the project's former Shadertoy `Image`), plus `mesh = /Users/jreng/Desktop/j3d.obj` and `mesh_shader = spin.slang`. `spin.slang` is now nothing but `mainMesh`, spinning `position`/`normal` around Y by plain `iTime` — the mesh's own fill/transparent-fill/feature-edge draws animate with it, untouched otherwise.
+
+**Channel binding is the entry NAME itself:**
+- **Shadertoy** — name a texture `iChannel2` to bind it to that paste-compat reference directly; any other name works too, becoming a first-class `sampler2D` your source samples by that name (no iChannelN alias is generated for a named texture — the name IS the binding).
+- **Slang** — reference by an author-declared `uniform sampler2D <name>`, matched by name via SPIR-V reflection.
+
+Paths are relative to the project directory. Absolute paths are also accepted — real example on this machine: `~/.config/end/shaders/j3d/j3d.slangp` declares `mesh = /Users/jreng/Desktop/j3d.obj`, an absolute path outside the project entirely. **Prefer relative, in-project paths regardless — see the isolation principle below.** An absolute path pointing outside the project directory breaks the moment that outside file moves, exactly the fragility isolation avoids.
+
+---
+
 ## Converting RetroArch Slang Shaders to END
+
+### Isolate Each Preset (read this first)
+
+Although END's manifest parser resolves relative AND absolute paths anywhere on disk, **copy every dependency a preset needs INTO its own project directory**, and rewrite any `#include`/path that escapes outward (`../`) to a local, in-project path. A self-contained project can't break when the surrounding tree it was copied from — a cloned `slang-shaders` repo, a shared `include/` folder, anything outside `~/.config/end/shaders/<name>/` — changes, moves, or gets deleted.
 
 ### What You're Starting With
 
@@ -186,9 +254,9 @@ A RetroArch shader directory (`slang-shaders/crt-*`, `slang-shaders/motion-blur/
 ```
 retroarch/shaders/crt-lottes/
 ├── crt-lottes.slangp           ← Preset 1 manifest
-├── crt-lottes.glsl             ← Preset 1 source
+├── crt-lottes.slang            ← Preset 1 source
 ├── crt-lottes-multisample.slangp   ← Preset 2 (alternative)
-└── crt-lottes-multisample.glsl    ← Preset 2 source
+└── crt-lottes-multisample.slang   ← Preset 2 source
 ```
 
 **Each `.slangp` file is a separate preset** with different settings. Files with the same base name usually share implementation.
@@ -202,47 +270,38 @@ Example: Use `crt-lottes.slangp` preset.
 mkdir -p ~/.config/end/shaders/crt-lottes
 ```
 
-**2. Copy two files from RetroArch:**
+**2. Copy both files, keeping their original names — no rename needed:**
 ```bash
-# Copy the manifest and rename it to shader.slangp
 cp path/to/retroarch/shaders/crt-lottes/crt-lottes.slangp \
-   ~/.config/end/shaders/crt-lottes/shader.slangp
+   ~/.config/end/shaders/crt-lottes/crt-lottes.slangp
 
-# Copy the shader source (keep original name)
-cp path/to/retroarch/shaders/crt-lottes/crt-lottes.glsl \
-   ~/.config/end/shaders/crt-lottes/crt-lottes.glsl
+cp path/to/retroarch/shaders/crt-lottes/crt-lottes.slang \
+   ~/.config/end/shaders/crt-lottes/crt-lottes.slang
 ```
 
 **Result:**
 ```
 ~/.config/end/shaders/crt-lottes/
-├── shader.slangp        ← Renamed from crt-lottes.slangp
-└── crt-lottes.glsl      ← Copied as-is
+├── crt-lottes.slangp    ← Kept as-is (END finds any *.slangp)
+└── crt-lottes.slang     ← Kept as-is
 ```
-
-**Key rule:** Only the `.slangp` file gets renamed to `shader.slangp`. All `.glsl` files keep their original names.
 
 **3. Verify the manifest references the source:**
 ```bash
-# Open shader.slangp
-cat ~/.config/end/shaders/crt-lottes/shader.slangp
+cat ~/.config/end/shaders/crt-lottes/crt-lottes.slangp
 ```
 
 Look for the line:
 ```ini
-shader0 = crt-lottes.glsl
+shader0 = crt-lottes.slang
 ```
 
-✅ Does it match the `.glsl` filename you copied? If yes, you're good.
+✅ Does it match the source filename you copied? If yes, you're good. (The engine is extension-agnostic for `shaderN=` paths — `.slang` is the corpus convention, but a preset referencing `.glsl` sources works identically.)
 
 **4. Enable in config:**
-```bash
-# Edit ~/.config/end/display.lua
-```
-
 ```lua
 graphics = {
-    post_processing = "crt-lottes",    ← Must match directory name
+    post_processing = "crt-lottes",    -- Must match directory name
     post_processing_opacity = 0.8,
     frame_rate = 60,
 }
@@ -255,41 +314,37 @@ Press `Cmd+R` (macOS/Linux) or `Ctrl+R` (Windows).
 
 ### Step-by-Step: Complex Shader (Multiple Files)
 
-Some shaders use multiple `.glsl` files:
+Some shaders use multiple `.slang` files (plus `#include`d shared code):
 
 **RetroArch source:**
 ```
 retroarch/shaders/crt-megatron/
 ├── crt-megatron.slangp
-├── pass0.glsl
-├── pass1.glsl
-├── pass2.glsl
-└── common.glsl
+├── pass0.slang
+├── pass1.slang
+├── pass2.slang
+└── common.glsl           ← #include'd by the pass sources
 ```
 
 **Manifest contents:**
 ```ini
 shaders = 3
-common = common.glsl
-shader0 = pass0.glsl
-shader1 = pass1.glsl
-shader2 = pass2.glsl
+shader0 = pass0.slang
+shader1 = pass1.slang
+shader2 = pass2.slang
 ```
 
-**Copy all of them:**
+**Copy all of them, every filename unchanged:**
 ```bash
 mkdir -p ~/.config/end/shaders/crt-megatron
 
-# Manifest (renamed)
 cp path/to/retroarch/shaders/crt-megatron/crt-megatron.slangp \
-   ~/.config/end/shaders/crt-megatron/shader.slangp
-
-# All .glsl files (keep original names)
-cp path/to/retroarch/shaders/crt-megatron/pass0.glsl \
    ~/.config/end/shaders/crt-megatron/
-cp path/to/retroarch/shaders/crt-megatron/pass1.glsl \
+cp path/to/retroarch/shaders/crt-megatron/pass0.slang \
    ~/.config/end/shaders/crt-megatron/
-cp path/to/retroarch/shaders/crt-megatron/pass2.glsl \
+cp path/to/retroarch/shaders/crt-megatron/pass1.slang \
+   ~/.config/end/shaders/crt-megatron/
+cp path/to/retroarch/shaders/crt-megatron/pass2.slang \
    ~/.config/end/shaders/crt-megatron/
 cp path/to/retroarch/shaders/crt-megatron/common.glsl \
    ~/.config/end/shaders/crt-megatron/
@@ -298,14 +353,14 @@ cp path/to/retroarch/shaders/crt-megatron/common.glsl \
 **Result:**
 ```
 ~/.config/end/shaders/crt-megatron/
-├── shader.slangp      ← Renamed
-├── common.glsl        ← Kept as-is
-├── pass0.glsl         ← Kept as-is
-├── pass1.glsl         ← Kept as-is
-└── pass2.glsl         ← Kept as-is
+├── crt-megatron.slangp   ← Kept as-is
+├── common.glsl           ← Kept as-is
+├── pass0.slang           ← Kept as-is
+├── pass1.slang           ← Kept as-is
+└── pass2.slang           ← Kept as-is
 ```
 
-The manifest lines still say `common = common.glsl` and `shader0 = pass0.glsl` — **do not rename these**, only the `.slangp` file.
+The manifest lines still say `shader0 = pass0.slang`, and every `#include "common.glsl"` still resolves — every reference stays intact because every file kept its own name **and** its own flat position, directly inside the project directory (the isolation principle above).
 
 ---
 
@@ -313,54 +368,47 @@ The manifest lines still say `common = common.glsl` and `shader0 = pass0.glsl` �
 
 **"file not found" error in debug log**
 - Check that all files mentioned in the manifest exist in the directory
-- Example: if manifest says `shader0 = crt-lottes.glsl`, verify that file exists
+- Example: if manifest says `shader0 = crt-lottes.slang`, verify that file exists
 - Check spelling and case sensitivity (Linux is case-sensitive)
 
 **Shader compiles but looks wrong**
 - The preset may have parameter defaults you can override
-- Check `shader.slangp` for lines like `#pragma parameter SHARPNESS`
+- Check the manifest for lines like `#pragma parameter SHARPNESS`
 - You can override these values in the manifest or adjust opacity
 
 **Shader doesn't appear**
 - Verify directory name matches config: `graphics.post_processing = "crt-lottes"`
-- Verify `shader.slangp` exists (exact name, lowercase)
+- Verify a `*.slangp` file exists in the project directory (any name)
 - Press `Cmd+R` to reload
-- Check debug log: `~/.local/share/END/debug.log`
+- Check debug log: `~/.config/end/END.ode`
 
-**Nothing renders, no error at all (silent failure)** — the most deceptive failure mode
-- The `.slang`/`.glsl` source file has `#include "../../something.h"` lines that reach OUTSIDE its own folder — common in shaders that share code across the slang-shaders repo (e.g. `crt-royale` helper headers, `include/compat_macros.inc`, `include/colorspace-tools.h`)
-- END resolves `#include` relative to the including file's own directory, recursively. A missing include target expands to **empty text, not an error** — the shader silently loses macros/functions it depends on and produces nothing
-- **Check every `.slang`/`.glsl` file you copy for `#include` lines with `../` in the path** — each one points at a file that lived somewhere else in the original repo tree
-- **Fix:** copy those dependency files alongside your shader, then rewrite each `#include` path to match your new flat layout
+**Missing `#include` fails cleanly and names the exact file** — no more silent, blank-frame failures
+- A copied `.slang`/`.glsl` file may carry `#include "../../something.h"` lines that reach OUTSIDE its own folder — common in shaders pulled from the slang-shaders repo, where every file assumes it still sits at its ORIGINAL repo depth
+- END resolves `#include` relative to the including file's own directory, recursively. A missing include target now fails the compile cleanly — the debug log names the exact referencing file and the exact unresolved path, and the last-good shader is retained — never a silent, empty splice
+- **Fix, per the isolation directive above:** copy every dependency file alongside your shader, flatten it out of any nested subfolder into the project root, then rewrite each `#include` path to a bare local filename
 
-**Example — a shader that depends on files two directories up:**
+**Real example, exactly as it sits on this machine today:**
 
-Original repo layout:
-```
-slang-shaders/
-├── include/compat_macros.inc
-└── crt/crt-effects/
-    ├── crt-effects.slangp
-    └── shaders/
-        └── crt-effects.slang       ← contains:
-                                       #include "../../../include/compat_macros.inc"
-                                       #include "../../shaders/crt-royale/src/tex2Dantialias.h"
+`~/.config/end/shaders/analog-service-menu/analog-service-menu.slangp` references `shaders/analog-service-menu.slang`, which carries these two `#include` lines, copied verbatim from the original RetroArch repo tree:
+
+```glsl
+#include "../../../include/compat_macros.inc"
+#include "../../shaders/crt-royale/src/tex2Dantialias.h"
 ```
 
-Copying only `crt-effects.slangp` + `crt-effects.slang` breaks both includes — the paths assume the full repo tree above them.
+In the ORIGINAL `slang-shaders` repo, this file lived one directory deeper (`slang-shaders/crt/analog-service-menu/shaders/analog-service-menu.slang`) — from there, those exact `../` counts correctly reach `slang-shaders/include/` and `slang-shaders/crt/shaders/crt-royale/src/`. Copied flat into `~/.config/end/shaders/analog-service-menu/` (missing that `crt/` category level the original repo had), the SAME `../` counts now escape one directory too far and resolve to nothing — the project's own on-disk state today is exactly the broken, un-isolated case this section warns about.
 
 **Fix — flatten + rewrite:**
 ```
-~/.config/end/shaders/crt-effects/
-├── shader.slangp              ← shader0 = crt-effects.slang (no subfolder)
-├── crt-effects.slang          ← moved out of shaders/ subfolder to project root
-├── compat_macros.inc          ← copied from slang-shaders/include/
-└── tex2Dantialias.h           ← copied from slang-shaders/crt/shaders/crt-royale/src/
+~/.config/end/shaders/analog-service-menu/
+├── analog-service-menu.slangp   ← shader0 = analog-service-menu.slang (no subfolder)
+├── analog-service-menu.slang    ← moved out of shaders/ subfolder to project root
+├── compat_macros.inc            ← copied from ~/.config/end/shaders/include/
+└── tex2Dantialias.h             ← copied from shaders/crt-royale/src/ (already present locally)
 ```
 
-Edit the two `#include` lines inside your copy of `crt-effects.slang`:
 ```glsl
-// Before (repo-relative, breaks when flattened):
+// Before (repo-relative, breaks once isolated):
 #include "../../../include/compat_macros.inc"
 #include "../../shaders/crt-royale/src/tex2Dantialias.h"
 
@@ -375,69 +423,99 @@ Edit the two `#include` lines inside your copy of `crt-effects.slang`:
 
 ```
 When importing from RetroArch:
-├── *.slangp file   → Copy, then RENAME to shader.slangp
-├── *.glsl files    → Copy as-is, keep original names
-└── Other files     → Ignore (textures, docs, configs)
+├── *.slangp file   → Copy as-is, keep its own name (no rename — any *.slangp is discovered)
+├── source files    → Copy as-is, keep original names — rewrite only #include paths that escape the project directory
+└── Other files     → Ignore, or fold into the resource manifest instead (textures=/mesh=)
 ```
 
 ---
 
 ## Real-World Example: CRT Scanlines (Slang Format)
 
-Minimal working CRT shader — ready to copy-paste.
+Minimal working CRT shader — ready to copy-paste, real RetroArch slang vocabulary this engine actually reflects (`jam::vulkan::ShaderReflection::reflect()`/`populateMemberBuffer()`, `jam_vulkan/shader/jam_VulkanShaderReflection.cpp:16-25,143-163`; texture-name resolution `jam::vulkan::Graphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). The manifest filename below (`shader.slangp`) is just one valid choice — any `*.slangp` name works.
+
+A single-pass slang shader (`shaders = 1`) IS the mandatory Image pass — there is no separate Image slot to declare. `Source` at this pass's own ordinal 0, in a post-process chain, resolves to the resolved (straight-alpha) scene — the exact same input the fabricated Shadertoy-style `iScene` uniform used to stand in for.
 
 ### Setup
 ```bash
 mkdir -p ~/.config/end/shaders/crt_simple
 cd ~/.config/end/shaders/crt_simple
-# Create three files below
+# Create two files below
 ```
 
 ### File 1: `shader.slangp`
 ```ini
-# Simple CRT scanlines effect
+# Simple CRT scanlines effect (post-process, single pass)
 shaders = 1
 
-# Pass 0: The only pass (becomes Image)
-shader0 = crt.glsl
+# Pass 0: the only pass — this IS the mandatory Image pass
+shader0 = crt.slang
 filter_linear0 = true
 ```
 
-### File 2: `crt.glsl`
+### File 2: `crt.slang`
 ```glsl
-// Simple CRT scanlines effect
-// Based on RetroArch crt-simple.glsl
+#version 450
 
-uniform sampler2D iScene;     // The rendered scene
-uniform vec3 iResolution;
-uniform float iTime;
+// Simple CRT scanlines effect — single-pass post-process.
+// There is no seconds-based iTime/gl_FragCoord/iScene vocabulary for a
+// slang pass — that belongs to the Shadertoy wrapper only
+// (jam_vulkan/shader/jam_VulkanShaderUniforms.h). OutputSize is this
+// pass's own reflected render-target extent (fixed "<X>Size" vocabulary,
+// jam_VulkanShaderReflection.cpp:27-33) — used here to recover a pixel row
+// from vTexCoord's own normalized y for the scanline modulation.
 
-// Scanline intensity (0.0 = invisible, 1.0 = harsh)
-#pragma parameter scanline_intensity "Scanline Intensity" 0.5 0.0 1.0
+layout(std140, set = 0, binding = 0) uniform UBO
+{
+    mat4 MVP;
+    vec4 OutputSize;
+} global;
 
-layout(location = 0) out vec4 fragColor;
+layout(push_constant) uniform Push
+{
+    float scanline_intensity;
+} params;
+
+// Scanline intensity (0.0 = invisible, 1.0 = harsh) — default, min, max, step.
+#pragma parameter scanline_intensity "Scanline Intensity" 0.5 0.0 1.0 0.05
+
+#pragma stage vertex
+layout(location = 0) in vec4 Position;
+layout(location = 1) in vec2 TexCoord;
+layout(location = 0) out vec2 vTexCoord;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    
-    // Read the original scene
-    vec3 scene = texture(iScene, uv).rgb;
-    
-    // Apply horizontal scanlines
-    float scanline = sin(gl_FragCoord.y * 3.0) * 0.5;
-    vec3 col = scene * (1.0 - scanline * 0.25);
-    
-    // Slight desaturation (CRT aging effect)
+    gl_Position = global.MVP * Position;
+    vTexCoord = TexCoord;
+}
+
+#pragma stage fragment
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 0) out vec4 FragColor;
+layout(set = 0, binding = 2) uniform sampler2D Source;
+
+void main()
+{
+    // Source: the rendered scene — this pass being ordinal 0 of a
+    // post-process chain, Source resolves to the straight-alpha scene
+    // (Graphics::resolveSlangTextureBindings()'s Original/Source branch).
+    vec3 scene = texture(Source, vTexCoord).rgb;
+
+    // Horizontal scanlines — pixel row recovered from vTexCoord.y * OutputSize.y.
+    float scanline = sin(vTexCoord.y * global.OutputSize.y * 3.0) * 0.5;
+    vec3 col = scene * (1.0 - scanline * 0.25 * params.scanline_intensity);
+
+    // Slight desaturation (CRT aging effect).
     float gray = dot(col, vec3(0.3, 0.59, 0.11));
     col = mix(col, vec3(gray), 0.05);
-    
-    // Slight vignette
-    vec2 vign = uv - 0.5;
+
+    // Slight vignette.
+    vec2 vign = vTexCoord - 0.5;
     float vignette = 1.0 - dot(vign, vign) * 0.5;
     col *= vignette;
-    
-    fragColor = vec4(col, 1.0);
+
+    FragColor = vec4(col, 1.0);
 }
 ```
 
@@ -458,6 +536,8 @@ Press `Cmd+R` → retro CRT scanlines effect over your terminal.
 
 ## Practical Multi-Pass Example: Feedback Accumulator (Slang)
 
+Real slang chaining vocabulary this engine actually reflects: `PassFeedback0` (a buffer pass's own explicit self-feedback read — every buffer pass is unconditionally feedback-capable, `jam::vulkan::ShaderPass`'s own doc comment) and `Source` (RetroArch's own "the stage immediately preceding this one in the chain" semantic — resolves to the PREVIOUS buffer pass's own current output whenever this pass's own ordinal is > 0, `Graphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). There is no `common=` manifest directive for a slang chain (that key is Shadertoy-only vocabulary, `jam_vulkan/bimap/jam_VulkanShaderFormat.cpp:95` — never registered for the slang canon-slot map) — shared code is pulled in purely via a plain `#include`, exactly like any other file dependency.
+
 ### Setup
 ```bash
 mkdir -p ~/.config/end/shaders/feedback_trail
@@ -467,23 +547,24 @@ cd ~/.config/end/shaders/feedback_trail
 
 ### File 1: `shader.slangp`
 ```ini
-# Feedback trail effect with 3 passes
+# Feedback accumulator background — 3 passes (accumulate, blur, composite)
 shaders = 3
-common = common.glsl
 
-# Pass 0: Accumulation buffer
-shader0 = accumulate.glsl
+# Pass 0: accumulation buffer — self-feeds its own previous frame via PassFeedback0
+shader0 = accumulate.slang
 scale0 = 0.5
 filter_linear0 = true
 
-# Pass 1: Processing
-shader1 = process.glsl
+# Pass 1: blur — reads pass 0's own current output via Source (the stage
+# immediately preceding this one in the chain)
+shader1 = process.slang
 scale1 = 1.0
 filter_linear1 = true
 mipmap_input1 = true
 
-# Pass 2: Final composite
-shader2 = composite.glsl
+# Pass 2: composite — the mandatory Image pass, reads pass 1's own current
+# output via Source
+shader2 = composite.slang
 scale2 = 1.0
 filter_linear2 = true
 ```
@@ -507,82 +588,142 @@ vec3 delinearize(vec3 col) {
 #endif
 ```
 
-### File 3: `accumulate.glsl`
+### File 3: `accumulate.slang`
 ```glsl
+#version 450
+
+// Accumulation pass — self-feeds via PassFeedback0, its own previous
+// frame's output. There is no seconds-based iTime uniform for a slang
+// pass — elapsed seconds are reconstructed from FrameCount at this
+// project's own configured frame_rate (display.lua: background =
+// "feedback_trail", frame_rate = 30), same technique as
+// ~/.config/end/shaders/j3d/j3d.slang.
 #include "common.glsl"
 
-uniform sampler2D iChannel0;
-uniform vec3 iResolution;
-uniform float iTime;
-uniform int iFrame;
+layout(std140, set = 0, binding = 0) uniform UBO
+{
+    mat4 MVP;
+} global;
 
-layout(location = 0) out vec4 fragColor;
+layout(push_constant) uniform Push
+{
+    uint FrameCount;
+} params;
+
+#pragma stage vertex
+layout(location = 0) in vec4 Position;
+layout(location = 1) in vec2 TexCoord;
+layout(location = 0) out vec2 vTexCoord;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    
-    // Previous frame
-    vec3 prev = texture(iChannel0, uv).rgb;
-    
-    // New content (example: noise + time)
-    float n = sin(iTime * 0.5 + uv.x * 10.0) * 0.5 + 0.5;
+    gl_Position = global.MVP * Position;
+    vTexCoord = TexCoord;
+}
+
+#pragma stage fragment
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 0) out vec4 FragColor;
+layout(set = 0, binding = 2) uniform sampler2D PassFeedback0;
+
+void main()
+{
+    // PassFeedback0: this pass's own previous frame's output (self-feedback).
+    vec3 prev = texture(PassFeedback0, vTexCoord).rgb;
+
+    // New content — reconstructed elapsed seconds drive a phase-shifting band.
+    float t = float(params.FrameCount) / 30.0;
+    float n = sin((t * 0.5 + vTexCoord.x * 10.0) * PI) * 0.5 + 0.5;
     vec3 newContent = vec3(n);
-    
-    // Accumulate with decay
+
+    // Accumulate with decay.
     vec3 accumulated = mix(prev * 0.92, newContent, 0.08);
-    
-    fragColor = vec4(accumulated, 1.0);
+
+    FragColor = vec4(accumulated, 1.0);
 }
 ```
 
-### File 4: `process.glsl`
+### File 4: `process.slang`
 ```glsl
-#include "common.glsl"
+#version 450
 
-uniform sampler2D iChannel0;
-uniform vec3 iResolution;
-uniform float iTime;
+// Blur pass — reads pass 0's own current output via Source.
 
-layout(location = 0) out vec4 fragColor;
+layout(std140, set = 0, binding = 0) uniform UBO
+{
+    mat4 MVP;
+    vec4 SourceSize;
+} global;
+
+#pragma stage vertex
+layout(location = 0) in vec4 Position;
+layout(location = 1) in vec2 TexCoord;
+layout(location = 0) out vec2 vTexCoord;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    
-    // Blur the accumulated buffer
+    gl_Position = global.MVP * Position;
+    vTexCoord = TexCoord;
+}
+
+#pragma stage fragment
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 0) out vec4 FragColor;
+layout(set = 0, binding = 2) uniform sampler2D Source;
+
+void main()
+{
+    // Horizontal 5-tap box blur — texel step from SourceSize.z (1/width,
+    // the fixed "<X>Size" vocabulary's own reciprocal slot,
+    // jam_VulkanShaderReflection.cpp's writeSizeVec4()).
     vec3 col = vec3(0.0);
-    float blur = 0.01;
-    
-    for(int i = -2; i <= 2; i++) {
-        col += texture(iChannel0, uv + vec2(float(i) * blur, 0.0)).rgb;
-    }
+
+    for (int i = -2; i <= 2; i++)
+        col += texture(Source, vTexCoord + vec2(float(i) * global.SourceSize.z, 0.0)).rgb;
+
     col /= 5.0;
-    
-    fragColor = vec4(col, 1.0);
+
+    FragColor = vec4(col, 1.0);
 }
 ```
 
-### File 5: `composite.glsl`
+### File 5: `composite.slang`
 ```glsl
+#version 450
+
+// Composite pass — the mandatory Image pass (ordinal 2), reads pass 1's
+// own current output via Source.
 #include "common.glsl"
 
-uniform sampler2D iChannel0;
-uniform vec3 iResolution;
-uniform float iTime;
+layout(std140, set = 0, binding = 0) uniform UBO
+{
+    mat4 MVP;
+} global;
 
-layout(location = 0) out vec4 fragColor;
+#pragma stage vertex
+layout(location = 0) in vec4 Position;
+layout(location = 1) in vec2 TexCoord;
+layout(location = 0) out vec2 vTexCoord;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    
-    vec3 col = texture(iChannel0, uv).rgb;
-    
-    // Boost contrast
-    col = pow(col, vec3(0.95));
-    
-    fragColor = vec4(col, 1.0);
+    gl_Position = global.MVP * Position;
+    vTexCoord = TexCoord;
+}
+
+#pragma stage fragment
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 0) out vec4 FragColor;
+layout(set = 0, binding = 2) uniform sampler2D Source;
+
+void main()
+{
+    vec3 col = texture(Source, vTexCoord).rgb;
+
+    // Boost contrast in linear space, back to display gamma.
+    col = delinearize(pow(linearize(col), vec3(0.95)));
+
+    FragColor = vec4(col, 1.0);
 }
 ```
 
@@ -600,25 +741,29 @@ graphics = {
 
 ## Configuration Reference
 
-### `~/.config/end/display.lua` Graphics Block
+### `~/.config/end/display.lua`
+
+`gpu` is a top-level key, separate from `graphics` — it toggles GPU rendering for the whole application, not just shaders:
+```lua
+gpu = true,   -- Enable GPU rendering (top-level, sibling of graphics, not inside it)
+```
 
 ```lua
 graphics = {
     -- Background shader
     background = "my_shader",              -- Directory name or empty
     background_opacity = 0.5,              -- 0.0 = transparent, 1.0 = opaque
-    background_resolution = 0.5,           -- 0.0-1.0, intermediate passes only
     frame_rate = 30,                       -- 1-120 Hz, controls GPU load
-    
+    background_resolution = 0.5,           -- 0.0-1.0, intermediate passes only
+
     -- Post-processing shader (runs after text)
     post_processing = "",                  -- Directory name or empty
     post_processing_opacity = 1.0,         -- 0.0 = original, 1.0 = fully processed
     post_processing_resolution = 0.5,      -- Same as background
-    
+
     -- Shared settings
     filter = "linear",                     -- "linear" (smooth) or "nearest" (sharp)
-    gpu = true,                            -- Enable GPU rendering
-    
+
     -- Font rasterization
     font_rasterizer = "freetype",          -- "edge_table", "freetype", or "native"
     font_gamma = 2.2,                      -- sRGB gamma correction
@@ -631,29 +776,53 @@ Edit config and press `Cmd+R` (macOS/Linux) or `Ctrl+R` (Windows) — no restart
 
 ---
 
-## Standard Uniforms (All Formats)
+## Standard Uniforms — Shadertoy Format
 
-### Available in Every Shader Pass
+### Available in Every Shadertoy Pass
 ```glsl
 uniform float iTime;        // Seconds since start
 uniform float iTimeDelta;   // Frame duration (1 / frame_rate)
 uniform int iFrame;         // Frame counter (0, 1, 2, ...)
 uniform vec3 iResolution;   // (width, height, aspect_ratio)
-uniform vec4 iMouse;        // (x, y, clickX, clickY) in pixels; y=0 at bottom
+uniform vec4 iMouse;        // (x, y, clickX, clickY) in pixels; sign-encoded per Shadertoy convention
 ```
 
-### Buffer Feedback (Shadertoy/Slang)
+Real, sign-encoded mouse state is only stamped for BACKGROUND shaders (their own click/drag events feed it), gated by `display.lua`'s `graphics.mouse.enabled` and driven by whichever button `graphics.mouse.imouse` names — see `display.lua`'s own `mouse` block. A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
+
+### Buffer Feedback (Shadertoy)
 ```glsl
-uniform sampler2D iChannel0; // Last frame of BufferA (or first buffer pass)
-uniform sampler2D iChannel1; // Last frame of BufferB (or second buffer pass)
-uniform sampler2D iChannel2; // Last frame of BufferC (or third buffer pass)
-uniform sampler2D iChannel3; // Last frame of BufferD (or fourth buffer pass)
+uniform sampler2D iChannel0; // Last frame of BufferA — iChannel0-3 are paste-compat aliases only
+uniform sampler2D iChannel1; // Last frame of BufferB
+uniform sampler2D iChannel2; // Last frame of BufferC
+uniform sampler2D iChannel3; // Last frame of BufferD
+uniform sampler2D BufferE;   // 5th buffer pass onward — referenced by name, no iChannelN alias exists
 ```
 
-### Post-Process Only
+Up to 21 buffer passes total (`ShaderUniforms::maxChannelCount`, derived from the 128-byte guaranteed Vulkan push-constant floor) — named `BufferA` through `BufferU` by a bijective base-26 scheme (the same one spreadsheet columns use).
+
+### Post-Process Only (Shadertoy)
 ```glsl
 uniform sampler2D iScene;   // The rendered scene (before post-process shader)
 ```
+
+## Standard Uniforms — Slang Format
+
+A slang pass gets NONE of the Shadertoy uniforms above. Its vocabulary is RetroArch's, reflected from whatever UBO/push-constant blocks the pass itself declares — the engine fills recognized member names by SPIR-V reflection:
+
+```glsl
+// Reflected fixed members (declare inside your own UBO or push_constant block)
+mat4  MVP;             // Identity — pass through in the vertex stage
+uint  FrameCount;      // Raw frame counter; elapsed seconds = float(FrameCount) / frame_rate
+int   FrameDirection;  // Always 1 (END never rewinds)
+vec4  SourceSize;      // (w, h, 1/w, 1/h) — the <X>Size pattern works for any bound texture
+vec4  OutputSize;      // This pass's own output
+vec4  FinalViewportSize;
+
+// #pragma parameter values are reflected by name the same way
+#pragma parameter my_param "Label" 0.5 0.0 1.0
+```
+
+Texture inputs are named samplers, resolved by reflection: `Source` (previous pass output; for a post-process chain's first pass, the rendered scene), `Original` (the scene), `PassOutputN`, `PassFeedbackN` (this pass's own previous frame), `OriginalHistoryN`, plus any `textures=` manifest name. Mouse state has no slang vocabulary — `iMouse` is Shadertoy-only.
 
 ---
 
@@ -681,8 +850,8 @@ uniform sampler2D iScene;   // The rendered scene (before post-process shader)
 |------|------|
 | Shader projects | `~/.config/end/shaders/` |
 | Config | `~/.config/end/display.lua` |
-| Debug log | `~/.local/share/END/debug.log` (macOS/Linux) |
-| Vulkan cache | `~/.config/end/cache/vulkan_pipeline.cache` |
+| Debug log | `~/.config/end/END.ode` |
+| Vulkan pipeline cache | `~/.config/end/cache/END.cache` |
 
 ---
 
@@ -691,7 +860,7 @@ uniform sampler2D iScene;   // The rendered scene (before post-process shader)
 ### Compilation Errors
 Check debug log:
 ```bash
-tail -f ~/.local/share/END/debug.log
+tail -f ~/.config/end/END.ode
 ```
 
 ### Common Issues
@@ -699,17 +868,17 @@ tail -f ~/.local/share/END/debug.log
 **"undefined reference to iChannel"**
 - Shader uses iChannel but passes aren't named BufferA/B/C/D (Shadertoy only)
 
-**"file not found: pass0.glsl"**
+**"file not found: pass0.slang"**
 - Referenced file doesn't exist or path is wrong in manifest
 
 **Shader doesn't render**
-- GPU disabled: set `gpu = true` in config
+- GPU disabled: set `gpu = true` in config (top-level key, not inside `graphics`)
 - Project directory name mismatch: verify `background = "exact_dir_name"`
 - Check that `Cmd+R` was pressed (or `auto_reload = true`)
 
 ### GPU Disabled / CPU Fallback
 ```lua
-graphics = { gpu = false }  -- Forces software rendering (slower, no effects)
+gpu = false  -- Forces software rendering (slower, no effects)
 ```
 
 ---
@@ -746,29 +915,32 @@ graphics = {
 
 ## API Reference (For Developers)
 
-### Shader Detection (Config)
+### Shader Format Detection (content-based)
 ```cpp
-// END scans for these files:
-// 1. shader.slangp (Slang format)
-// 2. Image.glsl + BufferX.glsl (Shadertoy format, default)
+// config::Shader::loadFromPath(), Source/config/Config.cpp — format is
+// resolved from the PARSED manifest result, never from mere .slangp
+// presence/absence:
+const juce::File dir { file::Shaders::getPath (path.toString()) };
+const auto presetFiles { dir.findChildFiles (juce::File::findFiles, false,
+    jam::vulkan::ShaderFormat::getExtension().at (jam::vulkan::ShaderFormat::slang)) };
+const auto presetFile { not presetFiles.isEmpty() ? presetFiles.getReference (0) : juce::File() };
+const auto preset { jam::vulkan::ShaderPreset::parse (presetFile.loadFileAsString()) };
 
-int format = jam::vulkan::ShaderFormat::shadertoy;
-if (dir.findChildFiles("*.slangp").isNotEmpty())
-    format = jam::vulkan::ShaderFormat::slang;
+const int format { preset.passes.empty() ? jam::vulkan::ShaderFormat::shadertoy
+                                          : jam::vulkan::ShaderFormat::slang };
 ```
 
 ### Shader Compilation
 ```cpp
-// ShaderCompiler reads format + source files
-// Compiles to SPIR-V via shaderc (vendored)
-// Caches pipelines at ~/.config/end/cache/vulkan_pipeline.cache
-
-jam::vulkan::ShaderCompiler::compile(
-    shaderState,    // ValueTree with Common/BufferX/Image/Preset properties
-    isBackground,   // true = background, false = post-process
-    format,         // ShaderFormat::shadertoy or ::slang
-    filter          // ImageResample::Type::linear or ::nearest
-);
+// ShaderCompiler reads format + source files, keyed by ShaderFormat's own
+// canon pass-name vocabulary (Common/Image/BufferX/Preset), compiles to
+// SPIR-V via shaderc (vendored), caches pipelines at
+// ~/.config/end/cache/END.cache.
+static std::unique_ptr<jam::vulkan::Shader> compile (
+    const juce::ValueTree& shaderState,          // Common/BufferX/Image/Preset properties + root-level path
+    bool isBackground,                           // true = background, false = post-process
+    int format,                                  // ShaderFormat::shadertoy or ::slang
+    jam::map::ImageResample::Type filter);       // linear or nearest upscale
 ```
 
 ---
@@ -780,7 +952,7 @@ Already shown above — see "Real-World Example: CRT Scanlines".
 
 ### Minimal Plasma (Background)
 ```glsl
-// Image.glsl
+// Image
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
@@ -805,13 +977,14 @@ graphics = {
 ## Troubleshooting Checklist
 
 - [ ] Directory exists at `~/.config/end/shaders/<name>/`
-- [ ] Shadertoy: `Image.glsl` exists
-- [ ] Slang: `shader.slangp` exists (exact name) + referenced files
+- [ ] Shadertoy: `Image` exists (no file extension)
+- [ ] Slang: a `*.slangp` file exists (any name) + every file it references
 - [ ] Config matches directory name: `graphics.background = "name"`
 - [ ] Reload pressed: `Cmd+R` (or `auto_reload = true`)
-- [ ] GPU enabled: `graphics.gpu = true`
-- [ ] No syntax errors in `.glsl` files
-- [ ] Check debug log for details: `~/.local/share/END/debug.log`
+- [ ] GPU enabled: `gpu = true` (top-level config key)
+- [ ] No syntax errors in source files
+- [ ] Every dependency copied INTO the project directory — no `#include`/path escaping it (isolation principle)
+- [ ] Check debug log for details: `~/.config/end/END.ode`
 
 ---
 

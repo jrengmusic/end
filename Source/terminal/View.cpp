@@ -28,8 +28,8 @@ View::View (jam::UUID uuid, jam::Model& model, Session& sessionRef)
     cellWidthPx  = juce::roundToInt (static_cast<float> (metrics.cellWidth) * cellWidthRatio);
     cellHeightPx = juce::roundToInt (static_cast<float> (metrics.cellHeight) * lineHeightRatio);
 
-    // Direction B (RFC P12) — cellSize + scrollbackLines published once at
-    // construction; winsize is published continuously from resized() (S4).
+    // Direction B — cellSize + scrollbackLines published once at
+    // construction; winsize is published continuously from resized().
     session.getModel().setCellSize (jam::Size<int16_t> (cellWidthPx, cellHeightPx));
     session.getModel().setScrollbackLines (config.getValue (IDtype::terminal, ID::scrollbackLines));
 
@@ -53,7 +53,7 @@ View::View (jam::UUID uuid, jam::Model& model, Session& sessionRef)
     registerEvents();
     config.addListener (this);
 
-    // HARNESS (S7.1) — remove at PLAN Step 6.
+    // HARNESS — remove.
     seedHarnessContent();
 }
 
@@ -81,22 +81,21 @@ void View::resized()
 }
 
 //==============================================================================
-// HARNESS (S7.1) — remove at PLAN Step 6.
+// HARNESS — remove.
 //
 // Seeds session.getDocument() with content exercising the full validation
-// gate (PLAN-terminal-editor.md Step 2 "Validation gate"): plain numbered
-// lines (scroll position visually verifiable), long lines (wrap), styled
-// runs (every SGR attribute + underline style 1-5), wide CJK + emoji
-// graphemes, and a final prompt line.
+// gate: plain numbered lines (scroll position visually verifiable), long
+// lines (wrap), styled runs (every SGR attribute + underline style 1-5),
+// wide CJK + emoji graphemes, and a final prompt line.
 /** @brief styleId 0 is the plain/default jam::Stamp::Entry — interned by
  *  Session's constructor (terminal/Session.h) before any View exists. */
 static constexpr uint16_t plainStyleId { 0 };
 
-/** @brief Builds a CodeLine from @p text, one jam::Char per Unicode scalar via
+/** @brief Builds a TextLine from @p text, one jam::Char per Unicode scalar via
  *  jam::Char::fromCodepoint. fromCodepoint returns exactly one Char per
  *  codepoint — a wide (CJK) head cell never carries its own companion, so a
  *  SPACER_TAIL cell is appended here whenever the returned cell is WIDE. */
-static jam::CodeLine buildLine (const juce::String& text, uint16_t styleId)
+static jam::TextLine buildLine (const juce::String& text, uint16_t styleId)
 {
     std::vector<jam::Char> cells;
     auto characterPointer { text.getCharPointer() };
@@ -113,7 +112,7 @@ static jam::CodeLine buildLine (const juce::String& text, uint16_t styleId)
                 jam::Char::make (0, jam::Char::CONTENT_CODEPOINT, jam::Char::SPACER_TAIL, styleId));
     }
 
-    jam::CodeLine line;
+    jam::TextLine line;
     line.cellCount = static_cast<int> (cells.size());
     line.chars.allocate (line.cellCount, false);
 
@@ -137,12 +136,12 @@ textFromCodepoints (const juce::String& prefix, std::initializer_list<char32_t> 
     return text;
 }
 
-/** @brief Builds a CodeLine whose final two cells are one emoji grapheme
+/** @brief Builds a TextLine whose final two cells are one emoji grapheme
  *  cluster (WIDE head + SPACER_TAIL companion), preceded by @p prefix in
  *  plain (styleId 0) text. Demonstrates jam::Grapheme interning + wide-cell
  *  companion pairing outside jam::Char::fromCodepoint's single-codepoint
  *  contract (fromCodepoint never produces CONTENT_GRAPHEME cells). */
-static jam::CodeLine
+static jam::TextLine
 buildEmojiLine (const juce::String& prefix, char32_t emojiCodepoint, uint16_t styleId)
 {
     const auto prefixLine { buildLine (prefix, plainStyleId) };
@@ -153,7 +152,7 @@ buildEmojiLine (const juce::String& prefix, char32_t emojiCodepoint, uint16_t st
 
     const auto graphemeIndex { jam::Grapheme::getInstance()->addIfNotAlreadyThere (entry) };
 
-    jam::CodeLine line;
+    jam::TextLine line;
     line.cellCount = prefixLine.cellCount + 2;
     line.chars.allocate (line.cellCount, false);
 
@@ -264,8 +263,8 @@ void View::seedHarnessContent()
     document.append (buildLine ("$ ", plainStyleId));
 
     // caretRow is viewport-relative (jam_CodeView.h) — row 0 of the eventual
-    // live region. Real cursor-anchored placement lands with terminal::Model
-    // (Step 5); this harness only exercises the setCaretPosition code path.
+    // live region. Real cursor-anchored placement lands with terminal::Model;
+    // this harness only exercises the setCaretPosition code path.
     codeView->setCaretPosition (0, 2);
     codeView->setCaretShape (jam::CaretShape::block);
     codeView->calc();

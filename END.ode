@@ -1,10 +1,16 @@
 
 **********************************************************
 
-Log started: 4 Jul 2026 6:57:38pm
+Log started: 5 Jul 2026 3:02:11am
 
 jam::vulkan::ShaderCompiler: Image -- Image:164: error: 'tex2Daa' : no matching overloaded function found
 Image:164: error: 'rgb' : vector swizzle selection out of range
 Image:164: error: 'constructor' : not enough data provided for construction
 Image:164: error: 'return' : cannot convert return value to function return type
 
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: mtllib: could not open /Users/jreng/Desktop/j3d.mtl, using default material
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: usemtl: unknown material 'None', using default
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: mtllib: could not open /Users/jreng/Desktop/j3d.mtl, using default material
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: usemtl: unknown material 'None', using default
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: mtllib: could not open /Users/jreng/Desktop/j3d.mtl, using default material
+jam::vulkan::ShaderInstance::buildMeshResources: /Users/jreng/Desktop/j3d.obj: usemtl: unknown material 'None', using default

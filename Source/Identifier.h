@@ -286,6 +286,25 @@
     X (fontContrast, "font_contrast")                            \
     X (shaderFormat, "shader_format")
 
+// graphics.mouse config keys (display.lua) — nested table under graphics,
+// parsed into its own IDtype::mouse child tree (jam::lua::ValueTree::from's
+// own nested-table recursion, Format::toValidID("mouse", true) == "MOUSE" ==
+// IDtype::mouse below, automatic — no separate wiring needed). enabled/zoom
+// are plain bool/string properties (auto type-validated by jam::Model::
+// fromLua, no bimap); imouse/orbit/reset are jam::map::MouseButton-validated
+// (config::Model::validators). Button-name values ("left"/"middle"/"right"/
+// "none") and zoom's fixed "wheel" spelling reuse jam::ID directly — never
+// declared here (jam::ID::left/middle/right/none already exist; "wheel" is
+// documented-only, never parsed as a live selector — see display.lua's own
+// mouse.zoom comment). end::Model's own runtime ID::zoom (IDENTIFIER_MODEL
+// below) is reused verbatim for this config key too — same Identifier,
+// different ValueTree location, no collision.
+#define IDENTIFIER_MOUSE(X)  \
+    X (mouse, "mouse")       \
+    X (imouse, "imouse")     \
+    X (orbit, "orbit")       \
+    X (reset, "reset")
+
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;
 // the remaining values map to jam::BackgroundBlur::WindowFX per platform.
@@ -309,8 +328,8 @@
     X (renderer, "renderer")        \
     X (message, "message")
 
-// terminal::Model P12 schema (RFC-terminal-editor.md P12, PLAN-terminal-editor.md
-// Step 5) — names not already carried by jam::ID (jam_IdentifierTerminal.h already
+// terminal::Model schema — names not already carried by jam::ID
+// (jam_IdentifierTerminal.h already
 // hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/cwd/title/
 // applicationCursor/applicationKeypad/bracketedPaste/mouseTracking/
 // mouseMotionTracking/mouseAllTracking/mouseSgr/focusEvents/win32InputMode/
@@ -339,6 +358,7 @@
         IDENTIFIER_WHELMED (EXPANDER)         \
         IDENTIFIER_BACKEND (EXPANDER)         \
         IDENTIFIER_SHADER (EXPANDER)          \
+        IDENTIFIER_MOUSE (EXPANDER)           \
         IDENTIFIER_MODEL (EXPANDER)           \
         IDENTIFIER_TERMINAL_STATE (EXPANDER)  \
     };

@@ -42,31 +42,45 @@ public:
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c file::Shaders::getPath, then detects
-     *  which source format that directory is: walks @c jam::vulkan::
-     *  ShaderFormat::getExtension() (only @c slang has an entry — a @c .slangp
-     *  manifest wildcard) and tests the directory for a matching file; no match
-     *  means @c jam::vulkan::ShaderFormat::shadertoy (absence of any manifest
-     *  extension IS shadertoy's own detection, zero if/else). The resolved
-     *  format ordinal is then handed to @c jam::vulkan::ShaderFormat::read(),
-     *  which owns both formats' own directory-to-ValueTree reading (shadertoy's
-     *  fixed Common/Image/BufferX files read directly; slang's own @c .slangp
-     *  @c shaders/shaderN directive parsing) — this method never parses either
-     *  format itself.
+     *  Locates the shader directory via @c file::Shaders::getPath, then reads
+     *  that directory's own @c .slangp manifest (any filename, extension-only
+     *  discovery via @c jam::vulkan::ShaderFormat::getExtension() — only
+     *  @c slang carries a manifest-extension entry, the SAME wildcard both
+     *  this detection and @c jam::vulkan::ShaderFormat's own directory readers
+     *  resolve through) and parses it via @c jam::vulkan::ShaderPreset::parse()
+     *  — the ONE lex both this detection and those readers share, never a
+     *  second, independently hand-rolled scan. Format is content-derived from
+     *  the parsed result: a non-empty @c preset.passes (a @c shaders=
+     *  directive present) is @c jam::vulkan::ShaderFormat::slang; an absent
+     *  @c .slangp, or one with no passes at all (an END-extension resource
+     *  manifest carrying only @c textures=/mesh=), is @c jam::vulkan::
+     *  ShaderFormat::shadertoy. The resolved format ordinal is then handed to
+     *  @c jam::vulkan::ShaderFormat::load(), which owns both formats' own
+     *  directory-to-ValueTree reading (shadertoy's fixed Common/Image/BufferX
+     *  @c .frag files, plus its own @c .slangp resource-manifest text when one
+     *  exists; slang's own @c .slangp @c shaders/shaderN directive parsing) —
+     *  this method never parses either format itself.
      *
      *  The read tree is overlaid onto @c state via @c setValuesFrom, and
      *  @c ID::shaderFormat is stamped with the resolved format ordinal (a plain
      *  int — @c jam::vulkan::ShaderFormat::shadertoy or @c ::slang) so callers
      *  always read a definite, resolved format — never an empty or missing
-     *  value, even before any project has ever been loaded.
+     *  value, even before any project has ever been loaded. @c jam::ID::path
+     *  is also stamped at @c state's own root level with @p dir's own full
+     *  path, so @c jam::vulkan::ShaderCompiler::compile() can absolutize every
+     *  parsed @c textures=/mesh= path against it (both are as-written,
+     *  relative to the project directory).
      *
      *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
      *  listeners (jam::vulkan::ShaderCompiler, via end::View's funnels) pick up the
      *  new source.
      *
      *  @param path    Active shader project name from config::Model.
-     *  @param errors  Accumulation channel (unused by shader — no lua parse).
-     *                 Kept to satisfy the @c Directory contract.
+     *  @param errors  Accumulation channel — unused by this method (the
+     *                 @c .slangp parse this method drives cannot itself fail);
+     *                 kept for signature parity with @c Directory's own
+     *                 @c loadFromPath override and @c Theme::loadFromPath's
+     *                 own lua-parse error channel.
      */
     void loadFromPath (const juce::var& path, juce::String& errors) override;
 
@@ -217,6 +231,14 @@ public:
         add (IDtype::graphics,   ID::filter,         jam::map::ImageResample::getValidator());
         add (IDtype::graphics,   ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
         add (jam::IDtype::cursor, jam::ID::style,     end::CursorShape::getValidator());
+
+        // graphics.mouse (nested under graphics — IDtype::mouse, found by the
+        // same recursive getChildWithName() as every other tree type here).
+        // enabled/zoom carry no entry — plain bool/string, auto type-validated
+        // by jam::Model::fromLua (Config.h's own validators doc comment).
+        add (IDtype::mouse, ID::imouse, jam::map::MouseButton::getValidator());
+        add (IDtype::mouse, ID::orbit,  jam::map::MouseButton::getValidator());
+        add (IDtype::mouse, ID::reset,  jam::map::MouseButton::getValidator());
 
         return v;
     }();

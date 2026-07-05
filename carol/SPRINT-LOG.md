@@ -2,6 +2,72 @@
 
 ---
 
+## Sprint 63: mesh_shader mainMesh Hook + Two-Format Contract + graphics.mouse Config + jam::Array Adoption ✅
+
+**Date:** 2026-07-05
+**Duration:** ~1 session
+
+### Agents Participated
+- COUNSELOR: orchestrated the full arc off ARCHITECT's live-test observations — reverted the `%%maxChannelCount%%` author-surface token leak (engine templates only, author files plain GLSL); ratified and enforced the two-format contract (Shadertoy vs slang-shaders, never mixed); caught the M2 over-reach (full look replacement) and re-ratified `mesh_shader=` as the `mainMesh` vertex-animation hook; root-caused the hook compile failure from the END.ode diagnostic dump (template doc comment carried the literal `%%mainMesh%%` token — replaceholder spliced the snippet INTO the comment); audited hooked-vs-default pipeline state parity; synthesized the jam::Array replaceability classification off Pathfinder's inventory; found and directed the jam::Array vacated-slot RAII bug fix; direct trivial fixes (Config.cpp isEmpty, GlyphQuad default-init, nodiscard capture, doxygen dedup/escape, template comment fix, transparent backdrop + spin.slang fill)
+- Pathfinder (1 pass): exhaustive std::vector inventory across non-vendored jam_vulkan (58 sites, 20 files) + jam::Array API surface
+- Engineer (7 dispatches): (1) j3d → pure slang-format project + SHADERS.md contract; (2) SHADERS.md slang examples rewritten with engine-verified vocabulary (Source/PassFeedback0/FrameCount/SourceSize; fabricated `common=` slang key removed — Shadertoy-only slot, jam_VulkanShaderFormat.cpp:95); (3) mesh_shader full-replacement → mainMesh hook restructure (templates, hooked pipelines, MeshUniforms standard-uniform delivery); (4) graphics.mouse config block through Identifier/Bimap canon; (5) DIAGNOSTIC instrumentation sweep (ODE closure); (6) OBJ parse-once at compile (Shader::meshShapes, extractShapes); (7) jam::Array adoption module-wide + resize() + move-ctor fix; (8) jam::Array vacated-slot invariant fix
+- Auditor: none this sprint (phase-gate audits ran in the retired PLAN's sprints; findings from Engineers processed inline)
+
+### Files Modified
+**JAM:**
+- `jam_core/utilities/jam_Array.h` — `resize(int)` added; explicit move ctor/assign (defaulted move left source counters stale over null storage — add() after move wrote through null); default-constructed tail invariant: `clear()`/`resize()`-shrink/`remove()`/`removeRange()` reset vacated slots to `ElementType{}` (deterministic RAII release, std::vector destroy-on-erase parity)
+- `jam_core/identifier/jam_IdentifierSVG.h` — `X(middle, "middle")`
+- `jam_data_structures/bimap/jam_MouseButton.h` (new) + `jam_data_structures.h` — `jam::map::MouseButton` bimap (left/middle/right/none, get/getValidator/isDown)
+- `jam_graphics/mesh/jam_WavefrontObj.h/.cpp` — `extractShapes() &&` move-out accessor (mirrors `HashMap::extract`), dead `getShapes()` deleted; Earcut call-boundary adapter
+- `jam_graphics/mesh/jam_Earcut.h/.cpp` — `triangulate()` takes/returns `jam::Array`
+- `jam_vulkan/shader/mesh_default.vert`, `mesh_edge.vert` — moved `shaders/` → `shader/` (raw BinaryData templates, no longer glslc-precompiled); rewritten as `%%mainMesh%%` splice templates with anonymous MeshUniforms block (bare `iTime`/`iTimeDelta`/`iFrame`/`iResolution`/`iMouse`); token-in-comment splice bug fixed (comments must never spell the token)
+- `jam_vulkan/shader/jam_VulkanShaderCompiler.h/.cpp` — `compileMeshVertexStage()` + template-filename constants + `mainMeshNoOp`; mesh full-stage compile branch deleted; OBJ parsed ONCE here (warnings logged once, not per instance rebuild); mesh `%%maxChannelCount%%` substitution reverted (author files carry no engine tokens)
+- `jam_vulkan/shader/jam_VulkanShader.h` — `meshShaderSource` + `meshShapes` (`jam::Owner<Shape>`) carriers; `meshVertexSpirv`/`meshFragmentSpirv` deleted; contentHash folds the hook source
+- `jam_vulkan/shader/jam_VulkanShaderPreset.h/.cpp` — `meshShaderPath` hook semantics; `passes`/`textures` → `jam::Array`
+- `jam_vulkan/resource/jam_VulkanShaderInstance.h/.cpp`, `...InstanceMesh.cpp`, `...InstanceSlang.cpp` — `MeshUniforms` extended with standard uniforms (176 B, zero-pad std140); `buildMeshHookPipelines()` (fill/transparent/edge, all-or-nothing, bad-snippet fallback to defaults); `buildMeshResources()` consumes pre-parsed shapes; `meshShaderPipeline` family deleted; nodiscard result captured; jam::Array sweep; `\#pragma` doxygen escape
+- `jam_vulkan/context/jam_VulkanGraphics.h/.cpp`, `GraphicsMesh.cpp`, `GraphicsShaderPass.cpp`, `GraphicsSlangPass.cpp`, `LowLevelGraphicsContext*.{h,cpp}` — hookless defaults runtime-compile from the same templates (cached no-op SPIR-V); `recordMeshShaderDrawCommands()`/`getOrCreateMeshShaderPipelineLayout()` deleted; per-draw hooked-vs-default pipeline dispatch; `GlyphQuad` default member initializers (jam::Size has no default ctor); DIAGNOSTIC sites removed; jam::Array sweep
+- `jam_vulkan/shader/jam_VulkanShaderComponent.h` — `setMouseConfig()`; handlers gated on `MouseButton::isDown()` per configured button; DIAGNOSTIC removed
+- `jam_vulkan/device/jam_VulkanDevice.cpp`, `bimap/jam_VulkanShaderFormat.cpp`, `resource/jam_VulkanRenderResources.h`, `resource/jam_VulkanWindingScratch.h/.cpp`, `resource/jam_VulkanMesh.h`, `font/*` — jam::Array sweep (two documented vendored-boundary exceptions: `swapchainImages`, surface-formats param); `fitEmojiToCellBox` duplicate `@param` tags dropped (header-only doxygen)
+
+**END:**
+- `Source/Identifier.h` — `IDENTIFIER_MOUSE` block (mouse/imouse/orbit/reset)
+- `Source/Bimap.h` — `end::Map::mouseButton`
+- `Source/config/Config.h/.cpp` — mouse-button validators (nested IDtype::mouse); `passes.empty()` → `isEmpty()`
+- `Source/end/View.h/.cpp`, `Source/end/EventRegistration.cpp` — config-driven mouse routing (`applyMouseConfig()`, `resetButtonDragged` button-agnostic, orbit/reset independently bindable); hot-reload events
+- `Source/config/lua/display.lua` — `graphics.mouse` block (enabled/imouse/orbit/reset/zoom-fixed)
+- `SHADERS.md` — two-format contract formalized (Shadertoy = slangp manifest + Image/Common/BufferN; slang-shaders = slangp + .slang; never mixed; mesh authoring = slang project); both slang walkthrough examples rewritten with engine-verified vocabulary; uniforms reference split per format; `common=` removed from slang docs; `.slang` corpus-convention sweep; mainMesh hook section; iMouse configurability notes
+
+**Test assets (~/.config/end/shaders/j3d/):** pure slang project — `j3d.slang` (transparent backdrop), `spin.slang` (mainMesh snippet only), `j3d.slangp` (shaders=1 + mesh= + mesh_shader=)
+
+### Alignment Check
+- [x] BLESSED principles followed — **S** (SSOT: one template source per mesh vertex stage, hooked and hookless; parse-once at compile; standard uniform vocabulary shared verbatim across all shader surfaces); **E** (Explicit: author files plain GLSL, zero engine tokens; two-format contract kills mixed-type ambiguity); **L** (jam::Array 16-byte footprint replaces std::vector module-wide; parse noise eliminated at root, not log-suppressed); **D** (delete-first: full-replacement mesh path, precompiled mesh vertex SPIR-V, getShapes, DIAGNOSTIC sites all removed before replacements landed)
+- [x] NAMES.md adhered — mainMesh/BindlessInstance-grade names gated with ARCHITECT (mainMesh, graphics.mouse schema, MouseButton, extractShapes flagged); zero loose literals (Identifier/Bimap canon for all mouse vocabulary)
+- [x] MANIFESTO.md principles applied — see BLESSED breakdown
+
+### Problems Solved
+- `%%maxChannelCount%%` leaked into author surface → reverted; author push-constant blocks declare only the leading fields they read
+- Mixed-format j3d (Shadertoy backdrop + .slang mesh file) → two-format contract ratified, j3d converted pure slang, docs formalized
+- SHADERS.md slang examples were fabricated (iTime/iChannel0 in slang passes — engine reflects only MVP/FrameCount/FrameDirection/<X>Size/#pragma parameter) → rewritten engine-verified; fabricated `common=` slang key removed
+- M2 mesh_shader replaced the ENTIRE mesh look → re-ratified as mainMesh vertex-animation hook; default look (transparent fill, materials, feature edges) preserved and animated
+- Hook compile failure ("iTime undeclared at 22") → END.ode source dump revealed replaceholder splicing the snippet into the template's own doc comment (it spelled the literal token); comments fixed; single-line no-op masked the bug on the hookless path
+- mtllib/usemtl warning spam per resize → OBJ parse moved to compile (once per Shader), instances consume `Shader::meshShapes`
+- jam::Array defaulted move left source counters stale over null storage → explicit move ctor/assign zeroing source
+- jam::Array vacated slots kept RAII resources alive (`clear()` on `jam::Array<Image>` leaked GPU memory until overwrite) → default-constructed tail invariant at every vacate point
+- GlyphQuad not default-constructible (jam::Size has no default ctor) broke `jam::Array` storage → default member initializers
+- Doxygen: duplicate `@param` tags (header+definition), unescaped `#pragma` → zero-warning restored
+
+### Open Findings (not autonomously actioned — no DEBT.md entry, no ARCHITECT deferral command)
+- `Source/end/View.h:312` — raw `<int16_t>` unescaped inside a doxygen block (pre-existing, flagged by Engineer)
+- `View::events` dispatch is property-name-keyed globally, not tree-scoped — a second `enabled` key elsewhere in the config tree would collide (pre-existing design property, no current collision)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 62: Panes.cpp BLESSED Cleanup — Direction Dispatch, Pane Construction, Resizer Routing ✅
 
 **Date:** 2026-07-04

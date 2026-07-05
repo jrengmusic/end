@@ -3,7 +3,7 @@
  * @brief V1 write-path conformance — width, wide advance, combining/cluster
  *        folding, wide-at-margin wrap, mode 2027 gate.
  *
- * Coverage: RFC-vt-correctness.md S1/V1 decision, S5 wide-at-margin scaffold
+ * Coverage: the ratified write-path decision and wide-at-margin scaffold
  * (used verbatim), every `emoji_test.sh` section (endless/test/emoji_test.sh)
  * as assertions.
  *
@@ -117,7 +117,7 @@ TEST_CASE ("combining mark folds into the base cell via jam::Grapheme interning"
 }
 
 // ============================================================================
-// Wide-at-margin — RFC-vt-correctness.md S5, verbatim
+// Wide-at-margin — the ratified scaffold, verbatim
 // ============================================================================
 
 TEST_CASE ("wide at right margin wraps before writing", "[video][width][v1]")
@@ -153,8 +153,8 @@ TEST_CASE ("VS16 (U+FE0F) folds into the base cell, does not add a column", "[vi
     // NOTE: real-terminal expectation is width promotion 1->2 (corpus marks |XX|).
     // V1's write-time model resolves width ONCE from the base codepoint and
     // folds all subsequent Extend-class codepoints (VS16 included) into the
-    // same cell without further cursor advance (RFC-vt-correctness.md S1
-    // Case 1: "Cursor does not advance"). This assertion pins the SHIPPED
+    // same cell without further cursor advance ("Cursor does not advance").
+    // This assertion pins the SHIPPED
     // integration contract (final cursor column == base codepoint width);
     // if VS16-triggered width promotion is later added, this case is the
     // one to update. Flagged in the sprint BRIEF as a conformance finding.
@@ -227,8 +227,7 @@ TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the dig
 // Mode 2027 (GRAPHEME_CLUSTERING) — DECSET / DECRST / DECRQM + gate behavior
 // ============================================================================
 //
-// CONFORMANCE FINDING RESOLVED (PLAN-vt-correctness.md Step 8, carried fix
-// a): the DFA (jam_Transition.h buildCSIEntry/buildCSIParam/
+// CONFORMANCE FINDING RESOLVED: the DFA (jam_Transition.h buildCSIEntry/buildCSIParam/
 // buildCSIIntermediate) collects '$' (0x24) as an intermediate byte and
 // delivers 'p'/'q' (0x70/0x71) as `finalByte` for `CSI ? Pm $ p` (DECRQM) /
 // `CSI Pd $ q` (DECRQSS). `applyCSI()` (jam_VideoCSI.cpp) now carries

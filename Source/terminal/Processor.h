@@ -13,17 +13,16 @@ namespace terminal
 /** @brief Terminal engine — owns processing pipeline.
  *
  *  AudioProcessor analog in the MVP (Model-View-Processor) pattern.
- *  Will own Parser, Video, CellFifo, and TTY in Phase 4. Buffer (CodeModel)
+ *  Will own Parser, Video, CellFifo, and TTY. Buffer (CodeModel)
  *  is owned by Session, not Processor.
  *
  *  Holds a reference to Session's terminal::Model — registered as a
- *  jam::Model::Listener for Direction B (RFC-terminal-editor.md P12).
+ *  jam::Model::Listener for Direction B.
  *  parameterChanged() fires on the CALLING thread (jam_Model.h:36-48), i.e.
  *  the message thread — it is the WAKE seam only, never reader-owned state.
- *  Nudging the TTY poll wake fd completes at Step 6 (Phase 4 wiring), once
- *  the reader thread exists.
+ *  Nudging the TTY poll wake fd completes once the reader thread exists.
  *
- *  Phase 3/5: lean stub. Correct shape, built layer by layer.
+ *  Lean stub. Correct shape, built layer by layer.
  */
 struct Processor : public jam::Model::Listener
 {
@@ -44,12 +43,13 @@ struct Processor : public jam::Model::Listener
         model.removeListener (this);
     }
 
-    // Phase 4: Parser, Video, CellFifo, TTY
+    // Parser, Video, CellFifo, TTY
 
-    /** @brief Direction B wake seam (RFC-terminal-editor.md P12).
+    /** @brief Direction B wake seam.
      *  @note Fires on the MESSAGE thread (jam_Model.h:36-48). Touches no
-     *  reader-owned state — Step 6 completes this by nudging the TTY poll
-     *  wake fd; the reader consumes the changed atomic at its loop top.
+     *  reader-owned state — nudging the TTY poll wake fd completes this,
+     *  once the reader thread exists; the reader consumes the changed
+     *  atomic at its loop top.
      */
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override
     {

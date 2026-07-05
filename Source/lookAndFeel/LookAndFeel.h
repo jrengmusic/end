@@ -320,8 +320,8 @@ private:
 
     /**
      * @brief Reads code.embolden from config.lua and calls the Vulkan glyph
-     *        atlas's setEmbolden() (PLAN-terminal-editor.md Step 2.5 —
-     *        `FT_Outline_Embolden` restoration at the FreeType rasterize site).
+     *        atlas's setEmbolden() (`FT_Outline_Embolden` restoration at the
+     *        FreeType rasterize site).
      *
      * Reaches the atlas via jam::GlyphAtlas::getInstance() directly, same
      * precedent as applyFontRasterization() (font events live with the font
@@ -365,9 +365,8 @@ private:
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
      *                     → applyFontRasterization() (font events live with the
      *                       font owner — relocated from end::View)
-     * - ID::embolden      → applyEmbolden() (PLAN-terminal-editor.md Step 2.5 —
-     *                       same font-owner precedent as fontRasterizer/
-     *                       fontGamma/fontContrast)
+     * - ID::embolden      → applyEmbolden() (same font-owner precedent as
+     *                       fontRasterizer/fontGamma/fontContrast)
      *
      * Glyph-identity config coverage audit — every config value that can alter
      * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/

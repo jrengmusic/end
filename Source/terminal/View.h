@@ -18,15 +18,15 @@ namespace terminal
  *  (does not own) a jam::CodeView constructed over session.getDocument() —
  *  Session outlives View — Nexus destroyed after window.
  *
- *  Width SSOT + reserved gutter (RFC P5/S4): resized() is THE only width
+ *  Width SSOT + reserved gutter: resized() is THE only width
  *  computation — scrollbar visibility never re-enters it. Cell metrics,
  *  padding, and gutter (reserved scrollbar width) are read ONCE from
  *  config::Model at construction time (ctor-time read only) — hot-reload
  *  listener wiring is Phase 4 (ARCHITECTURE.md:507).
  *
  *  code.ligatures and the cursor block (style/blink/blink_interval; char/
- *  force plumbed only) ARE hot-reload wired (PLAN-terminal-editor.md Step
- *  2.5) — ValueTree::Listener on config::Model, single-key event dispatch
+ *  force plumbed only) ARE hot-reload wired — ValueTree::Listener on
+ *  config::Model, single-key event dispatch
  *  through @c events, mirroring end::View/end::LookAndFeel's established
  *  pattern. code.embolden is owned by end::LookAndFeel (the font owner,
  *  applyFontRasterization() precedent), not here.
@@ -45,10 +45,10 @@ public:
 
     Session& getSession() noexcept { return session; }
 
-    /** @brief Width SSOT (RFC S4) — computes cols/rows from component size,
+    /** @brief Width SSOT — computes cols/rows from component size,
      *  the reserved gutter, and the config-derived cell metrics; tells
      *  codeView the projection width and live-region row count. Scrollbar
-     *  visibility never re-enters this computation (P5 reserved gutter). */
+     *  visibility never re-enters this computation (reserved gutter). */
     void resized() override;
 
     /** @brief Single-key dispatch through the events map — property key takes
@@ -66,32 +66,32 @@ private:
     Session& session;
 
     /** @brief Parented and owned by this view, but never owns the document —
-     *  the pure view over session.getDocument() (RFC P2/S5). */
+     *  the pure view over session.getDocument(). */
     std::unique_ptr<jam::CodeView> codeView;
 
     /** @brief Space between the pane edge and codeView, CSS order
      *  (top, right, bottom, left) — theme.lua code.padding. */
     juce::BorderSize<int> textPadding;
 
-    /** @brief Reserved scrollbar gutter width in pixels (RFC P5) — always
+    /** @brief Reserved scrollbar gutter width in pixels — always
      *  subtracted from available width; scrollbar visibility toggles
      *  drawing only, never this reservation. */
     int gutterWidth { 0 };
 
     /** @brief Cell metrics in pixels, computed once at construction from
-     *  config::Model (RFC S4/S5) — the single authority told to codeView
+     *  config::Model — the single authority told to codeView
      *  via setCellSize(). */
     int cellWidthPx  { 0 };
     int cellHeightPx { 0 };
 
     /** @brief Cursor glyph character (theme.lua cursor.char) — PLUMB only.
      *  Glyph-char caret rendering is flagged, not built (the emoji/glyph-caret
-     *  bundle, PLAN-terminal-editor.md Step 2.5); stored here for Step 6's
+     *  bundle); stored here for the
      *  DECSCUSR gate to consume. */
     juce::String cursorChar;
 
     /** @brief Cursor lock (theme.lua cursor.force) — PLUMB only. Stored here
-     *  for Step 6's DECSCUSR gate: when true, programs cannot override
+     *  for the DECSCUSR gate: when true, programs cannot override
      *  cursorShape/cursorChar via DECSCUSR. */
     bool cursorForce { false };
 
@@ -115,15 +115,15 @@ private:
 
     /** @brief Reads the cursor block (style/blink/blink_interval/char/force)
      *  from config and applies style/blink/blink_interval to codeView; char/
-     *  force are stored only (Step 6 DECSCUSR gate). Called once at
+     *  force are stored only (DECSCUSR gate). Called once at
      *  construction and again by the jam::IDtype::cursor event handler on
      *  hot-reload. Defined in EventRegistration.cpp.
      */
     void applyCursorConfig();
 
-    /** @brief Seeds session.getDocument() with content exercising the S7.1
+    /** @brief Seeds session.getDocument() with content exercising the
      *  validation gate (text, wrap, scroll, caret, styled runs, wide/emoji
-     *  graphemes). HARNESS (S7.1) — remove at PLAN Step 6. */
+     *  graphemes). HARNESS — remove. */
     void seedHarnessContent();
 
     //==============================================================================

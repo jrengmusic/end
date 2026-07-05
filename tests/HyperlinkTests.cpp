@@ -4,12 +4,12 @@
  *        stamping on head and SPACER_TAIL, `;;` reset, FLEX_GAP preserves
  *        the merge target's own linkId.
  *
- * Coverage: RFC-vt-correctness.md V5 decision, PLAN-vt-correctness.md Step 4.
- * `jam::Link` is a `SharedResources<Link>` singleton — see TestTerm.h doc for
+ * Coverage: the ratified OSC 8 hyperlink carrier design and its interning
+ * behavior. `jam::Link` is a `SharedResources<Link>` singleton — see TestTerm.h doc for
  * the ownership model (`Test::Term` owns one `jam::Link` instance per fixture).
  *
- * CONFORMANCE FINDING RESOLVED (PLAN-vt-correctness.md Step 8, carried fix
- * b): `Owner<T>::addIfNotAlreadyThere` (jam_core/utilities/jam_IsHashable.h)
+ * CONFORMANCE FINDING RESOLVED: `Owner<T>::addIfNotAlreadyThere`
+ * (jam_core/utilities/jam_IsHashable.h)
  * returns a 0-BASED index — the FIRST interned entry gets index 0.
  * `Video::handleOsc8()` (jam_VideoOSCExt.cpp) stores that index **+1** into
  * `activeLinkId`, exactly matching `jam::Char::linkId()`'s documented
