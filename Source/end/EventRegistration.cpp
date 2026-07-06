@@ -6,12 +6,6 @@ namespace end
 
 void View::registerEvents()
 {
-    events.add<juce::ValueTree&> (ID::tabOrientation,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setTabOrientation();
-                                  });
-
     events.add<juce::ValueTree&> (ID::focus,
                                   [this] (juce::ValueTree& tree)
                                   {
@@ -37,9 +31,8 @@ void View::registerEvents()
             // availability/preference only selects which rendering engine
             // createContext() dispatches to per paint (see end::Application's
             // vulkanEngine doc comment, Main.h).
-            const bool canUseGpu {
-                config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
-            };
+            const bool canUseGpu { config.getValue (IDtype::display, ID::gpu)
+                                   and jam::GpuProbe::probe().isAvailable };
 
             jam::BackgroundBlur::setEnabled (canUseGpu);
 
@@ -82,18 +75,17 @@ void View::registerEvents()
                                       applyBackgroundParams();
                                   });
 
-    events.add<juce::ValueTree&> (
-        ID::filter,
-        [this] (juce::ValueTree&)
-        {
-            // filter is shared by both slots (display.lua: applies to both the
-            // background and post-processing upscale) — baked into the
-            // compiled prelude (jam::vulkan::ShaderCompiler::channelMacros()/sceneMacro()),
-            // so a filter change requires a full recompile on both funnels,
-            // never the cheaper *Params() path.
-            applyBackground();
-            applyPostProcess();
-        });
+    events.add<juce::ValueTree&> (ID::filter,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      // filter is shared by both slots (display.lua: applies to both the
+                                      // background and post-processing upscale) — baked into the
+                                      // compiled prelude (jam::vulkan::ShaderCompiler::channelMacros()/sceneMacro()),
+                                      // so a filter change requires a full recompile on both funnels,
+                                      // never the cheaper *Params() path.
+                                      applyBackground();
+                                      applyPostProcess();
+                                  });
 
     events.add<juce::ValueTree&> (ID::postProcessing,
                                   [this] (juce::ValueTree&)
@@ -159,9 +151,8 @@ void View::applyBackground()
     // Same effective-gpu truth end::Application resolves for the VulkanEngine
     // ctor and the gpu event handler resolves for setGpuEnabled() — never
     // raw config alone.
-    const bool gpuEnabled {
-        config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
-    };
+    const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
+                            and jam::GpuProbe::probe().isAvailable };
 
     const auto projectName { config.getValue (IDtype::graphics, ID::background).toString() };
     const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
@@ -182,7 +173,8 @@ void View::applyBackground()
         // resolves through) cannot return before that constructor finishes.
         const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
 
-        auto compiled { jam::vulkan::ShaderCompiler::compile (shaderState, true, shaderFormat, filter) };
+        auto compiled { jam::vulkan::ShaderCompiler::compile (
+            shaderState, true, shaderFormat, filter) };
 
         // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
         // keeps whichever shader background currently holds — call nothing (last-good).
@@ -206,20 +198,21 @@ void View::applyBackgroundParams()
 
 void View::applyPostProcess()
 {
-    const bool gpuEnabled {
-        config.getValue (IDtype::display, ID::gpu) and jam::GpuProbe::probe().isAvailable
-    };
+    const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
+                            and jam::GpuProbe::probe().isAvailable };
 
     const auto projectName { config.getValue (IDtype::graphics, ID::postProcessing).toString() };
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
-    const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
+    const float resolutionScale { config.getValue (
+        IDtype::graphics, ID::postProcessingResolution) };
 
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
-        const auto shaderState { jam::Model::getChildWithName (config.state, IDtype::postProcessing) };
+        const auto shaderState { jam::Model::getChildWithName (
+            config.state, IDtype::postProcessing) };
         const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
         const auto filter { jam::map::ImageResample::get (filterName) };
 
@@ -228,7 +221,8 @@ void View::applyPostProcess()
         // readable here.
         const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
 
-        auto compiled { jam::vulkan::ShaderCompiler::compile (shaderState, false, shaderFormat, filter) };
+        auto compiled { jam::vulkan::ShaderCompiler::compile (
+            shaderState, false, shaderFormat, filter) };
 
         // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
         // keeps whichever chain VulkanEngine currently holds — call nothing.
@@ -244,7 +238,8 @@ void View::applyPostProcess()
 void View::applyPostProcessParams()
 {
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
-    const float resolutionScale { config.getValue (IDtype::graphics, ID::postProcessingResolution) };
+    const float resolutionScale { config.getValue (
+        IDtype::graphics, ID::postProcessingResolution) };
 
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);
@@ -254,9 +249,12 @@ void View::applyPostProcessParams()
 void View::applyMouseConfig()
 {
     const bool enabled { config.getValue (IDtype::mouse, jam::ID::enabled) };
-    const auto imouseButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::imouse).toString()) };
-    const auto orbitButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::orbit).toString()) };
-    const auto resetButton { jam::map::MouseButton::get (config.getValue (IDtype::mouse, ID::reset).toString()) };
+    const auto imouseButton { jam::map::MouseButton::get (
+        config.getValue (IDtype::mouse, ID::imouse).toString()) };
+    const auto orbitButton { jam::map::MouseButton::get (
+        config.getValue (IDtype::mouse, ID::orbit).toString()) };
+    const auto resetButton { jam::map::MouseButton::get (
+        config.getValue (IDtype::mouse, ID::reset).toString()) };
 
     mouseEnabled = enabled;
     orbitButtonConfig = orbitButton;

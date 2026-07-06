@@ -77,6 +77,43 @@ void View::registerActions()
                               }
                           });
 
+    registry.actions.add (ID::zoomIn,
+                          [this]
+                          {
+                              const jam::UUID id { static_cast<int64_t> (
+                                  state.getProperty (ID::focusedPane)) };
+
+                              if (id.value != 0)
+                              {
+                                  const float step { config.getValue (IDtype::display, ID::zoomStep) };
+                                  end::Nexus::getInstance()->get (id).getModel().zoomBy (step);
+                              }
+                          });
+
+    registry.actions.add (ID::zoomOut,
+                          [this]
+                          {
+                              const jam::UUID id { static_cast<int64_t> (
+                                  state.getProperty (ID::focusedPane)) };
+
+                              if (id.value != 0)
+                              {
+                                  const float step { config.getValue (IDtype::display, ID::zoomStep) };
+                                  end::Nexus::getInstance()->get (id).getModel().zoomBy (-step);
+                              }
+                          });
+
+    registry.actions.add (ID::zoomReset,
+                          [this]
+                          {
+                              const jam::UUID id { static_cast<int64_t> (
+                                  state.getProperty (ID::focusedPane)) };
+
+                              if (id.value != 0)
+                                  end::Nexus::getInstance()->get (id).getModel().setZoom (
+                                      terminal::Model::defaultZoom);
+                          });
+
     registry.actions.add (ID::paneLeft,
                           [this]
                           {

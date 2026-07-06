@@ -157,7 +157,7 @@ public:
     using jam::terminal::Video::Video;
 
     /** @brief Sets `syncOutputDeadlineMs` directly, bypassing the
-     *  `handlePrivateMode()` DECSET 2026 arm computation. */
+     *  `applyPrivateMode()` DECSET 2026 arm computation. */
     void setSyncOutputDeadlineMs (double ms) noexcept { syncOutputDeadlineMs = ms; }
 };
 
@@ -250,7 +250,7 @@ public:
 
     // ---- OSC 0/2 title -------------------------------------------------------
     // OSC 0/2 now writes jam::terminal::Model's TEXT/title jam::ParameterText
-    // directly (jam_VideoOSC.cpp handleOscTitle()) — read it straight off the
+    // directly (jam_VideoOSC.cpp applyOscTitle()) — read it straight off the
     // fixture-owned model collaborator, the same TEXT group Video resolved
     // titleParam from at construction.
 

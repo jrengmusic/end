@@ -18,7 +18,7 @@
  * disambiguation rows (DECRQM, DECSCUSR-vs-DECRQSS, primary-vs-secondary
  * DA), the ESC no-intermediate action LUT (RI, DECSC/DECRC), the OSC
  * command-number action LUT (0, 8; OSC 133 A/B/C is already covered above
- * by the pre-existing "OSC 133 A/B/C..." test — same `handleOsc133()` call
+ * by the pre-existing "OSC 133 A/B/C..." test — same `applyOsc133()` call
  * path, re-used rather than duplicated), the C0 action LUT (BEL/BS/HT), and
  * a modeFlag-read-after-DECSET assertion exercising the `modeParameters`
  * hot-tier cache (jam_CursorState.h/.cpp).
@@ -183,7 +183,7 @@ TEST_CASE ("SGR 4 after SGR 4:3 (curly) clears the field to single", "[video][sg
 
 TEST_CASE ("CSI 4:3 m sets curly underline without dispatching the ':' sub-parameter as standalone SGR 3 (no spurious ITALIC)", "[video][sgr][lookuptable]")
 {
-    // Regression: handleSGR()'s main dispatch loop previously ran every
+    // Regression: applySGR()'s main dispatch loop previously ran every
     // params.values[i] through sgrActionLut regardless of separator type,
     // so the `3` in `4:3` (curly-underline sub-parameter ordinal) was also
     // dispatched as SGR 3 (italic). A sub-parameter is bound to its head
@@ -342,9 +342,9 @@ TEST_CASE ("DECRQM (CSI ? Pd $ p) reports the queried mode's state via the compo
 TEST_CASE ("DECRQM requires the full wire form CSI ? Pd $ p — bare CSI ? Pd p (no '$') is ignored", "[video][csi][lookuptable][step8d]")
 {
     // ARCHITECT ruling: the composite key alone only verifies inter[0] ==
-    // '?' (csiInterCode::PRIVATE); the DECRQM executor arm additionally
+    // '?' (csiInterCode::PRIVATE); the DECRQM executor additionally
     // requires inter[1] == '$' before calling reportDecrqm() — see
-    // jam_VideoCSI.cpp `case CsiAction::decrqm`.
+    // jam_VideoCSI.cpp `Video::applyDecrqm()`.
     Test::Term t { 10, 5 };
 
     // Full wire form — mode 2026 (SYNC_OUTPUT) defaults reset.

@@ -9,10 +9,9 @@ Tabs::Tabs (jam::Model& m)
     : jam::Model::Component { m, IDtype::tabs }
 {
     setTabBarDepth (0);
-    config.addListener (this);
 }
 
-Tabs::~Tabs() { config.removeListener (this); }
+Tabs::~Tabs() {}
 
 void Tabs::addNewTab()
 {
@@ -38,15 +37,14 @@ void Tabs::addNewTab()
     panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
 
     // Wire label value to model state — must happen AFTER Attachment grafts the state.
-    auto* tab { getBar().getTabButton (getNumTabs() - 1) };
 
-    if (tab != nullptr)
+    if (auto* tab { getBar().getTabButton (getNumTabs() - 1) })
     {
         auto nameValue { panes->state.getPropertyAsValue (jam::ID::name, nullptr) };
         tab->label.getTextValue().referTo (nameValue);
     }
 
-    updateTabBarVisibility();
+    lookAndFeelChanged();
 }
 
 void Tabs::removeCurrentTab()
@@ -58,8 +56,7 @@ void Tabs::removeCurrentTab()
         attachments.remove (index);
         removeTab (index);
         setCurrentTabIndex (juce::jmin (index, getNumTabs() - 1));
-
-        updateTabBarVisibility();
+        lookAndFeelChanged();
     }
     else
     {
@@ -80,24 +77,16 @@ void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
     if (tree.getType() == IDtype::tab)
     {
-        updateTabBarVisibility();
+        lookAndFeelChanged();
         resized();
     }
 }
 
-void Tabs::updateTabBarVisibility()
+void Tabs::lookAndFeelChanged()
 {
-    if (getNumTabs() <= 1)
-    {
-        setTabBarDepth (0);
-    }
-    else
-    {
-        auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-        const float depth { config.getValue (IDtype::tab, ID::depth) };
-
-        setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() * depth));
-    }
+    auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
+    setTabBarDepth (laf.getTabBarDepth (*this));
+    setOrientation (laf.getTabPosition());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

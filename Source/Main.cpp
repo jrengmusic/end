@@ -47,7 +47,6 @@ void Application::initialise (const juce::String& commandLine)
     }
 #endif
     initialiseVulkan();
-    juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
 
     auto* view { new View (model) };
     window.reset (new end::Window { view, ProjectInfo::projectName });
@@ -85,7 +84,8 @@ double Application::queryPrimaryDisplayRefreshRateHz() noexcept
         const auto nominalPeriod { CVDisplayLinkGetNominalOutputVideoRefreshPeriod (displayLink) };
 
         if ((nominalPeriod.flags & kCVTimeIsIndefinite) == 0 and nominalPeriod.timeValue > 0)
-            refreshRateHz = static_cast<double> (nominalPeriod.timeScale) / static_cast<double> (nominalPeriod.timeValue);
+            refreshRateHz = static_cast<double> (nominalPeriod.timeScale)
+                            / static_cast<double> (nominalPeriod.timeValue);
 
         CVDisplayLinkRelease (displayLink);
     }
@@ -98,8 +98,8 @@ double Application::queryPrimaryDisplayRefreshRateHz() noexcept
     const auto* primaryDisplay { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
 
     return (primaryDisplay != nullptr)
-        ? primaryDisplay->verticalFrequencyHz.value_or (indeterminateRefreshRateHz)
-        : indeterminateRefreshRateHz;
+               ? primaryDisplay->verticalFrequencyHz.value_or (indeterminateRefreshRateHz)
+               : indeterminateRefreshRateHz;
 }
 #endif
 
@@ -109,8 +109,8 @@ void Application::initialiseVulkan()
     // polled) — feeds VulkanEngine's session-locked MSAA calibration.
     const auto refreshRateHz { queryPrimaryDisplayRefreshRateHz() };
     const auto targetFrameBudgetMs { refreshRateHz >= highRefreshRateThresholdHz
-        ? highRefreshFrameBudgetMs
-        : standardRefreshFrameBudgetMs };
+                                         ? highRefreshFrameBudgetMs
+                                         : standardRefreshFrameBudgetMs };
 
     // Vulkan pipeline cache — resolved under END's own config directory
     // (file::Config::path, ~/.config/end/), never decided by JAM. Explicit
@@ -123,8 +123,7 @@ void Application::initialiseVulkan()
 
     jam::BackgroundBlur::setEnabled (canUseGpu);
 
-    vulkanEngine = std::make_unique<jam::VulkanEngine> (
-        targetFrameBudgetMs, cacheFile, canUseGpu);
+    vulkanEngine = std::make_unique<jam::VulkanEngine> (targetFrameBudgetMs, cacheFile, canUseGpu);
 
     // LookAndFeel owns font knowledge but not the atlas — the atlas (owned by
     // the VulkanEngine just constructed above) does not exist at LookAndFeel

@@ -9,11 +9,13 @@ LookAndFeel::LookAndFeel()
     // registerTypeface() cannot run here — it needs the Vulkan glyph atlas,
     // which does not exist until end::Application constructs vulkanEngine
     // (this LookAndFeel constructs first, per end::Application's member order,
-    // Main.h). Called once, externally, immediately after that construction.
+    // Main.height). Called once, externally, immediately after that construction.
     initialiseColours();
     loadGraphics();
     registerEvents();
     config.addListener (this);
+
+    juce::LookAndFeel::setDefaultLookAndFeel (this);
 }
 
 LookAndFeel::~LookAndFeel() { config.removeListener (this); }
@@ -34,17 +36,17 @@ void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 
     if (parentBar != nullptr and parentBar->isVertical())
     {
-        const auto w { bounds.getWidth() };
-        const auto h { bounds.getHeight() };
+        const auto width { bounds.getWidth() };
+        const auto height { bounds.getHeight() };
 
         if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, h));
+                                .translated (0.0f, height));
         else
             g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (w, 0.0f));
+                                .translated (width, 0.0f));
 
-        bounds = { 0.0f, 0.0f, h, w };
+        bounds = { 0.0f, 0.0f, height, width };
     }
 
     if (graphics.contains (ID::tabBar))
@@ -58,17 +60,17 @@ void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highligh
 
     if (parentBar != nullptr and parentBar->isVertical())
     {
-        const auto w { bounds.getWidth() };
-        const auto h { bounds.getHeight() };
+        const auto width { bounds.getWidth() };
+        const auto height { bounds.getHeight() };
 
         if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, h));
+                                .translated (0.0f, height));
         else
             g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (w, 0.0f));
+                                .translated (width, 0.0f));
 
-        bounds = { 0.0f, 0.0f, h, w };
+        bounds = { 0.0f, 0.0f, height, width };
     }
 
     if (graphics.contains (ID::tabHighlight))
@@ -86,17 +88,17 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
 
     if (vertical)
     {
-        const auto w { bounds.getWidth() };
-        const auto h { bounds.getHeight() };
+        const auto width { bounds.getWidth() };
+        const auto height { bounds.getHeight() };
 
         if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, h));
+                                .translated (0.0f, height));
         else
             g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (w, 0.0f));
+                                .translated (width, 0.0f));
 
-        bounds = { 0.0f, 0.0f, h, w };
+        bounds = { 0.0f, 0.0f, height, width };
     }
 
     const auto state { jam::SVG::Button::getState (
@@ -111,7 +113,6 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
 void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 {
     g.fillAll (label.findColour (juce::Label::backgroundColourId));
-
     if (not label.isBeingEdited())
     {
         g.setFont (getTabFont());
@@ -121,22 +122,45 @@ void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
     }
 }
 
+//==============================================================================
 juce::Font LookAndFeel::getTabFont() const
 {
     auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
     auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
     const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
 
-    auto font { juce::Font { juce::FontOptions()
-                                 .withName (fontFamily)
-                                 .withPointHeight (fontSize)
-                                 .withKerningFactor (kerning) } };
+    return juce::FontOptions()
+        .withName (fontFamily)
+        .withPointHeight (fontSize)
+        .withKerningFactor (kerning);
+}
 
-    return font;
+int LookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
+{
+    const float depth { config.getValue (IDtype::tab, ID::depth) };
+    const bool alwaysVisible { config.getValue (IDtype::tab, ID::alwaysVisible) };
+    const bool shouldHide { tabs.getNumTabs() <= 1 and not alwaysVisible };
+    const int tabBarDepth { juce::roundToInt (getTabFont().getHeight() * depth) };
+
+    return shouldHide ? 0 : tabBarDepth;
 }
 
 int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+int LookAndFeel::getTabPosition() const noexcept
+{
+    const juce::String position { config.getValue (IDtype::tab, ID::position) };
+    return Position::get (position);
+}
 
+juce::String LookAndFeel::getTabText (const juce::String& tabName) const
+{
+    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
+        return tabName.toUpperCase();
+
+    return tabName;
+}
+
+//==============================================================================
 int LookAndFeel::getPaneResizerBarSize() const noexcept
 {
     return config.getValue (IDtype::pane, ID::resizeBarThickness);
@@ -202,14 +226,6 @@ LookAndFeel::Style LookAndFeel::getWindowStyle() const
     return Style { colour, static_cast<int16_t> (blur), fx, windowButtons };
 }
 
-juce::String LookAndFeel::getTabText (const juce::String& tabName) const
-{
-    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
-        return tabName.toUpperCase();
-
-    return tabName;
-}
-
 //==============================================================================
 void LookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 {
@@ -218,13 +234,13 @@ void LookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 
     if (resizer != nullptr and resizer->isVerticalBar())
     {
-        const auto w { bounds.getWidth() };
-        const auto h { bounds.getHeight() };
+        const auto width { bounds.getWidth() };
+        const auto height { bounds.getHeight() };
 
         g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                            .translated (0.0f, h));
+                            .translated (0.0f, height));
 
-        bounds = { 0.0f, 0.0f, h, w };
+        bounds = { 0.0f, 0.0f, height, width };
     }
 
     // Hover/pressed: swap bar colour to highlight

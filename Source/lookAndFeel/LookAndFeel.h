@@ -164,6 +164,15 @@ public:
      *  Reads tab.text_padding from the display config (user-configurable).
      */
     int getTabPadding() const override;
+    int getTabBarDepth (const jam::TabbedComponent&) const noexcept;
+    int getTabPosition() const noexcept;
+
+    /** @brief Display transform applied to a tab label before measuring and painting.
+     *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
+     *  identity otherwise. Consumed by both Bar::getBestTabLength (measurement) and
+     *  drawTabButton (render) so measured width and painted string never diverge.
+     */
+    juce::String getTabText (const juce::String& tabName) const override;
 
     /**
      * @brief Resolves the exact Typeface::Ptr registered in @ref typefaces for
@@ -190,13 +199,6 @@ public:
      *         base class result.
      */
     juce::Typeface::Ptr getTypefaceForFont (const juce::Font& font) override;
-
-    /** @brief Display transform applied to a tab label before measuring and painting.
-     *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
-     *  identity otherwise. Consumed by both Bar::getBestTabLength (measurement) and
-     *  drawTabButton (render) so measured width and painted string never diverge.
-     */
-    juce::String getTabText (const juce::String& tabName) const override;
 
     /** @brief Component-level padding for the tab bar from display config.
      *  Reads tab.padding { top, right, bottom, left } (CSS convention).
@@ -383,12 +385,17 @@ private:
      * into the theme handler above, which repaints the whole component tree
      * (juce::Component::sendLookAndFeelChange descends to every child) — so the
      * new family/size is picked up immediately. status_bar/action_list
-     * font_family/font_size and the terminal code font are configured in
-     * theme.lua but have no live glyph-rendering call site yet (StatusBar/
-     * ActionList components do not exist in Source; registerTypeface() stubs
-     * the code typeface pending the new glyph pipeline) — nothing to route to
-     * until that pipeline exists. Only fontRasterizer/fontGamma/fontContrast
-     * change the rasterized bitmap for an UNCHANGED Key (same typeface/glyphIndex/
+     * font_family/font_size need no dedicated handler here either —
+     * StatusBar/ActionList components do not exist in Source yet, nothing to
+     * route to until they do. The terminal code font (code.font_family/
+     * font_size) is no longer this audit's gap: the glyph-rendering pipeline
+     * now exists, and terminal::View owns its own font_family/font_size event
+     * handlers (Source/terminal/EventRegistration.cpp) plus the zoom
+     * parameter (terminal::Model's own ID::zoom) — all three funnel into
+     * terminal::View's own applyFont(), which recomputes cell metrics and
+     * re-applies them to jam::CodeView, entirely independent of this class's
+     * own event map. Only fontRasterizer/fontGamma/fontContrast change the
+     * rasterized bitmap for an UNCHANGED Key (same typeface/glyphIndex/
      * fontSize, different backend or coverage LUT), which is exactly why
      * GlyphAtlas::setRasterization() must be re-invoked explicitly on those three.
      * Defined in EventRegistration.cpp.

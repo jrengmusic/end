@@ -142,7 +142,6 @@ public:
     void saveToPath (const juce::var& path) override;
 
 private:
-
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
 };
@@ -223,22 +222,22 @@ public:
             treeValidators.addOrReplace (propertyName, std::move (validator));
         };
 
-        add (IDtype::statusBar,  ID::position,       end::Position::getValidator());
-        add (IDtype::actionList, ID::position,       end::Position::getValidator());
-        add (IDtype::config,     ID::tabOrientation, end::Position::getValidator());
-        add (IDtype::popup,      ID::position,       end::Position::getValidator());
-        add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
-        add (IDtype::graphics,   ID::filter,         jam::map::ImageResample::getValidator());
-        add (IDtype::graphics,   ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
-        add (jam::IDtype::cursor, jam::ID::style,     end::CursorShape::getValidator());
+        add (IDtype::statusBar, ID::position, end::Position::getValidator());
+        add (IDtype::actionList, ID::position, end::Position::getValidator());
+        add (IDtype::tab, ID::position, end::Position::getValidator());
+        add (IDtype::popup, ID::position, end::Position::getValidator());
+        add (IDtype::terminal, ID::dropMultifiles, end::DropMode::getValidator());
+        add (IDtype::graphics, ID::filter, jam::map::ImageResample::getValidator());
+        add (IDtype::graphics, ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
+        add (jam::IDtype::cursor, jam::ID::style, end::CursorShape::getValidator());
 
         // graphics.mouse (nested under graphics — IDtype::mouse, found by the
         // same recursive getChildWithName() as every other tree type here).
         // enabled/zoom carry no entry — plain bool/string, auto type-validated
         // by jam::Model::fromLua (Config.h's own validators doc comment).
         add (IDtype::mouse, ID::imouse, jam::map::MouseButton::getValidator());
-        add (IDtype::mouse, ID::orbit,  jam::map::MouseButton::getValidator());
-        add (IDtype::mouse, ID::reset,  jam::map::MouseButton::getValidator());
+        add (IDtype::mouse, ID::orbit, jam::map::MouseButton::getValidator());
+        add (IDtype::mouse, ID::reset, jam::map::MouseButton::getValidator());
 
         return v;
     }();
@@ -310,8 +309,8 @@ private:
     static constexpr int coalesceMs { 300 };
 
     Theme theme;
-    Shader background      { IDtype::background };
-    Shader postProcessing  { IDtype::postProcessing };
+    Shader background { IDtype::background };
+    Shader postProcessing { IDtype::postProcessing };
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

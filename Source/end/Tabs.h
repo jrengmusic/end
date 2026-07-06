@@ -51,10 +51,7 @@ private:
      *  changes both take effect without requiring a second event.
      */
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
-
-    void updateTabBarVisibility();
-
-    config::Model& config { *config::Model::getInstance() };
+    void lookAndFeelChanged() override;
 
     jam::Owner<jam::Model::Attachment> attachments;
 

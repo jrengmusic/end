@@ -39,17 +39,20 @@ return {
 	-- Initial window size in pixels {width, height}.
 	size = { 640, 480 },
 
+	-- Zoom step applied by the zoom_in/zoom_out actions (keys.lua). Added to
+	-- (zoom_in) or subtracted from (zoom_out) the focused pane's current zoom
+	-- factor, clamped to [0.25, 4.0]. zoom_reset always sets zoom to 1.0
+	-- directly, ignoring this step.
+	zoom_step = 0.1,
+
 	-- Keep window above all other windows.
-	always_on_top = false,
+	always_on_top = true,
 
 	-- Show native title bar buttons (close / minimise / maximise).
 	-- macOS: hides/shows traffic-light buttons and the title bar together.
 	-- Windows: toggles the native title bar. Close/min/max buttons are
 	-- fixed at construction and cannot be added/removed at runtime.
 	title_bar_buttons = false,
-
-	-- Tab bar position: "top", "bottom", "left", "right".
-	tab_orientation = "top",
 
 	-- Persist window size across instances to ~/.config/end/window.state.
 	-- When true, every quit writes the current window size; new instances

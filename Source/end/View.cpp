@@ -45,7 +45,6 @@ View::View (jam::Model& m)
         });
 
     //==============================================================================
-    setTabOrientation();
 }
 
 View::~View()
@@ -82,7 +81,8 @@ void View::mouseDrag (const juce::MouseEvent& e)
     if (mouseEnabled)
     {
         if (background.hasMesh() and jam::map::MouseButton::isDown (e.mods, orbitButtonConfig))
-            background.addOrbitDelta (e.position.x - lastOrbitDragPosition.x, e.position.y - lastOrbitDragPosition.y);
+            background.addOrbitDelta (
+                e.position.x - lastOrbitDragPosition.x, e.position.y - lastOrbitDragPosition.y);
 
         // Tracked independently of the orbit branch above — orbit and reset
         // may be configured to different buttons (RATIFIED SCHEMA), so a
@@ -97,7 +97,8 @@ void View::mouseDrag (const juce::MouseEvent& e)
 
 void View::mouseUp (const juce::MouseEvent& e)
 {
-    if (mouseEnabled and background.hasMesh() and jam::map::MouseButton::isDown (e.mods, resetButtonConfig) and not resetButtonDragged)
+    if (mouseEnabled and background.hasMesh()
+        and jam::map::MouseButton::isDown (e.mods, resetButtonConfig) and not resetButtonDragged)
         background.resetCamera();
 }
 
@@ -113,6 +114,8 @@ void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
     if (events.contains (key))
         events.get (key, tree);
+
+    sendLookAndFeelChange();
 }
 
 void View::valueTreeChildAdded (juce::ValueTree& parentTree,
@@ -143,14 +146,6 @@ void View::createAndAttachParameters()
 void View::setViewState (jam::Size<int16_t> size)
 {
     state.setProperty (ID::size, size.toInt(), nullptr);
-}
-
-void View::setTabOrientation()
-{
-    auto pos { config.state.getProperty (ID::tabOrientation).toString() };
-
-    if (Position::getInstance()->contains (pos))
-        tabs.setOrientation (Position::get (pos));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

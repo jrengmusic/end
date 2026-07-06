@@ -211,6 +211,12 @@ return {
 	-- ========================================================================
 
 	tab = {
+		-- Tab bar position: "top", "bottom", "left", "right".
+		position = "bottom",
+
+		-- Tab bar visibility when only single tab opened
+		always_visible = false,
+		--
 		-- Bar strip background (jam::button::Bar::backgroundColourId).
 		background = colours.continentalWaters,
 

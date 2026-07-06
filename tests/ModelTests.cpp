@@ -86,17 +86,17 @@ TEST_CASE ("terminal::Model registers SESSION/MODES/NORMAL/ALTERNATE/TEXT under 
 
     REQUIRE (state.getType() == IDtype::terminal);
     REQUIRE (state.getNumChildren() == 5);
-    REQUIRE (state.getChild (0).getType() == IDtype::session);
+    REQUIRE (state.getChild (0).getType() == jam::IDtype::session);
     REQUIRE (state.getChild (1).getType() == jam::IDtype::modes);
     REQUIRE (state.getChild (2).getType() == jam::IDtype::normal);
-    REQUIRE (state.getChild (3).getType() == IDtype::alternate);
+    REQUIRE (state.getChild (3).getType() == jam::IDtype::alternate);
     REQUIRE (state.getChild (4).getType() == jam::IDtype::text);
 }
 
 TEST_CASE ("SESSION carries exactly its 7 declared parameters, no extras", "[model][schema]")
 {
     terminal::Model model;
-    auto session { model.state.getChildWithName (IDtype::session) };
+    auto session { model.state.getChildWithName (jam::IDtype::session) };
 
     requireExactProperties (session,
         {
@@ -110,17 +110,29 @@ TEST_CASE ("SESSION carries exactly its 7 declared parameters, no extras", "[mod
         });
 }
 
-TEST_CASE ("MODES carries exactly its 13 declared parameters (full DecMode bimap + insertMode), no extras", "[model][schema]")
+TEST_CASE ("MODES carries exactly its 11 declared parameters (DecMode bimap + insertMode + mouseTracking), no extras", "[model][schema]")
 {
     // Prior to jam::terminal::Model owning the full VT-state-machine
     // parameter set, this END-local MODES node hand-duplicated a 9-entry
     // subset of the DecMode bimap — a latent mismatch with
-    // jam::terminal::Video's ctor, which has always resolved all 12 bimap
-    // entries + insertMode (13) into its modeParameters hot tier
-    // (jam_CursorState.cpp). terminal::Model now INHERITS
+    // jam::terminal::Video's ctor, which resolves the full modeParameters
+    // hot tier (jam_CursorState.cpp) DecMode drives + insertMode +
+    // mouseTracking. terminal::Model now INHERITS
     // jam::terminal::Model::registerModes() (jam_Model.cpp) instead of
     // re-declaring a partial list, so this node carries the same complete
-    // 13-parameter vocabulary Video actually requires.
+    // vocabulary Video actually requires.
+    //
+    // ARCHITECT ruling "conform, multiple bool is wrong" (ratified this
+    // sprint): mouse tracking (DEC private modes 1000/1002/1003) collapsed
+    // from three independent bool identifiers (mouseTracking/
+    // mouseMotionTracking/mouseAllTracking) onto ONE — mouseTracking now
+    // carries a jam::terminal::MouseTracking value
+    // (jam_terminal/video/jam_MouseTracking.h) instead of a bool, and is
+    // excluded from the DecMode bimap the same way insertMode is (see
+    // jam_DecMode.h's "Mouse tracking excluded" doc) — registerModes()
+    // registers it with an explicit line, mirroring insertMode. Legitimate
+    // schema shrink: 13 -> 11 (9 bimap entries + insertMode + mouseTracking),
+    // mouseMotionTracking/mouseAllTracking identifiers retired entirely.
     terminal::Model model;
     auto modes { model.state.getChildWithName (jam::IDtype::modes) };
 
@@ -131,8 +143,6 @@ TEST_CASE ("MODES carries exactly its 13 declared parameters (full DecMode bimap
             jam::ID::autoWrap,
             jam::ID::applicationKeypad,
             jam::ID::mouseTracking,
-            jam::ID::mouseMotionTracking,
-            jam::ID::mouseAllTracking,
             jam::ID::focusEvents,
             jam::ID::mouseSgr,
             jam::ID::bracketedPaste,
@@ -142,8 +152,15 @@ TEST_CASE ("MODES carries exactly its 13 declared parameters (full DecMode bimap
         });
 }
 
-TEST_CASE ("NORMAL screen carries exactly its 5 declared SCREEN parameters, no extras", "[model][schema]")
+TEST_CASE ("NORMAL screen carries exactly its 14 declared SCREEN parameters "
+           "(cursor/cursorShape/cursorColor/keyboardFlags/screenDirty + "
+           "8-slot progressive-keyboard-protocol save stack + count), no extras", "[model][schema]")
 {
+    // Grown from 5 to 14 this sprint: jam::terminal::Model::
+    // registerScreenParameters() now also registers the CSI `>`/`<` u
+    // progressive keyboard protocol save stack — savedKeyboardFlagsDepth (8)
+    // indexed slots plus savedKeyboardFlagsCount — real per-screen schema
+    // parameters, not a Video-local stack.
     terminal::Model model;
     auto normal { model.state.getChildWithName (jam::IDtype::normal) };
 
@@ -154,13 +171,25 @@ TEST_CASE ("NORMAL screen carries exactly its 5 declared SCREEN parameters, no e
             jam::ID::cursorColor,
             jam::ID::keyboardFlags,
             jam::ID::screenDirty,
+            jam::terminal::Model::savedKeyboardFlagsSlot (0),
+            jam::terminal::Model::savedKeyboardFlagsSlot (1),
+            jam::terminal::Model::savedKeyboardFlagsSlot (2),
+            jam::terminal::Model::savedKeyboardFlagsSlot (3),
+            jam::terminal::Model::savedKeyboardFlagsSlot (4),
+            jam::terminal::Model::savedKeyboardFlagsSlot (5),
+            jam::terminal::Model::savedKeyboardFlagsSlot (6),
+            jam::terminal::Model::savedKeyboardFlagsSlot (7),
+            jam::ID::savedKeyboardFlagsCount,
         });
 }
 
-TEST_CASE ("ALTERNATE screen carries exactly its 5 declared SCREEN parameters, no extras", "[model][schema]")
+TEST_CASE ("ALTERNATE screen carries exactly its 14 declared SCREEN parameters "
+           "(cursor/cursorShape/cursorColor/keyboardFlags/screenDirty + "
+           "8-slot progressive-keyboard-protocol save stack + count), no extras", "[model][schema]")
 {
+    // Grown from 5 to 14 this sprint — see the NORMAL screen test above.
     terminal::Model model;
-    auto alternate { model.state.getChildWithName (IDtype::alternate) };
+    auto alternate { model.state.getChildWithName (jam::IDtype::alternate) };
 
     requireExactProperties (alternate,
         {
@@ -169,6 +198,15 @@ TEST_CASE ("ALTERNATE screen carries exactly its 5 declared SCREEN parameters, n
             jam::ID::cursorColor,
             jam::ID::keyboardFlags,
             jam::ID::screenDirty,
+            jam::terminal::Model::savedKeyboardFlagsSlot (0),
+            jam::terminal::Model::savedKeyboardFlagsSlot (1),
+            jam::terminal::Model::savedKeyboardFlagsSlot (2),
+            jam::terminal::Model::savedKeyboardFlagsSlot (3),
+            jam::terminal::Model::savedKeyboardFlagsSlot (4),
+            jam::terminal::Model::savedKeyboardFlagsSlot (5),
+            jam::terminal::Model::savedKeyboardFlagsSlot (6),
+            jam::terminal::Model::savedKeyboardFlagsSlot (7),
+            jam::ID::savedKeyboardFlagsCount,
         });
 }
 
@@ -206,7 +244,7 @@ TEST_CASE ("Direction A: setValue() on a SESSION parameter reaches the ValueTree
 {
     terminal::Model model;
 
-    auto* gridSize { model.getParameter<jam::Parameter<int>> (IDtype::session, ID::gridSize) };
+    auto* gridSize { model.getParameter<jam::Parameter<int>> (jam::IDtype::session, ID::gridSize) };
     REQUIRE (gridSize != nullptr);
 
     // setValue() is the real Direction A write path (test thread stands in
@@ -226,7 +264,7 @@ TEST_CASE ("Direction A: setValue() on a SESSION parameter reaches the ValueTree
     // an explicit flush() is still required after setValue().
     model.flush();
 
-    auto session { model.state.getChildWithName (IDtype::session) };
+    auto session { model.state.getChildWithName (jam::IDtype::session) };
     REQUIRE (static_cast<int> (session.getProperty (ID::gridSize)) == 42);
 }
 

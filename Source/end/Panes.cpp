@@ -76,6 +76,8 @@ void Panes::removePane (jam::UUID uuid)
 {
     const auto uuidString { uuid.toString() };
 
+    end::Nexus::getInstance()->remove (uuid);
+    paneManager.remove (uuid);
     for (std::size_t i { 0 }; i < panes.size(); ++i)
     {
         if (panes.at (i)->getComponentID() == uuidString)
@@ -86,8 +88,6 @@ void Panes::removePane (jam::UUID uuid)
         }
     }
 
-    end::Nexus::getInstance()->remove (uuid);
-    paneManager.remove (uuid);
     resized();
 }
 

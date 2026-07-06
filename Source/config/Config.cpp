@@ -18,12 +18,15 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
     juce::ignoreUnused (errors);
 
     const juce::File dir { file::Shaders::getPath (path.toString()) };
-    const auto presetFiles { dir.findChildFiles (juce::File::findFiles, false,
+    const auto presetFiles { dir.findChildFiles (
+        juce::File::findFiles,
+        false,
         jam::vulkan::ShaderFormat::getExtension().at (jam::vulkan::ShaderFormat::slang)) };
-    const auto presetFile { not presetFiles.isEmpty() ? presetFiles.getReference (0) : juce::File() };
+    const auto presetFile { not presetFiles.isEmpty() ? presetFiles.getReference (0)
+                                                      : juce::File() };
     const auto preset { jam::vulkan::ShaderPreset::parse (presetFile.loadFileAsString()) };
     const int format { preset.passes.isEmpty() ? jam::vulkan::ShaderFormat::shadertoy
-                                                : jam::vulkan::ShaderFormat::slang };
+                                               : jam::vulkan::ShaderFormat::slang };
 
     setValuesFrom (jam::vulkan::ShaderFormat::load (format, state.getType(), dir));
     state.setProperty (ID::shaderFormat, format, nullptr);

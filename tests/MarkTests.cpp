@@ -5,7 +5,7 @@
  *
  * Coverage: the ratified semantic-mark design (ghostty 4-state vocabulary).
  * Two independent surfaces:
- *   1. Video::handleOsc133() stamping `Row::flags` mark bits (Row::markShift
+ *   1. Video::applyOsc133() stamping `Row::flags` mark bits (Row::markShift
  *      == 3, since Row::flags also carries flexWrap/collapsed/justify at
  *      bits 0-2) — via `Test::Line::mark()`.
  *   2. `jam::terminal::CellFifo` header flags mark bits (CellFifo::markShift
@@ -55,7 +55,7 @@ TEST_CASE ("OSC 133;C stamps output, 133;D closes the block without re-stamping"
     t.feed ("next prompt line");   // printed on row2 — proves activeMark was actually cleared
 
     // 133;D does not re-stamp the row it closes — row1 still carries `output`
-    // from C (jam_VideoOSCExt.cpp handleOsc133() doc: "no re-stamp here by
+    // from C (jam_VideoOSCExt.cpp applyOsc133() doc: "no re-stamp here by
     // design"); the NEXT written row picks up the cleared (none) state.
     REQUIRE (t.line (1).mark() == jam::TextLine::Mark::output);
     REQUIRE (t.line (2).mark() == jam::TextLine::Mark::none);

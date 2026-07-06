@@ -155,7 +155,8 @@ public:
      *  @param e       The mouse-wheel event, in its originating component's own coordinates.
      *  @param details  The wheel movement's own delta/reversed/smooth/inertial state.
      */
-    void mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override;
+    void
+    mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override;
 
     /** @brief Single-key dispatch through the events map.
      *
@@ -200,7 +201,11 @@ private:
      *
      *  Registers actions for tab navigation (newTab, closeTab, nextTab, prevTab),
      *  pane splitting (splitHorizontal, splitVertical), pane closing (closePane),
-     *  and directional pane focus (paneLeft, paneRight, paneUp, paneDown).
+     *  zoom (zoomIn, zoomOut, zoomReset — resolve the focused pane's
+     *  terminal::Session via ID::focusedPane and end::Nexus::getInstance()->
+     *  get(), never through the Panes/View tree, and call terminal::Model's
+     *  zoomBy()/setZoom(), step read from display.lua's zoom_step), and
+     *  directional pane focus (paneLeft, paneRight, paneUp, paneDown).
      *  Defined in ActionRegistration.cpp.
      */
     void registerActions();
@@ -307,7 +312,7 @@ private:
     void applyMouseConfig();
 
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
-    void setTabOrientation();
+    // void setTabOrientation();
 
     /** @brief Packs width + height into jam::Size<int16_t> and writes as a single int
      *         property (ID::size) on the view state tree.

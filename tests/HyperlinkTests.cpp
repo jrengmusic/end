@@ -11,7 +11,7 @@
  * CONFORMANCE FINDING RESOLVED: `Owner<T>::addIfNotAlreadyThere`
  * (jam_core/utilities/jam_IsHashable.h)
  * returns a 0-BASED index — the FIRST interned entry gets index 0.
- * `Video::handleOsc8()` (jam_VideoOSCExt.cpp) stores that index **+1** into
+ * `Video::applyOsc8()` (jam_VideoOSCExt.cpp) stores that index **+1** into
  * `activeLinkId`, exactly matching `jam::Char::linkId()`'s documented
  * contract ("0 = no link — zero-initialized Chars are linkless by
  * construction", jam_Char.h, jam_Link.h class doc) — the FIRST hyperlink
@@ -82,12 +82,12 @@ TEST_CASE ("OSC 8 ';;' (empty URI) resets the pen's linkId to 0", "[video][osc8]
 TEST_CASE ("malformed OSC 8 (no params/uri separator) clears the pen's linkId", "[video][osc8][v5]")
 {
     // applyOSC() (jam_VideoOSC.cpp) strips one leading "8;" (the OSC command
-    // header separator) before calling handleOsc8() — the payload it hands
-    // handleOsc8() must itself contain zero further ';' to hit its own
+    // header separator) before calling applyOsc8() — the payload it hands
+    // applyOsc8() must itself contain zero further ';' to hit its own
     // "Malformed — no separator found" branch (jam_VideoOSCExt.cpp:81-85).
     Test::Term t { 20, 2 };
     t.feed ("\x1b]8;;https://example.com\x07");
-    t.feed ("\x1b]8;justauri\x07");   // header ';' present, no second ';' inside handleOsc8's data
+    t.feed ("\x1b]8;justauri\x07");   // header ';' present, no second ';' inside applyOsc8's data
     t.feed ("x");
 
     REQUIRE (t.cell (0, 0).linkId() == 0);

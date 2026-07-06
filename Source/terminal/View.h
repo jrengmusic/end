@@ -7,6 +7,7 @@
 #include "end/PaneView.h"
 #include "terminal/Session.h"
 #include "config/Config.h"
+#include "Bimap.h"
 
 namespace terminal
 {
@@ -18,21 +19,32 @@ namespace terminal
  *  (does not own) a jam::CodeView constructed over session.getDocument() —
  *  Session outlives View — Nexus destroyed after window.
  *
- *  Width SSOT + reserved gutter: resized() is THE only width
- *  computation — scrollbar visibility never re-enters it. Cell metrics,
- *  padding, and gutter (reserved scrollbar width) are read ONCE from
+ *  Width SSOT (two-axis contract): resized() is the SOLE winsize author
+ *  (AXIS 1) — scrollbar visibility never re-enters it. Font/zoom changes
+ *  (AXIS 2, applyFont()) recompute cell metrics then re-enter AXIS 1 via
+ *  resized() at applyFont()'s own tail — never write winsize directly.
+ *  Padding and gutter (reserved scrollbar width) are still read ONCE from
  *  config::Model at construction time (ctor-time read only) — hot-reload
- *  listener wiring is Phase 4 (ARCHITECTURE.md:507).
+ *  wiring for those two is Phase 4 (ARCHITECTURE.md:507).
  *
  *  code.ligatures and the cursor block (style/blink/blink_interval; char/
  *  force plumbed only) ARE hot-reload wired — ValueTree::Listener on
- *  config::Model, single-key event dispatch
- *  through @c events, mirroring end::View/end::LookAndFeel's established
- *  pattern. code.embolden is owned by end::LookAndFeel (the font owner,
+ *  config::Model, single-key event dispatch through @c events, mirroring
+ *  end::View/end::LookAndFeel's established pattern. code.font_family/
+ *  font_size are hot-reload wired the same way, both routing to
+ *  applyFont(). code.embolden is owned by end::LookAndFeel (the font owner,
  *  applyFontRasterization() precedent), not here.
  *
- *  Phase 4: ValueTree::Listener on terminal::Model, drain(), KeyListener,
- *           mouse events.
+ *  Zoom (terminal::Model's own ID::zoom, Direction B) is hot-reload wired
+ *  the same way as code.ligatures/font_family/font_size — a second
+ *  ValueTree::Listener attachment, this time on session.getModel() (Direction
+ *  A, Model.h's own doc comment: "terminal::View reacts via tree listeners"),
+ *  registered in the events map (EventRegistration.cpp) and dispatched
+ *  through the SAME valueTreePropertyChanged() below — also routes to
+ *  applyFont(). Written by end::View's zoomIn/zoomOut/zoomReset actions
+ *  (ActionRegistration.cpp), never by this class.
+ *
+ *  Phase 4: mouse events.
  */
 class View
     : public end::PaneView
@@ -53,78 +65,56 @@ public:
 
     /** @brief Single-key dispatch through the events map — property key takes
      *  priority; falls back to @p tree.getType() (mirrors end::View/
-     *  end::LookAndFeel's established pattern). */
+     *  end::LookAndFeel's established pattern). Fires for BOTH listened
+     *  trees — config (config.addListener(this)) and session.getModel()
+     *  (session.getModel().addListener(this)) — the events map key is a
+     *  property/type Identifier regardless of which tree it arrived from. */
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
-    // Phase 4: focusGained, keyPressed, mouse events
-    // Phase 4: terminal::Model listener, drain
+    /** @brief Encodes the key press via jam::Keyboard::map (applicationCursor
+     *  + keyboardFlags read from session.getModel()'s NORMAL/ALTERNATE
+     *  screen params at encode time, lock-free) and forwards the resulting
+     *  byte sequence straight to session.writeInput() — keystrokes bypass
+     *  the Model entirely; CodeModel is mutated ONLY by Session::drain().
+     *  @return true when the key produced a non-empty sequence (consumed);
+     *          false otherwise (JUCE falls through to any other handler). */
+    bool keyPressed (const juce::KeyPress& key) override;
+
+    // Phase 4: mouse events (mouse modes 1000/1002/1003/1006/1004 — no
+    // jam_terminal OOTB encoder exists; flagged, not built this pass)
 
 private:
-    config::Model& config { *config::Model::getInstance() };
-
     Session& session;
 
-    /** @brief Parented and owned by this view, but never owns the document —
-     *  the pure view over session.getDocument(). */
     std::unique_ptr<jam::CodeView> codeView;
 
     /** @brief Space between the pane edge and codeView, CSS order
      *  (top, right, bottom, left) — theme.lua code.padding. */
     juce::BorderSize<int> textPadding;
 
-    /** @brief Reserved scrollbar gutter width in pixels — always
-     *  subtracted from available width; scrollbar visibility toggles
-     *  drawing only, never this reservation. */
-    int gutterWidth { 0 };
-
-    /** @brief Cell metrics in pixels, computed once at construction from
-     *  config::Model — the single authority told to codeView
-     *  via setCellSize(). */
-    int cellWidthPx  { 0 };
-    int cellHeightPx { 0 };
-
-    /** @brief Cursor glyph character (theme.lua cursor.char) — PLUMB only.
-     *  Glyph-char caret rendering is flagged, not built (the emoji/glyph-caret
-     *  bundle); stored here for the
-     *  DECSCUSR gate to consume. */
-    juce::String cursorChar;
-
-    /** @brief Cursor lock (theme.lua cursor.force) — PLUMB only. Stored here
-     *  for the DECSCUSR gate: when true, programs cannot override
-     *  cursorShape/cursorChar via DECSCUSR. */
-    bool cursorForce { false };
-
     /** @brief Event dispatch map — keyed by juce::Identifier (property or tree
-     *  type). Populated by registerEvents(). Handles code.ligatures (property
-     *  key) and the cursor block (IDtype::cursor tree-type key — style/blink/
-     *  blink_interval re-applied together, char/force re-read and stored).
-     *  Dispatched via single-key lookup in valueTreePropertyChanged().
+     *  type). Populated by registerEvents(). Handles code.ligatures,
+     *  code.font_family/font_size, terminal::Model's own ID::zoom (property
+     *  keys), and the cursor block (IDtype::cursor tree-type key — style/
+     *  blink/blink_interval re-applied together, char/force re-read and
+     *  stored). Dispatched via single-key lookup in
+     *  valueTreePropertyChanged() regardless of which listened tree
+     *  (config or session.getModel()) the property arrived from.
      */
     jam::Function::Map<juce::Identifier, void> events;
 
     /** @brief Populates the events map with ValueTree property/type-keyed
      *  callbacks. Registers handlers for ID::ligatures (codeView->
-     *  setLigatures()) and jam::IDtype::cursor (applyCursorConfig() — style/
-     *  blink/blink_interval/char/force re-applied together on any property
+     *  setLigatures()), ID::fontFamily/ID::fontSize/ID::zoom (applyFont() —
+     *  ID::zoom arrives from session.getModel(), the other two from config),
+     *  and jam::IDtype::cursor (applyCursorConfig() — style/blink/
+     *  blink_interval/char/force re-applied together on any property
      *  change within the cursor block, mirroring end::LookAndFeel's
      *  per-tree-type colour refresh precedent). Defined in
      *  EventRegistration.cpp.
      */
     void registerEvents();
-
-    /** @brief Reads the cursor block (style/blink/blink_interval/char/force)
-     *  from config and applies style/blink/blink_interval to codeView; char/
-     *  force are stored only (DECSCUSR gate). Called once at
-     *  construction and again by the jam::IDtype::cursor event handler on
-     *  hot-reload. Defined in EventRegistration.cpp.
-     */
-    void applyCursorConfig();
-
-    /** @brief Seeds session.getDocument() with content exercising the
-     *  validation gate (text, wrap, scroll, caret, styled runs, wide/emoji
-     *  graphemes). HARNESS — remove. */
-    void seedHarnessContent();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)

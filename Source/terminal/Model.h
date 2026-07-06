@@ -28,12 +28,11 @@ namespace terminal
  * @c registerParameters() therefore only EXTENDS two of those groups with
  * app/TTY-domain properties that have no VT-machine meaning
  * (@c getOrCreateChildWithName() finds the base-created node rather than
- * creating a duplicate sibling — @c juce::Identifier equality is by
- * interned string content, not C++ symbol identity, so the base's
- * framework-local @c sessionGroupTag/`alternateGroupTag`
- * (`jam_Model.h`) and this class's own @c IDtype::session/`IDtype::alternate`
- * resolve to the SAME physical node) — and declares its own Direction B
- * root-level parameters, unchanged from before this session.
+ * creating a duplicate sibling — the base registers its SESSION group
+ * under @c jam::IDtype::session, this class's own @c IDtype::session
+ * resolves to the SAME `jam::IDtype` constant, so both sides reference the
+ * identical node) — and declares its own Direction B root-level
+ * parameters, unchanged from before this session.
  *
  * @par Direction A — reader to message
  * Video/Processor @c store() atomics lock-free on the reader thread; the
@@ -57,6 +56,10 @@ namespace terminal
 class Model : public jam::terminal::Model
 {
 public:
+    /** @brief Unity zoom — the seeded default and setZoom()'s reset target
+     *  (end::View's zoomReset action, ActionRegistration.cpp). */
+    static constexpr float defaultZoom { 1.0f };
+
     Model()
         : jam::terminal::Model (IDtype::terminal)
     {
@@ -91,6 +94,50 @@ public:
         parameter->setValue (size.toInt());
     }
 
+    /** @brief Publishes the zoom factor — a font-size multiplier terminal::View
+     *  applies in applyFont() before recomputing cell metrics, then re-enters
+     *  its own resized() (the sole winsize author, terminal::View.cpp) with
+     *  the new metrics. PANE-INSTANCE state: terminal::Model is one-per-
+     *  Session (never a process-wide singleton, this class's own doc comment
+     *  above), so one zoom value per pane is automatic — no extra bookkeeping
+     *  needed. Reuses end::Model's own runtime @c ID::zoom verbatim (same
+     *  Identifier, different ValueTree location — the documented reuse
+     *  doctrine at Identifier.h:299-301). Processor/reader never sees this
+     *  parameter — only the winsize/cellSize it indirectly produces via
+     *  terminal::View's own applyFont() -> setCellSize() -> resized() ->
+     *  setWinsize() chain.
+     *  @param factor  Requested zoom factor — clamped to [zoomMin, zoomMax].
+     *  @note Direction B. Any thread — lock-free.
+     */
+    void setZoom (float factor) noexcept
+    {
+        auto* parameter { getParameter<jam::Parameter<float>> (state.getType(), ID::zoom) };
+
+        jassert (parameter != nullptr);
+        parameter->setValue (juce::jlimit (zoomMin, zoomMax, factor));
+    }
+
+    /** @brief Adjusts the zoom factor by @p delta relative to its own current
+     *  value — a pure tell: reads its own parameter, adds @p delta, clamps
+     *  via the same [zoomMin, zoomMax] bound as setZoom(), and writes
+     *  through the same parameter write path. Called by end::View's
+     *  zoomIn/zoomOut actions (ActionRegistration.cpp) with +/- ID::zoomStep;
+     *  zoomReset calls setZoom (defaultZoom) directly instead. terminal::View
+     *  reads the resulting value via its own tree-listener path
+     *  (session.getModel().state ValueTree, no getter — Model.h doc's
+     *  Direction A passage), not through this class.
+     *  @param delta  Signed adjustment added to the current zoom factor —
+     *                positive zooms in, negative zooms out.
+     *  @note Direction B. Any thread — lock-free.
+     */
+    void zoomBy (float delta) noexcept
+    {
+        auto* parameter { getParameter<jam::Parameter<float>> (state.getType(), ID::zoom) };
+
+        jassert (parameter != nullptr);
+        parameter->setValue (juce::jlimit (zoomMin, zoomMax, parameter->getValue() + delta));
+    }
+
     /** @brief Publishes the scrollback capacity — reader resizes its rings
      *  under the drain-fully -> resize -> resume protocol.
      *  @param lines  Maximum scrollback line count (config::Model terminal.scrollback_lines).
@@ -119,7 +166,7 @@ private:
         // gridSize is END-local (the applied-winsize ack has no jam::ID
         // counterpart) — none of the three is VT-machine state, so they
         // stay app-owned, added onto the SAME node the base created.
-        auto session { getOrCreateChildWithName (IDtype::session) };
+        auto session { getOrCreateChildWithName (jam::IDtype::session) };
 
         createAndAddParameter<jam::Parameter<int>> (session, ID::gridSize, 0);
         createAndAddParameter<jam::Parameter<int>> (session, jam::ID::shellExited, 0);
@@ -138,9 +185,16 @@ private:
         // carries no group column).
         createAndAddParameter<jam::Parameter<int>> (state, ID::winsize, 0);
         createAndAddParameter<jam::Parameter<int>> (state, ID::cellSize, 0);
+        createAndAddParameter<jam::Parameter<float>> (state, ID::zoom, defaultZoom);
         createAndAddParameter<jam::Parameter<int>> (state, ID::scrollbackLines, 0);
         createAndAddParameter<jam::Parameter<int>> (state, ID::clearRequested, 0);
     }
+
+    /** @brief setZoom()'s clamp floor — see setZoom()'s own doc comment. */
+    static constexpr float zoomMin { 0.25f };
+
+    /** @brief setZoom()'s clamp ceiling — see setZoom()'s own doc comment. */
+    static constexpr float zoomMax { 4.0f };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

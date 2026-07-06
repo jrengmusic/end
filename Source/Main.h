@@ -30,8 +30,11 @@ private:
      *  cwd — the same deterministic path regardless of how the app was
      *  started (IDE, Finder, terminal), so runtime diagnostics always land
      *  in one known, readable file. */
-    jam::debug::Log::Scope logScope { file::Config::path.getChildFile (
-        jam::Format::toFileName (ProjectInfo::projectName, ".ode")) };
+
+    jam::debug::Log::Scope logScope {
+        juce::File ("~/Documents/Poems/dev/end")
+            .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, ".ode"))
+    };
 #endif
 
     //==============================================================================

@@ -43,7 +43,6 @@
 // Keys shared across multiple config sections (not in jam::ID)
 #define IDENTIFIER_COMMON(X)                       \
     X (position, "position")                       \
-    X (orientation, "orientation")                 \
     X (inactive, "inactive")                       \
     X (active, "active")                           \
     X (scrollbarWidth, "scrollbar_width")          \
@@ -117,6 +116,7 @@
     X (spinner, "spinner")                         \
     X (blurRadius, "blur_radius")                  \
     X (alwaysOnTop, "always_on_top")               \
+    X (alwaysVisible, "always_visible")            \
     X (confirmationOnExit, "confirmation_on_exit") \
     X (forceDwm, "force_dwm")                      \
     X (closeOnRun, "close_on_run")                 \
@@ -208,7 +208,7 @@
     X (hyperlinks, "hyperlinks")          \
     X (atlasDimension, "atlas_dimension") \
     X (border, "border")                  \
-    X (tabOrientation, "tab_orientation")
+    X (zoomStep, "zoom_step")
 
 // Popup entry keys (popup.lua)
 #define IDENTIFIER_POPUPS(X) \
@@ -270,20 +270,20 @@
 // jam::vulkan::ShaderCompiler reads them directly off shaderState's property names
 // (jam_vulkan/shader/jam_VulkanShaderCompiler.cpp).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
-#define IDENTIFIER_SHADER(X)                                     \
-    X (common, "Common")                                         \
-    X (image, "Image")                                           \
-    X (background, "background")                                 \
-    X (backgroundOpacity, "background_opacity")                  \
-    X (postProcessing, "post_processing")                        \
-    X (postProcessingOpacity, "post_processing_opacity")         \
-    X (postProcessingResolution, "post_processing_resolution")   \
-    X (frameRate, "frame_rate")                                  \
-    X (backgroundResolution, "background_resolution")            \
-    X (filter, "filter")                                         \
-    X (fontRasterizer, "font_rasterizer")                        \
-    X (fontGamma, "font_gamma")                                  \
-    X (fontContrast, "font_contrast")                            \
+#define IDENTIFIER_SHADER(X)                                   \
+    X (common, "Common")                                       \
+    X (image, "Image")                                         \
+    X (background, "background")                               \
+    X (backgroundOpacity, "background_opacity")                \
+    X (postProcessing, "post_processing")                      \
+    X (postProcessingOpacity, "post_processing_opacity")       \
+    X (postProcessingResolution, "post_processing_resolution") \
+    X (frameRate, "frame_rate")                                \
+    X (backgroundResolution, "background_resolution")          \
+    X (filter, "filter")                                       \
+    X (fontRasterizer, "font_rasterizer")                      \
+    X (fontGamma, "font_gamma")                                \
+    X (fontContrast, "font_contrast")                          \
     X (shaderFormat, "shader_format")
 
 // graphics.mouse config keys (display.lua) — nested table under graphics,
@@ -299,10 +299,10 @@
 // mouse.zoom comment). end::Model's own runtime ID::zoom (IDENTIFIER_MODEL
 // below) is reused verbatim for this config key too — same Identifier,
 // different ValueTree location, no collision.
-#define IDENTIFIER_MOUSE(X)  \
-    X (mouse, "mouse")       \
-    X (imouse, "imouse")     \
-    X (orbit, "orbit")       \
+#define IDENTIFIER_MOUSE(X) \
+    X (mouse, "mouse")      \
+    X (imouse, "imouse")    \
+    X (orbit, "orbit")      \
     X (reset, "reset")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
@@ -330,37 +330,41 @@
 
 // terminal::Model schema — names not already carried by jam::ID
 // (jam_IdentifierTerminal.h already
-// hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/cwd/title/
+// hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/
+// keyboardSetAllFlags/keyboardSetGivenFlags/keyboardResetGivenFlags/
+// savedKeyboardFlags/savedKeyboardFlagsCount/cwd/title/
 // applicationCursor/applicationKeypad/bracketedPaste/mouseTracking/
-// mouseMotionTracking/mouseAllTracking/mouseSgr/focusEvents/win32InputMode/
+// mouseSgr/focusEvents/win32InputMode/
 // pasteEchoRemaining/syncOutputActive/screenDirty/bell/promptRow/shellExited/
-// modes(group tag) — those are reused directly, not duplicated here).
-#define IDENTIFIER_TERMINAL_STATE(X)             \
-    X (session, "session")                       \
-    X (alternate, "alternate")                    \
-    X (gridSize, "grid_size")                    \
-    X (winsize, "winsize")                       \
-    X (cellSize, "cell_size")                    \
-    X (foregroundProcess, "foreground_process")  \
+// modes(group tag)/session/alternate — those are reused directly, not
+// duplicated here). mouseTracking now carries a jam::terminal::MouseTracking
+// value (DEC private modes 1000/1002/1003 collapsed onto one parameter,
+// jam_terminal/video/jam_MouseTracking.h) — mouseMotionTracking/
+// mouseAllTracking (formerly independent bool identifiers) are retired.
+#define IDENTIFIER_TERMINAL_STATE(X)            \
+    X (gridSize, "grid_size")                   \
+    X (winsize, "winsize")                      \
+    X (cellSize, "cell_size")                   \
+    X (foregroundProcess, "foreground_process") \
     X (clearRequested, "clear_requested")
 
 // ============================================================================
-#define END_MAKE_VIEW(ViewName, EXPANDER)     \
-    struct ViewName                           \
-    {                                         \
-        IDENTIFIER_CONFIG (EXPANDER)          \
-        IDENTIFIER_COMMON (EXPANDER)          \
-        IDENTIFIER_THEME (EXPANDER)           \
-        IDENTIFIER_KEYS (EXPANDER)            \
-        IDENTIFIER_APP (EXPANDER)             \
-        IDENTIFIER_POPUPS (EXPANDER)          \
-        IDENTIFIER_ACTIONS (EXPANDER)         \
-        IDENTIFIER_WHELMED (EXPANDER)         \
-        IDENTIFIER_BACKEND (EXPANDER)         \
-        IDENTIFIER_SHADER (EXPANDER)          \
-        IDENTIFIER_MOUSE (EXPANDER)           \
-        IDENTIFIER_MODEL (EXPANDER)           \
-        IDENTIFIER_TERMINAL_STATE (EXPANDER)  \
+#define END_MAKE_VIEW(ViewName, EXPANDER)    \
+    struct ViewName                          \
+    {                                        \
+        IDENTIFIER_CONFIG (EXPANDER)         \
+        IDENTIFIER_COMMON (EXPANDER)         \
+        IDENTIFIER_THEME (EXPANDER)          \
+        IDENTIFIER_KEYS (EXPANDER)           \
+        IDENTIFIER_APP (EXPANDER)            \
+        IDENTIFIER_POPUPS (EXPANDER)         \
+        IDENTIFIER_ACTIONS (EXPANDER)        \
+        IDENTIFIER_WHELMED (EXPANDER)        \
+        IDENTIFIER_BACKEND (EXPANDER)        \
+        IDENTIFIER_SHADER (EXPANDER)         \
+        IDENTIFIER_MOUSE (EXPANDER)          \
+        IDENTIFIER_MODEL (EXPANDER)          \
+        IDENTIFIER_TERMINAL_STATE (EXPANDER) \
     };
 
 END_MAKE_VIEW (ID, AS_IDENTIFIER)
