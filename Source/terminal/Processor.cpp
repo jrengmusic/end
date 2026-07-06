@@ -6,12 +6,15 @@ namespace terminal
 
 Processor::Processor (Model& terminalModel)
     : model (terminalModel)
-    , video (jam::Cell::Rectangle (jam::Cell (defaultCols), jam::Cell (defaultRows)), videoEvents, model)
+    , video (jam::Cell::Rectangle (jam::Cell (defaultCols), jam::Cell (defaultRows)), videoEvents)
     , parser (video)
     , cellFifo (placeholderRingCapacity, placeholderRingCapacity)
 {
-    videoEvents.writeToHost = { &onWriteToHost, this };
-    videoEvents.pushLine    = { &onPushLine, this };
+    videoEvents.writeToHost  = { &onWriteToHost, this };
+    videoEvents.pushLine     = { &onPushLine, this };
+    videoEvents.stateChanged = { &onStateChanged, this };
+    videoEvents.textChanged  = { &onTextChanged, this };
+    videoEvents.modeChanged  = { &onModeChanged, this };
 
     model.addListener (this);
 }
@@ -110,7 +113,7 @@ void Processor::pushPopback (const jam::Char* chars, int count, uint8_t flags) n
     cellFifo.pushPopback (chars, count, flags);
 }
 
-void Processor::applyResize (jam::Cell::Rectangle dims) noexcept
+void Processor::setWinsize (jam::Cell::Rectangle dims) noexcept
 {
     video.setWinsize (dims);
 
@@ -170,6 +173,12 @@ void Processor::onDrainComplete() noexcept
             const auto* rowPointer { block.getRowPointer (row) };
             cellFifo.pushActive (rowPointer->chars, rowPointer->usedCols, toCellFifoFlags (rowPointer->flags));
         }
+
+        // Snapshot AFTER the active rows are in the FIFO — flush() fires the
+        // packed cursor and the screenDirty counter through stateChanged, and
+        // screenDirty is THE drain trigger (terminal::View's event map): the
+        // message thread must find the rows already pushed when it reacts.
+        video.flush();
     }
 }
 
@@ -188,12 +197,12 @@ void Processor::onWriteToHost (void* context, const char* data, int length) noex
     static_cast<Processor*> (context)->writeInput (data, length);
 }
 
-void Processor::onPushLine (void* context, int screen, const jam::Char* chars, int count) noexcept
+void Processor::onPushLine (void* context, int screen, const jam::Char* chars, int count, uint8_t flags) noexcept
 {
     if (screen == jam::terminal::Screen::normal)
     {
         auto* self { static_cast<Processor*> (context) };
-        self->cellFifo.pushHistory (chars, count, 0);
+        self->cellFifo.pushHistory (chars, count, toCellFifoFlags (flags));
     }
 }
 
@@ -206,6 +215,27 @@ uint8_t Processor::toCellFifoFlags (uint8_t rowFlags) noexcept
     return static_cast<uint8_t> ((isContinued ? jam::terminal::CellFifo::isContinuedFlag : 0)
                                 | (isJustified ? jam::terminal::CellFifo::isJustifiedFlag : 0)
                                 | (mark << jam::terminal::CellFifo::markShift));
+}
+
+void Processor::onStateChanged (void* context, juce::Identifier tag, juce::Identifier id, int value) noexcept
+{
+    auto* self { static_cast<Processor*> (context) };
+    auto* parameter { self->model.getParameter<jam::Parameter<int>> (tag, id) };
+    jassert (parameter != nullptr);
+    parameter->setValue (value);
+}
+
+void Processor::onTextChanged (void* context, juce::Identifier tag, juce::Identifier id, const char* chars, int length) noexcept
+{
+    auto* self { static_cast<Processor*> (context) };
+    auto* parameter { self->model.getParameter<jam::ParameterText> (tag, id) };
+    jassert (parameter != nullptr);
+    parameter->setValue (chars, length);
+}
+
+void Processor::onModeChanged (void* context, bool isPrivate, int number, int value) noexcept
+{
+    static_cast<Processor*> (context)->model.setMode (isPrivate, number, value);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

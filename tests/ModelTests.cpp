@@ -114,10 +114,10 @@ TEST_CASE ("MODES carries exactly its 11 declared parameters (DecMode bimap + in
 {
     // Prior to jam::terminal::Model owning the full VT-state-machine
     // parameter set, this END-local MODES node hand-duplicated a 9-entry
-    // subset of the DecMode bimap — a latent mismatch with
-    // jam::terminal::Video's ctor, which resolves the full modeParameters
-    // hot tier (jam_CursorState.cpp) DecMode drives + insertMode +
-    // mouseTracking. terminal::Model now INHERITS
+    // subset of the DecMode bimap — a latent mismatch with the full set of
+    // wire numbers jam::terminal::Video decodes (DecMode bimap entries +
+    // insertMode + mouseTracking, jam_CursorState.cpp's working-copy mode
+    // members). terminal::Model now INHERITS
     // jam::terminal::Model::registerModes() (jam_Model.cpp) instead of
     // re-declaring a partial list, so this node carries the same complete
     // vocabulary Video actually requires.

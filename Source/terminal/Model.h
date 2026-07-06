@@ -95,7 +95,7 @@ public:
     }
 
     /** @brief Publishes the zoom factor — a font-size multiplier terminal::View
-     *  applies in applyFont() before recomputing cell metrics, then re-enters
+     *  applies in setFont() before recomputing cell metrics, then re-enters
      *  its own resized() (the sole winsize author, terminal::View.cpp) with
      *  the new metrics. PANE-INSTANCE state: terminal::Model is one-per-
      *  Session (never a process-wide singleton, this class's own doc comment
@@ -104,7 +104,7 @@ public:
      *  Identifier, different ValueTree location — the documented reuse
      *  doctrine at Identifier.h:299-301). Processor/reader never sees this
      *  parameter — only the winsize/cellSize it indirectly produces via
-     *  terminal::View's own applyFont() -> setCellSize() -> resized() ->
+     *  terminal::View's own setFont() -> setCellSize() -> resized() ->
      *  setWinsize() chain.
      *  @param factor  Requested zoom factor — clamped to [zoomMin, zoomMax].
      *  @note Direction B. Any thread — lock-free.

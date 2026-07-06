@@ -40,17 +40,18 @@ namespace terminal
  *  fires through (jam_VideoEvents.h) — plain member assignment of static
  *  trampolines, precedent `end/tests/TestTerm.h`. `writeToHost` forwards
  *  device-response bytes to the TTY stdin. `pushLine` forwards a departed
- *  top row to the CellFifo history ring — filtered to the NORMAL screen only
- *  (alternate-screen scrolls never reach real scrollback, matching every
- *  other terminal emulator's convention; `jam::terminal::Video` fires
- *  `pushLine` unconditionally for whichever screen scrolled).
- *
- *  @note `jam::terminal::Events::pushLine`'s signature carries no row flags
- *  (`jam_VideoEvents.h` `Entry<int, const jam::Char*, int>` — the departing
- *  `jam::Row`'s own `flags` byte, `jam_CursorState.cpp:290`, is never
- *  forwarded). History rows therefore push through with a zero flags byte —
- *  a jam_terminal (READ-ONLY reference) event-surface gap, not fixable from
- *  END. Flagged for ARCHITECT.
+ *  top row (now carrying the departing `jam::Row`'s own `flags` byte,
+ *  translated via `toCellFifoFlags()`) to the CellFifo history ring —
+ *  filtered to the NORMAL screen only (alternate-screen scrolls never reach
+ *  real scrollback, matching every other terminal emulator's convention;
+ *  `jam::terminal::Video` fires `pushLine` unconditionally for whichever
+ *  screen scrolled). `stateChanged`/`textChanged`/`modeChanged` are the
+ *  three Model-agnostic channels `jam::terminal::Video` fires every former
+ *  Model-collaborator write through (zero Model knowledge, ARCHITECT ruling
+ *  2026-07-05) — their trampolines (`onStateChanged`/`onTextChanged`/
+ *  `onModeChanged`, below) resolve straight onto `model`, the ONLY place in
+ *  this codebase that reconnects Video's decoded VT state to the Model it no
+ *  longer references.
  *
  *  @par Ring sizing (S6) and live resize (P6/P9)
  *  `prepare()` sizes the three CellFifo rings exactly ONCE, before `start()`
@@ -74,7 +75,7 @@ namespace terminal
  *  Contract forbids any lock/wait/stall/yield/sleep on it). 16ms after the
  *  last change the Resizer's STOP trigger fires on the message thread:
  *  Session drains history+active fully, extracts the GROW-delta document
- *  tail into the popback ring (`pushPopback()`), then calls `applyResize()`
+ *  tail into the popback ring (`pushPopback()`), then calls `setWinsize()`
  *  — which resizes Video's grid (`jam_CursorState.h`'s own "MESSAGE THREAD
  *  — called while processing is suspended" contract) and notifies the TTY
  *  (`tty->setWinsize()`, SIGWINCH/ConPTY) — before lowering the suspend flag.
@@ -181,14 +182,14 @@ struct Processor : public jam::Model::Listener
     bool isSuspended() const noexcept;
 
     /** @brief Returns Video's CURRENT (pre-resize) live row count — Session
-     *  reads this before `applyResize()` to compute the P9 height delta.
+     *  reads this before `setWinsize()` to compute the P9 height delta.
      *  @note MESSAGE THREAD — safe only while reading is suspended.
      */
     int getVisibleRows() const noexcept;
 
     /** @brief Pushes one row into the popback ring (P9 GROW case) —
      *  forwards to the owned CellFifo. Session calls this once per
-     *  newly-live document line, oldest first, before `applyResize()`.
+     *  newly-live document line, oldest first, before `setWinsize()`.
      *  @param chars   Pointer to the row's Char data.
      *  @param count   Number of Chars in the row.
      *  @param flags   Row flags — bit 0: isContinued, bit 1: isJustified,
@@ -208,7 +209,7 @@ struct Processor : public jam::Model::Listener
      *  @param dims  New terminal dimensions in cells.
      *  @note MESSAGE THREAD — called while reading is suspended.
      */
-    void applyResize (jam::Cell::Rectangle dims) noexcept;
+    void setWinsize (jam::Cell::Rectangle dims) noexcept;
 
     /** @brief Direction B wake seam.
      *  @note Fires on the MESSAGE thread (jam_Model.h:36-48). Touches no
@@ -271,16 +272,38 @@ private:
     static void onWriteToHost (void* context, const char* data, int length) noexcept;
 
     /** @brief `videoEvents.pushLine` trampoline — forwards a departed top
-     *  row to the CellFifo history ring, filtered to the NORMAL screen (see
+     *  row (with its own row-flags byte, translated via `toCellFifoFlags()`)
+     *  to the CellFifo history ring, filtered to the NORMAL screen (see
      *  this struct's own doc comment).
      *  @note READER THREAD. */
-    static void onPushLine (void* context, int screen, const jam::Char* chars, int count) noexcept;
+    static void onPushLine (void* context, int screen, const jam::Char* chars, int count, uint8_t flags) noexcept;
 
     /** @brief Translates `jam::Row::flags` bit layout (flexWrap/collapsed/
      *  justify/mark, bits 0-5) into `jam::terminal::CellFifo`'s own flags
      *  byte layout (isContinued/isJustified/mark, bits 0-4) — the two types
      *  pack the same three concepts at different bit positions. */
     static uint8_t toCellFifoFlags (uint8_t rowFlags) noexcept;
+
+    /** @brief `videoEvents.stateChanged` trampoline — resolves `(tag, id)`
+     *  onto `model`'s `jam::Parameter<int>` and stores `value`. The generic
+     *  commit-side counterpart of every scalar SESSION/NORMAL/ALTERNATE
+     *  write `jam::terminal::Video` used to make directly through a Model
+     *  collaborator (zero Model knowledge now — `jam_VideoEvents.h`).
+     *  @note READER THREAD (Video fires stateChanged on the reader thread;
+     *        `jam::Parameter<int>::setValue()` is lock-free any-thread). */
+    static void onStateChanged (void* context, juce::Identifier tag, juce::Identifier id, int value) noexcept;
+
+    /** @brief `videoEvents.textChanged` trampoline — resolves `(tag, id)`
+     *  onto `model`'s `jam::ParameterText` and stores `(chars, length)`. The
+     *  TEXT-group (title/cwd) counterpart of `onStateChanged()`.
+     *  @note READER THREAD. */
+    static void onTextChanged (void* context, juce::Identifier tag, juce::Identifier id, const char* chars, int length) noexcept;
+
+    /** @brief `videoEvents.modeChanged` trampoline — forwards the decoded
+     *  DEC private / ANSI mode change to `model.setMode()`, the vocabulary
+     *  resolution Video itself no longer performs.
+     *  @note READER THREAD. */
+    static void onModeChanged (void* context, bool isPrivate, int number, int value) noexcept;
 
     /** @brief Session's owned VT state SSOT — Direction A/B parameter host. */
     Model& model;

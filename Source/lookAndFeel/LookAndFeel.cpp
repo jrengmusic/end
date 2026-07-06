@@ -166,6 +166,68 @@ int LookAndFeel::getPaneResizerBarSize() const noexcept
     return config.getValue (IDtype::pane, ID::resizeBarThickness);
 }
 
+//==============================================================================
+juce::Font LookAndFeel::getCodeFont() const
+{
+    auto fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
+    auto fontSize { config.getValue (IDtype::code, ID::fontSize) };
+
+    return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
+}
+
+LookAndFeel::CodeMetrics LookAndFeel::getCodeMetrics (float zoom) const
+{
+    const auto baseFont { getCodeFont() };
+    const juce::Font font { baseFont.withPointHeight (baseFont.getHeight() * zoom) };
+
+    auto resolvedTypeface { font.getTypefacePtr() };
+
+    // endless conformance restoration (jam::GlyphAtlas::calcMetrics(), commit
+    // 2e37f6d) — cell metrics come from the FT face's own advance/ascender/
+    // height at the exact size rasterize() sizes it to, rather than JUCE's
+    // juce::GlyphArrangement::getStringWidth()/getAscent() estimate.
+    auto* atlas { jam::GlyphAtlas::getInstance() };
+    jassert (atlas != nullptr);
+    const auto metrics { atlas->calcMetrics (resolvedTypeface, font.getHeight()) };
+
+    const float cellWidthRatio { config.getValue (IDtype::code, ID::cellWidth) };
+    const float lineHeightRatio { config.getValue (IDtype::code, ID::lineHeight) };
+
+    const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth) * cellWidthRatio) };
+    const int cellHeight { juce::roundToInt (static_cast<float> (metrics.cellHeight) * lineHeightRatio) };
+
+    return CodeMetrics { font, cellWidth, cellHeight, metrics.baseline };
+}
+
+juce::BorderSize<int> LookAndFeel::getCodePadding() const
+{
+    // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
+    auto [top, right, bottom, left] = config.getInt16 (IDtype::code, jam::ID::padding);
+
+    return juce::BorderSize<int> { top, left, bottom, right };
+}
+
+int LookAndFeel::getGutterWidth() const noexcept
+{
+    return config.getValue (IDtype::scrollbar, jam::ID::width);
+}
+
+LookAndFeel::CursorStyle LookAndFeel::getCursorStyle() const
+{
+    juce::String style { config.getValue (jam::IDtype::cursor, jam::ID::style).toString() };
+    bool blink { config.getValue (jam::IDtype::cursor, ID::blink) };
+    int blinkInterval { config.getValue (jam::IDtype::cursor, ID::blinkInterval) };
+    juce::String cursorChar { config.getValue (jam::IDtype::cursor, ID::cursorChar).toString() };
+    bool force { config.getValue (jam::IDtype::cursor, ID::force) };
+
+    return CursorStyle { style, blink, blinkInterval, cursorChar, force };
+}
+
+bool LookAndFeel::getCodeLigatures() const noexcept
+{
+    return config.getValue (IDtype::code, ID::ligatures);
+}
+
 juce::String LookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
 {
     return name + "/" + style;

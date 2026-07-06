@@ -47,32 +47,32 @@ void View::registerEvents()
             // also the SAME call this View makes at initial config load — see
             // this constructor's callAsync block, which fires this very
             // handler once at startup.
-            applyBackground();
-            applyPostProcess();
+            setBackground();
+            setPostProcess();
         });
 
     events.add<juce::ValueTree&> (ID::background,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyBackground();
+                                      setBackground();
                                   });
 
     events.add<juce::ValueTree&> (ID::backgroundOpacity,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyBackgroundParams();
+                                      setBackgroundParams();
                                   });
 
     events.add<juce::ValueTree&> (ID::frameRate,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyBackgroundParams();
+                                      setBackgroundParams();
                                   });
 
     events.add<juce::ValueTree&> (ID::backgroundResolution,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyBackgroundParams();
+                                      setBackgroundParams();
                                   });
 
     events.add<juce::ValueTree&> (ID::filter,
@@ -83,26 +83,26 @@ void View::registerEvents()
                                       // compiled prelude (jam::vulkan::ShaderCompiler::channelMacros()/sceneMacro()),
                                       // so a filter change requires a full recompile on both funnels,
                                       // never the cheaper *Params() path.
-                                      applyBackground();
-                                      applyPostProcess();
+                                      setBackground();
+                                      setPostProcess();
                                   });
 
     events.add<juce::ValueTree&> (ID::postProcessing,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyPostProcess();
+                                      setPostProcess();
                                   });
 
     events.add<juce::ValueTree&> (ID::postProcessingOpacity,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyPostProcessParams();
+                                      setPostProcessParams();
                                   });
 
     events.add<juce::ValueTree&> (ID::postProcessingResolution,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyPostProcessParams();
+                                      setPostProcessParams();
                                   });
 
     events.add<juce::ValueTree&> (
@@ -124,29 +124,29 @@ void View::registerEvents()
     events.add<juce::ValueTree&> (jam::ID::enabled,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyMouseConfig();
+                                      setMouseConfig();
                                   });
 
     events.add<juce::ValueTree&> (ID::imouse,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyMouseConfig();
+                                      setMouseConfig();
                                   });
 
     events.add<juce::ValueTree&> (ID::orbit,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyMouseConfig();
+                                      setMouseConfig();
                                   });
 
     events.add<juce::ValueTree&> (ID::reset,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyMouseConfig();
+                                      setMouseConfig();
                                   });
 }
 
-void View::applyBackground()
+void View::setBackground()
 {
     // Same effective-gpu truth end::Application resolves for the VulkanEngine
     // ctor and the gpu event handler resolves for setGpuEnabled() — never
@@ -187,7 +187,7 @@ void View::applyBackground()
     }
 }
 
-void View::applyBackgroundParams()
+void View::setBackgroundParams()
 {
     const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
     const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
@@ -196,7 +196,7 @@ void View::applyBackgroundParams()
     background.setParams (opacity, resolutionScale, frameRate);
 }
 
-void View::applyPostProcess()
+void View::setPostProcess()
 {
     const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
                             and jam::GpuProbe::probe().isAvailable };
@@ -216,7 +216,7 @@ void View::applyPostProcess()
         const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
         const auto filter { jam::map::ImageResample::get (filterName) };
 
-        // See applyBackground()'s matching comment — ID::shaderFormat is
+        // See setBackground()'s matching comment — ID::shaderFormat is
         // always a definite format ordinal by the time this state is
         // readable here.
         const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
@@ -235,7 +235,7 @@ void View::applyPostProcess()
     }
 }
 
-void View::applyPostProcessParams()
+void View::setPostProcessParams()
 {
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
     const float resolutionScale { config.getValue (
@@ -246,7 +246,7 @@ void View::applyPostProcessParams()
     engine->setPostProcessParams (opacity, resolutionScale);
 }
 
-void View::applyMouseConfig()
+void View::setMouseConfig()
 {
     const bool enabled { config.getValue (IDtype::mouse, jam::ID::enabled) };
     const auto imouseButton { jam::map::MouseButton::get (

@@ -5,7 +5,7 @@
  *
  * Coverage: the ratified semantic-mark design (ghostty 4-state vocabulary).
  * Two independent surfaces:
- *   1. Video::applyOsc133() stamping `Row::flags` mark bits (Row::markShift
+ *   1. Video::setShellIntegration() stamping `Row::flags` mark bits (Row::markShift
  *      == 3, since Row::flags also carries flexWrap/collapsed/justify at
  *      bits 0-2) — via `Test::Line::mark()`.
  *   2. `jam::terminal::CellFifo` header flags mark bits (CellFifo::markShift
@@ -55,7 +55,7 @@ TEST_CASE ("OSC 133;C stamps output, 133;D closes the block without re-stamping"
     t.feed ("next prompt line");   // printed on row2 — proves activeMark was actually cleared
 
     // 133;D does not re-stamp the row it closes — row1 still carries `output`
-    // from C (jam_VideoOSCExt.cpp applyOsc133() doc: "no re-stamp here by
+    // from C (jam_VideoOSCExt.cpp setShellIntegration() doc: "no re-stamp here by
     // design"); the NEXT written row picks up the cleared (none) state.
     REQUIRE (t.line (1).mark() == jam::TextLine::Mark::output);
     REQUIRE (t.line (2).mark() == jam::TextLine::Mark::none);
@@ -97,9 +97,9 @@ TEST_CASE ("CellFifo pushActive/drainActive round-trips isContinued/isJustified/
 
     jam::Char row[3]
     {
-        jam::Char::make (uint32_t ('a'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
-        jam::Char::make (uint32_t ('b'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
-        jam::Char::make (uint32_t ('c'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
+        jam::Char::make (uint32_t ('a'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
+        jam::Char::make (uint32_t ('b'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
+        jam::Char::make (uint32_t ('c'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
     };
 
     const uint8_t flags
@@ -127,12 +127,12 @@ TEST_CASE ("CellFifo drainHistory joins isContinued runs into one TextLine", "[c
 
     jam::Char rowA[2]
     {
-        jam::Char::make (uint32_t ('a'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
-        jam::Char::make (uint32_t ('b'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
+        jam::Char::make (uint32_t ('a'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
+        jam::Char::make (uint32_t ('b'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
     };
     jam::Char rowB[1]
     {
-        jam::Char::make (uint32_t ('c'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0),
+        jam::Char::make (uint32_t ('c'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
     };
 
     const uint8_t markBits { static_cast<uint8_t> (jam::TextLine::Mark::output) << jam::terminal::CellFifo::markShift };
@@ -154,7 +154,7 @@ TEST_CASE ("CellFifo drainHistory returns a partial run with isContinued set at 
 {
     jam::terminal::CellFifo fifo (256, 256);
 
-    jam::Char rowA[1] { jam::Char::make (uint32_t ('x'), jam::Char::CONTENT_CODEPOINT, jam::Char::NARROW, 0) };
+    jam::Char rowA[1] { jam::Char::make (uint32_t ('x'), jam::Char::contentCodepoint, jam::Char::narrow, 0) };
     fifo.pushHistory (rowA, 1, jam::terminal::CellFifo::isContinuedFlag);   // continued, no terminal row follows
 
     jam::TextLine line;

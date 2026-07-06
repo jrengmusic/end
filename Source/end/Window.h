@@ -51,6 +51,10 @@ public:
      */
     void lookAndFeelChanged() override;
 
+private:
+    // /** @brief Singleton LookAndFeel reference — source for window style getters. */
+    end::LookAndFeel& lookAndFeel { *end::LookAndFeel::getInstance() };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)
 };

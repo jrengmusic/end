@@ -472,8 +472,8 @@ its state tree; hot reload = init path):
 
 ```
 file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing event
-  → View funnel — full recompile (applyBackground / applyPostProcess) or cheap
-    param-only path (applyBackgroundParams / applyPostProcessParams)
+  → View funnel — full recompile (setBackground / setPostProcess) or cheap
+    param-only path (setBackgroundParams / setPostProcessParams)
   → jam::vulkan::ShaderCompiler (shaderc, vendored + isolated in jam_vulkan) → jam::vulkan::Shader → consumer
 ```
 
@@ -713,7 +713,7 @@ submits + presents only when the count reaches zero.
 | `jam::GlyphAtlas` (all methods, explicit doxygen contract) | MESSAGE only |
 | `Graphics::endFrame()` (submit + present) / CPU fallback native presentation | MESSAGE (LLGC destructor) |
 | `LookAndFeel` font-config handlers (atlas rebuild) | MESSAGE (VT listener) |
-| View shader funnels (`applyBackground`/`applyPostProcess`, shaderc compile) | MESSAGE (VT listener) |
+| View shader funnels (`setBackground`/`setPostProcess`, shaderc compile) | MESSAGE (VT listener) |
 | `jam::vulkan::ShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
 
 ---

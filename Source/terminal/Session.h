@@ -6,6 +6,7 @@
 #include <JuceHeader.h>
 #include "terminal/Model.h"
 #include "terminal/Processor.h"
+#include "config/Config.h"
 
 namespace terminal
 {
@@ -23,11 +24,13 @@ namespace terminal
  *  its constructor.
  *
  *  @par Drain (S3)
- *  Session is a @c juce::ValueTree::Listener on its own @c model — the
- *  60Hz-flushed @c screenDirty Direction-A parameter (whichever screen is
- *  active) batches @c drain() calls to the ValueTree flush rate, matching
- *  the established @c terminal::View / @c end::View / @c end::LookAndFeel
- *  ValueTree-listener precedent. @c drain() is two-phase: Phase 1 drains the
+ *  @c terminal::View owns the drain trigger — its own @c model ValueTree
+ *  listener calls @c drain() on the 60Hz-flushed @c screenDirty Direction-A
+ *  parameter (whichever screen is active), then repaints via
+ *  @c jam::CodeView::calc(). Session no longer self-listens for this (View
+ *  is the sole @c screenDirty consumer) — Session's own @c
+ *  valueTreePropertyChanged(), below, is reserved for its own live-resize
+ *  seam (@c ID::winsize) only. @c drain() itself is two-phase: Phase 1 drains the
  *  CellFifo history ring (already-joined logical lines, oldest first) and
  *  inserts each at @c liveFirstLine(); Phase 2 drains the CellFifo active
  *  ring (one entry per live viewport row) and lays each down at
@@ -52,7 +55,7 @@ namespace terminal
  *  a GROW delta reads the document's own tail lines (already-drained,
  *  read-only — @c getLine(), never removed: "zero content loss") and
  *  forwards each to @c processor.pushPopback(), then
- *  @c processor.applyResize() (Video + TTY), then lowers the suspend flag.
+ *  @c processor.setWinsize() (Video + TTY), then lowers the suspend flag.
  */
 struct Session : public juce::ValueTree::Listener
 {
@@ -78,22 +81,40 @@ struct Session : public juce::ValueTree::Listener
     /** @brief Returns the owned Processor. */
     Processor& getProcessor() noexcept { return processor; }
 
-    /** @brief Starts the terminal engine — sizes the CellFifo rings (S6, via
-     *  @c Processor::prepare()) then opens the platform TTY. Called once
-     *  from terminal::View's constructor, after scrollbackLines and the
-     *  initial winsize have both been published (Direction B) — @c prepare()
-     *  and @c start() both read those atoms.
-     *  @param shell             Shell program name or absolute path.
-     *  @param args              Space-separated shell arguments.
-     *  @param workingDirectory  Initial working directory. Empty = inherit.
+    /** @brief Starts the terminal engine — owner-reads shell.program/
+     *  shell.args/terminal.scrollback_lines from @c config::Model itself
+     *  (no caller-supplied parameters), publishes scrollbackLines (Direction
+     *  B), sizes the CellFifo rings (S6, via @c Processor::prepare()), then
+     *  opens the platform TTY.
+     *
+     *  Idempotent — Session owns its own @c started fact, so
+     *  terminal::View's own @c resized() calls this UNGUARDED on every
+     *  invocation; the real prepare+open sequence below runs exactly once,
+     *  gated on the already-published Direction B @c winsize atom
+     *  (@c getWinsize()) becoming positive — the first @c resized() call
+     *  fires before the component has real bounds (winsize still 0x0), every
+     *  later call after the parent lays it out for real.
      *  @note MESSAGE THREAD.
      */
-    void start (const juce::String& shell,
-               const juce::String& args,
-               const juce::String& workingDirectory)
+    void start()
     {
-        processor.prepare();
-        processor.start (shell, args, workingDirectory);
+        if (not started)
+        {
+            const auto [cols, rows] { getWinsize() };
+
+            if (cols > 0 and rows > 0)
+            {
+                model.setScrollbackLines (config.getValue (IDtype::terminal, ID::scrollbackLines));
+
+                const auto shellProgram { config.getValue (IDtype::shell, ID::program).toString() };
+                const auto shellArgs { config.getValue (IDtype::shell, ID::args).toString() };
+
+                processor.prepare();
+                processor.start (shellProgram, shellArgs, juce::String {});
+
+                started = true;
+            }
+        }
     }
 
     /** @brief Forwards keystroke/paste bytes to the Processor — bypasses the
@@ -152,19 +173,18 @@ struct Session : public juce::ValueTree::Listener
     // Phase 4: attachInto (daemon mode / View re-parenting).
 
 private:
-    /** @brief Two-key dispatch: @c jam::ID::screenDirty triggers @c drain();
-     *  @c ID::winsize (this class's own live-resize seam, P6/P9) triggers
-     *  the Resizer's coalesced START trigger. Every other property on
-     *  @c model is ignored here (View owns the rest of the Direction A/B
-     *  dispatch, EventRegistration.cpp).
+    /** @brief Single-key dispatch: @c ID::winsize (this class's own
+     *  live-resize seam, P6/P9) triggers the Resizer's coalesced START
+     *  trigger. Every other property on @c model is ignored here — View owns
+     *  the rest of the Direction A/B dispatch (EventRegistration.cpp),
+     *  INCLUDING @c jam::ID::screenDirty -> drain() (View's own contract,
+     *  this struct's own Drain (S3) doc comment above).
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override
     {
         juce::ignoreUnused (tree);
 
-        if (property == jam::ID::screenDirty)
-            drain();
-        else if (property == ID::winsize)
+        if (property == ID::winsize)
         {
             const auto [cols, rows] { getWinsize() };
 
@@ -224,7 +244,7 @@ private:
                     }
                 }
 
-                processor.applyResize (jam::Cell::Rectangle (jam::Cell (newCols), jam::Cell (newRows)));
+                processor.setWinsize (jam::Cell::Rectangle (jam::Cell (newCols), jam::Cell (newRows)));
                 processor.suspendProcessing (false);
             });
     }
@@ -238,6 +258,16 @@ private:
     /** @brief Terminal engine — AudioProcessor analog. Registers as a
      *  jam::Model::Listener on @c model at construction. */
     Processor processor;
+
+    /** @brief Singleton config model reference — owner-read source for
+     *  shell.program/shell.args/terminal.scrollback_lines at start(). */
+    config::Model& config { *config::Model::getInstance() };
+
+    /** @brief First-positive-winsize guard (start()'s own idempotency fact)
+     *  — the real prepare+open sequence must run exactly once; every later
+     *  start() call (terminal::View's resized() calls it unguarded on every
+     *  invocation) is then a correct no-op. */
+    bool started { false };
 
     /** @brief Live-resize coalescing timer (P6/P9) — declared LAST so its
      *  destructor (stops the timer) runs FIRST, before @c processor, since

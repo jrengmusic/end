@@ -18,10 +18,11 @@
  * disambiguation rows (DECRQM, DECSCUSR-vs-DECRQSS, primary-vs-secondary
  * DA), the ESC no-intermediate action LUT (RI, DECSC/DECRC), the OSC
  * command-number action LUT (0, 8; OSC 133 A/B/C is already covered above
- * by the pre-existing "OSC 133 A/B/C..." test — same `applyOsc133()` call
+ * by the pre-existing "OSC 133 A/B/C..." test — same `setShellIntegration()` call
  * path, re-used rather than duplicated), the C0 action LUT (BEL/BS/HT), and
- * a modeFlag-read-after-DECSET assertion exercising the `modeParameters`
- * hot-tier cache (jam_CursorState.h/.cpp).
+ * a read-after-DECSET assertion exercising Video's own working-copy mode
+ * members (jam_CursorState.h/.cpp, read/written directly) via the fixture's
+ * `stateChanged`/`modeChanged` trampolines onto `jam::terminal::Model`.
  */
 
 #include "catch2/catch.hpp"
@@ -64,16 +65,16 @@ TEST_CASE ("SGR attribute-set codes 1-3,5-9,53,73,74 map to their Stamp flag bit
     struct Row { const char* seq; uint16_t flag; };
     const Row rows[]
     {
-        { "\x1b[1m",  jam::Stamp::BOLD },
-        { "\x1b[2m",  jam::Stamp::DIM },
-        { "\x1b[3m",  jam::Stamp::ITALIC },
-        { "\x1b[5m",  jam::Stamp::BLINK },
-        { "\x1b[6m",  jam::Stamp::BLINK },        // RAPID_BLINK shares BLINK's row
-        { "\x1b[7m",  jam::Stamp::INVERSE },
-        { "\x1b[9m",  jam::Stamp::STRIKE },
-        { "\x1b[53m", jam::Stamp::OVERLINE },
-        { "\x1b[73m", jam::Stamp::SUPERSCRIPT },
-        { "\x1b[74m", jam::Stamp::SUBSCRIPT },
+        { "\x1b[1m",  jam::Stamp::bold },
+        { "\x1b[2m",  jam::Stamp::dim },
+        { "\x1b[3m",  jam::Stamp::italic },
+        { "\x1b[5m",  jam::Stamp::blink },
+        { "\x1b[6m",  jam::Stamp::blink },        // RAPID_BLINK shares blink's row
+        { "\x1b[7m",  jam::Stamp::inverse },
+        { "\x1b[9m",  jam::Stamp::strike },
+        { "\x1b[53m", jam::Stamp::overline },
+        { "\x1b[73m", jam::Stamp::superscript },
+        { "\x1b[74m", jam::Stamp::subscript },
     };
 
     for (const auto& row : rows)
@@ -97,15 +98,15 @@ TEST_CASE ("SGR 8 (HIDDEN) is an explicit no-op LookupTable row", "[video][sgr][
     REQUIRE (style.flags == 0);
 }
 
-TEST_CASE ("SGR 22 clears BOLD|DIM via the attributeResetLut row", "[video][sgr][lookuptable]")
+TEST_CASE ("SGR 22 clears bold|dim via the attributeResetLut row", "[video][sgr][lookuptable]")
 {
     Test::Term t { 10, 2 };
-    t.feed ("\x1b[1;2m");   // BOLD + DIM
+    t.feed ("\x1b[1;2m");   // bold + dim
     t.feed ("\x1b[22m");
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & (jam::Stamp::BOLD | jam::Stamp::DIM)) == 0);
+    REQUIRE ((style.flags & (jam::Stamp::bold | jam::Stamp::dim)) == 0);
 }
 
 TEST_CASE ("SGR 21 sets the underline-style field to double, identical to CSI 4:2 m", "[video][sgr][lookuptable]")
@@ -118,7 +119,7 @@ TEST_CASE ("SGR 21 sets the underline-style field to double, identical to CSI 4:
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == jam::Stamp::UNDERLINE_DOUBLE);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == jam::Stamp::underlineDouble);
 }
 
 TEST_CASE ("SGR 24 clears the double-underline style set by SGR 21", "[video][sgr][lookuptable]")
@@ -129,19 +130,19 @@ TEST_CASE ("SGR 24 clears the double-underline style set by SGR 21", "[video][sg
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == 0);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == 0);
 }
 
-TEST_CASE ("SGR 23 clears ITALIC only, leaving other flags set", "[video][sgr][lookuptable]")
+TEST_CASE ("SGR 23 clears italic only, leaving other flags set", "[video][sgr][lookuptable]")
 {
     Test::Term t { 10, 2 };
-    t.feed ("\x1b[1;3m");   // BOLD + ITALIC
+    t.feed ("\x1b[1;3m");   // bold + italic
     t.feed ("\x1b[23m");
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::ITALIC) == 0);
-    REQUIRE ((style.flags & jam::Stamp::BOLD) != 0);
+    REQUIRE ((style.flags & jam::Stamp::italic) == 0);
+    REQUIRE ((style.flags & jam::Stamp::bold) != 0);
 }
 
 TEST_CASE ("SGR 24 clears the entire underline-style field (any underline style)", "[video][sgr][lookuptable]")
@@ -152,12 +153,12 @@ TEST_CASE ("SGR 24 clears the entire underline-style field (any underline style)
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == 0);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == 0);
 }
 
 TEST_CASE ("SGR 4 after SGR 21 (double) clears the field to single, not curly (Auditor F1 regression)", "[video][sgr][lookuptable]")
 {
-    // Auditor F1: plain SGR 4 previously OR'd UNDERLINE_SINGLE (0x200) into
+    // Auditor F1: plain SGR 4 previously OR'd underlineSingle (0x200) into
     // penFlags without clearing the 3-bit underline-style field first. With
     // DOUBLE (0x400) already set by SGR 21, the OR yielded 0x600 = CURLY
     // instead of SINGLE. SgrAction::singleUnderline now clears-then-sets.
@@ -167,7 +168,7 @@ TEST_CASE ("SGR 4 after SGR 21 (double) clears the field to single, not curly (A
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == jam::Stamp::UNDERLINE_SINGLE);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == jam::Stamp::underlineSingle);
 }
 
 TEST_CASE ("SGR 4 after SGR 4:3 (curly) clears the field to single", "[video][sgr][lookuptable]")
@@ -178,12 +179,12 @@ TEST_CASE ("SGR 4 after SGR 4:3 (curly) clears the field to single", "[video][sg
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == jam::Stamp::UNDERLINE_SINGLE);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == jam::Stamp::underlineSingle);
 }
 
-TEST_CASE ("CSI 4:3 m sets curly underline without dispatching the ':' sub-parameter as standalone SGR 3 (no spurious ITALIC)", "[video][sgr][lookuptable]")
+TEST_CASE ("CSI 4:3 m sets curly underline without dispatching the ':' sub-parameter as standalone SGR 3 (no spurious italic)", "[video][sgr][lookuptable]")
 {
-    // Regression: applySGR()'s main dispatch loop previously ran every
+    // Regression: setPen()'s main dispatch loop previously ran every
     // params.values[i] through sgrActionLut regardless of separator type,
     // so the `3` in `4:3` (curly-underline sub-parameter ordinal) was also
     // dispatched as SGR 3 (italic). A sub-parameter is bound to its head
@@ -193,21 +194,21 @@ TEST_CASE ("CSI 4:3 m sets curly underline without dispatching the ':' sub-param
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == jam::Stamp::UNDERLINE_CURLY);
-    REQUIRE ((style.flags & jam::Stamp::ITALIC) == 0);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == jam::Stamp::underlineCurly);
+    REQUIRE ((style.flags & jam::Stamp::italic) == 0);
 }
 
-TEST_CASE ("CSI 4:5 m sets dashed underline without dispatching the ':' sub-parameter as standalone SGR 5 (no spurious BLINK)", "[video][sgr][lookuptable]")
+TEST_CASE ("CSI 4:5 m sets dashed underline without dispatching the ':' sub-parameter as standalone SGR 5 (no spurious blink)", "[video][sgr][lookuptable]")
 {
-    // Same regression as the 4:3/ITALIC case above, with the 4:5/BLINK pair
-    // (sgrParam::BLINK == 5, the same ordinal as underlineStyle::DASHED).
+    // Same regression as the 4:3/italic case above, with the 4:5/blink pair
+    // (Sequence::blink == 5, the same ordinal as Sequence::dashed).
     Test::Term t { 10, 2 };
     t.feed ("\x1b[4:5m");
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::UNDERLINE_STYLE_MASK) == jam::Stamp::UNDERLINE_DASHED);
-    REQUIRE ((style.flags & jam::Stamp::BLINK) == 0);
+    REQUIRE ((style.flags & jam::Stamp::underlineStyleMask) == jam::Stamp::underlineDashed);
+    REQUIRE ((style.flags & jam::Stamp::blink) == 0);
 }
 
 TEST_CASE ("CSI 38:2:R:G:B m (colon sub-separator RGB form) sets the foreground colour, unaffected by the sub-parameter dispatch guard", "[video][sgr][lookuptable]")
@@ -334,7 +335,7 @@ TEST_CASE ("DECRQM (CSI ? Pd $ p) reports the queried mode's state via the compo
 {
     Test::Term t { 10, 5 };
 
-    // DECAWM (mode 7) defaults SET — reportDecrqm() replies "\x1b[?7;1$y".
+    // DECAWM (mode 7) defaults SET — sendModeReport() replies "\x1b[?7;1$y".
     t.feed ("\x1b[?7$p");
     REQUIRE (t.lastResponse() == "\x1b[?7;1$y");
 }
@@ -343,8 +344,8 @@ TEST_CASE ("DECRQM requires the full wire form CSI ? Pd $ p — bare CSI ? Pd p 
 {
     // ARCHITECT ruling: the composite key alone only verifies inter[0] ==
     // '?' (csiInterCode::PRIVATE); the DECRQM executor additionally
-    // requires inter[1] == '$' before calling reportDecrqm() — see
-    // jam_VideoCSI.cpp `Video::applyDecrqm()`.
+    // requires inter[1] == '$' before calling sendModeReport() — see
+    // jam_VideoCSI.cpp `Video::sendModeReport()`.
     Test::Term t { 10, 5 };
 
     // Full wire form — mode 2026 (SYNC_OUTPUT) defaults reset.
@@ -472,11 +473,12 @@ TEST_CASE ("C0 BEL (0x07) fires the bell action without moving the cursor or wri
 }
 
 // ============================================================================
-// modeFlag() hot-tier remedy — cached Parameter<int>* read-after-DECSET
-// (jam_CursorState.h/.cpp `modeParameters`)
+// Working-copy mode-flag read-after-DECSET (jam_CursorState.h/.cpp)
+// t.mode() reads jam::terminal::Model, kept in sync via the fixture's
+// modeChanged trampoline onto Model::setMode().
 // ============================================================================
 
-TEST_CASE ("modeFlag() reads the cached Parameter<int>* correctly after DECRST 2027 disables grapheme clustering", "[video][mode][lookuptable][step8d]")
+TEST_CASE ("Video's own working-copy member reads correctly after DECRST 2027 disables grapheme clustering", "[video][mode][lookuptable][step8d]")
 {
     Test::Term t { 10, 2 };
 
@@ -485,11 +487,10 @@ TEST_CASE ("modeFlag() reads the cached Parameter<int>* correctly after DECRST 2
     t.feed ("\x1b[?2027l");   // DECRST 2027
     REQUIRE_FALSE (t.mode (jam::ID::graphemeClustering));
 
-    // printCodepoint() reads modeFlag(ID::graphemeClustering) through the
-    // cached modeParameters pointer on every call — with clustering disabled,
-    // the combining codepoint takes the single-codepoint path instead of
-    // folding into the previous cell, proving the cached read observed the
-    // DECRST write.
+    // printCodepoint() reads the graphemeClustering working-copy member
+    // directly on every call — with clustering disabled, the combining
+    // codepoint takes the single-codepoint path instead of folding into the
+    // previous cell, proving the working-copy read observed the DECRST write.
     t.feed (Test::utf8 ({ 'e', 0x0301 }));   // 'e' + combining acute accent
 
     REQUIRE (t.cell (0, 0).codepoint() == uint32_t ('e'));

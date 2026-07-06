@@ -34,11 +34,11 @@ void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 
     // Applies the shipped/user-configured rasterization backend and coverage
     // LUT gamma/contrast before this atlas ever paints a glyph.
-    applyFontRasterization();
-    applyEmbolden();
+    setFontRasterization();
+    setEmbolden();
 }
 
-void LookAndFeel::applyFontRasterization()
+void LookAndFeel::setFontRasterization()
 {
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
@@ -51,7 +51,7 @@ void LookAndFeel::applyFontRasterization()
     atlas->setRasterization (backend, gamma, contrast);
 }
 
-void LookAndFeel::applyEmbolden()
+void LookAndFeel::setEmbolden()
 {
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
@@ -180,24 +180,24 @@ void LookAndFeel::registerEvents()
                                   });
 
     // Font-identity config coverage — fontRasterizer/fontGamma/fontContrast are
-    // the ONLY config.lua values requiring a route to applyFontRasterization().
+    // the ONLY config.lua values requiring a route to setFontRasterization().
     // See this method's own doc comment for the full glyph-identity audit.
     events.add<juce::ValueTree&> (ID::fontRasterizer,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyFontRasterization();
+                                      setFontRasterization();
                                   });
 
     events.add<juce::ValueTree&> (ID::fontGamma,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyFontRasterization();
+                                      setFontRasterization();
                                   });
 
     events.add<juce::ValueTree&> (ID::fontContrast,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyFontRasterization();
+                                      setFontRasterization();
                                   });
 
     // code.embolden — same font-owner precedent as fontRasterizer/fontGamma/
@@ -205,7 +205,7 @@ void LookAndFeel::registerEvents()
     events.add<juce::ValueTree&> (ID::embolden,
                                   [this] (juce::ValueTree&)
                                   {
-                                      applyEmbolden();
+                                      setEmbolden();
                                   });
 }
 

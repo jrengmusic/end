@@ -13,8 +13,7 @@ Window::Window (juce::Component* mainComponent,
 
 void Window::lookAndFeelChanged()
 {
-    auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-    auto [colour, blur, fx, windowButtons] = laf.getWindowStyle();
+    auto [colour, blur, fx, windowButtons] = lookAndFeel.getWindowStyle();
 
     jam::style::window::apply (this, colour);
     jam::BackgroundBlur::enable (this,

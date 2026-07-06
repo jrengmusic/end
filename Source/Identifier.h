@@ -10,7 +10,6 @@
  * Keys already present in jam::ID are excluded — they are available globally.
  */
 #pragma once
-#include <JuceHeader.h>
 
 // ============================================================================
 // MACROS are evil. Yet, in the pursuit of one source of truth for convenience

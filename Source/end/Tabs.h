@@ -55,6 +55,9 @@ private:
 
     jam::Owner<jam::Model::Attachment> attachments;
 
+    // /** @brief Singleton LookAndFeel reference — source for tab bar depth/position. */
+    end::LookAndFeel& lookAndFeel { *end::LookAndFeel::getInstance() };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tabs)
 };

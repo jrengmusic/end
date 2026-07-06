@@ -2,6 +2,113 @@
 
 ---
 
+## Sprint 65: Video Zero-Model Mediation + Naming Canon + Stateless View — Live Interactive Terminal ✅
+
+**Date:** 2026-07-05 → 2026-07-07
+**Duration:** multi-day session
+
+### Agents Participated
+- COUNSELOR: carried ARCHITECT rulings through five architecture reversals (state-as-parameters → Video-writes-cells overruled → Model set* verbs overruled → pull surface overruled → endless mediation on trusted jam::Model machinery, final); root-caused the blank-render regression (orphaned `Video::flush()` — zero callers post-restructure → screenDirty never ticked → View never drained); direct fixes: `oscBufferInitialCapacity` member-shadow collision (+ latent zero-byte first-alloc bug), dcs/apc initial-capacity constants, Config.h validator re-key, View.h doxygen refs, JUCE focus-machinery verification from source (juce_Component.cpp:1519-1531, :3000-3006)
+- Pathfinder (3): Video↔Model coupling inventory (both repos); endless mediation archaeology (Video.h:24-29 zero-Model contract, ProcessorEvents flow); jam_vulkan font lifecycle survey
+- Librarian (1): kitty keyboard-protocol stack semantics with file:line (screen.c MOUSE_MODE/push/pop/eviction)
+- Engineer (~16 dispatches): group-tag promotion; END-local id retirement; keyboard saved-flags parameters; KeyboardAssignMode bimap; keyboard split/rename; handle* sweep + CSI/OSC LookupTable dispatch; singular MouseTracking; jam::terminal::Mouse encoder; NO-APPLY sweep; fire*→send* fixup; signal* six + OS-compositor set*; dead style_window deletion; mediation restructure (Video zero-Model + channels); LookAndFeel Instance + getCode*; terminal::View stateless rebuild (Input/Mouse/Session); Sequence vocabulary rewrite; SCREAMING_SNAKE sweep + sendKeyPress
+- Auditor: not dispatched this sprint — validation ran as COUNSELOR spot-verification per landing (flagged for next sprint's full-scope pass)
+
+### Files Modified (major surfaces)
+**JAM:**
+- `jam_terminal/video/jam_VideoEvents.h` — stateChanged/textChanged/modeChanged keyed channels; pushLine `(int, const jam::Char*, int, uint8_t flags)`
+- `jam_terminal/video/jam_CursorState.h/.cpp` — Video ctor `(dims, Events&)`; hot tier deleted; working-copy modes + ScreenState saved-keyboard stacks; flush() fires channels; verb canon (signal*/set*/send*) across all Video files
+- `jam_terminal/video/jam_VideoMode/CSI/ESC/OSC/OSCExt/SGR/Edit/DCS.cpp` — executor renames, member-fn LookupTable dispatch (CsiAction/OscAction deleted), Sequence:: consumers
+- `jam_terminal/model/jam_Model.h/.cpp` — setMode(isPrivate, number, value); savedKeyboardFlags schema; keyboardAssignMode member removed; setMode decMode-shadowing bug fixed
+- `jam_terminal/protocol/jam_VtVocabulary.h` — struct `jam::terminal::Sequence`, 21 namespaces → family plain enums, camelCase; protocol namespace collapsed; focusIn/focusOut
+- `jam_terminal/parser/jam_Parser.h`, `jam_ParserAction.cpp` — printByte/accumulateParamByte; oscBufferInitialCapacity + dcsBufferInitialCapacity + apcBufferInitialCapacity (magic 65536s die)
+- `jam_terminal/mouse/jam_Mouse.h` — X10+SGR encoder, MemoryBlock return, MouseTracking enum gating
+- `jam_terminal/video/jam_MouseTracking.h`, `bimap/jam_KeyboardAssignMode.h` — new vocabulary types (composition, DecMode precedent)
+- `jam_core/identifier/jam_IdentifierTerminal.h` — session/alternate/savedKeyboardFlags*/keyboard*Flags entries; mouseMotionTracking/mouseAllTracking retired
+- `jam_graphics/detail/jam_Char.h`, `jam_Stamp.h` + SimdBlend/BoxDrawing/Subprocess/TTY — SCREAMING_SNAKE → camelCase
+- `jam_gui/style_window/` — DELETED (dead fork of jam_style/style_window); jam_style Background-Blur/StyleWindow apply* → set*
+- `jam_terminal/image/jam_Skit.h/.cpp` — sendPreviewFile
+
+**END:**
+- `Source/terminal/View.h/.cpp` — stateless rebuild (see commit message)
+- `Source/terminal/Input.h/.cpp`, `Mouse.h/.cpp` — NEW encode-path owners
+- `Source/terminal/Session.h` — idempotent start(), owner-reads, Resizer P6/P9, self-listen drain removed
+- `Source/terminal/Processor.h/.cpp` — channel trampolines, onDrainComplete `video.flush()` (THE drain trigger), setWinsize verb, suspend flag
+- `Source/terminal/Model.h` — zoom param (zoomBy/setZoom), jam::IDtype group reuse
+- `Source/lookAndFeel/LookAndFeel.h/.cpp` — jam::Instance base; getCodeFont/getCodeMetrics(zoom)/getCodePadding/getGutterWidth/getCursorStyle/getCodeLigatures; setFontRasterization/setEmbolden
+- `Source/end/View.h`, `ActionRegistration.cpp`, `EventRegistration.cpp`, `Panes/Tabs/Window` — zoom actions via Nexus, cast sites → lookAndFeel refs, set* renames
+- `Source/config/Config.h` — tab_orientation validator re-keyed IDtype::display; `Source/config/lua/display.lua` — zoom_step
+- `Source/Identifier.h` — zoomStep; retired duplicate session/alternate
+- `tests/` — TestTerm channel trampolines, ModelTests MODES 13→11 / screen groups 5→14, comment syncs
+
+### Alignment Check
+- [x] BLESSED — **E**/Encapsulation: Video knows no Model (endless contract restored); tell-chains end to end (zoomBy, setMode); **S**/SSOT: one vocabulary type (Sequence), one drain trigger, singular mouseTracking (three drift-capable bools died), validator re-key; **S**/Stateless: View zero cached visuals, getters only at sanctioned cross-thread seams; **L**: LookupTable dispatch replaces enum+switch middle-men; keyed channels replace 15 bespoke members
+- [x] NAMES.md — full canon landed: decode→signal→set→send; no handle/apply/dispatch/fire/report; camelCase everywhere non-macro; all new names ARCHITECT-gated (Sequence, MouseTracking values, sendKeyPress, getCode*, defaultShape/doubleLine/doubleWidth/privateMarker keyword resolutions)
+- [x] MANIFESTO.md — per BLESSED breakdown; framework machinery trusted as built (no jam::Model contract change)
+- [ ] Auditor full-scope pass not run this sprint — next sprint opens with it (cursor-position + glyph-rendering defects already queued)
+
+### Problems Solved
+- Blank render + dead interaction: `Video::flush()` orphaned by the mediation restructure — screenDirty counter never fired → drain never ran. One call at Processor::onDrainComplete tail (rows pushed first, then announced)
+- oscBufferCapacity camelCase collision shadowed the 512 constant with the runtime member — duplicate-member compile error + latent zero-byte first allocation; renamed initial-capacity constant, call site corrected
+- setMode `decMode` member shadowed the protocol namespace — fully-qualified (then dissolved entirely by Sequence)
+- Focus-tracking false alarm: verified from JUCE source that removeChildComponent → parent grabKeyboardFocus → traverser lands on surviving pane (no staleness)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (pre-existing, untouched this sprint)
+
+---
+
+## Sprint 64: Tab Highlight Animation Contract + Arbitrary-Angle Glyph Rotation in GlyphAtlas ✅
+
+**Date:** 2026-07-07
+**Duration:** ~1 session
+
+### Agents Participated
+- COUNSELOR: root-caused both ARCHITECT-reported defects via runtime evidence (TABANIM debug::Log instrumentation → END.ode); decoded the animation kill chain (LAF cascade lands synchronously inside currentTabChanged → Bar::resized → shouldSnap=true snap → animateHighlight from==to early-out); diagnosed vertical-label defect through three stages (axis-aligned GPU glyph quads → earcut degenerate-remainder assert on curve-flattened outlines → stencil-cover fill has no AA); carried ARCHITECT's rulings (respect JUCE native painting contract; no hardcoded angles — rotation is continuous identity); caught the FreeType rotation sign error in verification (y-up conjugation R(−θ), matching CoreText); direct trivial fixes (durationMs SSOT hoist + consumption, stale docs, dead-param @brief residue)
+- Pathfinder (2 passes): tab animation + vertical-label survey (severed tabOrientation handler, jam label setTransform contract); jam git archaeology (animation code unchanged — regression not jam-side)
+- Librarian (1 pass): JUCE 8 native rotated-glyph contract with file:line (isRotated predicate juce_RenderingHelpers.h:103-106, :2646 gate; outline→EdgeTable fallback juce_Typeface.cpp:665-672)
+- Engineer (6 dispatches): (1) TABANIM instrumentation; (2) caller-ID logs; (3) Bar reorder + re-target fix; (4) instrumentation removal; (5) JUCE-mirror rotated fallback both renderers (superseded); (6) arbitrary-angle rotation through GlyphAtlas Key + all three backends + fallback deletion; (7) dead setCurrentTabIndex param removal
+- Auditor (1 pass): full sprint scope vs contracts — 3 findings (stale 120ms doc, magic 200 literal, dead sendChangeMessage param), all resolved before this log
+
+### Files Modified
+**JAM:**
+- `jam_gui/button/jam_Bar.cpp` — setCurrentTabIndex: highlight animate/snap fires BEFORE currentTabChanged() (LAF cascade was snapping the highlight to target first, ComponentAnimator early-outed); updateTabPositions snap block re-targets an in-flight slide via animateComponent instead of cancelAnimation+setBounds; file-scope `static constexpr int durationMs { 200 }` (SSOT) consumed by animateHighlight, the re-target path, and the desktopAnimator tab-reposition call; applyToggleStates → setToggleStates rename
+- `jam_gui/button/jam_Bar.h` — setCurrentTabIndex(int) — dead sendChangeMessage param removed (documented but ignoreUnused-ed, currentTabChanged fired unconditionally); animateHighlight/setCurrentTabIndex doc sync
+- `jam_gui/layout/jam_TabbedComponent.h/.cpp` — forwarding setCurrentTabIndex param removal
+- `jam_vulkan/font/jam_GlyphAtlas.h` — `Key::rotation` (float radians, full identity participant: field, operator==, Hash, Key::make param); backend doc updates
+- `jam_vulkan/font/jam_GlyphAtlasFreeType.cpp` — FT_Set_Transform 16.16 rotation matrix R(−θ) before load/render (y-up conjugation of the JUCE y-down screen angle — sign corrected by COUNSELOR in verification), reset after (shared FT_Face); ftFixed16Dot16Scale constant
+- `jam_vulkan/font/jam_GlyphAtlasEdgeTable.cpp` — rotation composed after pixel-size scale into getLayersForGlyph transform (+θ, y-down JUCE path space); emoji ImageLayer inherits via .followedBy
+- `jam_vulkan/font/jam_GlyphAtlasMac.mm` — CoreText CTM translate+rotate(−θ) (y-up); rotatedGlyphBounds AABB helper; rotation threaded to both renderNativeGlyphToScratch call sites
+- `jam_vulkan/font/jam_GlyphAtlasNative.cpp` — DirectWrite DWRITE_MATRIX {c,s,−s,c} (+θ, y-down) into CreateGlyphRunAnalysis
+- `jam_vulkan/font/jam_LowLevelGraphicsGlyphRenderer.cpp` — rotated/unrotated split removed; single atlas loop, rotation from atan2(mat10, mat00) into Key::make
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContextGlyph.cpp` — drawGlyphs unified (rotation extracted once, threaded buildGlyphQuads → appendGlyphQuadIfRasterized → Key::make); drawRotatedGlyphs deleted; pendingCellRun clear made unconditional (pre-existing stale-pointer gap when glyphAtlasReady false)
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.h` — drawRotatedGlyphs declaration deleted; buildGlyphQuads/appendGlyphQuadIfRasterized rotation param docs
+
+**END:** none net (LookAndFeel.cpp TABANIM instrumentation added and fully removed within the sprint)
+
+### Alignment Check
+- [x] BLESSED principles followed — **S** (SSOT: durationMs one constant three sites; rotation identity lives in ONE place, the Key — no parallel quad-rotation channel; one rasterization pipeline for all angles); **E** (Explicit: dead parameter promising undelivered behavior removed; sign conventions documented at all four application sites); **L**/YAGNI (interim fallback deleted the moment the atlas route landed — no dead code, no quadrant special-casing); **D** (regression pinned by runtime evidence before any fix; unrotated Keys bit-identical — deterministic cache behavior preserved)
+- [x] NAMES.md adhered — one new name (`Key::rotation`), semantic noun, ARCHITECT-directed ("this is ABOUT ROTATION"); `durationMs` reused existing local name hoisted; setToggleStates rename per set/get canon
+- [x] MANIFESTO.md principles applied — see BLESSED breakdown
+- [x] Diagnostics ephemeral — all 9 TABANIM debug::Log lines removed same sprint (ODE.md §VI)
+
+### Problems Solved
+- Tab highlight slide dead: END's View::valueTreePropertyChanged fires sendLookAndFeelChange (config contract — necessary), landing synchronously inside currentTabChanged → Bar::lookAndFeelChanged → resized → updateTabPositions(shouldSnap=true) snapped the highlight onto the target BEFORE animateHighlight ran → ComponentAnimator early-out (from==to). Fix in Bar's own contract: animate before notify + re-target in-flight animation on relayout
+- Vertical tab labels: characters upright while layout rotated — GPU glyph fast path transformed only the pen origin (axis-aligned PrimitiveRecord quads). Three-stage resolution: JUCE-mirror outline fallback (correct orientation) → earcut degenerate-remainder assert on curve-flattened glyph outlines (rerouted to stencil cover) → no-AA stencil fill visually inconsistent with atlas text → final ARCHITECT-ratified design: rotation as glyph IDENTITY, rasterized pre-rotated through the same backend/gamma/hinting pipeline, any angle, both engines, all three backends
+- FreeType rotation handedness: y-up outline space needs R(−θ) for a y-down screen angle (conjugation through the flip) — caught against CoreText's derivation before ARCHITECT ever built
+- Audit findings (3): stale 120ms doc, unconsumed durationMs at the desktopAnimator site, dead sendChangeMessage param — all resolved pre-log
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 63: mesh_shader mainMesh Hook + Two-Format Contract + graphics.mouse Config + jam::Array Adoption ✅
 
 **Date:** 2026-07-05

@@ -84,9 +84,8 @@ void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
 void Tabs::lookAndFeelChanged()
 {
-    auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-    setTabBarDepth (laf.getTabBarDepth (*this));
-    setOrientation (laf.getTabPosition());
+    setTabBarDepth (lookAndFeel.getTabBarDepth (*this));
+    setOrientation (lookAndFeel.getTabPosition());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

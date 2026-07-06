@@ -10,7 +10,8 @@
  * `jam::Row::chars[col]`, cursor via `getCursorRow()`/`getCursorCol()`, modes
  * via `jam::terminal::Model` (`Video` is stateless on plain VT modes;
  * `Term::mode()` reads the fixture-owned `model` collaborator directly, the
- * same MODES parameter surface `Video::modeFlag()` reads internally). See
+ * same MODES parameter surface Video's own working-copy members mirror
+ * internally). See
  * this fixture's own ratified scaffold shape (`Test::Term`, `t.feed()`,
  * `t.cell(row,col)`, `t.line(row)`, `t.cursorCol()`).
  *
@@ -35,13 +36,16 @@
  * members, `jam_vulkan/engine/jam_VulkanEngine.h`) so every fixture construction
  * starts a fresh interning table — indices are deterministic per test case.
  *
- * @par Model ownership
- * `jam::terminal::map::DecMode` is Model-owned by composition (ARCHITECT
- * ruling 2026-07-05, `jam_DecMode.h`) — `model` (below) holds its own
- * `decMode` plain member and iterates it directly in its constructor to
- * register the MODES parameter group; no fixture-side `DecMode` instance is
- * needed or permitted. `model` is constructor-bound into `video` exactly
- * like the owning application binds its own Model.
+ * @par Model ownership — zero Model knowledge in Video (ARCHITECT ruling 2026-07-05)
+ * `jam::terminal::map::DecMode` is Model-owned by composition (`jam_DecMode.h`)
+ * — `model` (below) holds its own `decMode` plain member and iterates it
+ * directly in its constructor to register the MODES parameter group; no
+ * fixture-side `DecMode` instance is needed or permitted. `video` no longer
+ * takes a Model reference — it fires `stateChanged`/`textChanged`/
+ * `modeChanged` (`jam_VideoEvents.h`) instead; this fixture registers
+ * `onStateChanged`/`onTextChanged`/`onModeChanged` trampolines (same shape
+ * as `end::terminal::Processor`) that resolve those channels straight onto
+ * `model`, so every conformance assertion on Model parameters keeps passing.
  *
  * @par Deadline-injection seam (V2 expiry testing)
  * `Term` is `TermBase<jam::terminal::Video>` — templated on the owned Video
@@ -61,8 +65,9 @@
  * the `Events` value and assigns one static trampoline (`onWriteToHost`,
  * context = `this`) to the `writeToHost` member, capturing the response
  * bytes `TermBase::feed()` / `lastResponse()` need directly into a
- * `TermBase`-owned string. `title` is not an Events member — OSC 0/2 writes
- * `jam::terminal::Model`'s TEXT/title `jam::ParameterText` directly;
+ * `TermBase`-owned string. `title` is not a data-plane Events member — OSC
+ * 0/2 fires `events.textChanged`; this fixture's `onTextChanged` trampoline
+ * writes `jam::terminal::Model`'s TEXT/title `jam::ParameterText` directly;
  * `lastTitle()` reads it straight off the fixture-owned `model`.
  */
 #pragma once
@@ -125,7 +130,7 @@ struct Line
     /** @brief DECAWM soft-wrap flag — row content continues on the next row. */
     bool isContinued() const noexcept { return (row->flags & jam::Row::flexWrap) != 0; }
 
-    /** @brief Row contains `Char::FLEX_GAP` — elastic whitespace for reflow. */
+    /** @brief Row contains `Char::flexGap` — elastic whitespace for reflow. */
     bool isJustified() const noexcept { return (row->flags & jam::Row::justify) != 0; }
 
     /** @brief OSC 133 semantic mark stamped onto this row (`Row::markShift`/`markMask`). */
@@ -157,7 +162,7 @@ public:
     using jam::terminal::Video::Video;
 
     /** @brief Sets `syncOutputDeadlineMs` directly, bypassing the
-     *  `applyPrivateMode()` DECSET 2026 arm computation. */
+     *  `setPrivateModes()` DECSET 2026 arm computation. */
     void setSyncOutputDeadlineMs (double ms) noexcept { syncOutputDeadlineMs = ms; }
 };
 
@@ -184,7 +189,7 @@ class TermBase
 {
 public:
     TermBase (int cols, int rows)
-        : video (jam::Cell::Rectangle (jam::Cell (cols), jam::Cell (rows)), events, model)
+        : video (jam::Cell::Rectangle (jam::Cell (cols), jam::Cell (rows)), events)
         , parser (video)
     {
         // Plain member assignment — safe any time before the reader thread
@@ -192,7 +197,10 @@ public:
         // doc). `events` is constructed (all members default all-fallback)
         // before this body runs, since it precedes `video` in declaration
         // order below.
-        events.writeToHost = { &onWriteToHost, this };
+        events.writeToHost  = { &onWriteToHost, this };
+        events.stateChanged = { &onStateChanged, this };
+        events.textChanged  = { &onTextChanged, this };
+        events.modeChanged  = { &onModeChanged, this };
 
         // Video's ctor allocates the grid from `dims` but leaves cols/visibleRows
         // at their {80}/{24} defaults — setWinsize() is the mandatory sync step
@@ -233,8 +241,9 @@ public:
     int cursorCol() const noexcept { return video.getCursorCol().value; }
 
     /** @brief Reads a named MODES parameter (`jam::ID::xxx`) directly from the
-     *  fixture-owned `jam::terminal::Model` — the same collaborator `Video`
-     *  reads through `modeFlag()`. */
+     *  fixture-owned `jam::terminal::Model` — kept in sync with Video's own
+     *  working-copy member via `events.modeChanged`'s trampoline (Video holds
+     *  zero Model knowledge). */
     bool mode (juce::Identifier id) const noexcept
     {
         auto* param { model.getParameter<jam::Parameter<int>> (model.getType(), id) };
@@ -249,10 +258,10 @@ public:
     void clearResponse() noexcept { responseCapture.clear(); }
 
     // ---- OSC 0/2 title -------------------------------------------------------
-    // OSC 0/2 now writes jam::terminal::Model's TEXT/title jam::ParameterText
-    // directly (jam_VideoOSC.cpp applyOscTitle()) — read it straight off the
-    // fixture-owned model collaborator, the same TEXT group Video resolved
-    // titleParam from at construction.
+    // OSC 0/2 fires events.textChanged (jam_VideoOSC.cpp setTitle()); this
+    // fixture's onTextChanged trampoline writes jam::terminal::Model's
+    // TEXT/title jam::ParameterText — read it straight off the fixture-owned
+    // model collaborator, the same TEXT group the trampoline resolves onto.
 
     juce::String lastTitle() const noexcept
     {
@@ -274,13 +283,49 @@ private:
         static_cast<TermBase*> (context)->responseCapture.append (data, static_cast<size_t> (length));
     }
 
+    /** @brief `Events::Entry` trampoline for the `stateChanged` member —
+     *  resolves `(tag, id)` onto `model`'s `jam::Parameter<int>` and stores
+     *  `value`. Same shape as `end::terminal::Processor::onStateChanged()`.
+     *  @param context  The owning `TermBase*`, opaque to Video. */
+    static void onStateChanged (void* context, juce::Identifier tag, juce::Identifier id, int value) noexcept
+    {
+        auto* self { static_cast<TermBase*> (context) };
+        auto* parameter { self->model.getParameter<jam::Parameter<int>> (tag, id) };
+        jassert (parameter != nullptr);
+        parameter->setValue (value);
+    }
+
+    /** @brief `Events::Entry` trampoline for the `textChanged` member —
+     *  resolves `(tag, id)` onto `model`'s `jam::ParameterText` and stores
+     *  `(chars, length)`. Backs `lastTitle()`.
+     *  @param context  The owning `TermBase*`, opaque to Video. */
+    static void onTextChanged (void* context, juce::Identifier tag, juce::Identifier id, const char* chars, int length) noexcept
+    {
+        auto* self { static_cast<TermBase*> (context) };
+        auto* parameter { self->model.getParameter<jam::ParameterText> (tag, id) };
+        jassert (parameter != nullptr);
+        parameter->setValue (chars, length);
+    }
+
+    /** @brief `Events::Entry` trampoline for the `modeChanged` member —
+     *  forwards the decoded DEC private / ANSI mode change to
+     *  `model.setMode()`. Backs `mode()`.
+     *  @param context  The owning `TermBase*`, opaque to Video. */
+    static void onModeChanged (void* context, bool isPrivate, int number, int value) noexcept
+    {
+        static_cast<TermBase*> (context)->model.setMode (isPrivate, number, value);
+    }
+
     // Declaration order is construction order — Stamp/Grapheme/Link have no
-    // deps; model must exist before video (video holds a reference to it —
-    // model's own decMode member is iterated by Model::registerModes()
-    // internally, no fixture-side DecMode owner needed); events must exist
-    // before video (video holds a reference to it — the trampoline above
-    // captures `this`, valid already during the member-initialiser list);
-    // video must exist before parser (parser holds a reference).
+    // deps; model's own decMode member is iterated by Model::registerModes()
+    // internally, no fixture-side DecMode owner needed. `video` no longer
+    // holds a Model reference (zero Model knowledge) — the trampolines above
+    // reach `model` only when `events` actually fires (after full
+    // construction), so no inter-member reference-lifetime ordering is
+    // required between `model` and `video`; `events` must still exist
+    // before `video` (video holds a reference to it — the trampolines
+    // above capture `this`, valid already during the member-initialiser
+    // list); `video` must exist before `parser` (parser holds a reference).
     jam::Stamp    stampInstance;
     jam::Grapheme graphemeInstance;
     jam::Link     linkInstance;

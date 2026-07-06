@@ -114,6 +114,9 @@ private:
      */
     terminal::View& addPaneView (jam::UUID uuid);
 
+    // /** @brief Singleton LookAndFeel reference — source for pane resizer bar size. */
+    end::LookAndFeel& lookAndFeel { *end::LookAndFeel::getInstance() };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Panes)
 };

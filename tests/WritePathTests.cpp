@@ -37,14 +37,14 @@ TEST_CASE ("narrow ASCII advances cursor by one column per glyph", "[video][widt
     REQUIRE (t.cursorCol() == 3);
 }
 
-TEST_CASE ("CJK wide codepoint writes WIDE head + SPACER_TAIL, cursor +2", "[video][width][v1]")
+TEST_CASE ("CJK wide codepoint writes doubleWidth head + spacerTail, cursor +2", "[video][width][v1]")
 {
     // U+4F60 (ni hao shi jie section 8, emoji_test.sh) — CJK Unified Ideograph, EAW=Wide.
     Test::Term t { 10, 2 };
     t.feed (Test::utf8 ({ 0x4F60 }));
 
-    REQUIRE (t.cell (0, 0).wide() == jam::Char::WIDE);
-    REQUIRE (t.cell (0, 1).wide() == jam::Char::SPACER_TAIL);
+    REQUIRE (t.cell (0, 0).wide() == jam::Char::doubleWidth);
+    REQUIRE (t.cell (0, 1).wide() == jam::Char::spacerTail);
     REQUIRE (t.cell (0, 1).codepoint() == 0);
     REQUIRE (t.cursorCol() == 2);
 }
@@ -55,8 +55,8 @@ TEST_CASE ("Japanese hiragana and Korean hangul are wide", "[video][width][v1][c
     Test::Term t { 10, 2 };
     t.feed (Test::utf8 ({ 0x3053, 0x3093 }));   // U+3053 U+3093
 
-    REQUIRE (t.cell (0, 0).wide() == jam::Char::WIDE);
-    REQUIRE (t.cell (0, 2).wide() == jam::Char::WIDE);
+    REQUIRE (t.cell (0, 0).wide() == jam::Char::doubleWidth);
+    REQUIRE (t.cell (0, 2).wide() == jam::Char::doubleWidth);
     REQUIRE (t.cursorCol() == 4);
 }
 
@@ -66,9 +66,9 @@ TEST_CASE ("box-drawing characters are narrow (EAW Ambiguous defaults narrow)", 
     Test::Term t { 10, 2 };
     t.feed (Test::utf8 ({ 0x250C, 0x2500, 0x2510 }));   // U+250C U+2500 U+2510
 
-    REQUIRE (t.cell (0, 0).wide() == jam::Char::NARROW);
-    REQUIRE (t.cell (0, 1).wide() == jam::Char::NARROW);
-    REQUIRE (t.cell (0, 2).wide() == jam::Char::NARROW);
+    REQUIRE (t.cell (0, 0).wide() == jam::Char::narrow);
+    REQUIRE (t.cell (0, 1).wide() == jam::Char::narrow);
+    REQUIRE (t.cell (0, 2).wide() == jam::Char::narrow);
     REQUIRE (t.cursorCol() == 3);
 }
 
@@ -78,8 +78,8 @@ TEST_CASE ("Nerd Font PUA icons are narrow", "[video][width][v1]")
     Test::Term t { 10, 2 };
     t.feed (Test::utf8 ({ 0xE0A0, 0xF013 }));   // git branch, gear
 
-    REQUIRE (t.cell (0, 0).wide() == jam::Char::NARROW);
-    REQUIRE (t.cell (0, 1).wide() == jam::Char::NARROW);
+    REQUIRE (t.cell (0, 0).wide() == jam::Char::narrow);
+    REQUIRE (t.cell (0, 1).wide() == jam::Char::narrow);
     REQUIRE (t.cursorCol() == 2);
 }
 
@@ -99,7 +99,7 @@ TEST_CASE ("precomposed and decomposed accented letters both occupy one column",
     REQUIRE (precomposed.cursorCol() == 1);
     REQUIRE (decomposed.cursorCol() == 1);
 
-    REQUIRE (decomposed.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (decomposed.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 }
 
 TEST_CASE ("combining mark folds into the base cell via jam::Grapheme interning", "[video][width][v1][combining]")
@@ -108,7 +108,7 @@ TEST_CASE ("combining mark folds into the base cell via jam::Grapheme interning"
     t.feed (Test::utf8 ({ uint32_t ('n'), 0x0303 }));   // n + combining tilde (U+0303)
 
     const auto base { t.cell (0, 0) };
-    REQUIRE (base.contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (base.contentTag() == jam::Char::contentGrapheme);
 
     const auto& entry { jam::Grapheme::getInstance()->get (base.codepoint()) };
     REQUIRE (entry.count == 2);
@@ -126,8 +126,8 @@ TEST_CASE ("wide at right margin wraps before writing", "[video][width][v1]")
     t.feed ("abc\xE4\xBD\xA0");                    // 'a','b','c', U+4F60 (width 2)
     REQUIRE (t.cell (0, 3).codepoint() == 0);       // col 3 left empty — no split pair
     REQUIRE (t.line (0).isContinued());
-    REQUIRE (t.cell (1, 0).wide()      == jam::Char::WIDE);
-    REQUIRE (t.cell (1, 1).wide()      == jam::Char::SPACER_TAIL);
+    REQUIRE (t.cell (1, 0).wide()      == jam::Char::doubleWidth);
+    REQUIRE (t.cell (1, 1).wide()      == jam::Char::spacerTail);
     REQUIRE (t.cursorCol()             == 2);
 }
 
@@ -144,7 +144,7 @@ TEST_CASE ("basic emoji (section 1) advance the cursor by the base codepoint wid
     t.feed (Test::utf8 ({ base }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_CODEPOINT);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentCodepoint);
 }
 
 TEST_CASE ("VS16 (U+FE0F) folds into the base cell, does not add a column", "[video][width][v1][emoji][vs16]")
@@ -163,7 +163,7 @@ TEST_CASE ("VS16 (U+FE0F) folds into the base cell, does not add a column", "[vi
     t.feed (Test::utf8 ({ base, 0xFE0F }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 }
 
 TEST_CASE ("VS15 (U+FE0E) folds into the base cell same as VS16", "[video][width][v1][emoji][vs15]")
@@ -174,7 +174,7 @@ TEST_CASE ("VS15 (U+FE0E) folds into the base cell same as VS16", "[video][width
     t.feed (Test::utf8 ({ base, 0xFE0E }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 }
 
 TEST_CASE ("ZWJ family sequence folds into one cell", "[video][width][v1][emoji][zwj]")
@@ -185,7 +185,7 @@ TEST_CASE ("ZWJ family sequence folds into one cell", "[video][width][v1][emoji]
     t.feed (Test::utf8 ({ base, 0x200D, 0x1F469, 0x200D, 0x1F467, 0x200D, 0x1F466 }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 
     const auto& entry { jam::Grapheme::getInstance()->get (t.cell (0, 0).codepoint()) };
     REQUIRE (entry.count == 7);
@@ -209,7 +209,7 @@ TEST_CASE ("skin tone modifier folds into the base emoji cell", "[video][width][
     t.feed (Test::utf8 ({ base, 0x1F3FB }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 }
 
 TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the digit cell", "[video][width][v1][emoji][keycap]")
@@ -220,7 +220,7 @@ TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the dig
     t.feed (Test::utf8 ({ base, 0xFE0F, 0x20E3 }));
 
     REQUIRE (t.cursorCol() == jam::Char::width (base));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_GRAPHEME);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentGrapheme);
 }
 
 // ============================================================================
@@ -230,14 +230,14 @@ TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the dig
 // CONFORMANCE FINDING RESOLVED: the DFA (jam_Transition.h buildCSIEntry/buildCSIParam/
 // buildCSIIntermediate) collects '$' (0x24) as an intermediate byte and
 // delivers 'p'/'q' (0x70/0x71) as `finalByte` for `CSI ? Pm $ p` (DECRQM) /
-// `CSI Pd $ q` (DECRQSS). `applyCSI()` (jam_VideoCSI.cpp) now carries
-// `case csiFinal::DECRQM:` (`'p'`, guarded by `inter[0] == csiInter::PRIVATE`)
-// routing to `reportDecrqm()`, and the DECSCUSR case (`finalByte == 'q'`)
-// gained an `inter[0] == csiInter::DOLLAR` branch routing to
-// `reportStatusString()` (DECRQSS shares 'q' with DECSCUSR, disambiguated by
-// the '$' intermediate) — the dead `csiFinal::STATUS` constant (`'$'`,
+// `CSI Pd $ q` (DECRQSS). `signalCSI()` (jam_VideoCSI.cpp) now carries
+// `case Sequence::requestMode:` (`'p'`, guarded by `inter[0] == Sequence::privateMarker`)
+// routing to `sendModeReport()`, and the DECSCUSR case (`finalByte == 'q'`)
+// gained an `inter[0] == Sequence::dollar` branch routing to
+// `sendStatusString()` (DECRQSS shares 'q' with DECSCUSR, disambiguated by
+// the '$' intermediate) — the dead `STATUS` constant (`'$'`,
 // unreachable as a final byte per the same DFA) was deleted and replaced
-// with `csiFinal::DECRQM`. The REQUIRE assertions below encode the
+// with `Sequence::requestMode`. The REQUIRE assertions below encode the
 // CORRECT/expected DECRQM response per the module's own doc table and xterm
 // ctlseqs and now exercise the live, reachable dispatch path.
 
@@ -281,8 +281,8 @@ TEST_CASE ("mode 2027 off — no fold: every codepoint takes the single-codepoin
     t.feed (Test::utf8 ({ uint32_t ('e'), 0x0301 }));
 
     REQUIRE (t.cell (0, 0).codepoint() == uint32_t ('e'));
-    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::CONTENT_CODEPOINT);
+    REQUIRE (t.cell (0, 0).contentTag() == jam::Char::contentCodepoint);
     REQUIRE (t.cell (0, 1).codepoint() == uint32_t (0x0301));
-    REQUIRE (t.cell (0, 1).contentTag() == jam::Char::CONTENT_CODEPOINT);
+    REQUIRE (t.cell (0, 1).contentTag() == jam::Char::contentCodepoint);
     REQUIRE (t.cursorCol() == 2);
 }

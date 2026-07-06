@@ -28,6 +28,7 @@ namespace end
  */
 class LookAndFeel
     : public jam::LookAndFeel::Methods<LookAndFeel>
+    , public jam::Instance<LookAndFeel>
     , public juce::ValueTree::Listener
 {
 public:
@@ -87,8 +88,8 @@ public:
      * Main.h). Called once, externally, immediately after VulkanEngine
      * construction (Application::initialiseVulkan()). Also applies the
      * shipped/user-configured glyph rasterization backend/gamma/contrast (see
-     * applyFontRasterization()) and
-     * the embolden state (see applyEmbolden()) before this atlas ever paints a
+     * setFontRasterization()) and
+     * the embolden state (see setEmbolden()) before this atlas ever paints a
      * glyph.
      *
      * @param atlas  The Vulkan glyph atlas to register with.
@@ -231,6 +232,80 @@ public:
      */
     int getPaneResizerBarSize() const noexcept;
 
+    /**
+     * @brief Returns the terminal code font constructed from theme config
+     *        (family, size).
+     *
+     * Reads IDtype::code properties: ID::fontFamily, ID::fontSize. Unlike
+     * getTabFont(), carries no kerning factor (code.font_family/font_size
+     * has no kerning_factor property) and no zoom — zoom is a
+     * terminal::Model parameter applied inside getCodeMetrics() below.
+     */
+    juce::Font getCodeFont() const;
+
+    /**
+     * @brief Computed terminal cell metrics at @p zoom — LnF is the font
+     *        owner AND the sanctioned jam::GlyphAtlas caller; terminal::View
+     *        never touches glyph machinery directly.
+     *
+     * Applies @p zoom to getCodeFont() via juce::Font::withPointHeight()
+     * (size × zoom), resolves the zoomed font's typeface, and calls
+     * jam::GlyphAtlas::getInstance()->calcMetrics() at the exact FT size the
+     * glyphs will rasterize at. The raw FT cell width/height are then scaled
+     * by the theme's own cell ratios (code.cell_width / code.line_height)
+     * to produce the final pixel cell size. Returns the zoomed font itself
+     * alongside the computed metrics — terminal::View's lookAndFeelChanged()
+     * consumes every field directly (codeView::setFont/setCellSize/
+     * setBaseline, mouse.setCellSize, model.setCellSize) with no ratio-only
+     * getter anywhere in the chain.
+     *
+     * @param zoom  terminal::Model's own zoom factor (Direction B ID::zoom).
+     * @return Populated CodeMetrics — font, cellWidth, cellHeight, baseline,
+     *         all in pixels except font (points).
+     */
+    struct CodeMetrics
+    {
+        juce::Font font;
+        int cellWidth;
+        int cellHeight;
+        int baseline;
+    };
+
+    CodeMetrics getCodeMetrics (float zoom) const;
+
+    /** @brief Component-level padding for the terminal code area from
+     *  display config. Reads code.padding { top, right, bottom, left }
+     *  (CSS convention) — mirrors getTabBarPadding().
+     */
+    juce::BorderSize<int> getCodePadding() const;
+
+    /** @brief Terminal gutter width in pixels from scrollbar config.
+     *  Reads scrollbar.width (user-configurable).
+     */
+    int getGutterWidth() const noexcept;
+
+    /** @brief Cursor block parameters from the active theme.
+     *  Returns { style, blink, blinkInterval, cursorChar, force } read from
+     *  jam::IDtype::cursor. Consumer unpacks via structured binding.
+     */
+    struct CursorStyle
+    {
+        juce::String style;
+        bool blink;
+        int blinkInterval;
+        juce::String cursorChar;
+        bool force;
+    };
+
+    CursorStyle getCursorStyle() const;
+
+    /** @brief Terminal ligature toggle from the active theme (code.ligatures)
+     *  — the 5th getCode* visual getter. Routes through LnF like every
+     *  other code-family value; terminal::View no longer reads config
+     *  directly for ligatures.
+     */
+    bool getCodeLigatures() const noexcept;
+
 private:
     // /** @brief Singleton config model reference — source for theme path and top-level config values. */
     config::Model& config { *config::Model::getInstance() };
@@ -271,7 +346,7 @@ private:
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     — per-component colour refresh via setColours()
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
-     *                     — re-applies applyFontRasterization() on config hot-reload
+     *                     — re-applies setFontRasterization() on config hot-reload
      */
     jam::Function::Map<juce::Identifier, void> events;
 
@@ -318,7 +393,7 @@ private:
      * here is a correct no-op, not a gap, since no caller ever needs a flush
      * without an actual change. Defined in EventRegistration.cpp.
      */
-    void applyFontRasterization();
+    void setFontRasterization();
 
     /**
      * @brief Reads code.embolden from config.lua and calls the Vulkan glyph
@@ -326,12 +401,12 @@ private:
      *        FreeType rasterize site).
      *
      * Reaches the atlas via jam::GlyphAtlas::getInstance() directly, same
-     * precedent as applyFontRasterization() (font events live with the font
+     * precedent as setFontRasterization() (font events live with the font
      * owner). Called once from registerTypeface()'s tail — the same place
-     * applyFontRasterization() runs — and again by the embolden event handler
+     * setFontRasterization() runs — and again by the embolden event handler
      * on config hot-reload. Defined in EventRegistration.cpp.
      */
-    void applyEmbolden();
+    void setEmbolden();
 
     /**
      * @brief Reads SVG content from the GRAPHICS child of config.state and
@@ -365,9 +440,9 @@ private:
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     → setColours(config.state)
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
-     *                     → applyFontRasterization() (font events live with the
+     *                     → setFontRasterization() (font events live with the
      *                       font owner — relocated from end::View)
-     * - ID::embolden      → applyEmbolden() (same font-owner precedent as
+     * - ID::embolden      → setEmbolden() (same font-owner precedent as
      *                       fontRasterizer/fontGamma/fontContrast)
      *
      * Glyph-identity config coverage audit — every config value that can alter
@@ -389,10 +464,10 @@ private:
      * StatusBar/ActionList components do not exist in Source yet, nothing to
      * route to until they do. The terminal code font (code.font_family/
      * font_size) is no longer this audit's gap: the glyph-rendering pipeline
-     * now exists, and terminal::View owns its own font_family/font_size event
-     * handlers (Source/terminal/EventRegistration.cpp) plus the zoom
-     * parameter (terminal::Model's own ID::zoom) — all three funnel into
-     * terminal::View's own applyFont(), which recomputes cell metrics and
+     * now exists, and terminal::View owns its own zoom event handler
+     * (Source/terminal/EventRegistration.cpp, terminal::Model's own ID::zoom)
+     * which funnels into terminal::View's own lookAndFeelChanged(), which
+     * calls this class's getCodeMetrics (zoom) to recompute cell metrics and
      * re-applies them to jam::CodeView, entirely independent of this class's
      * own event map. Only fontRasterizer/fontGamma/fontContrast change the
      * rasterized bitmap for an UNCHANGED Key (same typeface/glyphIndex/

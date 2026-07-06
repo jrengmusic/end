@@ -59,8 +59,7 @@ void Panes::visibilityChanged()
 
 void Panes::lookAndFeelChanged()
 {
-    auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-    paneManager.setResizerBarSize (laf.getPaneResizerBarSize());
+    paneManager.setResizerBarSize (lookAndFeel.getPaneResizerBarSize());
 }
 
 void Panes::split (jam::UUID uuid, const juce::Identifier& direction)

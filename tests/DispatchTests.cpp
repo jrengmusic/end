@@ -11,14 +11,14 @@
 // SGR — pen state resolves into a jam::Stamp entry
 // ============================================================================
 
-TEST_CASE ("SGR 1 (bold) sets Stamp::BOLD on the written cell's style", "[video][sgr]")
+TEST_CASE ("SGR 1 (bold) sets Stamp::bold on the written cell's style", "[video][sgr]")
 {
     Test::Term t { 10, 2 };
     t.feed ("\x1b[1m");
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::BOLD) != 0);
+    REQUIRE ((style.flags & jam::Stamp::bold) != 0);
 }
 
 TEST_CASE ("SGR 0 resets the pen to default attributes", "[video][sgr]")
@@ -29,7 +29,7 @@ TEST_CASE ("SGR 0 resets the pen to default attributes", "[video][sgr]")
     t.feed ("x");
 
     const auto& style { jam::Stamp::getInstance()->get (t.cell (0, 0).styleId()) };
-    REQUIRE ((style.flags & jam::Stamp::BOLD) == 0);
+    REQUIRE ((style.flags & jam::Stamp::bold) == 0);
 }
 
 // ============================================================================

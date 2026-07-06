@@ -71,7 +71,7 @@ public:
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
 
     /** @brief Config-driven button routing for this deep mouse listener —
-     *  resolved once per graphics.mouse config change by applyMouseConfig()
+     *  resolved once per graphics.mouse config change by setMouseConfig()
      *  into @c mouseEnabled/@c orbitButtonConfig/@c resetButtonConfig below
      *  (cached members, not re-read here — same "resolved value cached on
      *  the consumer" contract as end::LookAndFeel's own glyph-rasterization
@@ -84,7 +84,7 @@ public:
      *  different (independent gestures, no cross-interference); wheel always
      *  drives zoom (mouseWheelMove()'s own doc comment) — fixed, never
      *  button-configurable. iMouse routing is entirely jam::vulkan::
-     *  ShaderComponent's own concern (setMouseConfig(), applyMouseConfig()'s
+     *  ShaderComponent's own concern (setMouseConfig(), setMouseConfig()'s
      *  own doc comment), never this deep listener's.
      *
      *  Captures @p e's own position as the starting point for the next
@@ -218,13 +218,13 @@ private:
      *  jam::Window), gpu (toggles jam::VulkanEngine::getInstance()'s
      *  setGpuEnabled() from config and probe result, the post-process
      *  background-blur shader via jam::BackgroundBlur::setEnabled(), and both
-     *  applyBackground()/applyPostProcess() — the VulkanEngine itself
+     *  setBackground()/setPostProcess() — the VulkanEngine itself
      *  is owned and constructed once by end::Application, never by View, and
      *  is never reset/reconstructed here; see end::Application's vulkanEngine
      *  doc comment, Main.h). background/backgroundOpacity/frameRate/
-     *  backgroundResolution route to applyBackground(); postProcessing/
+     *  backgroundResolution route to setBackground(); postProcessing/
      *  postProcessingOpacity/postProcessingResolution route to
-     *  applyPostProcess(); filter (shared by both slots) routes to both.
+     *  setPostProcess(); filter (shared by both slots) routes to both.
      *  Message display is handled directly by MessageOverlay via ParameterAttachment.
      *
      *  Font-identity config coverage (fontRasterizer/fontGamma/fontContrast,
@@ -234,19 +234,19 @@ private:
      *  comment for the full audit of every glyph-identity config value.
      *
      *  Two funnel pairs, each split by cost: background/gpu/filter route to
-     *  applyBackground() (full recompile — project identity, GPU toggle, and
+     *  setBackground() (full recompile — project identity, GPU toggle, and
      *  filter all change what gets baked into the compiled SPIR-V), while
      *  backgroundOpacity/frameRate/backgroundResolution route to the cheap
-     *  applyBackgroundParams() (no recompile, jam::vulkan::ShaderComponent::setParams()).
-     *  postProcessing/gpu/filter route to applyPostProcess() (full); filter
+     *  setBackgroundParams() (no recompile, jam::vulkan::ShaderComponent::setParams()).
+     *  postProcessing/gpu/filter route to setPostProcess() (full); filter
      *  is shared by both slots so its handler calls both full funnels; gpu
      *  likewise. postProcessingOpacity/postProcessingResolution route to the
-     *  cheap applyPostProcessParams().
+     *  cheap setPostProcessParams().
      *
      *  graphics.mouse.enabled/imouse/orbit/reset all route to
-     *  applyMouseConfig() — no cost split (no recompile involved at all, a
+     *  setMouseConfig() — no cost split (no recompile involved at all, a
      *  cache-refresh + one background.setMouseConfig() tell-call; see
-     *  applyMouseConfig()'s own doc comment). graphics.mouse.zoom carries no
+     *  setMouseConfig()'s own doc comment). graphics.mouse.zoom carries no
      *  handler here — fixed/documented-only, never read (display.lua's own
      *  mouse.zoom comment). Defined in EventRegistration.cpp.
      */
@@ -262,36 +262,36 @@ private:
      *  keeping @c background's last-good shader). Full recompile — routed to
      *  by project/GPU/filter changes only (see registerEvents()'s doc
      *  comment); opacity/resolution/frame-rate-only changes route to the
-     *  cheaper applyBackgroundParams() instead. Single gather site (SSOT) for
+     *  cheaper setBackgroundParams() instead. Single gather site (SSOT) for
      *  every background-identity config change — shared by initial load
      *  (transitively, via the gpu handler firing at startup) and hot-reload.
      *  Defined in EventRegistration.cpp.
      */
-    void applyBackground();
+    void setBackground();
 
     /** @brief Cheap parameter-only update — no recompile. Gathers
      *  opacity/resolutionScale/frameRate and forwards them to
      *  @c background via its @c setParams() tell-API. Defined in
      *  EventRegistration.cpp. */
-    void applyBackgroundParams();
+    void setBackgroundParams();
 
     /** @brief Gathers current post-processing config values and the effective
      *  GPU state and installs (or clears) jam::VulkanEngine's app-global
      *  post-process chain accordingly. Full recompile — routed to by
      *  project/GPU/filter changes only (see registerEvents()'s doc comment);
      *  opacity/resolution-only changes route to the cheaper
-     *  applyPostProcessParams() instead. Single gather site (SSOT) for every
+     *  setPostProcessParams() instead. Single gather site (SSOT) for every
      *  post-process-identity config change — shared by initial load
      *  (transitively, via the gpu handler firing at startup) and hot-reload.
      *  Defined in EventRegistration.cpp.
      */
-    void applyPostProcess();
+    void setPostProcess();
 
     /** @brief Cheap parameter-only update — no recompile. Gathers
      *  opacity/resolutionScale and forwards them to
      *  jam::VulkanEngine::setPostProcessParams(). Defined in
      *  EventRegistration.cpp. */
-    void applyPostProcessParams();
+    void setPostProcessParams();
 
     /** @brief Gathers graphics.mouse config (enabled/imouse/orbit/reset),
      *  resolves the three button fields via jam::map::MouseButton::get(),
@@ -309,7 +309,7 @@ private:
      *  mouse-identity config change — shared by initial load (callAsync
      *  block, View::View()) and hot-reload. Defined in EventRegistration.cpp.
      */
-    void applyMouseConfig();
+    void setMouseConfig();
 
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     // void setTabOrientation();
@@ -364,14 +364,14 @@ private:
     bool resetButtonDragged { false };
 
     /** @brief Cached resolved graphics.mouse config — refreshed by
-     *  applyMouseConfig() on every mouse.* config change (and once at
+     *  setMouseConfig() on every mouse.* config change (and once at
      *  startup, View::View()'s own callAsync block), read by mouseDown()/
      *  mouseDrag()/mouseUp()/mouseWheelMove() above on every mouse event
-     *  (applyMouseConfig()'s own doc comment: cached rather than re-read
+     *  (setMouseConfig()'s own doc comment: cached rather than re-read
      *  from config per event). @c mouseEnabled false disables every branch
      *  in those four overrides regardless of button. Defaults match today's
      *  pre-config behaviour (enabled, orbit/reset both middle) so a build
-     *  that never fires applyMouseConfig() sees unchanged behaviour. */
+     *  that never fires setMouseConfig() sees unchanged behaviour. */
     bool mouseEnabled { true };
 
     /** @brief See @c mouseEnabled's own doc comment. Defaults to
