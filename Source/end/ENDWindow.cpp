@@ -1,17 +1,13 @@
-#include "end/Window.h"
+#include "end/ENDWindow.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-Window::Window (juce::Component* mainComponent,
-                const juce::String& name)
+ENDWindow::ENDWindow (juce::Component* mainComponent,
+                      const juce::String& name)
     : jam::Window { mainComponent, name, false, true }
 {
     lookAndFeelChanged();
 }
 
-void Window::lookAndFeelChanged()
+void ENDWindow::lookAndFeelChanged()
 {
     auto [colour, blur, fx, windowButtons] = lookAndFeel.getWindowStyle();
 
@@ -24,6 +20,3 @@ void Window::lookAndFeelChanged()
     if (auto* peer { getPeer() })
         jam::style::window::setButtons (*peer, windowButtons);
 }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

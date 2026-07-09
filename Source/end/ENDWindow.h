@@ -1,51 +1,47 @@
 /**
- * @file end/Window.h
+ * @file end/ENDWindow.h
  * @brief Pure jam::Window with LAF-driven style for END.
  *
- * end::Window extends jam::Window with no config listener and no styleParameters.
+ * ENDWindow extends jam::Window with no config listener and no styleParameters.
  * Visual properties (tint colour, blur radius, WindowFX) are applied via
- * lookAndFeelChanged(), which inlines the three primitives from end::LookAndFeel
+ * lookAndFeelChanged(), which inlines the three primitives from ENDLookAndFeel
  * at theme-change time. Operational properties (always_on_top, title_bar_buttons)
- * are dispatched by end::View in a separate step.
+ * are dispatched by ENDView in a separate step.
  *
  * Constructor calls lookAndFeelChanged() to apply the initial style state.
  * Destructor is default.
  */
 #pragma once
 #include <JuceHeader.h>
-#include "lookAndFeel/LookAndFeel.h"
+#include "lookAndFeel/ENDLookAndFeel.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-/** @class Window
+/** @class ENDWindow
  *  @brief Pure jam::Window with LAF-driven style.
  *
  *  Inherits jam::Window. Style (tint colour, blur radius, WindowFX, traffic-light
  *  visibility) is applied in lookAndFeelChanged(), which reads the four values
- *  from end::LookAndFeel and inlines the primitives (jam::style::window::apply,
+ *  from ENDLookAndFeel and inlines the primitives (jam::style::window::apply,
  *  jam::BackgroundBlur::enable, jam::style::window::setButtons). No config listener.
  *
- *  Ownership: constructed and owned by end::Application.
+ *  Ownership: constructed and owned by ENDApplication.
  */
-class Window : public jam::Window
+class ENDWindow : public jam::Window
 {
 public:
     /** @brief Constructs the window and calls lookAndFeelChanged() to apply
      *  the initial style state.
      *
      *  Operational properties (alwaysOnTop, windowButtons) default to false
-     *  and true respectively. View::initRenderer() corrects both from config
+     *  and true respectively. ENDView::initRenderer() corrects both from config
      *  on the first message loop iteration.
      *
      *  @param mainComponent  Content component — ownership transferred to jam::Window.
      *  @param name           Window title string.
      */
-    Window (juce::Component* mainComponent, const juce::String& name);
+    ENDWindow (juce::Component* mainComponent, const juce::String& name);
 
     /** @brief Applies window style from the LAF when theme properties change.
-     *  Reads colour, blur, FX, and windowButtons from end::LookAndFeel::getWindowStyle()
+     *  Reads colour, blur, FX, and windowButtons from ENDLookAndFeel::getWindowStyle()
      *  and inlines jam::style::window::apply, jam::BackgroundBlur::enable, and
      *  jam::style::window::setButtons.
      */
@@ -53,11 +49,8 @@ public:
 
 private:
     // /** @brief Singleton LookAndFeel reference — source for window style getters. */
-    end::LookAndFeel& lookAndFeel { *end::LookAndFeel::getInstance() };
+    ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDWindow)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

@@ -6,8 +6,8 @@
  * briefly over the application to communicate transient text status:
  *
  * - **Config reload** — success or error text written to the overlay's own
- *   @c ID::message property (owned as a @c jam::Model::Component), shown for
- *   the default duration (5000 ms) via View::valueTreePropertyChanged.
+ *   @c ID::message property (owned via @c jam::Model::Component),
+ *   shown for the default duration (5000 ms) via View::valueTreePropertyChanged.
  * - **Arbitrary messages** — multi-line text shown via showMessage().
  *
  * ### Fade animation
@@ -27,33 +27,30 @@
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
- * @see end::View
- * @see config::Model
- * @see end::LookAndFeel
+ * @see ENDView
+ * @see ConfigModel
+ * @see ENDLookAndFeel
  */
 
 #pragma once
 #include <JuceHeader.h>
 #include "Identifier.h"
-#include "../config/Config.h"
-#include "../lookAndFeel/LookAndFeel.h"
-
-namespace end
-{
-/*____________________________________________________________________________*/
+#include "../config/ConfigModel.h"
+#include "../lookAndFeel/ENDLookAndFeel.h"
 
 /**
  * @class MessageOverlay
  * @brief Semi-transparent overlay for transient status messages (text-only mode).
  *
- * Inherits `juce::Component` for rendering, `jam::Model::Component` for owned
- * ValueTree state, and `juce::Timer` (private) for the auto-hide delay.
- * All display logic is inline; there is no separate .cpp.
+ * Inherits `juce::Component` (rendering) and `jam::Model::Component`
+ * (owned ValueTree state, adopting Nexus's own OVERLAY node) — and
+ * `juce::Timer` (private) for the auto-hide delay. All display logic is
+ * inline; there is no separate .cpp.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
- * @see end::View
+ * @see ENDView
  */
 class MessageOverlay
     : public juce::Component
@@ -62,17 +59,19 @@ class MessageOverlay
 {
 public:
     /**
-     * @brief Constructs MessageOverlay: binds model state, sets non-opaque, disables mouse interception.
+     * @brief Constructs MessageOverlay: adopts Nexus's own OVERLAY node, sets
+     * non-opaque, disables mouse interception.
      *
      * The component starts hidden (`addChildComponent` in the parent).
      * Visibility is managed entirely by `jam::Animator::toggleFade()`.
-     * Call registerParameters() after Attachment is constructed in View.
+     * Call registerParameters() once this component is parented.
      *
-     * @param m  Shared jam::Model that owns the application state tree.
+     * @param m            Shared jam::Model that owns the application state tree.
+     * @param overlayState Nexus's own OVERLAY node to adopt as @c state.
      * @note MESSAGE THREAD.
      */
-    explicit MessageOverlay (jam::Model& m)
-        : jam::Model::Component (m, IDtype::overlay)
+    MessageOverlay (jam::Model& m, juce::ValueTree overlayState)
+        : jam::Model::Component (*this, m, overlayState)
     {
         setOpaque (false);
         setInterceptsMouseClicks (false, false);
@@ -84,9 +83,9 @@ public:
     /**
      * @brief Registers the ID::message ParameterText on the overlay's state.
      *
-     * Must be called after the Attachment for MessageOverlay is constructed in
-     * View, so the state is already parented in the model tree before the
-     * adapter is registered.
+     * @c state is already parented in the model tree at construction time —
+     * this class adopts Nexus's own pre-bootstrapped OVERLAY node — so this
+     * may be called any time after construction.
      *
      * @note MESSAGE THREAD — called once during View construction.
      */
@@ -136,7 +135,7 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        auto& cfg { *config::Model::getInstance() };
+        auto& cfg { *ConfigModel::getInstance() };
         auto family { cfg.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
         auto size { static_cast<float> (cfg.getValue (jam::IDtype::overlay, ID::fontSize)) };
         juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
@@ -185,6 +184,3 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageOverlay)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

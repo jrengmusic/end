@@ -1,19 +1,15 @@
 /**
- * @file lookAndFeel/LookAndFeel.h
+ * @file lookAndFeel/ENDLookAndFeel.h
  * @brief END's theme-driven LookAndFeel — SVG Flex tab/bar graphics, live colour mapping.
  */
 #pragma once
 #include <JuceHeader.h>
 #include <JamFontsBinaryData.h>
 #include "Identifier.h"
-#include "../config/Config.h"
-
-namespace end
-{
-/*____________________________________________________________________________*/
+#include "../config/ConfigModel.h"
 
 /**
- * @class LookAndFeel
+ * @class ENDLookAndFeel
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
  * Inherits jam::LookAndFeel::Methods for tab bar background, highlight, button,
@@ -26,9 +22,9 @@ namespace end
  * (IDtype::code, scrollbar, tab, button, overlay, pane, statusBar, hint)
  * through one code path.
  */
-class LookAndFeel
-    : public jam::LookAndFeel::Methods<LookAndFeel>
-    , public jam::Instance<LookAndFeel>
+class ENDLookAndFeel
+    : public jam::LookAndFeel::Methods<ENDLookAndFeel>
+    , public jam::Instance<ENDLookAndFeel>
     , public juce::ValueTree::Listener
 {
 public:
@@ -60,10 +56,10 @@ public:
      *        Typeface registration happens later — see registerTypeface()'s
      *        doc comment for why it cannot run here.
      */
-    LookAndFeel();
+    ENDLookAndFeel();
 
     /** @brief Removes the listener from config. */
-    ~LookAndFeel();
+    ~ENDLookAndFeel();
 
     /**
      * @brief Registers END's six embedded typefaces — one pass, one parse per
@@ -83,10 +79,10 @@ public:
      * with unique, stable addresses.
      *
      * Cannot run at LookAndFeel construction time — the atlas (owned by
-     * jam::VulkanEngine) does not exist yet then (end::Application constructs
-     * vulkanEngine after end::LookAndFeel, per end::Application's member order,
+     * jam::VulkanEngine) does not exist yet then (ENDApplication constructs
+     * vulkanEngine after ENDLookAndFeel, per ENDApplication's member order,
      * Main.h). Called once, externally, immediately after VulkanEngine
-     * construction (Application::initialiseVulkan()). Also applies the
+     * construction (ENDApplication::initialiseVulkan()). Also applies the
      * shipped/user-configured glyph rasterization backend/gamma/contrast (see
      * setFontRasterization()) and
      * the embolden state (see setEmbolden()) before this atlas ever paints a
@@ -230,7 +226,15 @@ public:
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
      *  Panes to size jam::PaneManager's resizer bars.
      */
-    int getPaneResizerBarSize() const noexcept;
+    int getPaneResizerBarSize() const noexcept override;
+
+    /** @brief Dock leaf seed ratio from pane config (pane.sidebar_size).
+     *  Consumed wherever a WINDOW leaf's own split ratio is seeded from
+     *  theme — see PaneManager.h's own construction-order note (Nexus
+     *  bootstraps WINDOW's topology before this getter's own config/LAF
+     *  dependency exists).
+     */
+    float getPaneSidebarSize() const noexcept;
 
     /**
      * @brief Returns the terminal code font constructed from theme config
@@ -239,13 +243,13 @@ public:
      * Reads IDtype::code properties: ID::fontFamily, ID::fontSize. Unlike
      * getTabFont(), carries no kerning factor (code.font_family/font_size
      * has no kerning_factor property) and no zoom — zoom is a
-     * terminal::Model parameter applied inside getCodeMetrics() below.
+     * TerminalModel parameter applied inside getCodeMetrics() below.
      */
     juce::Font getCodeFont() const;
 
     /**
      * @brief Computed terminal cell metrics at @p zoom — LnF is the font
-     *        owner AND the sanctioned jam::GlyphAtlas caller; terminal::View
+     *        owner AND the sanctioned jam::GlyphAtlas caller; TerminalView
      *        never touches glyph machinery directly.
      *
      * Applies @p zoom to getCodeFont() via juce::Font::withPointHeight()
@@ -254,12 +258,12 @@ public:
      * glyphs will rasterize at. The raw FT cell width/height are then scaled
      * by the theme's own cell ratios (code.cell_width / code.line_height)
      * to produce the final pixel cell size. Returns the zoomed font itself
-     * alongside the computed metrics — terminal::View's lookAndFeelChanged()
+     * alongside the computed metrics — TerminalView's lookAndFeelChanged()
      * consumes every field directly (codeView::setFont/setCellSize/
      * setBaseline, mouse.setCellSize, model.setCellSize) with no ratio-only
      * getter anywhere in the chain.
      *
-     * @param zoom  terminal::Model's own zoom factor (Direction B ID::zoom).
+     * @param zoom  TerminalModel's own zoom factor (Direction B ID::zoom).
      * @return Populated CodeMetrics — font, cellWidth, cellHeight, baseline,
      *         all in pixels except font (points).
      */
@@ -301,14 +305,14 @@ public:
 
     /** @brief Terminal ligature toggle from the active theme (code.ligatures)
      *  — the 5th getCode* visual getter. Routes through LnF like every
-     *  other code-family value; terminal::View no longer reads config
+     *  other code-family value; TerminalView no longer reads config
      *  directly for ligatures.
      */
     bool getCodeLigatures() const noexcept;
 
 private:
     // /** @brief Singleton config model reference — source for theme path and top-level config values. */
-    config::Model& config { *config::Model::getInstance() };
+    ConfigModel& config { *ConfigModel::getInstance() };
 
     //==============================================================================
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
@@ -346,7 +350,9 @@ private:
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     — per-component colour refresh via setColours()
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
-     *                     — re-applies setFontRasterization() on config hot-reload
+     *                     — re-applies setFontRasterization() on config hot-reload,
+     *                       which itself cascades Component::sendLookAndFeelChange()
+     *                       (see setFontRasterization()'s own doc comment)
      */
     jam::Function::Map<juce::Identifier, void> events;
 
@@ -372,7 +378,7 @@ private:
      *
      * Reaches the atlas via jam::GlyphAtlas::getInstance() directly rather
      * than a stored reference — the atlas now always exists once
-     * Application::initialiseVulkan() has run (font events live with the font
+     * ENDApplication::initialiseVulkan() has run (font events live with the font
      * owner, but the atlas itself stays owned by jam::VulkanEngine). Asserts
      * the instance is non-null rather than silently no-op-ing: by the time any
      * of this method's three callers (registerTypeface()'s tail, and the
@@ -391,7 +397,14 @@ private:
      * rebuilds the LUT and flushes the cache when backend/gamma/contrast
      * actually differ from their current values — reapplying identical values
      * here is a correct no-op, not a gap, since no caller ever needs a flush
-     * without an actual change. Defined in EventRegistration.cpp.
+     * without an actual change. Tail-calls Component::sendLookAndFeelChange()
+     * on every juce::Desktop top-level window (ENDLookAndFeel owns no
+     * Component of its own to call it on directly) — the atlas rebuild above
+     * invalidates every cached glyph bitmap for an otherwise-unchanged
+     * GlyphAtlas::Key, and TerminalView's own lookAndFeelChanged() is the
+     * sole path that recomputes cell metrics against the now-current atlas
+     * state and repaints. A no-op at startup (registerTypeface()'s own tail
+     * call runs before ENDWindow exists). Defined in EventRegistration.cpp.
      */
     void setFontRasterization();
 
@@ -404,7 +417,10 @@ private:
      * precedent as setFontRasterization() (font events live with the font
      * owner). Called once from registerTypeface()'s tail — the same place
      * setFontRasterization() runs — and again by the embolden event handler
-     * on config hot-reload. Defined in EventRegistration.cpp.
+     * on config hot-reload. Tail-calls the same juce::Desktop-reached
+     * Component::sendLookAndFeelChange() cascade as setFontRasterization()'s
+     * own tail comment — embolden changes the rasterized bitmap for an
+     * otherwise-unchanged GlyphAtlas::Key too. Defined in EventRegistration.cpp.
      */
     void setEmbolden();
 
@@ -441,9 +457,13 @@ private:
      *                     → setColours(config.state)
      * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
      *                     → setFontRasterization() (font events live with the
-     *                       font owner — relocated from end::View)
+     *                       font owner — relocated from ENDView), whose own
+     *                       tail cascades Component::sendLookAndFeelChange()
+     *                       to every juce::Desktop top-level window (see
+     *                       setFontRasterization()'s own doc comment)
      * - ID::embolden      → setEmbolden() (same font-owner precedent as
-     *                       fontRasterizer/fontGamma/fontContrast)
+     *                       fontRasterizer/fontGamma/fontContrast, same
+     *                       tail cascade)
      *
      * Glyph-identity config coverage audit — every config value that can alter
      * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/
@@ -456,7 +476,7 @@ private:
      * atlas call required; kerning_factor never reaches Key at all (it shifts
      * glyph pen positions, never glyph identity). getTabFont() and
      * MessageOverlay::paint() already re-read config on every paint, and any
-     * theme.lua edit unconditionally fires ID::theme (config::Theme::loadFromPath)
+     * theme.lua edit unconditionally fires ID::theme (ConfigTheme::loadFromPath)
      * into the theme handler above, which repaints the whole component tree
      * (juce::Component::sendLookAndFeelChange descends to every child) — so the
      * new family/size is picked up immediately. status_bar/action_list
@@ -464,22 +484,24 @@ private:
      * StatusBar/ActionList components do not exist in Source yet, nothing to
      * route to until they do. The terminal code font (code.font_family/
      * font_size) is no longer this audit's gap: the glyph-rendering pipeline
-     * now exists, and terminal::View owns its own zoom event handler
-     * (Source/terminal/EventRegistration.cpp, terminal::Model's own ID::zoom)
-     * which funnels into terminal::View's own lookAndFeelChanged(), which
+     * now exists, and TerminalView owns its own zoom event handler
+     * (Source/terminal/EventRegistration.cpp, TerminalModel's own ID::zoom)
+     * which funnels into TerminalView's own lookAndFeelChanged(), which
      * calls this class's getCodeMetrics (zoom) to recompute cell metrics and
      * re-applies them to jam::CodeView, entirely independent of this class's
-     * own event map. Only fontRasterizer/fontGamma/fontContrast change the
-     * rasterized bitmap for an UNCHANGED Key (same typeface/glyphIndex/
-     * fontSize, different backend or coverage LUT), which is exactly why
-     * GlyphAtlas::setRasterization() must be re-invoked explicitly on those three.
-     * Defined in EventRegistration.cpp.
+     * own event map. Only fontRasterizer/fontGamma/fontContrast/embolden
+     * change the rasterized bitmap for an UNCHANGED Key (same typeface/
+     * glyphIndex/fontSize, different backend, coverage LUT, or synthetic
+     * embolden), which is exactly why setFontRasterization()/setEmbolden()
+     * must be re-invoked explicitly on those four — and, since ENDView no
+     * longer cascades Component::sendLookAndFeelChange() unconditionally on
+     * every runtime property change (ARCHITECT ruling — runtime state must
+     * never cascade LookAndFeel), why those same two methods now cascade it
+     * themselves, reached via juce::Desktop (see setFontRasterization()'s
+     * own doc comment). Defined in EventRegistration.cpp.
      */
     void registerEvents();
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDLookAndFeel)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

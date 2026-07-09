@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). Terminal pipeline Phase 3 (Session/Model/Processor/View).
+**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). Terminal pipeline landed (`newTerminal` create machine — `terminal::Processor` self-drain, `end::Session` engine daemon, `terminal::View` pairing; see "Session Layer — Landed Contract").
 
 **Last Updated:** 2026-07-04
 
@@ -65,27 +65,32 @@ window (end::View, depends on all above)
     |
     v
  Session Host (Nexus)
-    — owns terminal::Session instances; manages lifecycle
+    — owns end::Model (the app SSOT) and every end::Session, keyed by uuid
     |
     v
- Terminal / Session (terminal::Session)
-    — DAW host per terminal instance. Owns CodeModel (document buffer),
-      terminal::Model (VT state SSOT), and Processor (engine).
+ Session (end::Session)
+    — gui-less engine owner, a jam::Model::Listener only. Owns the uuid-keyed
+      terminal::Processor instances of one end::View; creates on ID::newTerminal,
+      tells setFocus() on ID::focusedPane. No lifecycle verb of its own —
+      engines persist (see "Session Layer" below).
     |
     v
  Terminal / Processor (terminal::Processor)
-    — AudioProcessor analog. Reader thread pipeline (Video → Buffer<Row> → CellFifo).
+    — AudioProcessor analog. Owns terminal::Model, document, CellFifo, TTY,
+      Resizer. Reader thread pipeline (Video → Buffer<Row> → CellFifo).
       Reader thread writes atomics on terminal::Model.
     |
     v
  Terminal / Model (terminal::Model)
-    — Per-session APVTS bridge; atomics (reader), ValueTree (message); timer flush.
-      NOT a globally-owned instance — one per terminal::Session.
+    — Per-pane APVTS bridge; atomics (reader), ValueTree (message); timer flush.
+      NOT a globally-owned instance — one per pane, paired under the PANE
+      leaf at terminal::View::attach().
     |
     v
  Terminal / View (terminal::View)
-    — message thread; listens on terminal::Model + config::Model;
-      parents CodeView; calls Session::drain() on screenDirty
+    — message thread; listens on the paired terminal::Model tree + LookAndFeel;
+      parents CodeView; terminal::Processor self-drains on screenDirty
+      (Processor::drain()), View's own VTPC handler repaints only.
     |
     v
  Terminal / TTY (jam_terminal, platform)
@@ -120,7 +125,7 @@ There is **no dedicated GPU thread** — the entire Vulkan pipeline (and the CPU
 - The **reader thread NEVER touches CodeModel.** The boundary is CellFifo.
 - The **message thread NEVER writes atomics** (except during timer flush).
 - The **paint path NEVER writes** ValueTree or CodeModel.
-- `Session::drain()` runs on the **message thread ONLY.**
+- `terminal::Processor::drain()` runs on the **message thread ONLY.**
 - Violation of any of these is a **B violation** (BLESSED Bound — thread binding).
 
 ### Parameter Access by Thread
@@ -133,13 +138,13 @@ There is **no dedicated GPU thread** — the entire Vulkan pipeline (and the CPU
 
 ### Scalar Data — Parameters, Mode Flags, Strings, Metadata
 
-Sparse, low-volume, consumed by UI listeners. Per-session (one per terminal::Session).
+Sparse, low-volume, consumed by UI listeners. Per-terminal (one per terminal::Processor).
 
 ```
 READER → atomic slots on terminal::Model → timer flush → terminal::Model ValueTree → MESSAGE reads via listener
 ```
 
-**terminal::Model is the per-session SSOT for all scalar state** (not a globally-owned instance). Each Session owns one terminal::Model. `flush()` copies dirty atomics to ValueTree properties. MESSAGE thread reads exclusively from ValueTree (via `ValueTree::Listener`). `ParameterText` pattern for cross-thread strings (double-buffered, seqlock generation).
+**terminal::Model is the per-terminal SSOT for all scalar state** (not a globally-owned instance). Each terminal::Processor owns one terminal::Model. `flush()` copies dirty atomics to ValueTree properties. MESSAGE thread reads exclusively from ValueTree (via `ValueTree::Listener`). `ParameterText` pattern for cross-thread strings (double-buffered, seqlock generation).
 
 ### Bulk Data — Cell Content
 
@@ -147,7 +152,7 @@ High-volume (25,000+ cells at 5K fullscreen), consumed by render path.
 
 ```
 READER → Video writes Buffer<Row> → CellFifo push (drop-oldest SPSC)
-MESSAGE → terminal::View calls Session::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
+MESSAGE → terminal::Processor self-drains (screenDirty) → CellFifo drain → document mutations → terminal::View's own screenDirty handler → CodeView::calc() → repaint
 ```
 
 **Buffer\<Row\>** is Video's scratch surface — dual channel (normal + alternate), destroyed on resize. It is NOT the document. NOT the SSOT. NOT persistent.
@@ -167,14 +172,16 @@ If the data is sparse/scalar (O(1) or O(small N)), it is **scalar** → terminal
 ## Data Flow: Keystroke to Pixel
 
 ```
-Keystroke → Message Thread → TTY::write()
-         → Reader Thread reads response → Processor::process() → Parser → Video
+Keystroke → Message Thread → terminal::Processor::writeInput() → TTY stdin
+         → Reader Thread reads response → Processor::onData() → Parser::process() → Video
          → Buffer<Row> written, terminal::Model atomics set
          → Timer flush (60/120 Hz) on Message Thread
-         → terminal::Model flushes dirty atomics to ValueTree
-         → terminal::View::valueTreePropertyChanged()
-            → terminal::View calls drain on Session
-            → CellFifo drained into CodeModel
+         → terminal::Model flushes dirty atomics to ValueTree (screenDirty fires)
+         → terminal::Processor::valueTreePropertyChanged() fires FIRST (registered at
+           construction, before any View attaches — registration-order invariant)
+            → Processor::drain() — CellFifo drained into document (two-phase: history
+              ring, then active ring)
+         → terminal::View::valueTreePropertyChanged() fires SECOND, same screenDirty write
             → CodeView::calc() → repaint
          → JUCE paint dispatch → jam::VulkanEngine::createContext()
             → Vulkan LLGC (GPU) or jam::LowLevelGraphicsGlyphRenderer (CPU)
@@ -225,16 +232,17 @@ Two independent resize paths — swapchain and terminal grid:
 
 ## Drain Sequence (Message Thread)
 
-When `screenDirty` fires on terminal::Model's ValueTree:
+`terminal::Processor` self-drains — it registers as its own `jam::Model::Listener` AND `juce::ValueTree::Listener` on its own `model`, at construction, before any View attaches. That registration-order invariant guarantees the `screenDirty` reaction below fires before terminal::View's own `screenDirty` handler runs its repaint (juce::ValueTree fires listeners in registration order).
 
-1. terminal::View's `valueTreePropertyChanged` fires.
-2. View calls `Session::drain()`.
-3. Session drains **history ring** — permanently appends departed scrollback lines to CodeModel.
-4. Session drains **active ring** — removes previous live tail (`liveTailExtent[screen]` rows from end), lays down new active rows as the live tail, stores drained count as new `liveTailExtent`.
-5. View calls `CodeView::calc()`.
-6. CodeView repaints.
+When `jam::ID::screenDirty` fires on terminal::Model's ValueTree:
 
-**Invariant:** history ring rows and active ring rows must NOT overlap by row index. A row enters history OR active, never both in the same tick. Violation produces content doubling.
+1. `terminal::Processor::valueTreePropertyChanged` fires FIRST — calls `drain()` directly, no external caller.
+2. `drain()` Phase 1 drains the **history ring** — permanently appends departed scrollback lines (already-joined logical lines, oldest first) to the document, inserted at `liveFirstLine()`.
+3. `drain()` Phase 2 drains the **active ring** — one entry per live viewport row, laid down at `liveFirstLine() + row`, replacing the existing line once the document has grown to cover the full live region (bootstraps via `insertAt()` before then).
+4. `terminal::View::valueTreePropertyChanged` fires SECOND, on the same `screenDirty` write — does ONLY the repaint half, calling `CodeView::calc()` (the drain half moved to Processor).
+5. CodeView repaints.
+
+**Invariant:** Phase 1 completes fully before Phase 2 begins — no row is ever touched by both phases in the same `drain()` call. History ring rows and active ring rows must NOT overlap by row index. A row enters history OR active, never both in the same tick. Violation produces content doubling.
 
 ---
 
@@ -247,44 +255,174 @@ Two independent global state trees (both `jam::Instance<T>` globally-owned insta
 ```
 config::Model (IDtype::config)              end::Model (IDtype::end)
   CONFIG                                      END
-    GRAPHICS                                    VIEW
-      SHADER (ParameterText per pass)           ID::size (packed jam::Size<int16_t>, Parameter<int>)
-      gpu, fontRasterizer,                      ID::focusedPane
-      fontGamma, fontContrast                 TABS
-    THEME                                       TAB[N]
-      FLEX                                         PANE (uuid)
-    KEYS                                      OVERLAY
-    POPUP                                       ID::message (ParameterText)
-    WHELMED
+    GRAPHICS                                    VIEW (app-level, ephemeral)
+      SHADER (ParameterText per pass)             ID::size (packed jam::Size<int16_t>, Parameter<int>)
+      gpu, fontRasterizer,                        ID::focusedPane (canonical copy)
+      fontGamma, fontContrast                   OVERLAY
+    THEME                                          ID::message (ParameterText)
+      FLEX                                     SESSIONS — the topology
+    KEYS                                          SESSION (jam::ID::id, ID::newTerminal)
+    POPUP                                           TABS (mirror ROOT — end::Tabs adopts)
+    WHELMED                                           TAB[N] (end::Panes state, jam::ID::name)
+                                                         PANES (direction/ratio/bounds)*
+                                                           PANE (uuid, ID::focus)
+                                                             TERMINAL (paired Processor tree,
+                                                                       grafted at attach())
 ```
+\* `PANES` split containers exist only for nested splits — a `TAB`'s direct
+children may be `PANE` leaves directly (`jam::PaneManager`'s own class doc).
 
 - **config::Model** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file). Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config (string-enum via `end::FontRasterizerBackend` bimap) and hot-reload live.
-- **end::Model** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state. Changes during app lifetime. Components graft their state nodes via `jam::Model::Attachment` (RAII).
+- **end::Model** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state. Changes during app lifetime. State placement follows the Attachment Contract below — placement tokens exist only at the engine tier, never on views.
 
 **Invariant:** No config values on end::Model. No runtime state on config::Model. Consumers that need both register as listener on both trees.
 
-### Session-Scoped Ephemeral (Per-Session Lifetime)
+### Session-Scoped Ephemeral (Per-Pane Lifetime)
 
-One per terminal::Session (NOT a globally-owned instance):
+One per pane (NOT a globally-owned instance), paired under that pane's own
+`PANE` leaf at `terminal::View::attach()` — see "Session Layer" below:
 
 ```
-terminal::Model (IDtype::terminal, per-session)
-  SESSION
-    MODES
-    NORMAL (screen 0)
-      TEXT (cell state)
-    ALTERNATE (screen 1)
-      TEXT (cell state)
+terminal::Model (IDtype::terminal, per-pane, paired under PANE)
+  root scalars (activeScreen/syncOutputActive/bell/promptRow, DecMode-bimap
+  modes + insertMode/mouseTracking, gridSize/shellExited/pasteEchoRemaining,
+  winsize/cellSize/zoom/scrollbackLines/clearRequested — no VIDEO/MODES
+  child node, ARCHITECT-ratified dissolve 2026-07-08)
+  NORMAL (screen 0)
+  ALTERNATE (screen 1)
+  TEXT (title/cwd/foregroundProcess)
 ```
 
-- **terminal::Model** — Per-session, owned by `terminal::Session`. NOT a globally-owned instance (not `jam::Instance<T>`) — multiple concurrent sessions each own independent terminal::Model instances. Lifecycle coupled with Session. VT state SSOT for the terminal (RFC-terminal-editor.md P12). Atomics (reader) and ValueTree (message) follow the scalar-data pattern. Direction A/B as described in Cross-Thread Data Contract.
+- **terminal::Model** — owned by `terminal::Processor`, one per pane. NOT a globally-owned instance (not `jam::Instance<T>`) — multiple concurrent terminals each own independent terminal::Model instances. VT state SSOT for the terminal (RFC-terminal-editor.md P12). Atomics (reader) and ValueTree (message) follow the scalar-data pattern. Direction A/B as described in Cross-Thread Data Contract.
 
-**Phase 3 (current):** One terminal per Session.  
-**Phase ∞ (WIP):** Session may host multiple terminals; terminal ownership TBD.
+### Session Layer — Landed Contract (2026-07-07)
 
----
+Supersedes both the original "Ratified Target Topology" block (a
+SESSIONS-authored parallel topology — DEAD, it broke the Component–Model 1:1
+mirror) and the interim "Ratified Contract" block that preceded
+implementation. Describes the landed code:
 
-**Future (WIP):** terminal::Model will attach to end::Model. Currently independent.
+- **The GUI-authored Component–Model 1:1 mirror IS the tree shape.** Every
+  Component authors its own state; `jam::Model::Attachment`'s parent-walk
+  places it under its nearest `Model::Component` ancestor. `end::Tabs`
+  ADOPTS the active `end::Session`'s own `TABS` tree as the mirror ROOT
+  (`Tabs::Tabs`'s adopt ctor) — every component-authored `TAB`/`PANES`/
+  `PANE`/`TERMINAL` state grafted below it lands inside `SESSION` state
+  automatically, because that adoption is the one seam connecting the
+  GUI-authored mirror to session state: `TAB` (`end::Panes`'s own state —
+  `jam::ID::name` for rename) → flat `PANE` leaves, each carrying an exact
+  pixel `jam::ID::bounds` (`jam::Bounds<int16_t>` packed into a
+  `Parameter<int64_t>`, authored solely by `jam::PaneManager`) and, if
+  split-born, one `RESIZER` child sharing its own uuid (`jam::ID::edge` +
+  `jam::ID::position`, `jam::PaneManager::split()`) — `end::TerminalView`
+  (`jam::PaneComponent`'s own state — `jam::ID::id`, `ID::focus`) →
+  `TERMINAL` (the paired `terminal::Processor` tree, grafted at
+  `terminal::View::attach()`, never at construction).
+- **A terminal = one UUID pairing Processor (engine) + terminal::View
+  (editor).** Their state is ONE tree — UI state and VT state PAIRED:
+  `terminal::Processor`'s Model tree grafts under the `PANE` leaf carrying
+  the same uuid (`terminal::View::attach()`'s own `terminalAttachment`).
+  Never two trees.
+- **Create machine (`ENDView::newTerminal()`, the SSOT).** Init (ctor
+  `callAsync` block) dispatches `ID::newTab` through the action registry —
+  the SAME route the `newTab`/split keybindings ride, so init never
+  diverges from the keybinding's own path. It mints a `jam::UUID` and calls
+  the active `Session`'s explicit verb `newTerminal (uuid)` (ARCHITECT
+  ruling 2026-07-08: verbs are ACTIONS, never state-tree signal parameters —
+  the former `ID::newTerminal` request slot is dead), so the
+  `TerminalProcessor` pairing the uuid EXISTS the moment the call returns
+  (engine-first by construction). Downstream tells complete the pair:
+  `Tabs` + `Panes` child verbs for a new tab, or pane verb + `jam::
+  PaneManager::split()` for a split — then `TerminalView::attach
+  (session.get (uuid))`.
+- **`end::Session` — gui-less engine owner, a `jam::Model::Listener` ONLY**
+  on `end::Model`'s root (registered as the LAST ctor statement). Events
+  map: `ID::newTerminal` → constructs a `terminal::Processor` for the
+  carried uuid (no-op if already owned); `ID::focusedPane` → tells every
+  owned Processor its own `setFocus()` edge (`paneUuid == focused`) —
+  DECSET-1004 authority lives in `terminal::Processor::setFocus()` itself
+  (edge-detected, mode-gated), never in Session. Surface: `get (uuid)`
+  resolves the owning Processor; the public `state` carries identity plus
+  the `ID::newTerminal` request slot. NO lifecycle verb exists on `Session`
+  — destruction is deliberately undesigned, engines persist once created
+  (`Session`'s own class doc: "there is no remove verb"). Close actions
+  (`end::Panes::removePane()`/`end::Tabs::removeCurrentTab()`) remove views
+  and topology only, never the owning Processor.
+- **View lifetime binds to downstream tells**
+  (`createPane()`/`split()`/`removePane()`/`addNewTab()`/
+  `removeCurrentTab()`), NEVER to raw `valueTreeChildAdded`/
+  `valueTreeChildRemoved` — `jam::PaneManager`'s own split/remove
+  re-parenting transits (a leaf moving under a fresh `PANES` container, or
+  a promoted sibling's subtree splicing back onto its grandparent) are
+  harmless geometry churn: the `jam::Model::Attachment` pairing a leaf's
+  Component to its own state survives re-parenting untouched.
+- **`jam::PaneManager`** — the split-container tree IS the owning
+  Component's own state (root type-agnostic — e.g. a `TAB` tree whose
+  direct children are attached `PANE` leaves and/or `PANES` containers,
+  `jam_PaneManager.h`'s own class doc). It authors ONLY `PANES`
+  split-container geometry (`split()`/`remove()`) — every leaf is authored
+  and parent-attached by whoever owns that leaf's own Component
+  (`end::PaneView`'s fresh ctor, `end::Panes::createPane()`'s Attachment),
+  never by `PaneManager`. Every value it writes is a registered
+  `jam::Model` parameter, never a plain property. Leaf resolution rides
+  `jam::Model::getChildWithID()`.
+- **`ID::shellExited`** exists as a Parameter (carried on the paired
+  `TERMINAL` tree, `terminal::Processor` authors it on TTY EOF) but nothing
+  consumes it yet — Processor/Session destruction on shell death is a
+  pending pass, not yet designed.
+- **Nexus** owns `end::Model` + every `end::Session`. Views are ephemeral;
+  engines persist (daemon, Phase 15 — `bbef9ad` holds the recoverable
+  snapshot serialization).
+
+### Attachment Contract — Binding vs Placement (Ratified 2026-07-08)
+
+Two different animals share the word "attachment." The plugin-world rule maps
+exactly: a PluginEditor owns SliderAttachments (bindings) but never owns
+anything whose destructor deletes plugin state (placement).
+
+Every placement is decided by one question: **whose death removes this state?**
+
+1. **Binding attachments** (`jam::Model::ParameterAttachment` and kin) — FREE.
+   Any component owns any number; lifetime = component lifetime; destruction
+   disconnects a listener, never mutates state.
+2. **Placement tokens** (`jam::Model::Attachment`: ctor `appendChild`, dtor
+   `removeChild`) — exist ONLY where an owning OBJECT's lifetime defines the
+   state's placement. Exactly two in this app:
+   - `Session` ↔ its `SESSION` subtree (`removeSession` kills the object →
+     subtree leaves the tree) — `sessionAttachment`.
+   - Processor entry ↔ its `TERMINAL` graft (`closePane` kills the processor →
+     `TERMINAL` leaves) — held in `Session`'s uuid-keyed map beside the
+     processor. *(Migration in flight: current code still holds this token in
+     `TerminalView::attach()` — a contract violation: view death amputates
+     session state.)*
+3. **Permanent placement** — bare `appendChild`, NO token: Nexus bootstrap
+   (WINDOW, SESSIONS, dock edges, OVERLAY), `Session`'s TABS child. A token
+   here would promise a removal that must never happen.
+4. **Verb-driven placement** — verbs do it directly, NO token: TAB and PANE
+   state live and die by `add (uuid)` / `remove (uuid)`, not by any object's
+   death. The verb authors state into place and removes it (`removeChild`);
+   no RAII object exists in between. *(Migration in flight: the parallel
+   `attachments` Owners in `Tabs`/`Panes` are this rule's violation — they
+   never corresponded to a real lifetime, which is why they were bug surface.)*
+
+**Rehydrate corollary:** adopt paths create ZERO placement — the state is
+already placed; adoption is pure binding. Create and rehydrate differ only in
+whether the verb authors state first, never in attachment behavior.
+
+**Token census for the whole app: one per Session + one per Processor.**
+Everything else is appendChild-permanent, verb-direct, or a binding.
+
+**Singular focus (ratified same date):** `focused_pane`/`focused_tab`/
+`focused_session` are SINGULAR uuid-valued parameters — the value IS the
+identity, `parameterChanged (id, value)` is fully self-describing downstream.
+The chain: each child self-reports on its OWN node (`ID::focus`, its own
+focus callback — the report channel); the parent listening to the whole
+structure is the SOLE AUTHOR of the singular parameter (ENDView's `ID::focus`
+events-map reaction → writes the reporting pane's uuid into
+`SESSIONS.focused_pane`); every downstream consumer (Session's setFocus tells,
+Nexus) reacts to the singular parameter by id+value alone. No other writer of
+a `focused_*` parameter may exist — action code, view ctors, and relay
+handlers other than the one parent listener are all forbidden authors.
 
 **No cross-tree references:** config → end → terminal dependency is one-way data flow. No upward references.
 
@@ -305,7 +443,7 @@ jam::Model is a 1:1 APVTS analog for multi-type parameters. Key contracts:
 Window dimensions are packed as `jam::Size<int16_t>`, stored on VT as a single int property. One property write = one VTPC = one parameterChanged = atomic resize.
 
 - **Write:** `jam::Size<int16_t> (width, height).toInt()` → `state.setProperty (ID::size, ...)`
-- **Read:** `jam::Size<int16_t> { appModel.getValue (IDtype::view, ID::size) }` → structured binding `auto [w, h] = size`
+- **Read:** `jam::Size<int16_t> { appModel.getValue (IDtype::window, ID::size) }` → structured binding `auto [w, h] = size`
 - **Parameter:** `Parameter<int>` with adapter fires `parameterChanged (ID::size)`
 
 This pattern avoids separate width/height parameters that would fire two events per resize.
@@ -655,9 +793,13 @@ own index sub-range.
   every mesh — regardless of its real-world scale — already renders normalized into a
   comfortable unit-ish cube by the time any camera sees it; the interactive camera below needs
   no AABB backchannel of its own.
-- The interactive orbit (`addOrbitDelta()`) rides the SAME `mouseDrag()` events
-  `jam::vulkan::ShaderComponent`'s iMouse tracking already intercepts — separate state,
-  separate purpose, not iMouse itself.
+- The interactive orbit (`addOrbitDelta()`) is `OrbitCamera`'s own method, driven by
+  `jam::vulkan::ShaderComponent`'s own gesture state machine (`mouseDrag()` — the SAME
+  `juce::Component` override this component's own direct-hit path already used, invoked
+  as a `juce::MouseListener` callback once `end::View` registers it via
+  `addMouseListener (&background, true)`, mirroring the SAME event stream its iMouse
+  tracking already intercepts — separate state, separate purpose, not iMouse itself).
+  `end::View` holds zero orbit state of its own.
 - `getViewMatrix()`/`getProjectionMatrix()` (`GLM_FORCE_DEPTH_ZERO_TO_ONE`, right-handed —
   glm's own default, `GLM_FORCE_LEFT_HANDED` deliberately NOT defined — combined with the
   manual Vulkan-NDC Y-flip; left-handed + that same Y-flip would compound into an odd number
@@ -773,18 +915,18 @@ CodeView never sees a Video-grid coordinate. Session translates at the boundary.
 
 | JUCE Audio Plugin | END |
 |---|---|
-| Host (DAW) | `terminal::Session` (per-instance host) |
-| Session Manager | `Nexus` (owns all Sessions) |
-| AudioProcessor | `terminal::Processor` |
+| Host (DAW) | `Nexus` (owns end::Model + all Sessions) |
+| Project / session state | `end::Session` (gui-less: uuid-keyed `terminal::Processor` HashMap + the `TABS` tree `end::Tabs` adopts as its mirror root) |
+| PluginProcessor | `terminal::Processor` (owns terminal::Model, document, CellFifo, Resizer, TTY, drain) |
 | APVTS | `jam::Model` (terminal::Model, end::Model, config::Model) |
 | APVTS::Listener | `jam::Model::Listener` |
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | parameterChanged → parameters map → setter → trigger | event → setter → resizer/transition |
 | PluginEditor | `terminal::View` / `end::View` |
 | SpectrumFIFO | `CellFifo` |
-| SpectrumProcessor::outputDB | `CodeModel` |
+| SpectrumProcessor::outputDB | document (`jam::TextModel`) |
 
-The View is detachable. Session (and its Processor) survives View destruction (daemon mode).
+The View is detachable. Session (and its Processors) survives View destruction (daemon mode) — its subtree in end::Model is complete with zero Views. (See "Session Layer" above.)
 
 ---
 
@@ -793,6 +935,46 @@ The View is detachable. Session (and its Processor) survives View destruction (d
 Model-View-Processor is not three god objects — it is a recursive pattern where each layer is itself an MVP triad. See SPEC.md Section 2 for the full hierarchy.
 
 Every View at one level is the presentation surface at the level below. Each layer carries its own Model node. All runtime Model nodes attach to end::Model. All config is on config::Model.
+
+### The Orchestrator Law — TELL, NEVER ASK (HARD RULE)
+
+MVP is layered. **A Processor and a View are each an ORCHESTRATOR** of their own
+members. The law:
+
+- **TELL is the orchestrator's responsibility**, and it flows in exactly one
+  direction: DOWNSTREAM, to the orchestrator's OWN members — objects that have
+  no visibility of the higher structure of the state machine. That is not
+  poking; it is the orchestrator's job.
+- **There is ALWAYS an orchestrator with access to both axes** (engine axis and
+  view axis) at its layer. Cross-axis wiring is performed BY that orchestrator
+  as downstream tells — never by members reaching sideways, upward, or across.
+- **Every other event propagation rides the state machine**: one sole AUTHOR
+  writes the change; every listener reacts automatically on its own lane —
+  - **VTPC** (`valueTreePropertyChanged`) — the MESSAGE-thread lane.
+  - **`jam::Model::Listener::parameterChanged`** — the any-thread lane (fires
+    synchronously on the writing thread).
+  The lane split IS the threading contract; the lane order IS the sequencing
+  (parameterChanged reactions land before the flushed VTPC reactions — engine
+  side reacts before view side by construction, never by choreography).
+- Each reactive object owns an **events map** (`jam::Function::Map` keyed by
+  `juce::Identifier`) — direct lookup dispatch, never branch chains.
+
+**Violation symptoms — each one is ALWAYS a contract failure:**
+
+| Symptom | Violation |
+|---|---|
+| A plain value member that must be tracked manually | Shadow state — **S** (SSOT) |
+| A model reference held without listening and reacting | Dead reference — **E** (Encapsulation) |
+| Poking another object's members across an axis | Only the layer's orchestrator crosses, downstream — **E** |
+| A getter on a non-Model object | The state machine is the only query surface; machinery exposes none — **S** (Stateless) + **E** |
+
+**END's orchestrators, per layer:** `end::View` is the application layer's
+cross-axis orchestrator — it alone stands on both axes (the projected
+`end::Session` and the component hierarchy it owns) and wires them by
+downstream tells. `end::Session` orchestrates the engine axis (its
+Processors). `terminal::Processor` orchestrates its pipeline (Parser, Video,
+CellFifo, TTY, Resizer). `terminal::View` orchestrates its presentation
+(CodeView, Input, Mouse). None of their members ever looks up.
 
 ### The Pattern
 
@@ -810,10 +992,9 @@ Terminal:     terminal::Model  — terminal::View  — terminal::Processor (read
 ```
 
 - **jam::VulkanEngine** — rendering authority: engine dispatch, per-window Graphics, shared Device + GlyphAtlas + Typeface/Stamp/Grapheme/Link. Message thread.
-- **terminal::Processor** — reader thread orchestrator: Parser, Video, CellFifo, TTY.
-- **terminal::Session** — DAW host per terminal instance. Owns CodeModel (document buffer) and Processor (engine).
-- **View** — message thread: parents CodeView, calls drain(), owns Font. Detachable — Session persists without View (daemon mode).
-- **Nexus** — Session manager. Owns all terminal::Session instances. Globally-owned instance via `jam::Instance<Nexus>`.
+- **terminal::Processor** — owns the full per-terminal bundle (PluginProcessor-exact absorption of the former terminal::Session, dissolved — see "Session Layer — Landed Contract" below): document (`jam::TextModel`), `terminal::Model` (VT state SSOT), the reader-thread pipeline (Parser, Video, CellFifo, TTY), and Resizer — plus message-thread self-drain into its own document (`jam::ID::screenDirty`, no external caller).
+- **View** — message thread: owns CodeView, renders the document. Detachable — the owning `end::Session` (and its Processors) persists without View (daemon mode).
+- **Nexus** — gui-less Host. Owns end::Model + all Sessions. Globally-owned instance via `jam::Instance<Nexus>`.
 
 ---
 

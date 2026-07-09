@@ -1,10 +1,10 @@
 /**
- * @file action/Registry.h
+ * @file action/ActionRegistry.h
  * @brief Action registry — prefix key state machine + key-to-action binding.
  */
 #pragma once
 #include <JuceHeader.h>
-#include "config/Config.h"
+#include "config/ConfigModel.h"
 
 namespace std
 {
@@ -22,24 +22,20 @@ struct hash<juce::KeyPress>
 }// namespace std
 
 //==============================================================================
-namespace action
-{
-/*____________________________________________________________________________*/
-
-/** @class Registry
+/** @class ActionRegistry
  *  @brief Maps key presses to actions via direct and modal (prefix) bindings.
  *
  *  Direct bindings (e.g. cmd+t) fire immediately. Modal bindings require
  *  the prefix key first, then the action key within a timeout window.
  *  Actions are registered as void() callables keyed by juce::Identifier.
  */
-class Registry
+class ActionRegistry
     : private juce::Timer
     , public juce::ValueTree::Listener
 {
 public:
-    Registry();
-    ~Registry();
+    ActionRegistry();
+    ~ActionRegistry();
 
     /** @brief Rebuilds key-to-action maps from the config KEYS section. */
     void buildKeyMap();
@@ -58,7 +54,7 @@ public:
 
     //==============================================================================
 private:
-    config::Model& config { *config::Model::getInstance() };
+    ConfigModel& config { *ConfigModel::getInstance() };
 
     void timerCallback() override;
 
@@ -69,8 +65,5 @@ private:
     int prefixTimeout { 1000 };
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Registry)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ActionRegistry)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace action

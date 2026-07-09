@@ -1,23 +1,19 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../Bimap.h"
-#include "../end/Model.h"
-#include "Directory.h"
-
-namespace config
-{
-/*____________________________________________________________________________*/
+#include "../end/ENDModel.h"
+#include "ConfigDirectory.h"
 
 /**
-    @brief Shader source model — @c config::Directory subclass that holds a
+    @brief Shader source model — @c ConfigDirectory subclass that holds a
            single shader tree (BACKGROUND or POST_PROCESSING) as its own @c state.
 
     The constructor adopts an empty @p treeType-rooted tree through
-    @c Directory's ValueTree ctor -- pass names are unknown until
+    @c ConfigDirectory's ValueTree ctor -- pass names are unknown until
     @c loadFromPath first enumerates the active shader project directory (an
     empty project is a valid initial/no-project state, not an error).
 
-    After construction, @c config::Model attaches each instance's @c state
+    After construction, @c ConfigModel attaches each instance's @c state
     directly under the GRAPHICS child — both are first-class GRAPHICS children,
     not parent/child of each other.
 
@@ -27,22 +23,22 @@ namespace config
     Load policy: @c saveToPath is a no-op (shader source is never seeded from
     BinaryData). @c loadFromPath reads GLSL from disk into @c state.
 
-    @see config::Directory
-    @see config::Model
+    @see ConfigDirectory
+    @see ConfigModel
 */
-class Shader : public Directory
+class ConfigShader : public ConfigDirectory
 {
 public:
     /** @brief Constructs with an empty shader tree of the given type.
      *  @param treeType  Tree type identifier (IDtype::background or IDtype::postProcessing).
      */
-    explicit Shader (juce::Identifier treeType);
+    explicit ConfigShader (juce::Identifier treeType);
 
-    ~Shader() override = default;
+    ~ConfigShader() override = default;
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c file::Shaders::getPath, then reads
+     *  Locates the shader directory via @c FileShaders::getPath, then reads
      *  that directory's own @c .slangp manifest (any filename, extension-only
      *  discovery via @c jam::vulkan::ShaderFormat::getExtension() — only
      *  @c slang carries a manifest-extension entry, the SAME wildcard both
@@ -72,62 +68,62 @@ public:
      *  relative to the project directory).
      *
      *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
-     *  listeners (jam::vulkan::ShaderCompiler, via end::View's funnels) pick up the
+     *  listeners (jam::vulkan::ShaderCompiler, via ENDView's funnels) pick up the
      *  new source.
      *
-     *  @param path    Active shader project name from config::Model.
+     *  @param path    Active shader project name from ConfigModel.
      *  @param errors  Accumulation channel — unused by this method (the
      *                 @c .slangp parse this method drives cannot itself fail);
-     *                 kept for signature parity with @c Directory's own
-     *                 @c loadFromPath override and @c Theme::loadFromPath's
+     *                 kept for signature parity with @c ConfigDirectory's own
+     *                 @c loadFromPath override and @c ConfigTheme::loadFromPath's
      *                 own lua-parse error channel.
      */
     void loadFromPath (const juce::var& path, juce::String& errors) override;
 
 private:
     //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigShader)
 };
 
 //==============================================================================
 /**
-    @brief Theme state model — @c config::Directory subclass mirroring the
+    @brief Theme state model — @c ConfigDirectory subclass mirroring the
            on-disk @c themes/ directory as a THEMES subtree.
 
     The constructor init-list builds a THEMES-rooted tree via
-    @c jam::Model::fromLua from @c file::Themes BinaryData lua (THEME and
-    WHELMED children) and adopts it through @c Directory's ValueTree ctor. The
-    body appends a FLEX child (from @c file::Flex SVGs) as a sibling of THEME
-    and WHELMED. @c config::Model attaches the whole @c theme.state THEMES
+    @c jam::Model::fromLua from @c FileThemes BinaryData lua (THEME and
+    WHELMED children) and adopts it through @c ConfigDirectory's ValueTree ctor. The
+    body appends a FLEX child (from @c FileFlex SVGs) as a sibling of THEME
+    and WHELMED. @c ConfigModel attaches the whole @c theme.state THEMES
     subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
     @c theme.state remains the live THEMES tree, so @c loadFromPath() and
     @c saveToPath() operate on it directly.
 
-    @see config::Directory
-    @see config::Model
+    @see ConfigDirectory
+    @see ConfigModel
 */
-class Theme : public Directory
+class ConfigTheme : public ConfigDirectory
 {
 public:
     /** @brief Constructs with the THEMES-rooted tree (THEME, WHELMED) built in
      *         the init-list via @c jam::Model::fromLua and adopted through
-     *         @c Directory. A FLEX sibling is appended in the constructor body.
+     *         @c ConfigDirectory. A FLEX sibling is appended in the constructor body.
      */
-    Theme();
+    ConfigTheme();
 
-    ~Theme() override = default;
+    ~ConfigTheme() override = default;
 
     /** @brief Reads each theme lua from disk and overlays valid properties onto @c state
      *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
      *         @c state.sendPropertyChangeMessage(ID::theme). Accumulates errors in @c errors.
      *
-     *  Locates the theme directory via @c file::Themes::getPath and performs a
+     *  Locates the theme directory via @c FileThemes::getPath and performs a
      *  single @c setValuesFrom pass after assembling a disk-mirror THEMES tree
      *  (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
      *
-     *  @param path    Active theme name from config::Model.
+     *  @param path    Active theme name from ConfigModel.
      *  @param errors  Accumulation channel; lua parse errors are appended here
-     *                 and also passed up to the @c config::Model caller.
+     *                 and also passed up to the @c ConfigModel caller.
      */
     void loadFromPath (const juce::var& path, juce::String& errors) override;
 
@@ -137,25 +133,25 @@ public:
      *  seeds any missing lua and SVG assets from BinaryData. No-op when the
      *  directory already contains all expected files.
      *
-     *  @param path  Active theme name from config::Model.
+     *  @param path  Active theme name from ConfigModel.
      */
     void saveToPath (const juce::var& path) override;
 
 private:
     //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigTheme)
 };
 
 //==============================================================================
 /**
     @brief END's root configuration model — owns the live CONFIG ValueTree and
-           drives the Theme and Shader sub-models.
+           drives the ConfigTheme and ConfigShader sub-models.
 
     @par Build-in-ctor composition
     @c theme, @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) are
     member objects whose constructors build their own subtrees via
     @c jam::Model::fromLua / @c jam::Model::fromFiles and adopt the result
-    directly. @c Model's init-list builds the CONFIG tree from @c file::Config
+    directly. @c ConfigModel's init-list builds the CONFIG tree from @c FileConfig
     BinaryData via @c jam::Model::fromLua and adopts it through @c jam::Model's
     ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
     @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
@@ -170,9 +166,9 @@ private:
     @c appendChild — all are single-rooted subtrees, so no unwrapping is needed.
 
     @par Three-phase init (in constructor body)
-    1. @c saveToPath()     — writes missing root lua files to @c file::Config::path.
+    1. @c saveToPath()     — writes missing root lua files to @c FileConfig::path.
     2. @c loadFromPath()   — reads lua from disk and overlays via @c setValuesFrom.
-    3. @c startWatcher()   — installs @c jam::File::Watcher on @c file::Config::path.
+    3. @c startWatcher()   — installs @c jam::File::Watcher on @c FileConfig::path.
 
     @par Composition via jam::Model aggregators
     @c jam::Model::fromLua and @c jam::Model::fromFiles are the SSOT builders.
@@ -182,16 +178,16 @@ private:
     entry on a fresh @p rootTag tree — key = stem, value = @c read(key).
     No validation when @p validators and @p errors are nullptr.
 
-    @see config::Directory
-    @see config::Theme
-    @see config::Shader
+    @see ConfigDirectory
+    @see ConfigTheme
+    @see ConfigShader
     @see jam::Model
     @see jam::lua::Validators
-    @see end::Application
+    @see ENDApplication
 */
-class Model
+class ConfigModel
     : public jam::Model
-    , public jam::Instance<Model>
+    , public jam::Instance<ConfigModel>
     , public jam::File::Watcher::Listener
 {
 public:
@@ -222,19 +218,19 @@ public:
             treeValidators.addOrReplace (propertyName, std::move (validator));
         };
 
-        add (IDtype::statusBar, ID::position, end::Position::getValidator());
-        add (IDtype::actionList, ID::position, end::Position::getValidator());
-        add (IDtype::tab, ID::position, end::Position::getValidator());
-        add (IDtype::popup, ID::position, end::Position::getValidator());
-        add (IDtype::terminal, ID::dropMultifiles, end::DropMode::getValidator());
+        add (IDtype::statusBar, ID::position, Position::getValidator());
+        add (IDtype::actionList, ID::position, Position::getValidator());
+        add (IDtype::tab, ID::position, Position::getValidator());
+        add (IDtype::popup, ID::position, Position::getValidator());
+        add (IDtype::terminal, ID::dropMultifiles, DropMode::getValidator());
         add (IDtype::graphics, ID::filter, jam::map::ImageResample::getValidator());
-        add (IDtype::graphics, ID::fontRasterizer, end::FontRasterizerBackend::getValidator());
-        add (jam::IDtype::cursor, jam::ID::style, end::CursorShape::getValidator());
+        add (IDtype::graphics, ID::fontRasterizer, FontRasterizerBackend::getValidator());
+        add (jam::IDtype::cursor, jam::ID::style, CursorShape::getValidator());
 
         // graphics.mouse (nested under graphics — IDtype::mouse, found by the
         // same recursive getChildWithName() as every other tree type here).
         // enabled/zoom carry no entry — plain bool/string, auto type-validated
-        // by jam::Model::fromLua (Config.h's own validators doc comment).
+        // by jam::Model::fromLua (ConfigModel.h's own validators doc comment).
         add (IDtype::mouse, ID::imouse, jam::map::MouseButton::getValidator());
         add (IDtype::mouse, ID::orbit, jam::map::MouseButton::getValidator());
         add (IDtype::mouse, ID::reset, jam::map::MouseButton::getValidator());
@@ -248,10 +244,10 @@ public:
                then composes theme/shader subtrees, runs saveToPath,
                loadFromPath, and startWatcher in that fixed order.
     */
-    Model();
+    ConfigModel();
 
-    /** @brief Defaulted — Model is owned by end::Application for the process lifetime. */
-    ~Model() override = default;
+    /** @brief Defaulted — ConfigModel is owned by ENDApplication for the process lifetime. */
+    ~ConfigModel() override = default;
 
     /**
         @brief Reads each root lua config file from disk and overlays @c state.
@@ -259,23 +255,23 @@ public:
         Builds a CONFIG-rooted disk mirror via @c jam::Model::fromLua with
         @c validators, overlays valid properties via @c setValuesFrom, then
         drives @c theme.loadFromPath(errors) and @c shader.loadFromPath(errors)
-        in sequence. Writes the final result to @c end::Model's message overlay:
+        in sequence. Writes the final result to @c ENDModel's message overlay:
         @c ID::successMessage on success, or the accumulated error string on
         failure.
     */
     void loadFromPath();
 
 private:
-    end::Model& appModel { *end::Model::getInstance() };
+    ENDModel& appModel { *ENDModel::getInstance() };
 
     /**
-        @brief Writes missing root lua files from BinaryData to @c file::Config::path.
+        @brief Writes missing root lua files from BinaryData to @c FileConfig::path.
     */
     void saveToPath();
 
     /**
-        @brief Installs @c watcher on @c file::Config::path with @c coalesceMs
-               event coalescing and registers this Model as a listener.
+        @brief Installs @c watcher on @c FileConfig::path with @c coalesceMs
+               event coalescing and registers this ConfigModel as a listener.
     */
     void startWatcher();
 
@@ -291,7 +287,7 @@ private:
     /**
         @brief Reloads root lua config on @c .lua @c fileUpdated events.
 
-        Only @c fileUpdated for a @c file::Config::extension file triggers
+        Only @c fileUpdated for a @c FileConfig::extension file triggers
         @c loadFromPath(). All other events and extensions are ignored.
 
         @param file   The file that changed.
@@ -300,7 +296,7 @@ private:
     void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
 
     /**
-        @brief Watches @c file::Config::path (root lua directory only) for
+        @brief Watches @c FileConfig::path (root lua directory only) for
                @c .lua changes.
     */
     jam::File::Watcher watcher;
@@ -308,13 +304,10 @@ private:
     /** @brief Coalescing window in milliseconds for the filesystem watcher. */
     static constexpr int coalesceMs { 300 };
 
-    Theme theme;
-    Shader background { IDtype::background };
-    Shader postProcessing { IDtype::postProcessing };
+    ConfigTheme theme;
+    ConfigShader background { IDtype::background };
+    ConfigShader postProcessing { IDtype::postProcessing };
 
     //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigModel)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace config

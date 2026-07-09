@@ -299,6 +299,10 @@ return {
 
 		-- Pane divider bar thickness in pixels.
 		resize_bar_thickness = 8,
+
+		-- Dock extent fraction applied at dock creation (ENDView's own
+		-- createDockPane converts it to pixels against the window axis).
+		sidebar_size = 0.25,
 	},
 
 	-- ========================================================================

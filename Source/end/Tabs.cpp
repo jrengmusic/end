@@ -1,67 +1,82 @@
 #include "end/Tabs.h"
-#include "lookAndFeel/LookAndFeel.h"
+#include "lookAndFeel/ENDLookAndFeel.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-Tabs::Tabs (jam::Model& m)
-    : jam::Model::Component { m, IDtype::tabs }
+Tabs::Tabs (jam::Model& m, juce::ValueTree tabsState)
+    : jam::Model::Component { *this, m, tabsState }
 {
     setTabBarDepth (0);
+    state.addListener (this);
 }
 
-Tabs::~Tabs() {}
+Tabs::~Tabs() { state.removeListener (this); }
 
-void Tabs::addNewTab()
+Panes& Tabs::add (jam::UUID uuid)
 {
-    jam::UUID uuid;
     auto* panes { new Panes (uuid, model) };
 
-    static constexpr const char* tabNames[] {
-        "Home", "Settings", "Terminal", "Dev", "Logs & Output", "DB", "Configuration Panel"
-    };
-    static constexpr int numNames { 7 };
-
-    const auto tabName { tabNames[getNumTabs() % numNames] };
-
-    addTab (tabName, juce::Colours::transparentBlack, panes, true);
-
+    // No PANE leaf exists yet at this point — this tab's own uuid is a
+    // safe, non-magic placeholder for jam::button::Bar::addTab()'s
+    // non-empty-name assertion; applyTabTitle() below resolves to empty
+    // until a real title becomes derivable (rename, or the first pane's
+    // terminal reporting cwd/foregroundProcess — valueTreePropertyChanged's
+    // own bubbling reaction re-triggers applyTabTitle() at that point).
+    addTab (uuid.toString(), juce::Colours::transparentBlack, panes, true);
     setCurrentTabIndex (getNumTabs() - 1);
 
-    attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
+    // Verb-direct placement (Attachment Contract) — this Component IS the
+    // active Session's own adopted TABS tree, so the graft is a direct
+    // appendChild onto this class's own state, no RAII token in between.
+    state.appendChild (panes->state, nullptr);
 
-    panes->createPane (uuid);
-
-    // State is parented in model tree after Attachment — VTPC now fires on setProperty.
-    panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
-
-    // Wire label value to model state — must happen AFTER Attachment grafts the state.
-
+    // Persist an inline rename (jam::button::Tab::showEditor(), wired to the tab button's
+    // right-click handler — pre-existing rename UI, jam_Bar.cpp's own addTab()) onto
+    // jam::ID::name, the rename slot getTitle() reads. dontSendNotification pushes
+    // (applyTabTitle()) never touch onTextChange — only a genuine edit commit does.
     if (auto* tab { getBar().getTabButton (getNumTabs() - 1) })
     {
-        auto nameValue { panes->state.getPropertyAsValue (jam::ID::name, nullptr) };
-        tab->label.getTextValue().referTo (nameValue);
+        tab->label.onTextChange = [panes, tab]
+        {
+            panes->state.setProperty (jam::ID::name, tab->label.getText(), nullptr);
+        };
     }
 
+    applyTabTitle (panes->state);
     lookAndFeelChanged();
+
+    return *panes;
 }
 
-void Tabs::removeCurrentTab()
+void Tabs::remove (jam::UUID uuid)
 {
-    if (getNumTabs() > 1)
+    for (int i { 0 }; i < getNumTabs(); ++i)
     {
-        auto index { getCurrentTabIndex() };
+        auto* panes { static_cast<Panes*> (getTabContentComponent (i)) };
 
-        attachments.remove (index);
-        removeTab (index);
-        setCurrentTabIndex (juce::jmin (index, getNumTabs() - 1));
-        lookAndFeelChanged();
+        if (static_cast<int64_t> (panes->state.getProperty (jam::ID::id)) == uuid.value)
+        {
+            state.removeChild (panes->state, nullptr);
+            removeTab (i);
+            setCurrentTabIndex (juce::jmin (i, getNumTabs() - 1));
+            lookAndFeelChanged();
+            break;
+        }
     }
-    else
+}
+
+Panes& Tabs::get (jam::UUID uuid)
+{
+    Panes* found { nullptr };
+
+    for (int i { 0 }; i < getNumTabs() and found == nullptr; ++i)
     {
-        juce::JUCEApplication::getInstance()->systemRequestedQuit();
+        auto* panes { static_cast<Panes*> (getTabContentComponent (i)) };
+
+        if (static_cast<int64_t> (panes->state.getProperty (jam::ID::id)) == uuid.value)
+            found = panes;
     }
+
+    jassert (found != nullptr);
+    return *found;
 }
 
 Panes* Tabs::getActivePanes() noexcept
@@ -69,16 +84,82 @@ Panes* Tabs::getActivePanes() noexcept
     return static_cast<Panes*> (getCurrentContentComponent());
 }
 
-void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) {}
-
 void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    juce::ignoreUnused (property);
+    // Gated to the title-relevant property set only — jam::PaneManager
+    // writes its own vocabulary (jam::ID::edge/position on RESIZER,
+    // jam::ID::bounds on PANE) onto this SAME tab tree during every
+    // layout() pass, and a broader reaction here self-retriggers
+    // resized() -> layout() -> this listener, forever.
+    if (property == jam::ID::name or property == jam::ID::cwd or property == ID::foregroundProcess)
+        applyTabTitle (findAncestorTab (tree));
+}
 
-    if (tree.getType() == IDtype::tab)
+juce::String Tabs::getTitle (const juce::ValueTree& tabState)
+{
+    const juce::String rename { tabState.getProperty (jam::ID::name).toString() };
+    juce::String title;
+
+    if (rename.isNotEmpty())
     {
-        lookAndFeelChanged();
-        resized();
+        title = rename;
+    }
+    else
+    {
+        // Per-tab last-focused-pane memory (Panes's own ID::focusedPane
+        // param, 0 sentinel = none yet) — never the SESSIONS node's
+        // singular focused_pane, which names the focused pane across ALL
+        // tabs, not this tab's own remembered source.
+        const jam::UUID sourceUuid { static_cast<int64_t> (
+            tabState.getProperty (ID::focusedPane)) };
+        const auto sourcePane {
+            jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
+        };
+
+        if (sourcePane.isValid())
+        {
+            const auto terminalState { sourcePane.getChildWithName (IDtype::terminal) };
+            jassert (terminalState.isValid());
+
+            const auto textState { terminalState.getChildWithName (jam::IDtype::text) };
+            const juce::String foregroundProcess {
+                textState.getProperty (ID::foregroundProcess).toString()
+            };
+
+            // cwd displayed as its own last path component — a full path is noise in a tab strip.
+            title = foregroundProcess.isNotEmpty()
+                        ? foregroundProcess
+                        : juce::File (textState.getProperty (jam::ID::cwd).toString())
+                              .getFileName();
+        }
+    }
+
+    return title;
+}
+
+juce::ValueTree Tabs::findAncestorTab (juce::ValueTree tree)
+{
+    while (tree.isValid() and tree.getType() != IDtype::tab)
+        tree = tree.getParent();
+
+    return tree;
+}
+
+void Tabs::applyTabTitle (const juce::ValueTree& tabState)
+{
+    const auto title { getTitle (tabState) };
+
+    for (int i { 0 }; i < getNumTabs(); ++i)
+    {
+        if (static_cast<Panes*> (getTabContentComponent (i))->getValueTree() == tabState)
+        {
+            setTabName (i, title);
+
+            if (auto* tab { getBar().getTabButton (i) })
+                tab->label.setText (title, juce::dontSendNotification);
+
+            break;
+        }
     }
 }
 
@@ -88,5 +169,24 @@ void Tabs::lookAndFeelChanged()
     setOrientation (lookAndFeel.getTabPosition());
 }
 
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end
+void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String&)
+{
+    if (auto* panes { static_cast<Panes*> (getTabContentComponent (newCurrentTabIndex)) })
+    {
+        state.setProperty (ID::focusedTab, panes->getValueTree().getProperty (jam::ID::id), nullptr);
+
+        // Guards the tab-creation path (Tabs::add()'s own setCurrentTabIndex()
+        // fires this callback before its first pane exists) — every OTHER
+        // caller (actual user tab-switch) always has at least one pane.
+        if (panes->getPaneCount() > 0)
+        {
+            const jam::UUID rememberedPane { static_cast<int64_t> (
+                panes->getValueTree().getProperty (ID::focusedPane)) };
+
+            if (rememberedPane.value != 0)
+                panes->get (rememberedPane).grabKeyboardFocus();
+            else
+                panes->get().grabKeyboardFocus();
+        }
+    }
+}

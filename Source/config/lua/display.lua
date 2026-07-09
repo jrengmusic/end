@@ -279,8 +279,8 @@ return {
 	--
 	-- Available api:
 	--
-	--   api.split_horizontal()              Split into side-by-side columns (50/50).
-	--   api.split_vertical()                Split into stacked rows (50/50).
+	--   api.split_horizontal()              Split into stacked rows, horizontal divider (50/50).
+	--   api.split_vertical()                Split into side-by-side columns, vertical divider (50/50).
 	--   api.split_with_ratio(dir, ratio)    Split at a custom ratio (0.0-1.0).
 	--                                       dir: "vertical" for columns,
 	--                                            "horizontal" for rows.

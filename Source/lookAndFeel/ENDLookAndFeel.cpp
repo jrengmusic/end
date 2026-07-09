@@ -1,15 +1,7 @@
-#include "LookAndFeel.h"
+#include "ENDLookAndFeel.h"
 
-namespace end
+ENDLookAndFeel::ENDLookAndFeel()
 {
-/*____________________________________________________________________________*/
-
-LookAndFeel::LookAndFeel()
-{
-    // registerTypeface() cannot run here — it needs the Vulkan glyph atlas,
-    // which does not exist until end::Application constructs vulkanEngine
-    // (this LookAndFeel constructs first, per end::Application's member order,
-    // Main.height). Called once, externally, immediately after that construction.
     initialiseColours();
     loadGraphics();
     registerEvents();
@@ -18,9 +10,9 @@ LookAndFeel::LookAndFeel()
     juce::LookAndFeel::setDefaultLookAndFeel (this);
 }
 
-LookAndFeel::~LookAndFeel() { config.removeListener (this); }
+ENDLookAndFeel::~ENDLookAndFeel() { config.removeListener (this); }
 
-void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     auto key { events.contains (property) ? property : tree.getType() };
 
@@ -29,7 +21,7 @@ void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 }
 
 //==============================================================================
-void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
+void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
     auto bounds { bar.getLocalBounds().toFloat() };
     auto* parentBar { dynamic_cast<jam::button::Bar*> (bar.getParentComponent()) };
@@ -53,7 +45,7 @@ void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabBar), bounds);
 }
 
-void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
+void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
 {
     auto bounds { highlight.getLocalBounds().toFloat() };
     auto* parentBar { dynamic_cast<jam::button::Bar*> (highlight.getParentComponent()) };
@@ -77,10 +69,10 @@ void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highligh
         jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabHighlight), bounds);
 }
 
-void LookAndFeel::drawTabButton (juce::Graphics& g,
-                                 juce::Button& button,
-                                 bool isMouseOver,
-                                 bool isMouseDown)
+void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
+                                    juce::Button& button,
+                                    bool isMouseOver,
+                                    bool isMouseDown)
 {
     auto bounds { button.getLocalBounds().toFloat() };
     auto* parentBar { dynamic_cast<jam::button::Bar*> (button.getParentComponent()) };
@@ -110,7 +102,7 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
         jam::SVG::Flex::paint (g, *this, graphics.at (stateId), bounds);
 }
 
-void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
+void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 {
     g.fillAll (label.findColour (juce::Label::backgroundColourId));
     if (not label.isBeingEdited())
@@ -123,7 +115,7 @@ void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 }
 
 //==============================================================================
-juce::Font LookAndFeel::getTabFont() const
+juce::Font ENDLookAndFeel::getTabFont() const
 {
     auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
     auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
@@ -135,7 +127,7 @@ juce::Font LookAndFeel::getTabFont() const
         .withKerningFactor (kerning);
 }
 
-int LookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
+int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
 {
     const float depth { config.getValue (IDtype::tab, ID::depth) };
     const bool alwaysVisible { config.getValue (IDtype::tab, ID::alwaysVisible) };
@@ -145,14 +137,14 @@ int LookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcep
     return shouldHide ? 0 : tabBarDepth;
 }
 
-int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
-int LookAndFeel::getTabPosition() const noexcept
+int ENDLookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+int ENDLookAndFeel::getTabPosition() const noexcept
 {
     const juce::String position { config.getValue (IDtype::tab, ID::position) };
     return Position::get (position);
 }
 
-juce::String LookAndFeel::getTabText (const juce::String& tabName) const
+juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 {
     if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
         return tabName.toUpperCase();
@@ -161,13 +153,18 @@ juce::String LookAndFeel::getTabText (const juce::String& tabName) const
 }
 
 //==============================================================================
-int LookAndFeel::getPaneResizerBarSize() const noexcept
+int ENDLookAndFeel::getPaneResizerBarSize() const noexcept
 {
     return config.getValue (IDtype::pane, ID::resizeBarThickness);
 }
 
+float ENDLookAndFeel::getPaneSidebarSize() const noexcept
+{
+    return config.getValue (IDtype::pane, ID::sidebarSize);
+}
+
 //==============================================================================
-juce::Font LookAndFeel::getCodeFont() const
+juce::Font ENDLookAndFeel::getCodeFont() const
 {
     auto fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
     auto fontSize { config.getValue (IDtype::code, ID::fontSize) };
@@ -175,7 +172,7 @@ juce::Font LookAndFeel::getCodeFont() const
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
 
-LookAndFeel::CodeMetrics LookAndFeel::getCodeMetrics (float zoom) const
+ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
 {
     const auto baseFont { getCodeFont() };
     const juce::Font font { baseFont.withPointHeight (baseFont.getHeight() * zoom) };
@@ -193,13 +190,15 @@ LookAndFeel::CodeMetrics LookAndFeel::getCodeMetrics (float zoom) const
     const float cellWidthRatio { config.getValue (IDtype::code, ID::cellWidth) };
     const float lineHeightRatio { config.getValue (IDtype::code, ID::lineHeight) };
 
-    const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth) * cellWidthRatio) };
-    const int cellHeight { juce::roundToInt (static_cast<float> (metrics.cellHeight) * lineHeightRatio) };
+    const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth)
+                                            * cellWidthRatio) };
+    const int cellHeight { juce::roundToInt (static_cast<float> (metrics.cellHeight)
+                                             * lineHeightRatio) };
 
     return CodeMetrics { font, cellWidth, cellHeight, metrics.baseline };
 }
 
-juce::BorderSize<int> LookAndFeel::getCodePadding() const
+juce::BorderSize<int> ENDLookAndFeel::getCodePadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
     auto [top, right, bottom, left] = config.getInt16 (IDtype::code, jam::ID::padding);
@@ -207,12 +206,12 @@ juce::BorderSize<int> LookAndFeel::getCodePadding() const
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
-int LookAndFeel::getGutterWidth() const noexcept
+int ENDLookAndFeel::getGutterWidth() const noexcept
 {
     return config.getValue (IDtype::scrollbar, jam::ID::width);
 }
 
-LookAndFeel::CursorStyle LookAndFeel::getCursorStyle() const
+ENDLookAndFeel::CursorStyle ENDLookAndFeel::getCursorStyle() const
 {
     juce::String style { config.getValue (jam::IDtype::cursor, jam::ID::style).toString() };
     bool blink { config.getValue (jam::IDtype::cursor, ID::blink) };
@@ -223,17 +222,17 @@ LookAndFeel::CursorStyle LookAndFeel::getCursorStyle() const
     return CursorStyle { style, blink, blinkInterval, cursorChar, force };
 }
 
-bool LookAndFeel::getCodeLigatures() const noexcept
+bool ENDLookAndFeel::getCodeLigatures() const noexcept
 {
     return config.getValue (IDtype::code, ID::ligatures);
 }
 
-juce::String LookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
+juce::String ENDLookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
 {
     return name + "/" + style;
 }
 
-juce::Typeface::Ptr LookAndFeel::getTypefaceForFont (const juce::Font& font)
+juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
 {
     auto name { font.getTypefaceName() };
     auto style { font.getTypefaceStyle() };
@@ -260,7 +259,7 @@ juce::Typeface::Ptr LookAndFeel::getTypefaceForFont (const juce::Font& font)
     return fallback;
 }
 
-juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
+juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
     auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
@@ -268,7 +267,7 @@ juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
-LookAndFeel::Style LookAndFeel::getWindowStyle() const
+ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
 {
     auto colour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
     int blur { config.getValue (IDtype::window, ID::blurRadius) };
@@ -289,12 +288,11 @@ LookAndFeel::Style LookAndFeel::getWindowStyle() const
 }
 
 //==============================================================================
-void LookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
+void ENDLookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 {
     auto bounds { bar.getLocalBounds().toFloat() };
-    auto* resizer { dynamic_cast<jam::PaneResizerBar*> (&bar) };
 
-    if (resizer != nullptr and resizer->isVerticalBar())
+    if (bar.getWidth() < bar.getHeight())
     {
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
@@ -318,6 +316,3 @@ void LookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
     if (hover)
         setColour (paneBarColourId, savedColour);
 }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

@@ -1,21 +1,17 @@
 #pragma once
 #include <JuceHeader.h>
-#include "config/Config.h"
-#include "end/Model.h"
-#include "end/View.h"
-#include "end/Window.h"
-#include "lookAndFeel/LookAndFeel.h"
+#include "config/ConfigModel.h"
+#include "end/ENDModel.h"
+#include "end/ENDView.h"
+#include "end/ENDWindow.h"
+#include "lookAndFeel/ENDLookAndFeel.h"
 #include "Bimap.h"
 #include "Nexus.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-class Application : public juce::JUCEApplication
+class ENDApplication : public juce::JUCEApplication
 {
 public:
-    Application();
+    ENDApplication();
     const juce::String getApplicationName() override;
     const juce::String getApplicationVersion() override;
     bool moreThanOneInstanceAllowed() override;
@@ -25,7 +21,7 @@ public:
 private:
     //==============================================================================
 #if JUCE_DEBUG
-    /** @brief Diagnostic log sink — canonical location: file::Config::path
+    /** @brief Diagnostic log sink — canonical location: FileConfig::path
      *  (\~/.config/end/end.ode, jam::Format::toFileName), never the launch
      *  cwd — the same deterministic path regardless of how the app was
      *  started (IDE, Finder, terminal), so runtime diagnostics always land
@@ -42,12 +38,22 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
-    Model model;
-    config::Model config;
+    // Nexus (owning ENDModel, moved in from this class — PLAN-session-layer.md
+    // Step 4) MUST construct before ConfigModel: ConfigModel::appModel
+    // (Source/config/ConfigModel.h) is a ENDModel& bound via
+    // *ENDModel::getInstance() in its own member initializer, evaluated at
+    // ConfigModel construction time — ENDModel must already exist (i.e.
+    // Nexus, its owner, already self-registered as jam::Instance<ENDModel>)
+    // or that dereference is undefined behaviour. Nexus's own ctor creates zero
+    // Sessions (bootstrap-only: ENDModel + WINDOW/SESSIONS nodes) — the first
+    // Session is ENDApplication's own responsibility, created in initialise() once
+    // config exists (state-first: a Session must exist before any View
+    // projects it).
     Nexus nexus;
+    ConfigModel config;
 
     //==============================================================================
-    LookAndFeel lookAndFeel;
+    ENDLookAndFeel lookAndFeel;
 
     /** @brief Unified Vulkan resource-ownership tree — constructed unconditionally
      *  in initialiseVulkan(), after lookAndFeel exists, and never reset/
@@ -69,7 +75,7 @@ private:
      *  first) never outlives it. */
     std::unique_ptr<jam::VulkanEngine> vulkanEngine;
 
-    std::unique_ptr<end::Window> window;
+    std::unique_ptr<ENDWindow> window;
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
@@ -99,8 +105,5 @@ private:
      *          fallback, never an unhandled/unspecified case. */
     static double queryPrimaryDisplayRefreshRateHz() noexcept;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Application)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDApplication)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

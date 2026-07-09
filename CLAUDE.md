@@ -12,7 +12,7 @@
 - **Open PLAN:** none — `PLAN-vt-correctness.md`/`RFC-vt-correctness.md` and `PLAN-obj-mesh-textures-imouse.md`/`RFC-obj-mesh-textures-imouse.md` deleted (fully executed, audited, verified; conformance suite at `tests/` and the shader/mesh system + `SHADERS.md` are the surviving artifacts)
 
 ## Layer Order (top → bottom)
-`Application → Config → Nexus → terminal::Controller → Logic → Model → View → TTY`  
+`Application → Config → Nexus → Session → terminal::Processor/View`  
 Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
 Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
 UI: `Source/end/` — View, Window, Tabs, Panes  

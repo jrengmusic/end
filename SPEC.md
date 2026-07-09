@@ -57,9 +57,9 @@ The previous iteration started as priority 2 with priority 1 as an afterthought.
 |--------|-------|-----------|----------------|
 | `Buffer<Row>` | `Video` (reader thread) | VT engine scratch surface. Dual channel (normal/alternate). Destroyed on resize. | NOT the document. NOT the SSOT. NOT persistent. |
 | `CellFifo` | `Processor` (reader thread) | Lock-free SPSC transport. Two rings (history + active). Drop-oldest under flood. Data passes through and is consumed. | NOT storage. NOT scrollback. NOT persistent. Under flood, oldest entries are dropped — this is correct. |
-| `CodeModel` | `Session` (message thread) | The document SSOT. `ParagraphsModel` — bounded deque of `jam::String` lines. History lines survive resize. FIFO eviction drops oldest when over `scrollbackLines` capacity. | NOT owned by Processor. NOT written by the reader thread. NOT touched by resize. |
-| `CodeView` | `Session` (message thread, parented by View) | Dumb rendering widget. Reads `const CodeModel&`. Wraps at paint time via `getWrappedLines(viewWidth)`. | NOT the document. NOT a state owner. NOT a ValueTree::Component. |
-| `terminal::Model` | `Session` | APVTS bridge. Atomics (reader writes), ValueTree (message reads). Timer flushes dirty atomics to ValueTree. | NOT a config store. NOT a document store. Only scalar state (cursor, modes, flags, text params). |
+| document (`jam::TextModel`) | `Processor` (message-thread access) | The document SSOT. Bounded line store, drained from CellFifo by the Processor itself. History lines survive resize. FIFO eviction drops oldest when over `scrollbackLines` capacity. | NOT written by the reader thread. NOT touched by resize. |
+| `jam::CodeView` | `terminal::View` (message thread) | Dumb rendering widget. Renders the Processor's document. | NOT the document. NOT a state owner. NOT a ValueTree::Component. |
+| `terminal::Model` | `Processor` | APVTS bridge. Atomics (reader writes), ValueTree (message reads). Timer flushes dirty atomics to ValueTree. Tree attached into end::Model under its Session's pane subtree. | NOT a config store. NOT a document store. Only scalar state (cursor, modes, flags, text params). |
 
 ### 1.2 APVTS Analogy
 
@@ -71,15 +71,15 @@ The closest analogy is a **spectrum analyzer plugin**, not a synthesizer. In a s
 
 | JUCE Audio Plugin | END |
 |-------------------|-----|
-| Host (DAW) | `Nexus` — owns terminal instances, manages lifecycle, routes IPC |
-| `AudioProcessor` | `terminal::Session` — owns Model, Processor, CodeModel, CodeView |
-| `ProcessorChain` | `terminal::Processor` — reader thread pipeline, references Model |
-| `APVTS` | `terminal::Model` — state bridge, owned by Session |
-| `PluginEditor` | `terminal::View` — GUI, listens on Model, created/destroyed independently |
-| `SpectrumFIFO` | `CellFifo` — lock-free SPSC transport, reader pushes, message drains |
-| `SpectrumProcessor::outputDB` | `CodeModel` — processed output ready for display |
+| Host (DAW) | `Nexus` — owns `end::Model` (app SSOT) + all Sessions, manages lifecycle, routes IPC |
+| Project / session state | `end::Session` — gui-less container: uuid-keyed `jam::HashMap<int64_t, std::unique_ptr<terminal::Processor>>` + the tabs/panes state of one `end::View` |
+| `PluginProcessor` | `terminal::Processor` — owns `terminal::Model`, document, `CellFifo`, `Resizer`, TTY; self-drains |
+| `APVTS` | `terminal::Model` — state bridge, owned by Processor, attached into `end::Model` |
+| `PluginEditor` | `end::View` / `terminal::View` — ephemeral projection, attaches to one Session |
+| `SpectrumFIFO` | `CellFifo` — lock-free SPSC transport, reader pushes, Processor drains |
+| `SpectrumProcessor::outputDB` | document (`jam::TextModel`) — processed output ready for display |
 
-Key property: the Editor (View) is detachable. In daemon mode, the Session keeps running without a View — identical to a DAW running a plugin headless. The View is created when a GUI client connects, destroyed when it disconnects. The Session and its state survive.
+Key property: the Editor (View) is detachable. In daemon mode, the Session keeps running without a View — identical to a DAW running a plugin headless. The View is created when a GUI client connects, destroyed when it disconnects. The Session and its state survive, and its subtree in `end::Model` is complete with zero Views — restoration rebuilds View-Tabs-Panes purely from that persistent state.
 
 ### 1.3 Thread Contract
 
@@ -92,7 +92,7 @@ Key property: the Editor (View) is detachable. In daemon mode, the Session keeps
 
 **HARD INVARIANT:** The reader thread NEVER touches `CodeModel`. The message thread NEVER writes atomics (except during flush). The GL thread NEVER writes ValueTree or CodeModel. Violation of any of these is a **B violation** (thread binding) — not a bug to fix, an architecture to reject.
 
-**`Session::drain()` runs on the message thread ONLY.** It is called by `terminal::View` in response to `screenDirty` ValueTree listener (which fires after timer flush). It pulls from `CellFifo` (message-thread read side of the SPSC ring) and mutates `CodeModel`. An agent must never call `drain()` from the reader thread.
+**Drain runs on the message thread ONLY — and the Processor triggers it itself.** The Processor observes its own `screenDirty` (message-thread listener, fires after timer flush), pulls from `CellFifo` (message-thread read side of the SPSC ring), and mutates its document. Self-drain keeps the document current with or without an attached View — `CellFifo`'s history ring is finite, so an undrained detached Session would lose scrollback once the ring wraps. An agent must never call drain from the reader thread.
 
 ### 1.4 Data Flow — Unidirectional, Always
 
@@ -102,7 +102,7 @@ Scalar state:
 
 Bulk cell data:
   READER → Video writes Buffer<Row> → CellFifo push (drop-oldest SPSC)
-  MESSAGE → Session::drain() → CellFifo drain → CodeModel mutations → CodeView::calc() → repaint
+  MESSAGE → Processor self-drain (screenDirty) → CellFifo drain → document mutations → CodeView repaint
 ```
 
 No thread pushes to another. All communication is pull-based. No mutex on any hot path. No wait, no stall, no yield.
@@ -195,36 +195,37 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
   │     composed from: config::Display, config::Nexus, config::Keys, config::Popups, config::Actions, config::Whelmed
   │     (consumers read config::Model only, never individual parsers)
   │
-  ├── end::Model (jam::Model + Instance<end::Model>)    ← runtime state SSOT
+  ├── Nexus (Instance<Nexus>)                          ← HOST — gui-less, daemon-capable
+  │     ├── end::Model (jam::Model + Instance<end::Model>)   ← THE app SSOT — all runtime state, UI state included
+  │     └── end::Session[N] (uuid)                     ← gui-less state of one end::View
+  │           ├── tabs/panes subtree in end::Model + the RAII attachments placing each
+  │           │   Processor's terminal::Model tree under its pane
+  │           └── terminal::Processor[N]               ← PluginProcessor-exact
+  │                 ├── terminal::Model (= APVTS) — attached into the Session's pane subtree
+  │                 ├── document (jam::TextModel) — drained render document
+  │                 ├── Parser → Video (jam::terminal)
+  │                 ├── CellFifo — SPSC transport; Processor self-drains on screenDirty
+  │                 ├── Resizer — coalesced live resize
+  │                 └── TTY
   │
-  ├── end::View                                        ← Controller of the application surface
-  │     ├── Tabs (View to end::View, Controller of Panes)
-  │     │     └── Pane[N]
-  │     │           └── terminal::View (PaneView subclass)
-  │     │                 ├── parents CodeView (addAndMakeVisible, does NOT own)
-  │     │                 ├── listens on terminal::Model (runtime) + config::Model (config)
-  │     │                 └── calls Controller::drain() on screenDirty
-  │     │
-  │     ├── action::Registry (Instance<Registry>)
-  │     ├── LookAndFeel (listener on config::Model)
-  │     └── GL Pipeline
-  │           ├── Background shader slot (user GLSL)
-  │           └── Post-process shader slot (user GLSL)
-  │
-  └── Nexus (Instance<Nexus>)                           ← HOST — owns all terminal instances
-        └── terminal::Controller[N] (= AudioProcessor)
-              ├── terminal::Model (= APVTS) — state bridge, owned by Controller
-              ├── terminal::Processor (= ProcessorChain) — references terminal::Model
-              │     ├── Parser
-              │     ├── Video (jam::terminal::Video subclass)
-              │     └── CellFifo
-              ├── CodeModel — document SSOT (processed output)
-              └── CodeView — dumb jam_gui widget, cell-space setter/getter API
+  └── end::View (ephemeral)                            ← PluginEditor of ONE end::Session (ID::activeSession)
+        ├── Tabs (projection of the Session's tabs subtree)
+        │     └── Pane[N]
+        │           └── terminal::View (PaneView subclass)
+        │                 ├── owns jam::CodeView — renders the Processor's document
+        │                 ├── terminal::Input / terminal::Mouse — encode-path owners
+        │                 └── stateless — zero cached visual state
+        │
+        ├── action::Registry (Instance<Registry>)
+        ├── LookAndFeel (Instance, listener on config::Model)
+        └── GL Pipeline
+              ├── Background shader slot (user GLSL)
+              └── Post-process shader slot (user GLSL)
 ```
 
 **terminal::View is the Controller of CodeView.** CodeView is a generic, dumb widget (see §2.1). It owns no authoritative state, listens to no tree. The View listens on `terminal::Model` (`valueTreePropertyChanged`) and translates each property change into a CodeView setter call. The View also owns the input handlers (key/mouse) that author selection.
 
-**ENDApplication is the orchestrator.** It owns `config::Model` and `end::Model` as two independent trees — config and runtime state never mixed. It IS the `jam::File::Watcher::Listener` — on lua file change, it tells `config::Model` to re-read files from disk (same code path as init). config::Model updates its CONFIG tree, ValueTree listeners fire, consumers react.
+**ENDApplication is the orchestrator.** It owns `config::Model` and `Nexus` (which owns `end::Model`) — config and runtime state are two independent trees, never mixed. It IS the `jam::File::Watcher::Listener` — on lua file change, it tells `config::Model` to re-read files from disk (same code path as init). config::Model updates its CONFIG tree, ValueTree listeners fire, consumers react.
 
 **config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** `jam::Model` + `Instance<config::Model>`. It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. Config is message-thread only — the reader never reads config::Model directly. Config-derived values the reader needs cross through `terminal::Model` atomics (see §2.0 Config → reader thread bridge). Main owns it as a value member.
 
@@ -240,11 +241,13 @@ No config values on end::Model. No runtime state on config::Model. Consumers tha
 
 The lua subsystem is its own MVC triad: `config::Model` (state + VM), Main (Controller — watcher, triggers re-read), consumers (Views that listen on config::Model's tree).
 
-**Nexus is the Host.** It owns all `terminal::Session` instances in a map. Sessions survive View destruction (daemon mode). In standalone mode, Nexus exists with `Mode::standalone` — same ownership model, no IPC.
+**Nexus is the Host.** Gui-less, daemon-capable. It owns `end::Model` — THE app SSOT — and all `end::Session` instances (uuid-keyed `HashMap<end::Session>`). Nexus + Sessions + end::Model run with zero Views (Phase 15 daemon). In standalone mode the same ownership model holds, no IPC.
 
-**terminal::Session is the AudioProcessor.** It owns the terminal instance: Model (APVTS), Processor (ProcessorChain), CodeModel (output), CodeView (renderer). Processor references Model but does not own it.
+**end::Session is the state of one end::View.** Gui-less container. It owns a uuid-keyed `HashMap<terminal::Processor>` and its own SESSION/TABS subtree — the mirror root `end::Tabs` adopts. The RAII attachment placing each Processor's `terminal::Model` tree under its own PANE leaf is held by Session, uuid-keyed beside the Processor (Attachment Contract, ARCHITECTURE.md — a view-held placement token would amputate session state on view death). The session subtree (tabs/panes topology + terminal trees) is therefore complete with zero Views: session restoration and the session manager rebuild View-Tabs-Panes purely from this persistent state.
 
-**terminal::View is the PluginEditor.** Created/destroyed independently of the Session. Parents CodeView for rendering (addAndMakeVisible) but does not own it — Session owns CodeView's lifetime. View listens on Model and calls `Session::drain()` when `screenDirty` fires.
+**terminal::Processor is the PluginProcessor.** It owns its `terminal::Model` (APVTS), document (`jam::TextModel`), `CellFifo`, `Resizer`, TTY, and drain. It self-drains on its own `screenDirty` (message thread) — the document is always current, View or no View. The host-owned-buffer isomorphism lives in `CellFifo` (the transport), not the document (accumulated state — APVTS territory).
+
+**Views are ephemeral projections.** `end::View` attaches to exactly one Session subtree (`ID::activeSession` selects it); `terminal::View` owns `jam::CodeView` to render a Processor's document, plus the encode path (`terminal::Input` / `terminal::Mouse`). Creation flows state-first: GUI actions invoke Nexus/Session verbs that mutate the tree, Views react to tree events — never the reverse. Session switching = View detach/rebuild against another SESSION subtree, cheap because terminal::View is stateless.
 
 **Keyboard dispatch is centralized.** end::View is a `juce::KeyListener` — catches all key events first, dispatches to the active PaneView. Global actions (prefix key, command palette, tab/pane navigation) handled at end::View. Terminal-specific input (CSI u encoding, selection, scroll) handled by the active PaneView.
 
@@ -252,19 +255,23 @@ The lua subsystem is its own MVC triad: `config::Model` (state + VM), Main (Cont
 
 ### Model Attachment
 
-Two independent trees. Components that carry state attach to `end::Model` via `jam::ValueTree::Attachment` (RAII graft). Config lives in `config::Model`'s own tree — never grafted to end::Model.
+Two independent trees. State attaches to `end::Model` via `jam::ValueTree::Attachment` (RAII). Config lives in `config::Model`'s own tree — never attached to end::Model.
 
-**end::Model tree** (runtime state — nodes only, properties are phase-gated, see §4):
+**end::Model tree** (runtime state — owned by Nexus; properties are phase-gated, see §4):
 
 ```
 END (end::Model root)
   WINDOW                   ← runtime app-level state
-  TABS                     ← grafted from Tabs component
-    TAB[N]                 ← grafted per tab
-      PANES                ← grafted from Panes component (IS the PaneManager tree)
-        PANE (uuid)        ← PaneManager leaf
-          SESSION           ← grafted from terminal::Model
-            VIEW            ← grafted from terminal::View
+    ID::activeSession      ← which SESSION end::View projects
+  SESSIONS                 ← IDtype::sessions — all session subtrees
+    SESSION (uuid)[N]      ← one end::Session — complete with zero Views
+      TABS
+        TAB[N]
+          PANES            ← IS the PaneManager tree
+            PANE (uuid)    ← PaneManager leaf
+              ⤷ terminal::Model tree attached here — Processor-owned state,
+                RAII attachment held by terminal::View, built at attach()
+  OVERLAY
 ```
 
 **config::Model tree** (config state — separate tree, NOT grafted to end::Model):
@@ -288,8 +295,8 @@ Consumers that need runtime state listen on end::Model. Consumers that need conf
 ### Resize Path
 
 Same proven pattern from the previous iteration:
-- `terminal::View::resized()` → writes new pixel dimensions
-- `Controller` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
+- `terminal::View::resized()` → writes new winsize (Direction B) — a detached Session keeps its last winsize; fresh headless terminals fall back to config defaults
+- `terminal::Processor` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
 - Resizer start trigger → `Processor::suspendProcessing(true)` → `Processor::prepare()` (resizes Video grid only) → `Processor::suspendProcessing(false)`
 - CodeView re-wraps at new width on next paint via `getWrappedLines(viewWidth)` — no content mutation on resize
 - History is untouched. CellFifo is untouched. Only Video grid resizes.
@@ -298,15 +305,15 @@ Same proven pattern from the previous iteration:
 
 | Role | Name | Rationale |
 |------|------|-----------|
-| App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, end::Model, end::View, Nexus. Two independent trees. File watcher. Not namespaced. |
+| App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, Nexus, Window/end::View. File watcher. Not namespaced. |
 | Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
-| App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Runtime state tree. Paired with `end::View`. |
-| App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel. Centralizes keyboard dispatch. |
-| Session host | `Nexus` | Owns all Sessions. Manages lifecycle. Routes IPC in daemon mode. |
-| Terminal instance | `terminal::Session` | = AudioProcessor. Owns Model, Processor, CodeModel, CodeView. |
-| Per-session state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Session. |
-| Reader pipeline | `terminal::Processor` | = ProcessorChain. Owns Parser, Video, CellFifo. References Model. |
-| Terminal GUI | `terminal::View` | = PluginEditor. Controller of CodeView. Listens on terminal::Model + config::Model. Detachable. |
+| App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Owned by Nexus. THE runtime SSOT — all sessions' state included. |
+| Host | `Nexus` | Gui-less, daemon-capable. Owns end::Model + `HashMap<end::Session>` (uuid-keyed). Routes IPC in daemon mode. |
+| Session | `end::Session` (Source/end/Session.h) | Gui-less state of one end::View: uuid-keyed `HashMap<terminal::Processor>` + its own SESSION/TABS subtree (the mirror root `end::Tabs` adopts). |
+| Per-terminal engine | `terminal::Processor` | = PluginProcessor. Owns terminal::Model, document, CellFifo, Resizer, TTY, drain (self-drains on screenDirty). |
+| Per-terminal state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Processor, attached into the Session's pane subtree. |
+| App surface | `end::View` | Ephemeral PluginEditor of one Session (`ID::activeSession`). `juce::KeyListener`. Owns Tabs. Centralizes keyboard dispatch. |
+| Terminal GUI | `terminal::View` | Stateless projection. Owns jam::CodeView + terminal::Input/Mouse (encode path). Listens on terminal::Model + config-derived LookAndFeel. |
 | Document renderer | `jam::CodeView` | Dumb jam_gui widget. Cell-space API. No state, no tree, no listener. |
 | Pane base | `PaneView` | Base for terminal::View, whelmed::View. |
 
@@ -702,7 +709,11 @@ config::Model tree:
 
 Detachable GUI, session persistence, multi-window.
 
+**Topology pre-ratified (§2):** `Nexus { end::Model, Owner<end::Session> } → end::Session { Owner<terminal::Processor> } →` ephemeral Views. The daemon plugs in above this unchanged — a remote-backed Processor variant is the client seam; the deleted snapshot serialization (`getStateInformation`/`setStateInformation`, git `bbef9ad`) is the recoverable reference.
+
 **Planned scope:**
+- Session manager — arbitrary number of Sessions, realtime switching (`ID::activeSession` re-attaches end::View; rebuild is cheap because Views are stateless)
+- Session restoration — View-Tabs-Panes rebuilt purely from the persistent SESSIONS subtree
 - `Nexus` — full implementation: `Mode::daemon`, `Mode::client`, events ValueTree lifecycle listeners
 - `nexus::Daemon` — TCP server, per-client Channel, session callback wiring, broadcast
 - `nexus::Link` — client connector, retry timer, PDU dispatch

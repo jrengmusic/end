@@ -45,7 +45,7 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_vulkan
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/___sdk___/vulkan/macOS/include
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../___sdk___/vulkan/macOS/include
     - -I/Users/jreng/Documents/Poems/dev/end/../../JUCE/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_vulkan/vma/include
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include

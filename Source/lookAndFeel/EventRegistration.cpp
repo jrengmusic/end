@@ -1,11 +1,7 @@
-#include "LookAndFeel.h"
+#include "ENDLookAndFeel.h"
 #include "Bimap.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
+void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 {
     // One pass, one parse per font (SSOT font list) — creates the Ptr, stores
     // it in typefaces under its {name, style} composite key (typefaceKey()) for
@@ -38,7 +34,7 @@ void LookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
     setEmbolden();
 }
 
-void LookAndFeel::setFontRasterization()
+void ENDLookAndFeel::setFontRasterization()
 {
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
@@ -49,9 +45,27 @@ void LookAndFeel::setFontRasterization()
     const float contrast { config.getValue (IDtype::graphics, ID::fontContrast) };
 
     atlas->setRasterization (backend, gamma, contrast);
+
+    // Rebuilding the atlas invalidates every cached glyph bitmap for an
+    // otherwise-unchanged GlyphAtlas::Key (backend/gamma/contrast changed,
+    // typeface/glyphIndex/fontSize did not) — TerminalView's own
+    // lookAndFeelChanged() (via ENDLookAndFeel::getCodeMetrics()) is the
+    // sole path that recomputes cell metrics against the now-current atlas
+    // state and repaints every pane. ENDLookAndFeel owns no Component of
+    // its own (unlike ENDView's own theme handler, which fires
+    // Component::sendLookAndFeelChange() directly — EventRegistration.cpp,
+    // end/), so the SAME call is reached here through juce::Desktop's
+    // top-level window registry instead. A no-op at startup
+    // (registerTypeface()'s own tail call runs before ENDWindow exists —
+    // ENDApplication::initialiseVulkan() precedes the window.reset() call,
+    // Main.cpp — so juce::Desktop holds zero top-level components then).
+    auto& desktop { juce::Desktop::getInstance() };
+
+    for (int i = 0; i < desktop.getNumComponents(); ++i)
+        desktop.getComponent (i)->sendLookAndFeelChange();
 }
 
-void LookAndFeel::setEmbolden()
+void ENDLookAndFeel::setEmbolden()
 {
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
@@ -59,9 +73,17 @@ void LookAndFeel::setEmbolden()
     const bool embolden { config.getValue (IDtype::code, ID::embolden) };
 
     atlas->setEmbolden (embolden);
+
+    // Same atlas-invalidation cascade as setFontRasterization()'s own tail
+    // comment — embolden changes the rasterized bitmap for an
+    // otherwise-unchanged GlyphAtlas::Key too.
+    auto& desktop { juce::Desktop::getInstance() };
+
+    for (int i = 0; i < desktop.getNumComponents(); ++i)
+        desktop.getComponent (i)->sendLookAndFeelChange();
 }
 
-void LookAndFeel::initialiseColours()
+void ENDLookAndFeel::initialiseColours()
 {
     colourMap = jam::ColourMap::fromValueTree (config.state);
 
@@ -95,7 +117,7 @@ void LookAndFeel::initialiseColours()
     setColours (config.state);
 }
 
-void LookAndFeel::loadGraphics()
+void ENDLookAndFeel::loadGraphics()
 {
     graphics.clear();
 
@@ -122,7 +144,7 @@ void LookAndFeel::loadGraphics()
     }
 }
 
-void LookAndFeel::registerEvents()
+void ENDLookAndFeel::registerEvents()
 {
     events.add<juce::ValueTree&> (ID::theme,
                                   [this] (juce::ValueTree&)
@@ -208,6 +230,3 @@ void LookAndFeel::registerEvents()
                                       setEmbolden();
                                   });
 }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

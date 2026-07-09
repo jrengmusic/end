@@ -10,7 +10,7 @@
  * `jam::Row::chars[col]`, cursor via `getCursorRow()`/`getCursorCol()`, modes
  * via `jam::terminal::Model` (`Video` is stateless on plain VT modes;
  * `Term::mode()` reads the fixture-owned `model` collaborator directly, the
- * same MODES parameter surface Video's own working-copy members mirror
+ * same root mode-parameter surface Video's own working-copy members mirror
  * internally). See
  * this fixture's own ratified scaffold shape (`Test::Term`, `t.feed()`,
  * `t.cell(row,col)`, `t.line(row)`, `t.cursorCol()`).
@@ -39,12 +39,12 @@
  * @par Model ownership — zero Model knowledge in Video (ARCHITECT ruling 2026-07-05)
  * `jam::terminal::map::DecMode` is Model-owned by composition (`jam_DecMode.h`)
  * — `model` (below) holds its own `decMode` plain member and iterates it
- * directly in its constructor to register the MODES parameter group; no
- * fixture-side `DecMode` instance is needed or permitted. `video` no longer
+ * directly in its constructor to register the mode parameters onto its own
+ * root; no fixture-side `DecMode` instance is needed or permitted. `video` no longer
  * takes a Model reference — it fires `stateChanged`/`textChanged`/
  * `modeChanged` (`jam_VideoEvents.h`) instead; this fixture registers
  * `onStateChanged`/`onTextChanged`/`onModeChanged` trampolines (same shape
- * as `end::terminal::Processor`) that resolve those channels straight onto
+ * as `TerminalProcessor`) that resolve those channels straight onto
  * `model`, so every conformance assertion on Model parameters keeps passing.
  *
  * @par Deadline-injection seam (V2 expiry testing)
@@ -240,14 +240,14 @@ public:
     int cursorRow() const noexcept { return video.getCursorRow().value; }
     int cursorCol() const noexcept { return video.getCursorCol().value; }
 
-    /** @brief Reads a named MODES parameter (`jam::ID::xxx`) directly from the
-     *  fixture-owned `jam::terminal::Model` — kept in sync with Video's own
-     *  working-copy member via `events.modeChanged`'s trampoline (Video holds
-     *  zero Model knowledge). */
+    /** @brief Reads a named root mode parameter (`jam::ID::xxx`) directly from
+     *  the fixture-owned `jam::terminal::Model` — kept in sync with Video's
+     *  own working-copy member via `events.modeChanged`'s trampoline (Video
+     *  holds zero Model knowledge). */
     bool mode (juce::Identifier id) const noexcept
     {
         auto* param { model.getParameter<jam::Parameter<int>> (model.getType(), id) };
-        jassert (param != nullptr);   // id must be a registered MODES parameter
+        jassert (param != nullptr);   // id must be a registered root mode parameter
         return param->getValue() != 0;
     }
 
@@ -285,12 +285,15 @@ private:
 
     /** @brief `Events::Entry` trampoline for the `stateChanged` member —
      *  resolves `(tag, id)` onto `model`'s `jam::Parameter<int>` and stores
-     *  `value`. Same shape as `end::terminal::Processor::onStateChanged()`.
+     *  `value`. Same shape as `TerminalProcessor::onStateChanged()` —
+     *  a null `tag` (the former VIDEO group's four scalars) resolves to
+     *  `model.getType()`.
      *  @param context  The owning `TermBase*`, opaque to Video. */
     static void onStateChanged (void* context, juce::Identifier tag, juce::Identifier id, int value) noexcept
     {
         auto* self { static_cast<TermBase*> (context) };
-        auto* parameter { self->model.getParameter<jam::Parameter<int>> (tag, id) };
+        auto* parameter { self->model.getParameter<jam::Parameter<int>> (
+            tag.isValid() ? tag : self->model.getType(), id) };
         jassert (parameter != nullptr);
         parameter->setValue (value);
     }
@@ -317,7 +320,7 @@ private:
     }
 
     // Declaration order is construction order — Stamp/Grapheme/Link have no
-    // deps; model's own decMode member is iterated by Model::registerModes()
+    // deps; model's own decMode member is iterated by Model::registerParameters()
     // internally, no fixture-side DecMode owner needed. `video` no longer
     // holds a Model reference (zero Model knowledge) — the trampolines above
     // reach `model` only when `events` actually fires (after full

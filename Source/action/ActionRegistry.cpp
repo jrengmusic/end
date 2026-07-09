@@ -1,18 +1,14 @@
-#include "action/Registry.h"
+#include "action/ActionRegistry.h"
 
-namespace action
-{
-/*____________________________________________________________________________*/
-
-Registry::Registry()
+ActionRegistry::ActionRegistry()
 {
     config.addListener (this);
     buildKeyMap();
 }
 
-Registry::~Registry() { config.removeListener (this); }
+ActionRegistry::~ActionRegistry() { config.removeListener (this); }
 
-void Registry::buildKeyMap()
+void ActionRegistry::buildKeyMap()
 {
     keys.clear();
     modalKeys.clear();
@@ -39,7 +35,7 @@ void Registry::buildKeyMap()
         });
 }
 
-bool Registry::keyPressed (const juce::KeyPress& key)
+bool ActionRegistry::keyPressed (const juce::KeyPress& key)
 {
     if (jam::Map::contains (keys, key))
     {
@@ -67,18 +63,15 @@ bool Registry::keyPressed (const juce::KeyPress& key)
     return false;
 }
 
-void Registry::run (const juce::Identifier& action)
+void ActionRegistry::run (const juce::Identifier& action)
 {
     if (actions.contains (action))
         actions.get (action);
 }
 
-void Registry::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
+void ActionRegistry::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
     buildKeyMap();
 }
 
-void Registry::timerCallback() { stopTimer(); }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace action
+void ActionRegistry::timerCallback() { stopTimer(); }

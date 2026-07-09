@@ -1,25 +1,28 @@
 /**
  * @file ModelTests.cpp
- * @brief `terminal::Model` scripted-stub validation.
+ * @brief `TerminalModel` scripted-stub validation.
  *
- * Exercises `terminal::Model` (Source/terminal/Model.h, header-only —
+ * Exercises `TerminalModel` (Source/terminal/TerminalModel.h, header-only —
  * `jam::terminal::Model` subclass, INHERITING every VT-state-machine group
- * (SESSION/MODES/NORMAL/ALTERNATE/TEXT — `jam_terminal/model/jam_Model.h`)
- * and extending SESSION/TEXT with app/TTY-domain properties that have no
- * VT-machine meaning) directly, with no TTY, no Processor, no Video — the
- * "scripted Processor stub" this validation calls for is the
- * `StubListener` below, which mimics `terminal::Processor`'s
- * `jam::Model::Listener` shape (Processor.h) without the reader-thread wake.
+ * (root scalars — former VIDEO/MODES groups, dissolved onto the root
+ * ARCHITECT-ratified 2026-07-08 — plus NORMAL/ALTERNATE/TEXT child nodes,
+ * `jam_terminal/model/jam_TerminalModel.h`) and extending TEXT with an app/TTY-domain
+ * property that has no VT-machine meaning, plus its own app-domain siblings
+ * of the former VIDEO scalars directly onto the root) directly, with no TTY,
+ * no Processor, no Video — the "scripted Processor stub" this validation
+ * calls for is the `StubListener` below, which mimics `TerminalProcessor`'s
+ * `jam::Model::Listener` shape (TerminalProcessor.h) without the reader-thread wake.
  *
  * @par Coverage
- * - Schema shape: SESSION/MODES/NORMAL/ALTERNATE/TEXT children in that order
- *   under a TERMINAL root (SESSION/MODES/NORMAL/ALTERNATE/TEXT nodes created
- *   by the inherited `jam::terminal::Model` base constructor; SESSION/TEXT
- *   then extended in place by `terminal::Model::registerParameters()` —
- *   `juce::Identifier` equality is by interned string content, so
- *   `getOrCreateChildWithName()` finds the SAME node the base created),
- *   every group's declared parameter set present with no extras, Direction B
- *   parameters living directly on the root.
+ * - Schema shape: NORMAL/ALTERNATE/TEXT children in that order under a
+ *   TERMINAL root (NORMAL/ALTERNATE/TEXT nodes created by the inherited
+ *   `jam::terminal::Model` base constructor; TEXT then extended in place by
+ *   `TerminalModel::registerParameters()` — `juce::Identifier` equality is
+ *   by interned string content, so `getOrCreateChildWithName()` finds the
+ *   SAME node the base created), the root's full declared parameter set
+ *   present with no extras (former VIDEO/MODES scalars, END's app-domain
+ *   siblings, and Direction B parameters — every root-level parameter
+ *   shares one flat tree, no wrapping group child).
  * - Direction A (reader -> message): `getParameter<jam::Parameter<int>>()->
  *   setValue()` is the real reader-thread write path — atomic store + dirty
  *   mark (`ParameterAdapter::flushToTree()` is CAS-gated on `needsUpdate`,
@@ -36,18 +39,18 @@
  *   maxlen-1 truncation contract (`jam_ParameterText.h` setValue doc).
  *
  * @par Identifier scoping
- * `ID`/`IDtype` (Identifier.h) are declared at GLOBAL scope, not inside
- * `namespace terminal` — Model.cpp itself references them unqualified for
- * the same reason. `jam::ID`/`jam::IDtype` require the `jam::` prefix.
+ * `ID`/`IDtype` (Identifier.h) are declared at GLOBAL scope — TerminalModel
+ * itself references them unqualified for the same reason. `jam::ID`/
+ * `jam::IDtype` require the `jam::` prefix.
  */
 
 #include "catch2/catch.hpp"
-#include "terminal/Model.h"
+#include "terminal/TerminalModel.h"
 
 namespace
 {
-/** @brief Stub `jam::Model::Listener` mimicking `terminal::Processor`'s shape
- *  (Processor.h) — captures the last `parameterChanged()` call for assertion
+/** @brief Stub `jam::Model::Listener` mimicking `TerminalProcessor`'s shape
+ *  (TerminalProcessor.h) — captures the last `parameterChanged()` call for assertion
  *  instead of nudging a TTY poll wake fd (the Direction B wake seam). */
 struct StubListener : public jam::Model::Listener
 {
@@ -79,76 +82,65 @@ void requireExactProperties (const juce::ValueTree& tree,
 // Schema shape
 // ============================================================================
 
-TEST_CASE ("terminal::Model registers SESSION/MODES/NORMAL/ALTERNATE/TEXT under a TERMINAL root, in that order", "[model][schema]")
+TEST_CASE ("TerminalModel registers NORMAL/ALTERNATE/TEXT under a TERMINAL root, in that order; root scalars flatten directly onto the root", "[model][schema]")
 {
-    terminal::Model model;
+    // ARCHITECT-ratified dissolve (2026-07-08): the former VIDEO/MODES child
+    // nodes are gone — jam::terminal::Model::registerParameters() (base
+    // ctor) now registers their scalars directly onto `state`, so the root
+    // carries 3 children instead of 5.
+    TerminalModel model;
     auto& state { model.state };
 
     REQUIRE (state.getType() == IDtype::terminal);
-    REQUIRE (state.getNumChildren() == 5);
-    REQUIRE (state.getChild (0).getType() == jam::IDtype::session);
-    REQUIRE (state.getChild (1).getType() == jam::IDtype::modes);
-    REQUIRE (state.getChild (2).getType() == jam::IDtype::normal);
-    REQUIRE (state.getChild (3).getType() == jam::IDtype::alternate);
-    REQUIRE (state.getChild (4).getType() == jam::IDtype::text);
+    REQUIRE (state.getNumChildren() == 3);
+    REQUIRE (state.getChild (0).getType() == jam::IDtype::normal);
+    REQUIRE (state.getChild (1).getType() == jam::IDtype::alternate);
+    REQUIRE (state.getChild (2).getType() == jam::IDtype::text);
 }
 
-TEST_CASE ("SESSION carries exactly its 7 declared parameters, no extras", "[model][schema]")
+TEST_CASE ("TERMINAL root carries exactly its 23 declared parameters (former VIDEO/MODES scalars + END app-domain siblings + Direction B), no extras", "[model][schema]")
 {
-    terminal::Model model;
-    auto session { model.state.getChildWithName (jam::IDtype::session) };
+    // Former VIDEO group (4) + former MODES group — 9-entry DecMode bimap
+    // (ARCHITECT ruling "conform, multiple bool is wrong": mouse tracking
+    // 1000/1002/1003 collapsed onto the single mouseTracking parameter,
+    // jam::terminal::MouseTracking-valued, excluded from the bimap the same
+    // way insertMode is — jam_DecMode.h's "Mouse tracking excluded" doc) +
+    // insertMode + mouseTracking (2) + END's app-domain siblings of the
+    // former VIDEO scalars (3) + Direction B (5) = 23. All now register
+    // directly onto the same root `state` tree — no wrapping group child
+    // (ARCHITECT-ratified dissolve, 2026-07-08).
+    TerminalModel model;
 
-    requireExactProperties (session,
+    requireExactProperties (model.state,
         {
-            ID::gridSize,
+            // Former VIDEO group
             jam::ID::activeScreen,
             jam::ID::syncOutputActive,
-            jam::ID::shellExited,
             jam::ID::bell,
             jam::ID::promptRow,
-            jam::ID::pasteEchoRemaining,
-        });
-}
-
-TEST_CASE ("MODES carries exactly its 11 declared parameters (DecMode bimap + insertMode + mouseTracking), no extras", "[model][schema]")
-{
-    // Prior to jam::terminal::Model owning the full VT-state-machine
-    // parameter set, this END-local MODES node hand-duplicated a 9-entry
-    // subset of the DecMode bimap — a latent mismatch with the full set of
-    // wire numbers jam::terminal::Video decodes (DecMode bimap entries +
-    // insertMode + mouseTracking, jam_CursorState.cpp's working-copy mode
-    // members). terminal::Model now INHERITS
-    // jam::terminal::Model::registerModes() (jam_Model.cpp) instead of
-    // re-declaring a partial list, so this node carries the same complete
-    // vocabulary Video actually requires.
-    //
-    // ARCHITECT ruling "conform, multiple bool is wrong" (ratified this
-    // sprint): mouse tracking (DEC private modes 1000/1002/1003) collapsed
-    // from three independent bool identifiers (mouseTracking/
-    // mouseMotionTracking/mouseAllTracking) onto ONE — mouseTracking now
-    // carries a jam::terminal::MouseTracking value
-    // (jam_terminal/video/jam_MouseTracking.h) instead of a bool, and is
-    // excluded from the DecMode bimap the same way insertMode is (see
-    // jam_DecMode.h's "Mouse tracking excluded" doc) — registerModes()
-    // registers it with an explicit line, mirroring insertMode. Legitimate
-    // schema shrink: 13 -> 11 (9 bimap entries + insertMode + mouseTracking),
-    // mouseMotionTracking/mouseAllTracking identifiers retired entirely.
-    terminal::Model model;
-    auto modes { model.state.getChildWithName (jam::IDtype::modes) };
-
-    requireExactProperties (modes,
-        {
+            // Former MODES group — DecMode bimap entries
             jam::ID::applicationCursor,
             jam::ID::reverseVideo,
             jam::ID::autoWrap,
             jam::ID::applicationKeypad,
-            jam::ID::mouseTracking,
             jam::ID::focusEvents,
             jam::ID::mouseSgr,
             jam::ID::bracketedPaste,
             jam::ID::win32InputMode,
             jam::ID::graphemeClustering,
+            // Former MODES group — outside the bimap
             jam::ID::insertMode,
+            jam::ID::mouseTracking,
+            // END app-domain siblings (TerminalModel::registerParameters())
+            ID::gridSize,
+            jam::ID::shellExited,
+            jam::ID::pasteEchoRemaining,
+            // Direction B
+            ID::winsize,
+            ID::cellSize,
+            ID::zoom,
+            ID::scrollbackLines,
+            ID::clearRequested,
         });
 }
 
@@ -161,7 +153,7 @@ TEST_CASE ("NORMAL screen carries exactly its 14 declared SCREEN parameters "
     // progressive keyboard protocol save stack — savedKeyboardFlagsDepth (8)
     // indexed slots plus savedKeyboardFlagsCount — real per-screen schema
     // parameters, not a Video-local stack.
-    terminal::Model model;
+    TerminalModel model;
     auto normal { model.state.getChildWithName (jam::IDtype::normal) };
 
     requireExactProperties (normal,
@@ -188,7 +180,7 @@ TEST_CASE ("ALTERNATE screen carries exactly its 14 declared SCREEN parameters "
            "8-slot progressive-keyboard-protocol save stack + count), no extras", "[model][schema]")
 {
     // Grown from 5 to 14 this sprint — see the NORMAL screen test above.
-    terminal::Model model;
+    TerminalModel model;
     auto alternate { model.state.getChildWithName (jam::IDtype::alternate) };
 
     requireExactProperties (alternate,
@@ -212,7 +204,7 @@ TEST_CASE ("ALTERNATE screen carries exactly its 14 declared SCREEN parameters "
 
 TEST_CASE ("TEXT carries exactly its 3 declared parameters, no extras", "[model][schema]")
 {
-    terminal::Model model;
+    TerminalModel model;
     auto text { model.state.getChildWithName (jam::IDtype::text) };
 
     requireExactProperties (text,
@@ -223,28 +215,15 @@ TEST_CASE ("TEXT carries exactly its 3 declared parameters, no extras", "[model]
         });
 }
 
-TEST_CASE ("Direction B parameters live directly on the TERMINAL root, no wrapping group child", "[model][schema]")
-{
-    terminal::Model model;
-
-    requireExactProperties (model.state,
-        {
-            ID::winsize,
-            ID::cellSize,
-            ID::scrollbackLines,
-            ID::clearRequested,
-        });
-}
-
 // ============================================================================
 // Direction A — reader (atomic store) -> message (ValueTree via flush())
 // ============================================================================
 
-TEST_CASE ("Direction A: setValue() on a SESSION parameter reaches the ValueTree after flush()", "[model][directiona]")
+TEST_CASE ("Direction A: setValue() on a root scalar reaches the ValueTree after flush()", "[model][directiona]")
 {
-    terminal::Model model;
+    TerminalModel model;
 
-    auto* gridSize { model.getParameter<jam::Parameter<int>> (jam::IDtype::session, ID::gridSize) };
+    auto* gridSize { model.getParameter<jam::Parameter<int>> (model.getType(), ID::gridSize) };
     REQUIRE (gridSize != nullptr);
 
     // setValue() is the real Direction A write path (test thread stands in
@@ -264,13 +243,12 @@ TEST_CASE ("Direction A: setValue() on a SESSION parameter reaches the ValueTree
     // an explicit flush() is still required after setValue().
     model.flush();
 
-    auto session { model.state.getChildWithName (jam::IDtype::session) };
-    REQUIRE (static_cast<int> (session.getProperty (ID::gridSize)) == 42);
+    REQUIRE (static_cast<int> (model.state.getProperty (ID::gridSize)) == 42);
 }
 
 TEST_CASE ("screenDirty counter increments via setValue() on the NORMAL screen are visible on the ValueTree after flush()", "[model][directiona][screendirty]")
 {
-    terminal::Model model;
+    TerminalModel model;
 
     auto* screenDirty { model.getParameter<jam::Parameter<int>> (jam::IDtype::normal, jam::ID::screenDirty) };
     REQUIRE (screenDirty != nullptr);
@@ -295,7 +273,7 @@ TEST_CASE ("screenDirty counter increments via setValue() on the NORMAL screen a
 
 TEST_CASE ("Direction B: setWinsize fires parameterChanged with ID::winsize; the packed value round-trips", "[model][directionb]")
 {
-    terminal::Model model;
+    TerminalModel model;
     StubListener listener;
     model.addListener (&listener);
 
@@ -315,7 +293,7 @@ TEST_CASE ("Direction B: setWinsize fires parameterChanged with ID::winsize; the
 
 TEST_CASE ("Direction B: setCellSize fires parameterChanged with ID::cellSize; the packed value round-trips", "[model][directionb]")
 {
-    terminal::Model model;
+    TerminalModel model;
     StubListener listener;
     model.addListener (&listener);
 
@@ -335,7 +313,7 @@ TEST_CASE ("Direction B: setCellSize fires parameterChanged with ID::cellSize; t
 
 TEST_CASE ("Direction B: setScrollbackLines fires parameterChanged with ID::scrollbackLines and the raw line count", "[model][directionb]")
 {
-    terminal::Model model;
+    TerminalModel model;
     StubListener listener;
     model.addListener (&listener);
 
@@ -354,7 +332,7 @@ TEST_CASE ("Direction B: setScrollbackLines fires parameterChanged with ID::scro
 
 TEST_CASE ("ParameterText: TEXT/title setValue/getValue round-trips under maxlen", "[model][parametertext]")
 {
-    terminal::Model model;
+    TerminalModel model;
     auto* title { model.getParameter<jam::ParameterText> (jam::IDtype::text, jam::ID::title) };
     REQUIRE (title != nullptr);
 
@@ -364,11 +342,11 @@ TEST_CASE ("ParameterText: TEXT/title setValue/getValue round-trips under maxlen
 
 TEST_CASE ("ParameterText: TEXT/title truncates to maxlen - 1 bytes (jam_ParameterText.h setValue contract)", "[model][parametertext]")
 {
-    terminal::Model model;
+    TerminalModel model;
     auto* title { model.getParameter<jam::ParameterText> (jam::IDtype::text, jam::ID::title) };
     REQUIRE (title != nullptr);
 
-    // The TEXT/title registration (Model.h, maxlen 256) seeds a 256-byte
+    // The TEXT/title registration (TerminalModel.h, maxlen 256) seeds a 256-byte
     // double buffer; ParameterText::setValue() copies min(length, bufferSize
     // - 1) bytes and null-terminates (jam_ParameterText.h:68-76) — a 300-char
     // ASCII title truncates to 255 chars.

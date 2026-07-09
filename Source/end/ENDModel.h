@@ -2,17 +2,13 @@
 #include <JuceHeader.h>
 #include "Identifier.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
-class Model
+class ENDModel
     : public jam::Model
-    , public jam::Instance<Model>
+    , public jam::Instance<ENDModel>
 {
 public:
-    Model();
-    ~Model();
+    ENDModel();
+    ~ENDModel();
 
     /** @brief Writes a message to the overlay's ParameterText.
      *  Any thread — ParameterText::setValue is lock-free.
@@ -28,7 +24,5 @@ public:
 
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDModel)
 };
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

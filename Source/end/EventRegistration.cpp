@@ -1,18 +1,45 @@
-#include "View.h"
+#include "ENDView.h"
 
-namespace end
+void ENDView::registerEvents()
 {
-/*____________________________________________________________________________*/
-
-void View::registerEvents()
-{
-    events.add<juce::ValueTree&> (ID::focus,
+    events.add<juce::ValueTree&> (jam::ID::focus,
                                   [this] (juce::ValueTree& tree)
                                   {
-                                      if (jam::toBool (tree.getProperty (ID::focus)))
+                                      if (jam::toBool (tree.getProperty (jam::ID::focus)))
                                       {
                                           auto id { tree.getProperty (jam::ID::id) };
-                                          state.setProperty (ID::focusedPane, id, nullptr);
+
+                                          // ID::focusedPane's canonical copy lives on the
+                                          // SESSIONS node (Nexus's own ctor, ARCHITECT ruling —
+                                          // app-level SSOT, never a per-Session tree copy).
+                                          // Session hears it through ENDModel's own
+                                          // parameter machinery (its own ID::focusedPane
+                                          // events-map reaction, Session.cpp), converting it
+                                          // into a setFocus() tell to every owned Processor.
+                                          // model.setValue() (not the Parameter atomic lane's
+                                          // setValue()) keeps this synchronous with every
+                                          // tree-property reader (ActionRegistration.cpp's
+                                          // zoom/closePane handlers, Tabs::getTitle) —
+                                          // jam::Model's own VT->atomic reverse sync
+                                          // (valueTreePropertyChanged) fires inline on this
+                                          // same call, so the atomic is current too, with no
+                                          // flush-timer latency either direction.
+                                          model.setValue (IDtype::sessions, ID::focusedPane, id);
+
+                                          // Per-tab last-focused-pane memory — the reporting
+                                          // pane's own ancestor TAB node's ID::focusedPane
+                                          // (Panes's own param, Tabs::currentTabChanged/
+                                          // getTitle's own reader). This is the sole
+                                          // author of a TAB's ID::focusedPane, mirroring the
+                                          // singular-focus rule above.
+                                          auto tabTree { tree };
+
+                                          while (tabTree.isValid()
+                                                 and tabTree.getType() != IDtype::tab)
+                                              tabTree = tabTree.getParent();
+
+                                          jassert (tabTree.isValid());
+                                          tabTree.setProperty (ID::focusedPane, id, nullptr);
                                       }
                                   });
 
@@ -27,9 +54,9 @@ void View::registerEvents()
         [this] (juce::ValueTree&)
         {
             // jam::VulkanEngine is constructed unconditionally, once, by
-            // end::Application, and never reset/reconstructed here — GPU
+            // ENDApplication, and never reset/reconstructed here — GPU
             // availability/preference only selects which rendering engine
-            // createContext() dispatches to per paint (see end::Application's
+            // createContext() dispatches to per paint (see ENDApplication's
             // vulkanEngine doc comment, Main.h).
             const bool canUseGpu { config.getValue (IDtype::display, ID::gpu)
                                    and jam::GpuProbe::probe().isAvailable };
@@ -144,11 +171,23 @@ void View::registerEvents()
                                   {
                                       setMouseConfig();
                                   });
+
+    // WINDOW leaf visibility toggles (ActionRegistration.cpp's own
+    // Position-bimap loop) relayout the whole paneManager tree — one
+    // registration on the shared jam::ID::visible property key serves all
+    // five leaves, no per-leaf type fallback needed (every WINDOW leaf now
+    // shares IDtype::pane, so a type-keyed fallback could no longer
+    // distinguish them the way the four old Position edge node TYPES did).
+    events.add<juce::ValueTree&> (jam::ID::visible,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      resized();
+                                  });
 }
 
-void View::setBackground()
+void ENDView::setBackground()
 {
-    // Same effective-gpu truth end::Application resolves for the VulkanEngine
+    // Same effective-gpu truth ENDApplication resolves for the VulkanEngine
     // ctor and the gpu event handler resolves for setGpuEnabled() — never
     // raw config alone.
     const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
@@ -165,11 +204,11 @@ void View::setBackground()
         const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
         const auto filter { jam::map::ImageResample::get (filterName) };
 
-        // config::Shader::loadFromPath() always stamps ID::shaderFormat with a
+        // ConfigShader::loadFromPath() always stamps ID::shaderFormat with a
         // definite format ordinal (jam::vulkan::ShaderFormat::shadertoy or
-        // ::slang) before this state is ever readable here — config::Model's
+        // ::slang) before this state is ever readable here — ConfigModel's
         // constructor runs loadFromPath() to completion, and
-        // jam::Instance<config::Model>::getInstance() (which View::config
+        // jam::Instance<ConfigModel>::getInstance() (which View::config
         // resolves through) cannot return before that constructor finishes.
         const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
 
@@ -187,7 +226,7 @@ void View::setBackground()
     }
 }
 
-void View::setBackgroundParams()
+void ENDView::setBackgroundParams()
 {
     const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
     const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
@@ -196,7 +235,7 @@ void View::setBackgroundParams()
     background.setParams (opacity, resolutionScale, frameRate);
 }
 
-void View::setPostProcess()
+void ENDView::setPostProcess()
 {
     const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
                             and jam::GpuProbe::probe().isAvailable };
@@ -235,7 +274,7 @@ void View::setPostProcess()
     }
 }
 
-void View::setPostProcessParams()
+void ENDView::setPostProcessParams()
 {
     const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
     const float resolutionScale { config.getValue (
@@ -246,7 +285,7 @@ void View::setPostProcessParams()
     engine->setPostProcessParams (opacity, resolutionScale);
 }
 
-void View::setMouseConfig()
+void ENDView::setMouseConfig()
 {
     const bool enabled { config.getValue (IDtype::mouse, jam::ID::enabled) };
     const auto imouseButton { jam::map::MouseButton::get (
@@ -256,12 +295,5 @@ void View::setMouseConfig()
     const auto resetButton { jam::map::MouseButton::get (
         config.getValue (IDtype::mouse, ID::reset).toString()) };
 
-    mouseEnabled = enabled;
-    orbitButtonConfig = orbitButton;
-    resetButtonConfig = resetButton;
-
-    background.setMouseConfig (enabled, imouseButton, orbitButton);
+    background.setMouseConfig (enabled, imouseButton, orbitButton, resetButton);
 }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

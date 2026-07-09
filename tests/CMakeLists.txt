@@ -12,11 +12,11 @@
 # Catch2 v2.13.10 single-header vendored at catch2/catch.hpp.
 #
 # ModelTests.cpp (RFC-terminal-editor.md S7.4 validation gate) additionally
-# validates END's own `terminal::Model` (Source/terminal/Model.h — header-only
+# validates END's own `TerminalModel` (Source/terminal/TerminalModel.h — header-only
 # P12 SSOT, distinct from JAM's jam::terminal::Model consumed elsewhere in
 # this suite) — schema shape, Direction A store()->flush() sync, Direction B
 # setter->parameterChanged wake seam, jam::ParameterText round-trip/
-# truncation. terminal::Model is header-only (straight-line
+# truncation. TerminalModel is header-only (straight-line
 # createAndAddParameter registration, no storage TU); END's Identifier.h
 # constants are likewise header-only `static inline const` — the added
 # "../Source" include directory is all resolution requires.

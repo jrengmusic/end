@@ -1,23 +1,19 @@
-#include "Config.h"
-
-namespace config
-{
-/*____________________________________________________________________________*/
+#include "ConfigModel.h"
 
 //==============================================================================
-// Shader
+// ConfigShader
 //==============================================================================
 
-Shader::Shader (juce::Identifier treeType)
-    : Directory (juce::ValueTree (treeType))
+ConfigShader::ConfigShader (juce::Identifier treeType)
+    : ConfigDirectory (juce::ValueTree (treeType))
 {
 }
 
-void Shader::loadFromPath (const juce::var& path, juce::String& errors)
+void ConfigShader::loadFromPath (const juce::var& path, juce::String& errors)
 {
     juce::ignoreUnused (errors);
 
-    const juce::File dir { file::Shaders::getPath (path.toString()) };
+    const juce::File dir { FileShaders::getPath (path.toString()) };
     const auto presetFiles { dir.findChildFiles (
         juce::File::findFiles,
         false,
@@ -36,32 +32,32 @@ void Shader::loadFromPath (const juce::var& path, juce::String& errors)
 }
 
 //==============================================================================
-// Theme
+// ConfigTheme
 //==============================================================================
 
-Theme::Theme()
-    : Directory (jam::Model::fromLua (
+ConfigTheme::ConfigTheme()
+    : ConfigDirectory (jam::Model::fromLua (
           IDtype::themes,
-          file::Themes::get(),
+          FileThemes::get(),
           [] (int key)
           {
-              return BinaryData::getString (file::Themes::getName (key));
+              return BinaryData::getString (FileThemes::getName (key));
           },
-          &config::Model::validators))
+          &ConfigModel::validators))
 {
     auto flex { jam::Model::fromFiles (IDtype::flex,
-                                       file::Flex::get(),
+                                       FileFlex::get(),
                                        [] (int key)
                                        {
-                                           return BinaryData::getString (file::Flex::getName (key));
+                                           return BinaryData::getString (FileFlex::getName (key));
                                        }) };
 
     state.appendChild (flex, nullptr);
 }
 
-void Theme::saveToPath (const juce::var& path)
+void ConfigTheme::saveToPath (const juce::var& path)
 {
-    const juce::File dir { file::Themes::getPath (path.toString()) };
+    const juce::File dir { FileThemes::getPath (path.toString()) };
 
     if (dir.getFullPathName().isNotEmpty())
     {
@@ -80,39 +76,39 @@ void Theme::saveToPath (const juce::var& path)
 
         jam::File::getOrCreateDirectory (dir.getParentDirectory(), dir.getFileName());
 
-        for (auto& [key, value] : file::Themes::get())
-            writeWhenNeeded (dir, file::Themes::getName (key));
+        for (auto& [key, value] : FileThemes::get())
+            writeWhenNeeded (dir, FileThemes::getName (key));
 
         auto flexDir { jam::File::getOrCreateDirectory (dir, IDref::flex) };
 
-        for (auto& [key, value] : file::Flex::get())
-            writeWhenNeeded (flexDir, file::Flex::getName (key));
+        for (auto& [key, value] : FileFlex::get())
+            writeWhenNeeded (flexDir, FileFlex::getName (key));
     }
 }
 
-void Theme::loadFromPath (const juce::var& path, juce::String& errors)
+void ConfigTheme::loadFromPath (const juce::var& path, juce::String& errors)
 {
-    const juce::File dir { file::Themes::getPath (path.toString()) };
+    const juce::File dir { FileThemes::getPath (path.toString()) };
 
     if (dir.isDirectory())
     {
         auto disk { jam::Model::fromLua (
             IDtype::themes,
-            file::Themes::get(),
+            FileThemes::get(),
             [dir] (int key)
             {
-                return dir.getChildFile (file::Themes::getName (key)).loadFileAsString();
+                return dir.getChildFile (FileThemes::getName (key)).loadFileAsString();
             },
-            &config::Model::validators,
+            &ConfigModel::validators,
             &errors) };
 
         const juce::File flexDir { dir.getChildFile (IDref::flex) };
         auto flexDisk { jam::Model::fromFiles (
             IDtype::flex,
-            file::Flex::get(),
+            FileFlex::get(),
             [flexDir] (int key)
             {
-                return flexDir.getChildFile (file::Flex::getName (key)).loadFileAsString();
+                return flexDir.getChildFile (FileFlex::getName (key)).loadFileAsString();
             }) };
 
         disk.appendChild (flexDisk, nullptr);
@@ -124,16 +120,16 @@ void Theme::loadFromPath (const juce::var& path, juce::String& errors)
 }
 
 //==============================================================================
-// Model
+// ConfigModel
 //==============================================================================
 
-Model::Model()
+ConfigModel::ConfigModel()
     : jam::Model (jam::Model::fromLua (
           IDtype::config,
-          file::Config::get(),
+          FileConfig::get(),
           [] (int key)
           {
-              return BinaryData::getString (file::Config::getName (key));
+              return BinaryData::getString (FileConfig::getName (key));
           },
           &validators))
 {
@@ -151,7 +147,7 @@ Model::Model()
     startWatcher();
 }
 
-void Model::registerParameters()
+void ConfigModel::registerParameters()
 {
     jam::Model::applyFunctionRecursively (
         state,
@@ -200,15 +196,15 @@ void Model::registerParameters()
         });
 }
 
-void Model::saveToPath()
+void ConfigModel::saveToPath()
 {
     jam::File::getOrCreateDirectory (
-        file::Config::path.getParentDirectory(), file::Config::path.getFileName());
+        FileConfig::path.getParentDirectory(), FileConfig::path.getFileName());
 
-    for (auto& [key, value] : file::Config::get())
+    for (auto& [key, value] : FileConfig::get())
     {
-        const auto name { file::Config::getName (key) };
-        const juce::File file { file::Config::path.getChildFile (name) };
+        const auto name { FileConfig::getName (key) };
+        const juce::File file { FileConfig::path.getChildFile (name) };
 
         if (not file.existsAsFile())
         {
@@ -222,16 +218,16 @@ void Model::saveToPath()
     theme.saveToPath (getValue (IDtype::display, ID::theme));
 }
 
-void Model::loadFromPath()
+void ConfigModel::loadFromPath()
 {
     juce::String errors;
 
     auto disk { jam::Model::fromLua (
         IDtype::config,
-        file::Config::get(),
+        FileConfig::get(),
         [] (int key)
         {
-            return file::Config::getPath (file::Config::getName (key)).loadFileAsString();
+            return FileConfig::getPath (FileConfig::getName (key)).loadFileAsString();
         },
         &validators,
         &errors) };
@@ -253,19 +249,16 @@ void Model::loadFromPath()
     appModel.setMessage (message);
 }
 
-void Model::startWatcher()
+void ConfigModel::startWatcher()
 {
-    watcher.addFolder (file::Config::path);
+    watcher.addFolder (FileConfig::path);
     watcher.coalesceEvents (coalesceMs);
     watcher.addListener (this);
 }
 
-void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
+void ConfigModel::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
     if (event == jam::File::Watcher::Event::fileUpdated
-        and file.hasFileExtension (file::Config::extension))
+        and file.hasFileExtension (FileConfig::extension))
         loadFromPath();
 }
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace config

@@ -2,10 +2,6 @@
 #include <JuceHeader.h>
 #include "Identifier.h"
 
-namespace end
-{
-/*____________________________________________________________________________*/
-
 //==============================================================================
 /**
  * @brief Bimap for component position — "top", "bottom", "left", "right", or "center".
@@ -21,7 +17,7 @@ namespace end
  *   3 → "left"
  *   4 → "center"
  *
- * Registered in Application CONTEXT before config::Model construction.
+ * Registered in ENDApplication CONTEXT before ConfigModel construction.
  */
 struct Position : public jam::Bimap<Position>
 {
@@ -62,6 +58,19 @@ struct Position : public jam::Bimap<Position>
 
     static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
 
+    static const juce::Identifier getType (int key) noexcept
+    {
+        return { getInstance()->map.at (key).toUpperCase() };
+    }
+
+    // Returns the lowercase juce::Identifier for the given key, derived
+    // directly from this bimap's own map strings — used as the keybinding
+    // Identifier for the dock-position toggle actions (ActionRegistration.cpp).
+    static const juce::Identifier getPropertyId (int key) noexcept
+    {
+        return { getInstance()->map.at (key) };
+    }
+
     /** @brief Returns a fused Validator for the Position value set.
      *
      *  check  — accepts any string present in the Position bimap.
@@ -93,7 +102,7 @@ struct Position : public jam::Bimap<Position>
  *   0 → "space"   — join paths with spaces (default)
  *   1 → "newline" — join paths with newlines
  *
- * Registered in Application CONTEXT before config::Model construction.
+ * Registered in ENDApplication CONTEXT before ConfigModel construction.
  */
 struct DropMode : public jam::Bimap<DropMode>
 {
@@ -153,7 +162,7 @@ struct DropMode : public jam::Bimap<DropMode>
  *   1 → "freetype"   — autofit-hinted, stem-darkened FreeType rasterization
  *   2 → "native"     — OS-native font-smoothing (CoreText / DirectWrite)
  *
- * Registered in Application CONTEXT before config::Model construction.
+ * Registered in ENDApplication CONTEXT before ConfigModel construction.
  */
 struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
 {
@@ -175,7 +184,10 @@ struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
         };
     }
 
-    const juce::String& getDefault() const noexcept override { return map.at (FontRasterizerBackend::edgeTable); }
+    const juce::String& getDefault() const noexcept override
+    {
+        return map.at (FontRasterizerBackend::edgeTable);
+    }
 
     static const auto& get() noexcept { return getInstance()->map; }
 
@@ -221,7 +233,7 @@ struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
  *   1 → "underline" — DECSCUSR 3/4
  *   2 → "bar"       — DECSCUSR 5/6
  *
- * Registered in Application CONTEXT before config::Model construction.
+ * Registered in ENDApplication CONTEXT before ConfigModel construction.
  */
 struct CursorShape : public jam::Bimap<CursorShape>
 {
@@ -277,29 +289,22 @@ struct CursorShape : public jam::Bimap<CursorShape>
     }
 };
 
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end
-
 //==============================================================================
-namespace file
-{
-/*____________________________________________________________________________*/
-
 /**
  * @brief Registry of lua config files — 3 section keys.
- *        Top-level registry. CRTP-derived from jam::Bimap\<Config\>.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<FileConfig\>.
  *
  * Maps each enum key to its Identifier stem (e.g. init → "init") and
  * resolves the on-disk filename via getName(). All keys produce "stem.lua".
  *
  * Owns the user config directory and the lua extension. The live instance
- * is owned by end::Application — static get() resolves through
- * jam::Instance\<Config\>.
+ * is owned by ENDApplication — static get() resolves through
+ * jam::Instance\<FileConfig\>.
  *
- * getPath() is the canonical child-path resolver used by Themes and Shaders
+ * getPath() is the canonical child-path resolver used by FileThemes and FileShaders
  * to derive their own static path members.
  */
-struct Config : public jam::Bimap<Config>
+struct FileConfig : public jam::Bimap<FileConfig>
 {
     /** @brief Integer keys for all lua config section files. */
     enum
@@ -310,26 +315,26 @@ struct Config : public jam::Bimap<Config>
     };
 
     /** @brief Populates the bimap with all 3 entries. */
-    Config()
+    FileConfig()
     {
         map = {
-            { Config::display, IDref::display },
-            { Config::popup,   IDref::popup   },
-            { Config::keys,    IDref::keys    },
+            { FileConfig::display, IDref::display },
+            { FileConfig::popup,   IDref::popup   },
+            { FileConfig::keys,    IDref::keys    },
         };
     }
 
     /**
      * @brief Returns the int→Identifier-stem map from the live context instance.
      *
-     * Caller must ensure a file::Config owner is live (end::Application is).
+     * Caller must ensure a FileConfig owner is live (ENDApplication is).
      */
     static const auto& get() noexcept { return getInstance()->map; }
 
     /**
      * @brief Returns the filename for the given enum key (always "stem.lua").
      *
-     * @param key  One of the Config enum values.
+     * @param key  One of the FileConfig enum values.
      * @return     Filename string including extension (e.g. "init.lua").
      */
     static const juce::String getName (int key) noexcept
@@ -351,22 +356,25 @@ struct Config : public jam::Bimap<Config>
     static inline const juce::String extension { "lua" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (Config::display); }
+    const juce::String& getDefault() const noexcept override
+    {
+        return map.at (FileConfig::display);
+    }
 };
 
 //==============================================================================
 /**
  * @brief Registry of theme directory files — 2 section keys.
- *        Top-level registry. CRTP-derived from jam::Bimap\<Themes\>.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<FileThemes\>.
  *
  * Maps each enum key to its Identifier stem and resolves the on-disk
  * filename via getName(). All keys produce "stem.lua".
  *
- * Owns the themes root directory path (derived from File::getPath).
- * The live instance is owned by end::Application — static get() resolves
- * through jam::Instance\<Themes\>.
+ * Owns the themes root directory path (derived from FileConfig::getPath).
+ * The live instance is owned by ENDApplication — static get() resolves
+ * through jam::Instance\<FileThemes\>.
  */
-struct Themes : public jam::Bimap<Themes>
+struct FileThemes : public jam::Bimap<FileThemes>
 {
     /** @brief Integer keys for theme lua files. */
     enum
@@ -376,11 +384,11 @@ struct Themes : public jam::Bimap<Themes>
     };
 
     /** @brief Populates the bimap with both entries. */
-    Themes()
+    FileThemes()
     {
         map = {
-            { Themes::theme,   IDref::theme   },
-            { Themes::whelmed, IDref::whelmed },
+            { FileThemes::theme,   IDref::theme   },
+            { FileThemes::whelmed, IDref::whelmed },
         };
     }
 
@@ -390,7 +398,7 @@ struct Themes : public jam::Bimap<Themes>
     /**
      * @brief Returns the filename for the given enum key (always "stem.lua").
      *
-     * @param key  One of the Themes enum values.
+     * @param key  One of the FileThemes enum values.
      * @return     Filename string including extension (e.g. "theme.lua").
      */
     static const juce::String getName (int key) noexcept
@@ -410,18 +418,18 @@ struct Themes : public jam::Bimap<Themes>
     }
 
     /** @brief Themes root directory: ~/.config/end/themes/ */
-    static inline const juce::File path { Config::getPath (IDref::themes) };
+    static inline const juce::File path { FileConfig::getPath (IDref::themes) };
     /** @brief Lua extension for theme files. */
     static inline const juce::String extension { "lua" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (Themes::theme); }
+    const juce::String& getDefault() const noexcept override { return map.at (FileThemes::theme); }
 };
 
 //==============================================================================
 /**
  * @brief Registry of theme SVG graphics assets — 4 section keys.
- *        Top-level registry. CRTP-derived from jam::Bimap\<Flex\>.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<FileFlex\>.
  *
  * Maps each enum key to its Identifier stem. The on-disk filename is
  * stem + ".svg" (via getName()). The filesystem is the manifest: present
@@ -429,13 +437,13 @@ private:
  * absent files are skipped.
  *
  * Lives inside the active theme subdirectory under flex/ — no
- * independent root path. Theme resolves the directory and passes it to
+ * independent root path. FileThemes resolves the directory and passes it to
  * the scan.
  *
- * The live instance is owned by end::Application — static get() resolves
- * through jam::Instance\<Flex\>.
+ * The live instance is owned by ENDApplication — static get() resolves
+ * through jam::Instance\<FileFlex\>.
  */
-struct Flex : public jam::Bimap<Flex>
+struct FileFlex : public jam::Bimap<FileFlex>
 {
     /** @brief Integer keys for known SVG graphics assets. */
     enum
@@ -447,13 +455,13 @@ struct Flex : public jam::Bimap<Flex>
     };
 
     /** @brief Populates the bimap with all 4 entries. */
-    Flex()
+    FileFlex()
     {
         map = {
-            { Flex::tabBar,            IDref::tabBar            },
-            { Flex::tabHighlight,      IDref::tabHighlight      },
-            { Flex::tabButtonNormalOn, IDref::tabButtonNormalOn },
-            { Flex::resizerBar,        IDref::resizerBar        },
+            { FileFlex::tabBar,            IDref::tabBar            },
+            { FileFlex::tabHighlight,      IDref::tabHighlight      },
+            { FileFlex::tabButtonNormalOn, IDref::tabButtonNormalOn },
+            { FileFlex::resizerBar,        IDref::resizerBar        },
         };
     }
 
@@ -463,7 +471,7 @@ struct Flex : public jam::Bimap<Flex>
     /**
      * @brief Returns the filename for the given enum key ("stem.svg").
      *
-     * @param key  One of the Flex enum values.
+     * @param key  One of the FileFlex enum values.
      * @return     Filename string including extension (e.g. "tab_bar.svg").
      */
     static const juce::String getName (int key) noexcept
@@ -475,23 +483,23 @@ struct Flex : public jam::Bimap<Flex>
     static inline const juce::String extension { "svg" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (Flex::tabBar); }
+    const juce::String& getDefault() const noexcept override { return map.at (FileFlex::tabBar); }
 };
 
 //==============================================================================
 /**
  * @brief Shader project directory resolver — plain static utility, not a
  *        jam::Bimap\<T\> registry (no fixed pass-name set exists to map:
- *        config::Shader::loadFromPath enumerates every regular (non-hidden)
+ *        ConfigShader::loadFromPath enumerates every regular (non-hidden)
  *        file in each project directory directly, keyed by its extensionless
  *        stem -- Common/Image special-cased, every other stem a named
  *        buffer pass in lexicographic order).
  *
- * Owns the shaders root directory path (derived from File::getPath). No
+ * Owns the shaders root directory path (derived from FileConfig::getPath). No
  * live instance required — every member is static, so nothing needs
- * constructing in end::Map/end::Application's CONTEXT.
+ * constructing in Map/ENDApplication's CONTEXT.
  */
-struct Shaders
+struct FileShaders
 {
     /**
      * @brief Returns the shader project subdirectory for the given name.
@@ -505,30 +513,22 @@ struct Shaders
     }
 
     /** @brief Shaders root directory: ~/.config/end/shaders/ */
-    static inline const juce::File path { Config::getPath (IDref::shaders) };
+    static inline const juce::File path { FileConfig::getPath (IDref::shaders) };
 };
 
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace file
-
 //==============================================================================
-namespace end
-{
-/*____________________________________________________________________________*/
 struct Map
 {
-    end::Position position;
-    end::DropMode dropMode;
-    file::Config file;
-    file::Themes themes;
-    file::Flex flex;
-    end::FontRasterizerBackend fontRasterizerBackend;
-    end::CursorShape cursorShape;
+    Position position;
+    DropMode dropMode;
+    FileConfig file;
+    FileThemes themes;
+    FileFlex flex;
+    FontRasterizerBackend fontRasterizerBackend;
+    CursorShape cursorShape;
     jam::map::ImageResample imageResample;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;
     jam::map::MouseButton mouseButton;
 };
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end

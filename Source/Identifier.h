@@ -48,6 +48,7 @@
     X (resizeBar, "resize_bar")                    \
     X (resizeBarHighlight, "resize_bar_highlight") \
     X (resizeBarThickness, "resize_bar_thickness") \
+    X (sidebarSize, "sidebar_size")                \
     X (borderColour, "border_colour")              \
     X (borderWidth, "border_width")                \
     X (scrollbackLines, "scrollback_lines")        \
@@ -69,9 +70,9 @@
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
+    X (sessions, "sessions")                       \
     X (windowFx, "window_fx")                      \
     X (size, "size")                               \
-    X (view, "view")                               \
     X (ligatures, "ligatures")                     \
     X (embolden, "embolden")                       \
     X (lineHeight, "line_height")                  \
@@ -156,6 +157,8 @@
     X (zoomReset, "zoom_reset")                        \
     X (newWindow, "new_window")                        \
     X (newTab, "new_tab")                              \
+    X (newTerminal, "new_terminal")                    \
+    X (newPane, "new_pane")                            \
     X (prevTab, "prev_tab")                            \
     X (nextTab, "next_tab")                            \
     X (renameTab, "rename_tab")                        \
@@ -264,7 +267,7 @@
 // Shader pass name identifiers.
 // common ("Common") and image ("Image") shadow jam::ID lowercase versions intentionally —
 // these match the on-disk filename stems (Common.frag/Image.frag, uppercase first
-// letter) config::Shader::loadFromPath enumerates. Every OTHER buffer-pass name is
+// letter) ConfigShader::loadFromPath enumerates. Every OTHER buffer-pass name is
 // an arbitrary author-chosen filename stem, not an Identifier constant here —
 // jam::vulkan::ShaderCompiler reads them directly off shaderState's property names
 // (jam_vulkan/shader/jam_VulkanShaderCompiler.cpp).
@@ -291,11 +294,11 @@
 // IDtype::mouse below, automatic — no separate wiring needed). enabled/zoom
 // are plain bool/string properties (auto type-validated by jam::Model::
 // fromLua, no bimap); imouse/orbit/reset are jam::map::MouseButton-validated
-// (config::Model::validators). Button-name values ("left"/"middle"/"right"/
+// (ConfigModel::validators). Button-name values ("left"/"middle"/"right"/
 // "none") and zoom's fixed "wheel" spelling reuse jam::ID directly — never
 // declared here (jam::ID::left/middle/right/none already exist; "wheel" is
 // documented-only, never parsed as a live selector — see display.lua's own
-// mouse.zoom comment). end::Model's own runtime ID::zoom (IDENTIFIER_MODEL
+// mouse.zoom comment). ENDModel's own runtime ID::zoom (IDENTIFIER_MODEL
 // below) is reused verbatim for this config key too — same Identifier,
 // different ValueTree location, no collision.
 #define IDENTIFIER_MOUSE(X) \
@@ -319,15 +322,19 @@
     X (acrylic11, "acrylic11")                               \
     X (mica, "mica")
 
-// Runtime state keys (end::Model)
-#define IDENTIFIER_MODEL(X)         \
-    X (focusedPane, "focused_pane") \
-    X (focus, "focus")              \
-    X (zoom, "zoom")                \
-    X (renderer, "renderer")        \
+// Runtime state keys (ENDModel)
+// visible dropped from this block — jam::ID::visible (jam_IdentifierLayout.h)
+// now carries it; END reuses that row directly rather than re-declaring it
+// (this file's own top-of-file exclusion rule).
+#define IDENTIFIER_MODEL(X)                   \
+    X (focusedPane, "focused_pane")           \
+    X (focusedSession, "focused_session")     \
+    X (focusedTab, "focused_tab")             \
+    X (zoom, "zoom")                          \
+    X (renderer, "renderer")                  \
     X (message, "message")
 
-// terminal::Model schema — names not already carried by jam::ID
+// TerminalModel schema — names not already carried by jam::ID
 // (jam_IdentifierTerminal.h already
 // hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/
 // keyboardSetAllFlags/keyboardSetGivenFlags/keyboardResetGivenFlags/

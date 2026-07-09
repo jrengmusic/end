@@ -5,13 +5,9 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
-namespace end
-{
-/*____________________________________________________________________________*/
+ENDApplication::ENDApplication() {}
 
-Application::Application() {}
-
-void Application::shutdown()
+void ENDApplication::shutdown()
 {
     // The one real window-close seam this single-window app has: shutdown()
     // runs strictly before window's own automatic (member-declaration-order)
@@ -24,13 +20,13 @@ void Application::shutdown()
     if (auto* peer { window->getPeer() })
         vulkanEngine->removePeer (peer);
 }
-void Application::systemRequestedQuit() { quit(); }
-const juce::String Application::getApplicationName() { return ProjectInfo::projectName; }
-const juce::String Application::getApplicationVersion() { return ProjectInfo::versionString; }
-bool Application::moreThanOneInstanceAllowed() { return true; }
+void ENDApplication::systemRequestedQuit() { quit(); }
+const juce::String ENDApplication::getApplicationName() { return ProjectInfo::projectName; }
+const juce::String ENDApplication::getApplicationVersion() { return ProjectInfo::versionString; }
+bool ENDApplication::moreThanOneInstanceAllowed() { return true; }
 
 //==============================================================================
-void Application::initialise (const juce::String& commandLine)
+void ENDApplication::initialise (const juce::String& commandLine)
 {
 #if JUCE_WINDOWS
     {
@@ -48,8 +44,19 @@ void Application::initialise (const juce::String& commandLine)
 #endif
     initialiseVulkan();
 
-    auto* view { new View (model) };
-    window.reset (new end::Window { view, ProjectInfo::projectName });
+    // Bootstrap contract (state-first): the first Session must exist before
+    // any View projects it — getActiveSession() asserts otherwise. Nexus's
+    // own ctor creates none (a Session's Processor binds ConfigModel& at
+    // construction, Main.h's own ordering comment), so this is the earliest
+    // point after config exists where the first Session can safely be
+    // created, immediately before the first View resolves it below.
+    nexus.createSession();
+
+    // Model moved to Nexus (PLAN-session-layer.md Step 4) — Instance access
+    // for consumers is unchanged, so View resolves it the same way every
+    // other singleton consumer does (config, LookAndFeel).
+    auto* view { new ENDView (*ENDModel::getInstance()) };
+    window.reset (new ENDWindow { view, ProjectInfo::projectName });
     window->setVisible (true);
 }
 
@@ -72,7 +79,7 @@ static constexpr double highRefreshRateThresholdHz { 120.0 };
 static constexpr double indeterminateRefreshRateHz { 60.0 };
 
 #if JUCE_MAC
-double Application::queryPrimaryDisplayRefreshRateHz() noexcept
+double ENDApplication::queryPrimaryDisplayRefreshRateHz() noexcept
 {
     CVDisplayLinkRef displayLink { nullptr };
     const auto createResult { CVDisplayLinkCreateWithCGDisplay (CGMainDisplayID(), &displayLink) };
@@ -93,7 +100,7 @@ double Application::queryPrimaryDisplayRefreshRateHz() noexcept
     return refreshRateHz;
 }
 #else
-double Application::queryPrimaryDisplayRefreshRateHz() noexcept
+double ENDApplication::queryPrimaryDisplayRefreshRateHz() noexcept
 {
     const auto* primaryDisplay { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
 
@@ -103,7 +110,7 @@ double Application::queryPrimaryDisplayRefreshRateHz() noexcept
 }
 #endif
 
-void Application::initialiseVulkan()
+void ENDApplication::initialiseVulkan()
 {
     // Refresh-rate-derived per-frame time budget, detected once here (never
     // polled) — feeds VulkanEngine's session-locked MSAA calibration.
@@ -113,9 +120,9 @@ void Application::initialiseVulkan()
                                          : standardRefreshFrameBudgetMs };
 
     // Vulkan pipeline cache — resolved under END's own config directory
-    // (file::Config::path, ~/.config/end/), never decided by JAM. Explicit
+    // (FileConfig::path, ~/.config/end/), never decided by JAM. Explicit
     // per VulkanEngine's contract, mirroring targetFrameBudgetMs above.
-    const auto cacheDir { jam::File::getOrCreateDirectory (file::Config::path, IDref::cache) };
+    const auto cacheDir { jam::File::getOrCreateDirectory (FileConfig::path, IDref::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, IDref::cache)) };
     const bool canUseGpu { config.getValue (IDtype::display, ID::gpu)
@@ -132,9 +139,6 @@ void Application::initialiseVulkan()
     lookAndFeel.registerTypeface (*jam::GlyphAtlas::getInstance());
 }
 
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace end
-
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (end::Application)
+START_JUCE_APPLICATION (ENDApplication)
