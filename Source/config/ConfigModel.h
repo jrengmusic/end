@@ -235,6 +235,14 @@ public:
         add (IDtype::mouse, ID::orbit, jam::map::MouseButton::getValidator());
         add (IDtype::mouse, ID::reset, jam::map::MouseButton::getValidator());
 
+        jam::lua::Validator sizeFormat;
+        sizeFormat.format = [] (const juce::var& v)
+        {
+            const auto [width, height] = jam::Size<int16_t> { v };
+            return juce::String (width) + "|" + juce::String (height);
+        };
+        add (IDtype::window, ID::size, sizeFormat);
+
         return v;
     }();
 

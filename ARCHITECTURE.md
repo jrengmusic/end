@@ -295,122 +295,54 @@ terminal::Model (IDtype::terminal, per-pane, paired under PANE)
 
 - **terminal::Model** — owned by `terminal::Processor`, one per pane. NOT a globally-owned instance (not `jam::Instance<T>`) — multiple concurrent terminals each own independent terminal::Model instances. VT state SSOT for the terminal (RFC-terminal-editor.md P12). Atomics (reader) and ValueTree (message) follow the scalar-data pattern. Direction A/B as described in Cross-Thread Data Contract.
 
-### Session Layer — Landed Contract (2026-07-07)
+### Session Layer — Landed Contract (2026-07-09)
 
-Supersedes both the original "Ratified Target Topology" block (a
-SESSIONS-authored parallel topology — DEAD, it broke the Component–Model 1:1
-mirror) and the interim "Ratified Contract" block that preceded
-implementation. Describes the landed code:
+Supersedes the 2026-07-07 "Landed Contract" block and the 2026-07-08
+"Attachment Contract — Binding vs Placement" block. Both described the
+component-authored mirror with placement-token `jam::Model::Attachment`
+(ctor `appendChild` / dtor `removeChild`) — DEAD: `Attachment` no longer
+places or removes state. Describes the landed code:
 
-- **The GUI-authored Component–Model 1:1 mirror IS the tree shape.** Every
-  Component authors its own state; `jam::Model::Attachment`'s parent-walk
-  places it under its nearest `Model::Component` ancestor. `end::Tabs`
-  ADOPTS the active `end::Session`'s own `TABS` tree as the mirror ROOT
-  (`Tabs::Tabs`'s adopt ctor) — every component-authored `TAB`/`PANES`/
-  `PANE`/`TERMINAL` state grafted below it lands inside `SESSION` state
-  automatically, because that adoption is the one seam connecting the
-  GUI-authored mirror to session state: `TAB` (`end::Panes`'s own state —
-  `jam::ID::name` for rename) → flat `PANE` leaves, each carrying an exact
-  pixel `jam::ID::bounds` (`jam::Bounds<int16_t>` packed into a
-  `Parameter<int64_t>`, authored solely by `jam::PaneManager`) and, if
-  split-born, one `RESIZER` child sharing its own uuid (`jam::ID::edge` +
-  `jam::ID::position`, `jam::PaneManager::split()`) — `end::TerminalView`
-  (`jam::PaneComponent`'s own state — `jam::ID::id`, `ID::focus`) →
-  `TERMINAL` (the paired `terminal::Processor` tree, grafted at
-  `terminal::View::attach()`, never at construction).
-- **A terminal = one UUID pairing Processor (engine) + terminal::View
-  (editor).** Their state is ONE tree — UI state and VT state PAIRED:
-  `terminal::Processor`'s Model tree grafts under the `PANE` leaf carrying
-  the same uuid (`terminal::View::attach()`'s own `terminalAttachment`).
-  Never two trees.
-- **Create machine (`ENDView::newTerminal()`, the SSOT).** Init (ctor
-  `callAsync` block) dispatches `ID::newTab` through the action registry —
-  the SAME route the `newTab`/split keybindings ride, so init never
-  diverges from the keybinding's own path. It mints a `jam::UUID` and calls
-  the active `Session`'s explicit verb `newTerminal (uuid)` (ARCHITECT
-  ruling 2026-07-08: verbs are ACTIONS, never state-tree signal parameters —
-  the former `ID::newTerminal` request slot is dead), so the
-  `TerminalProcessor` pairing the uuid EXISTS the moment the call returns
-  (engine-first by construction). Downstream tells complete the pair:
-  `Tabs` + `Panes` child verbs for a new tab, or pane verb + `jam::
-  PaneManager::split()` for a split — then `TerminalView::attach
-  (session.get (uuid))`.
-- **`end::Session` — gui-less engine owner, a `jam::Model::Listener` ONLY**
-  on `end::Model`'s root (registered as the LAST ctor statement). Events
-  map: `ID::newTerminal` → constructs a `terminal::Processor` for the
-  carried uuid (no-op if already owned); `ID::focusedPane` → tells every
-  owned Processor its own `setFocus()` edge (`paneUuid == focused`) —
-  DECSET-1004 authority lives in `terminal::Processor::setFocus()` itself
-  (edge-detected, mode-gated), never in Session. Surface: `get (uuid)`
-  resolves the owning Processor; the public `state` carries identity plus
-  the `ID::newTerminal` request slot. NO lifecycle verb exists on `Session`
-  — destruction is deliberately undesigned, engines persist once created
-  (`Session`'s own class doc: "there is no remove verb"). Close actions
-  (`end::Panes::removePane()`/`end::Tabs::removeCurrentTab()`) remove views
-  and topology only, never the owning Processor.
-- **View lifetime binds to downstream tells**
-  (`createPane()`/`split()`/`removePane()`/`addNewTab()`/
-  `removeCurrentTab()`), NEVER to raw `valueTreeChildAdded`/
-  `valueTreeChildRemoved` — `jam::PaneManager`'s own split/remove
-  re-parenting transits (a leaf moving under a fresh `PANES` container, or
-  a promoted sibling's subtree splicing back onto its grandparent) are
-  harmless geometry churn: the `jam::Model::Attachment` pairing a leaf's
-  Component to its own state survives re-parenting untouched.
-- **`jam::PaneManager`** — the split-container tree IS the owning
-  Component's own state (root type-agnostic — e.g. a `TAB` tree whose
-  direct children are attached `PANE` leaves and/or `PANES` containers,
-  `jam_PaneManager.h`'s own class doc). It authors ONLY `PANES`
-  split-container geometry (`split()`/`remove()`) — every leaf is authored
-  and parent-attached by whoever owns that leaf's own Component
-  (`end::PaneView`'s fresh ctor, `end::Panes::createPane()`'s Attachment),
-  never by `PaneManager`. Every value it writes is a registered
-  `jam::Model` parameter, never a plain property. Leaf resolution rides
-  `jam::Model::getChildWithID()`.
-- **`ID::shellExited`** exists as a Parameter (carried on the paired
-  `TERMINAL` tree, `terminal::Processor` authors it on TTY EOF) but nothing
-  consumes it yet — Processor/Session destruction on shell death is a
-  pending pass, not yet designed.
-- **Nexus** owns `end::Model` + every `end::Session`. Views are ephemeral;
-  engines persist (daemon, Phase 15 — `bbef9ad` holds the recoverable
-  snapshot serialization).
-
-### Attachment Contract — Binding vs Placement (Ratified 2026-07-08)
-
-Two different animals share the word "attachment." The plugin-world rule maps
-exactly: a PluginEditor owns SliderAttachments (bindings) but never owns
-anything whose destructor deletes plugin state (placement).
-
-Every placement is decided by one question: **whose death removes this state?**
-
-1. **Binding attachments** (`jam::Model::ParameterAttachment` and kin) — FREE.
-   Any component owns any number; lifetime = component lifetime; destruction
-   disconnects a listener, never mutates state.
-2. **Placement tokens** (`jam::Model::Attachment`: ctor `appendChild`, dtor
-   `removeChild`) — exist ONLY where an owning OBJECT's lifetime defines the
-   state's placement. Exactly two in this app:
-   - `Session` ↔ its `SESSION` subtree (`removeSession` kills the object →
-     subtree leaves the tree) — `sessionAttachment`.
-   - Processor entry ↔ its `TERMINAL` graft (`closePane` kills the processor →
-     `TERMINAL` leaves) — held in `Session`'s uuid-keyed map beside the
-     processor. *(Migration in flight: current code still holds this token in
-     `TerminalView::attach()` — a contract violation: view death amputates
-     session state.)*
-3. **Permanent placement** — bare `appendChild`, NO token: Nexus bootstrap
-   (WINDOW, SESSIONS, dock edges, OVERLAY), `Session`'s TABS child. A token
-   here would promise a removal that must never happen.
-4. **Verb-driven placement** — verbs do it directly, NO token: TAB and PANE
-   state live and die by `add (uuid)` / `remove (uuid)`, not by any object's
-   death. The verb authors state into place and removes it (`removeChild`);
-   no RAII object exists in between. *(Migration in flight: the parallel
-   `attachments` Owners in `Tabs`/`Panes` are this rule's violation — they
-   never corresponded to a real lifetime, which is why they were bug surface.)*
-
-**Rehydrate corollary:** adopt paths create ZERO placement — the state is
-already placed; adoption is pure binding. Create and rehydrate differ only in
-whether the verb authors state first, never in attachment behavior.
-
-**Token census for the whole app: one per Session + one per Processor.**
-Everything else is appendChild-permanent, verb-direct, or a binding.
+- **Mirror law: the component tree is a pure function of the state tree.**
+  One component type per row type, one parent-child edge mirrored per level:
+  `SESSIONS` ↔ `ENDView` (`jam::HashMap<int64_t, std::unique_ptr<SessionView>>
+  sessions` + per-child `jam::Model::Attachment`), `SESSION` (+ its `TABS`
+  child) ↔ `end::SessionView`, `TAB` ↔ `end::TabView`, `PANE` ↔
+  `end::TerminalView` (PANE level pending — the pane data structure is
+  in-flight, ARCHITECT-owned; `TerminalView` is currently a uuid-painting
+  stub with no state row).
+- **`jam::Model::Component` (jam_Model.h) — build-or-adopt.** The 5-param
+  ctor `(self, model, parentState, type, uuid)` searches `parentState`'s
+  direct children for `type` + matching `jam::ID::id`: adopts when found,
+  else creates the row, stamps `jam::ID::id` (before any
+  `createAndAddParameter` — the grouping-order requirement is internal, no
+  caller hand-stamping), and appends under `parentState`. Fresh and restored
+  state ride the same path. The 3-param adopt-existing ctor remains for
+  root-level adoption (`ENDView` ↔ WINDOW, `MessageOverlay` ↔ OVERLAY).
+- **`jam::Model::Attachment` — pure connector (JUCE attachment contract).**
+  Ctor binds an already-placed row's component (asserts the row has a
+  parent) and calls `sendInitialUpdate()` (resized + repaint); dtor
+  disconnects only — NEVER `removeChild`. State survives every view death
+  (the stateInformation contract). Each parent owns the Attachments of its
+  children (`ENDView.attachments`, `SessionView.attachments`), exactly as a
+  PluginEditor owns SliderAttachments.
+- **Row removal is an explicit verb only** — `ID::closeTab` →
+  `SessionView::remove (uuid)` → `state.removeChild`. No destructor removes
+  state.
+- **`end::Session` = engine (P).** SESSION row carries its `jam::ID::id`
+  parameter only — zero UI vocabulary, no TABS authoring. Owns
+  `terminal::Processor`s keyed by the terminal's own uuid
+  (`newTerminal`/`removeTerminal` = try_emplace/erase only).
+- **Nexus = host.** Owns `ENDModel` + every `Session`
+  (`createSession`/`getSession`/`removeSession`/`getActiveSession`).
+  SESSION row placement under SESSIONS happens in `createSession` —
+  engine-side authorship, the host verb.
+- **Terminal lifecycle is verb-bound, one call stack per transition:**
+  `ID::newPane` → `ID::newTerminal` → `Session::newTerminal (uuid)` (birth);
+  `ID::closePane` → `Session::removeTerminal (uuid)` + `TabView::remove
+  (uuid)` (death). No view pokes the engine — `TabView::remove` touches only
+  its own pool. `ID::closeTab` does not yet retire the tab's terminals
+  (PANE-level mirror pending, see above).
 
 **Singular focus (ratified same date):** `focused_pane`/`focused_tab`/
 `focused_session` are SINGULAR uuid-valued parameters — the value IS the
@@ -436,7 +368,7 @@ jam::Model is a 1:1 APVTS analog for multi-type parameters. Key contracts:
 - **ParameterAdapter** (cpp-internal) — bridges Parameter↔VT. Bidirectional: atomic→VT (flush timer), VT→atomic (valueTreePropertyChanged reverse sync). Loopback-guarded, equality-gated.
 - **ParameterAttachment** (public) — per-parameter listener bridge. Takes ParameterBase& + callback. Delivers changes on MESSAGE THREAD via AsyncUpdater. Does NOT create/destroy parameters.
 - **Model::Listener::parameterChanged** — fires on the calling thread when parameter value changes. Processor, View, and other listeners receive parameter events through this.
-- **Flush timer** — 10 Hz. Iterates adapters, writes dirty atomics to VT properties.
+- **Flush timer** — adaptive 60/120 Hz. Iterates adapters, writes dirty atomics to VT properties.
 
 ### Packed Value Transport — jam::Size
 
@@ -916,7 +848,7 @@ CodeView never sees a Video-grid coordinate. Session translates at the boundary.
 | JUCE Audio Plugin | END |
 |---|---|
 | Host (DAW) | `Nexus` (owns end::Model + all Sessions) |
-| Project / session state | `end::Session` (gui-less: uuid-keyed `terminal::Processor` HashMap + the `TABS` tree `end::Tabs` adopts as its mirror root) |
+| Project / session state | `end::Session` (gui-less: uuid-keyed `terminal::Processor` HashMap + the SESSION row `end::SessionView` builds-or-adopts its `TABS` child under) |
 | PluginProcessor | `terminal::Processor` (owns terminal::Model, document, CellFifo, Resizer, TTY, drain) |
 | APVTS | `jam::Model` (terminal::Model, end::Model, config::Model) |
 | APVTS::Listener | `jam::Model::Listener` |

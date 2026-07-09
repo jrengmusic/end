@@ -44,17 +44,6 @@ void ENDApplication::initialise (const juce::String& commandLine)
 #endif
     initialiseVulkan();
 
-    // Bootstrap contract (state-first): the first Session must exist before
-    // any View projects it — getActiveSession() asserts otherwise. Nexus's
-    // own ctor creates none (a Session's Processor binds ConfigModel& at
-    // construction, Main.h's own ordering comment), so this is the earliest
-    // point after config exists where the first Session can safely be
-    // created, immediately before the first View resolves it below.
-    nexus.createSession();
-
-    // Model moved to Nexus (PLAN-session-layer.md Step 4) — Instance access
-    // for consumers is unchanged, so View resolves it the same way every
-    // other singleton consumer does (config, LookAndFeel).
     auto* view { new ENDView (*ENDModel::getInstance()) };
     window.reset (new ENDWindow { view, ProjectInfo::projectName });
     window->setVisible (true);

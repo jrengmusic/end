@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "action/ActionRegistry.h"
 #include "config/ConfigModel.h"
 #include "end/ENDModel.h"
 #include "end/ENDView.h"
@@ -38,19 +39,14 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
-    // Nexus (owning ENDModel, moved in from this class — PLAN-session-layer.md
-    // Step 4) MUST construct before ConfigModel: ConfigModel::appModel
-    // (Source/config/ConfigModel.h) is a ENDModel& bound via
-    // *ENDModel::getInstance() in its own member initializer, evaluated at
-    // ConfigModel construction time — ENDModel must already exist (i.e.
-    // Nexus, its owner, already self-registered as jam::Instance<ENDModel>)
-    // or that dereference is undefined behaviour. Nexus's own ctor creates zero
-    // Sessions (bootstrap-only: ENDModel + WINDOW/SESSIONS nodes) — the first
-    // Session is ENDApplication's own responsibility, created in initialise() once
-    // config exists (state-first: a Session must exist before any View
-    // projects it).
+    // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
+    // ENDModel& bound via *ENDModel::getInstance() in its own member
+    // initializer, evaluated at ConfigModel construction time — ENDModel
+    // (owned by Nexus) must already exist or that dereference is undefined
+    // behaviour.
     Nexus nexus;
     ConfigModel config;
+    ActionRegistry registry;
 
     //==============================================================================
     ENDLookAndFeel lookAndFeel;

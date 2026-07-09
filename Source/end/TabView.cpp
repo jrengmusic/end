@@ -1,25 +1,21 @@
-#include "end/Panes.h"
-#include "Nexus.h"
+#include "end/TabView.h"
 
-Panes::Panes (jam::UUID uuid, jam::Model& m)
-    : jam::Model::Component (*this, m, IDtype::tab, uuid)
+TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree tabsState)
+    : jam::Model::Component (*this, m, tabsState, IDtype::tab, uuid)
     , paneManager (m, state, *this)
 {
     setName (IDtype::tab.toString());
     model.createAndAddParameter<jam::ParameterText> (state, jam::ID::name, juce::String {});
 
-    // Per-tab last-focused-pane memory (0 sentinel = none yet) — the SOLE
-    // author is ENDView's own jam::ID::focus events-map reaction (EventRegistration.cpp);
-    // Tabs::currentTabChanged reads it back to restore keyboard focus on tab switch.
     model.createAndAddParameter<jam::Parameter<int64_t>> (state, ID::focusedPane, int64_t { 0 });
 
     registerEvents();
 }
 
-Panes::~Panes() {}
+TabView::~TabView() = default;
 
 //==============================================================================
-jam::UUID Panes::add()
+jam::UUID TabView::add()
 {
     jam::UUID uuid;
     auto view { std::make_unique<TerminalView> (uuid) };
@@ -27,7 +23,7 @@ jam::UUID Panes::add()
     addAndMakeVisible (*view);
 
     auto* pane { view.get() };
-    panes.try_emplace (uuid.value, std::move (view));
+    panes.try_emplace (uuid, std::move (view));
 
     pane->toFront (true);
     resized();
@@ -35,19 +31,19 @@ jam::UUID Panes::add()
     return uuid;
 }
 
-jam::UUID Panes::add (jam::UUID anchor, const juce::Identifier& edge)
+jam::UUID TabView::add (jam::UUID anchor, const juce::Identifier& edge)
 {
     return {};
 }
 
 //==============================================================================
-void Panes::resized()
+void TabView::resized()
 {
     for (auto& [key, view] : panes)
         view->setBounds (getLocalBounds());
 }
 
-void Panes::visibilityChanged()
+void TabView::visibilityChanged()
 {
     if (isShowing())
     {
@@ -59,18 +55,17 @@ void Panes::visibilityChanged()
 }
 
 //==============================================================================
-void Panes::remove (jam::UUID uuid)
+void TabView::remove (jam::UUID uuid)
 {
-    Nexus::getInstance()->getActiveSession().removeTerminal (uuid);
-    panes.erase (uuid.value);
+    panes.erase (uuid);
     resized();
 }
 
 //==============================================================================
-void Panes::registerEvents() {}
+void TabView::registerEvents() {}
 
 //==============================================================================
-TerminalView* Panes::findFocusedPane() const
+TerminalView* TabView::findFocusedPane() const
 {
     for (auto& [key, view] : panes)
         if (view->hasKeyboardFocus (true))
@@ -79,14 +74,14 @@ TerminalView* Panes::findFocusedPane() const
     return nullptr;
 }
 
-TerminalView* Panes::findNearestPane (const juce::Identifier& direction,
-                                      TerminalView* focused) const
+TerminalView* TabView::findNearestPane (const juce::Identifier& direction,
+                                        TerminalView* focused) const
 {
     return nullptr;
 }
 
 //==============================================================================
-void Panes::focusPane (const juce::Identifier& direction)
+void TabView::focusPane (const juce::Identifier& direction)
 {
     auto* focused { findFocusedPane() };
     auto* nearest { findNearestPane (direction, focused) };
@@ -96,16 +91,16 @@ void Panes::focusPane (const juce::Identifier& direction)
 }
 
 //==============================================================================
-int Panes::getPaneCount() const noexcept { return static_cast<int> (panes.size()); }
+int TabView::getPaneCount() const noexcept { return static_cast<int> (panes.size()); }
 
 //==============================================================================
-TerminalView& Panes::get (jam::UUID uuid)
+TerminalView& TabView::get (jam::UUID uuid)
 {
-    jassert (panes.contains (uuid.value));
-    return *panes.at (uuid.value);
+    jassert (panes.contains (uuid));
+    return *panes.at (uuid);
 }
 
-TerminalView& Panes::get()
+TerminalView& TabView::get()
 {
     jassert (not panes.empty());
     return *panes.begin()->second;

@@ -2,7 +2,109 @@
 
 ---
 
-## Sprint 65: Video Zero-Model Mediation + Naming Canon + Stateless View — Live Interactive Terminal ✅
+## Sprint 67: APVTS-Isomorphic Model Contract + Session Tree Mirror + newSession Action Chain ✅
+
+**Date:** 2026-07-09
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: design session with ARCHITECT (PluginProcessor/Editor isomorphism → mirror law); /truth verified stateInformation contract at JUCE source; diagnosed jam::Model::Attachment as placement-not-attachment (no JUCE analog); diagnosed the adapter-clobber bug (childAdded restoring ALL adapters from stale VT); wrote ARCHITECTURE.md landed-contract rewrite; verified every Engineer output line-by-line before reporting
+- Pathfinder (1): jam::Model::Component/Attachment/ParameterAttachment consumer survey across jam+END+TIT+CAKE+WHATDBG+CAROLINE — Attachment had ZERO instantiations (verified independently)
+- Engineer (12 dispatches): comment purges; jam Component build-or-adopt + Attachment pure-connector rewrite; END rename+mirror rewrite; TABS-node dissolve; adapter-clobber + lane-read fix; UUID hash + 8-map key migration; newSession action chain; Validator→jam_core templatization; ValueTreeMonitor formats; END size-formatter wiring; ActionRegistry Instance migration; registry→actions rename
+- Auditor (1): full jam+END surface — 2 findings (newPane null-deref guard, `~TabView() {}` vs `= default`), both fixed and verified
+
+### Files Modified (~30 total)
+**JAM:**
+- `jam_data_structures/model/jam_Model.h` — Component 5-param build-or-adopt ctor (id stamped before createAndAddParameter — grouping trap dead); Attachment = pure connector (bind + sendInitialUpdate, dtor `= default`, NEVER removeChild); poison doxygen deleted; fromLua signatures → `Validators<Model>*`
+- `jam_data_structures/model/jam_Model.cpp` — fromLua bodies out-of-line; `updateAdapterConnections (root)`; valueTreeChildAdded consumes payload (rebinds only the added subtree — un-flushed-atomic clobber fixed)
+- `jam_data_structures/model/jam_ModelUtils.cpp` — Attachment removeChild dtor deleted
+- `jam_data_structures/model/jam_Validator.h` + `jam_data_structures.h` — Validator moved out, jam::lua aliases, include reorder (Model before Validator)
+- `jam_core/misc/jam_Validator.h` (NEW) — `Validator<Model>` {check, **format**, create} + `Validators<Model>`; `jam_core/jam_core.h` include
+- `jam_core/misc/jam_UUID.h` — `std::hash<jam::UUID>`
+- `jam_gui/layout/jam_PaneManager.h` — layout() components param UUID-keyed (internal maps untouched — ARCHITECT's canvas)
+- `jam_debug/jam_ValueTreeMonitor.h/.cpp`, `jam_debug.h` — formats map, duck-typed setFormats harvester, Item paint format-aware, Widget forwarder
+
+**END:**
+- `Source/end/SessionView.h/.cpp` (renamed from Tabs) — ADOPTS the SESSION row (TABS node dissolved, dupe id gone); focusedTab on SESSION; owns per-tab `Model::Attachment`s; row removal = explicit verb only
+- `Source/end/TabView.h/.cpp` (renamed from Panes) — build-or-adopts TAB row under SESSION; `remove()` upward Nexus poke DELETED
+- `Source/end/Session.h/.cpp` — TABS authoring removed (engine holds id param only); UUID-keyed processors
+- `Source/end/ENDView.h/.cpp` — `sessions`/`attachments` UUID-keyed maps replace `Tabs tabs`; `getActiveSessionView()` reads the parameter atomic (writer lane); Instance reference members (`actions`, `nexus`, config pattern); session-view construction moved into ID::newSession action
+- `Source/end/ActionRegistration.cpp` — ID::newSession registered (SSOT: createSession → SessionView build/attach → run newTab); chain newSession→newTab→newPane→newTerminal; closePane retires terminal + view in one verb stack; comments purged
+- `Source/Identifier.h` — `X (newSession, "new_session")`
+- `Source/action/ActionRegistry.h` — `: public jam::Instance<ActionRegistry>`
+- `Source/Main.h/.cpp` — ENDApplication owns `ActionRegistry registry` (after config); bootstrap createSession deleted (rides the action); stale comments trimmed
+- `Source/Nexus.h`, `Source/end/EventRegistration.cpp`, `Source/end/MessageOverlay.h`, `Source/config/ConfigModel.h` — comment purges; MessageOverlay config member; (WINDOW, size) format entry → monitor shows `w|h`
+- `ARCHITECTURE.md` — Session Layer landed contract 2026-07-09 (dead 07-07/07-08 placement-token blocks replaced)
+
+### Alignment Check
+- [x] BLESSED principles followed — B: placement/lifecycle split verb-vs-dtor corrected; S(SSOT): one creation path bootstrap-to-shortcut; E: no view pokes engine
+- [x] NAMES.md adhered — all new names ARCHITECT-ratified (SessionView/TabView map, newSession, actions rename, sizeFormat)
+- [x] MANIFESTO.md principles applied
+- [x] Doxygen discipline: ZERO new doxygen — banned until ARCHITECT ratifies the structure
+
+### Problems Solved
+- cmd+T/cmd+W dead: `valueTreeChildAdded` → `updateAdapterConnections` restored EVERY adapter from stale VT on any appendChild, clobbering the un-flushed `focusedSession` atomic back to 0; fixed by consuming the event payload + reading the atomic lane in `getActiveSessionView()`
+- TABS dupe-id node: SessionView now adopts the SESSION row directly — TAB rows land under SESSION
+- jam::Model::Attachment was placement-not-binding (view death amputated state, violating the stateInformation contract) — now JUCE-attachment-isomorphic
+- jam_debug→Validator layering: jam_debug depends only on jam_core, so Validator templatized DOWN to jam_core; fwd-decl violation died with it
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (untouched, carried)
+- PANE-level mirror + closeTab terminal retirement — ARCHITECT-ruled: waits for his handcoded pane data structure
+- Stale root docs `PLAN-session-layer.md`/`PLAN-terminal-editor.md`/`RFC-terminal-editor.md` — deletion pending ARCHITECT's word
+
+---
+
+## Sprint 66: SMX Restructure + Pane-Layer Saga → Working Skeleton, Edge-Scalar Spec Ratified ✅
+
+**Date:** 2026-07-07 → 2026-07-09
+**Duration:** multi-day session (4 rewinds)
+
+### Agents Participated
+- COUNSELOR: carried the pane-layer design through four rewrites (pane∕bar pair → RESIZER-as-pane-child → 1D edge-scalar → working skeleton); Librarian-grounded the Blender/tmux isomorphism research that produced the ratified edge-scalar model; direct fixes: Tabs.h missing ENDLookAndFeel include, ENDLookAndFeel.h:229 `override`; PROTOCOL RECORD: 3+ failures — constraints lost in delegation prose (getChildWithProperty mandated against the HashMap ruling), outputs reported from BRIEFs without file verification (doxygen shipped against explicit NO), invented names/patterns treated as canon (adoptTabs, Slot tables, getContentBounds); verification gate now hard law
+- Pathfinder: none this sprint (prior-session surveys carried)
+- Librarian (2): tmux layout.c / Blender screen_edit.cc topology architecture at source (file:line — ScrVert shared-coordinate model = the isomorph); juce/jam API inventory (leftTopRightBottom, setProperty equality gate, getChildWithProperty, HashMap surface, identifier canon)
+- Engineer (~10 dispatches): SCRATCH pane∕bar rewrite (superseded); END consumers (superseded); audit cleanup (getState dead getter, "node" sweep, Nexus.h PLAN-reference comment); EDGE-scalar jam rewrite (rejected — hand-rolled, doxygen violation); skeleton pass; adoptTabs deletion + Tabs value member; working-skeleton restore (Panes/TerminalView/Session/ActionRegistration); Session pane-param rename
+- Auditor (1): SCRATCH-era pass (ONE-AUTHOR census clean; 4 findings false-positive pre-existing names, 3 real → fixed)
+
+### Files Modified (surviving surface)
+**END:**
+- `Source/end/Session.h/.cpp` — engine-only: TerminalProcessors keyed by terminal uuid; newTerminal = try_emplace, removeTerminal = erase; tree walking and focusedPane lane DELETED; params renamed uuid
+- `Source/end/Panes.h/.cpp` — working stub container: TerminalView pool, full-rect single pane, splitters/nav no-op; PaneManager member dormant; TAB node + name param authoring kept (titles work)
+- `Source/terminal/TerminalView.h/.cpp` — dumb stub: `explicit TerminalView (jam::UUID)`, paints its uuid, zero model coupling
+- `Source/end/ENDView.h/.cpp` — `Tabs tabs` plain value member (adoptTabs helper DELETED); tabs full window rect; WINDOW pane machinery dormant
+- `Source/end/ActionRegistration.cpp` — splitHorizontal/splitVertical no-op stubs; createDockPane sequence-comment stub; newPane consumes `panes->add()` returns
+- `Source/Bimap.h` — map::Axis/Edge aggregate members removed; `Source/lookAndFeel/ENDLookAndFeel.h:229` override; `Source/lookAndFeel/ENDLookAndFeel.cpp` drawResizerBar geometry-derived
+- `Source/end/Tabs.h` — direct ENDLookAndFeel include
+- `HANDOFF.md` — full handoff at project root (ratified rulings 1-10, residuals, next steps)
+
+**JAM:**
+- `jam_gui/layout/jam_PaneManager.h/.cpp` — ratified spec header (EDGE rows id/value/position, PANE rows four edge references, sole-author orchestrator, HashMap indexes, Function::Map direction entries, owned bars) + stub bodies, dormant
+- `jam_gui/layout/jam_PaneComponent.h/.cpp` — dumb adopt component, focus self-report only (consumed by ARCHITECT's own Source/sidebar/SidebarComponent)
+- `jam_gui/layout/jam_PaneResizerBar.h/.cpp` — dumb drag self-reporter, sole write = own EDGE row jam::ID::position
+- `jam_data_structures/model/jam_Model.cpp` — updateAdapterConnections restores every rebound adapter (rebind-without-restore fixed, :35-40 doc corrected); per-instance groupId = TYPE#id (carried)
+- `jam_look_and_feel/jam_LookAndFeelCustom.h:67` — virtual getPaneResizerBarSize() { return 8; }
+- `jam_core/identifier/jam_IdentifierLayout.h:95` — X (edge, "edge"); map::Axis deleted
+
+### Alignment Check
+- [ ] BLESSED principles followed — VIOLATED mid-sprint (layer crossings shipped repeatedly: Session walked UI tree, components listened to trees, doxygen against explicit NO, hand-rolled arithmetic); final surviving surface is compliant
+- [x] NAMES.md adhered — final surface; mid-sprint violations (adoptTabs, Slot, getContentBounds) purged
+- [x] MANIFESTO.md principles applied — final surface (engine/UI split, ONE-AUTHOR, dumb components)
+
+### Problems Solved
+- Ratified pane model (implementation held for ARCHITECT): 1D edge-scalar geometry (Blender ScrVert isomorphism, sourced at file:line) — EDGE rows as the only stored geometry, PANE rows as four edge references, rects derived, PaneManager = MVP Processor and sole author, bars = orchestrator machinery, remove tie = alignment score, boundary edges stored uniform, jam::ID::id the one plain-property identity exception
+- Root cause of the recurring pane crashes named: reactive relayout lanes observing pools mid-verb (HashMap::at) — verbs must complete state→component→layout in one deterministic stack
+- Session engine/UI leak excised; working tabs restored (create/switch/close/titles + stub content)
+- splitHorizontal→bottom / splitVertical→right confirmed CANON (divider semantics; display.lua:282-283 doc was the wrong artifact)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None (DEBT-20260629T100000 remains on the active ledger, untouched this sprint) Video Zero-Model Mediation + Naming Canon + Stateless View — Live Interactive Terminal ✅
 
 **Date:** 2026-07-05 → 2026-07-07
 **Duration:** multi-day session

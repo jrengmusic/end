@@ -224,7 +224,7 @@ public:
 
     /** @brief Pane resizer bar thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
-     *  Panes to size jam::PaneManager's resizer bars.
+     *  TabView to size jam::PaneManager's resizer bars.
      */
     int getPaneResizerBarSize() const noexcept override;
 

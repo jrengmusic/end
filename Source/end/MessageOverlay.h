@@ -135,9 +135,8 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        auto& cfg { *ConfigModel::getInstance() };
-        auto family { cfg.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        auto size { static_cast<float> (cfg.getValue (jam::IDtype::overlay, ID::fontSize)) };
+        auto family { config.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+        auto size { static_cast<float> (config.getValue (jam::IDtype::overlay, ID::fontSize)) };
         juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
 
         auto bgColour { findColour (juce::Label::backgroundColourId) };
@@ -159,6 +158,8 @@ private:
     }
 
     //==============================================================================
+    ConfigModel& config { *ConfigModel::getInstance() };
+
     /** @brief The text currently displayed. */
     juce::String message;
 

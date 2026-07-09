@@ -1,10 +1,8 @@
 #include "end/ENDView.h"
-#include "Nexus.h"
 
 ENDView::ENDView (jam::Model& m)
     : jam::Model::Component (*this, m, m.getChildWithName (IDtype::window))
     , paneManager (m, state, *this)
-    , tabs (m, Nexus::getInstance()->getActiveSession().state.getChildWithName (IDtype::tabs))
     , messageOverlay (m, m.getChildWithName (IDtype::overlay))
 {
     setOpaque (false);
@@ -16,14 +14,15 @@ ENDView::ENDView (jam::Model& m)
     registerEvents();
 
     addAndMakeVisible (background);
-    // Background listens to its own owner's subtree directly -- its own
-    // mouseDown()/mouseDrag()/mouseUp()/mouseWheelMove() speak straight to
-    // the shader's own gesture machine, no forwarding hop through this View.
     addMouseListener (&background, true);
-    addAndMakeVisible (tabs);
+
     addChildComponent (messageOverlay);
 
     createAndAttachParameters();
+
+#if JUCE_DEBUG
+    widget.setFormats (ConfigModel::validators);
+#endif
 
     config.addListener (this);
     model.addListener (this);
@@ -36,7 +35,7 @@ ENDView::ENDView (jam::Model& m)
             events.get (ID::titleBarButtons, config.state);
             events.get (jam::ID::enabled, config.state);
 
-            registry.run (ID::newTab);
+            actions.run (ID::newSession);
             grabKeyboardFocus();
         });
 
@@ -56,14 +55,16 @@ void ENDView::resized()
 
     background.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
-    tabs.setBounds (getLocalBounds());
+
+    if (auto* sessionView { getActiveSessionView() })
+        sessionView->setBounds (getLocalBounds());
 
     paneManager.layout (getLocalBounds(), components);
 }
 
 bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return registry.keyPressed (key);
+    return actions.keyPressed (key);
 }
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
@@ -91,4 +92,15 @@ void ENDView::createAndAttachParameters()
 void ENDView::setViewState (jam::Size<int16_t> size)
 {
     state.setProperty (ID::size, size.toInt(), nullptr);
+}
+
+SessionView* ENDView::getActiveSessionView() noexcept
+{
+    auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
+        IDtype::sessions, ID::focusedSession) };
+    jassert (focusedSessionParameter != nullptr);
+
+    const jam::UUID sessionUuid { focusedSessionParameter->getValue() };
+
+    return sessions.contains (sessionUuid) ? sessions.at (sessionUuid).get() : nullptr;
 }

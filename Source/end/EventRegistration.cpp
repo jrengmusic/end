@@ -9,29 +9,8 @@ void ENDView::registerEvents()
                                       {
                                           auto id { tree.getProperty (jam::ID::id) };
 
-                                          // ID::focusedPane's canonical copy lives on the
-                                          // SESSIONS node (Nexus's own ctor, ARCHITECT ruling —
-                                          // app-level SSOT, never a per-Session tree copy).
-                                          // Session hears it through ENDModel's own
-                                          // parameter machinery (its own ID::focusedPane
-                                          // events-map reaction, Session.cpp), converting it
-                                          // into a setFocus() tell to every owned Processor.
-                                          // model.setValue() (not the Parameter atomic lane's
-                                          // setValue()) keeps this synchronous with every
-                                          // tree-property reader (ActionRegistration.cpp's
-                                          // zoom/closePane handlers, Tabs::getTitle) —
-                                          // jam::Model's own VT->atomic reverse sync
-                                          // (valueTreePropertyChanged) fires inline on this
-                                          // same call, so the atomic is current too, with no
-                                          // flush-timer latency either direction.
                                           model.setValue (IDtype::sessions, ID::focusedPane, id);
 
-                                          // Per-tab last-focused-pane memory — the reporting
-                                          // pane's own ancestor TAB node's ID::focusedPane
-                                          // (Panes's own param, Tabs::currentTabChanged/
-                                          // getTitle's own reader). This is the sole
-                                          // author of a TAB's ID::focusedPane, mirroring the
-                                          // singular-focus rule above.
                                           auto tabTree { tree };
 
                                           while (tabTree.isValid()

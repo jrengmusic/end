@@ -156,6 +156,7 @@
     X (zoomOut, "zoom_out")                            \
     X (zoomReset, "zoom_reset")                        \
     X (newWindow, "new_window")                        \
+    X (newSession, "new_session")                      \
     X (newTab, "new_tab")                              \
     X (newTerminal, "new_terminal")                    \
     X (newPane, "new_pane")                            \

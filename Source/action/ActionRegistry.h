@@ -30,7 +30,8 @@ struct hash<juce::KeyPress>
  *  Actions are registered as void() callables keyed by juce::Identifier.
  */
 class ActionRegistry
-    : private juce::Timer
+    : public jam::Instance<ActionRegistry>
+    , private juce::Timer
     , public juce::ValueTree::Listener
 {
 public:
