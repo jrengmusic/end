@@ -1,5 +1,4 @@
 #include "end/SessionView.h"
-#include "lookAndFeel/ENDLookAndFeel.h"
 
 SessionView::SessionView (jam::Model& m, juce::ValueTree sessionState)
     : jam::Model::Component { *this, m, sessionState }
@@ -14,14 +13,14 @@ SessionView::~SessionView() { state.removeListener (this); }
 
 TabView& SessionView::add (jam::UUID uuid)
 {
-    auto* tabView { new TabView (uuid, model, state) };
+    addTab (uuid, juce::String {}, juce::Colours::transparentBlack,
+            std::make_unique<TabView> (uuid, model, state));
+    setCurrentTab (uuid);
 
-    addTab (uuid.toString(), juce::Colours::transparentBlack, tabView, true);
-    setCurrentTabIndex (getNumTabs() - 1);
-
+    auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) };
     attachments.try_emplace (uuid, std::make_unique<jam::Model::Attachment> (*tabView));
 
-    if (auto* tab { getBar().getTabButton (getNumTabs() - 1) })
+    if (auto* tab { getBar().getTabButton (uuid) })
     {
         tab->label.onTextChange = [tabView, tab]
         {
@@ -29,7 +28,7 @@ TabView& SessionView::add (jam::UUID uuid)
         };
     }
 
-    applyTabTitle (tabView->state);
+    setName (uuid);
     lookAndFeelChanged();
 
     return *tabView;
@@ -37,36 +36,20 @@ TabView& SessionView::add (jam::UUID uuid)
 
 void SessionView::remove (jam::UUID uuid)
 {
-    for (int i { 0 }; i < getNumTabs(); ++i)
+    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) })
     {
-        auto* tabView { static_cast<TabView*> (getTabContentComponent (i)) };
-
-        if (static_cast<int64_t> (tabView->state.getProperty (jam::ID::id)) == uuid.value)
-        {
-            state.removeChild (tabView->state, nullptr);
-            attachments.erase (uuid);
-            removeTab (i);
-            setCurrentTabIndex (juce::jmin (i, getNumTabs() - 1));
-            lookAndFeelChanged();
-            break;
-        }
+        state.removeChild (tabView->state, nullptr);
+        attachments.erase (uuid);
+        removeTab (uuid);
+        lookAndFeelChanged();
     }
 }
 
 TabView& SessionView::get (jam::UUID uuid)
 {
-    TabView* found { nullptr };
-
-    for (int i { 0 }; i < getNumTabs() and found == nullptr; ++i)
-    {
-        auto* tabView { static_cast<TabView*> (getTabContentComponent (i)) };
-
-        if (static_cast<int64_t> (tabView->state.getProperty (jam::ID::id)) == uuid.value)
-            found = tabView;
-    }
-
-    jassert (found != nullptr);
-    return *found;
+    auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) };
+    jassert (tabView != nullptr);
+    return *tabView;
 }
 
 TabView* SessionView::getActiveTabView() noexcept
@@ -77,44 +60,52 @@ TabView* SessionView::getActiveTabView() noexcept
 void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == jam::ID::name or property == jam::ID::cwd or property == ID::foregroundProcess)
-        applyTabTitle (findAncestorTab (tree));
-}
-
-juce::String SessionView::getTitle (const juce::ValueTree& tabState)
-{
-    const juce::String rename { tabState.getProperty (jam::ID::name).toString() };
-    juce::String title;
-
-    if (rename.isNotEmpty())
     {
-        title = rename;
-    }
-    else
-    {
-        const jam::UUID sourceUuid { static_cast<int64_t> (
-            tabState.getProperty (ID::focusedPane)) };
-        const auto sourcePane {
-            jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
-        };
+        const auto tabState { findAncestorTab (tree) };
 
-        if (sourcePane.isValid())
+        if (tabState.isValid())
         {
-            const auto terminalState { sourcePane.getChildWithName (IDtype::terminal) };
-            jassert (terminalState.isValid());
-
-            const auto textState { terminalState.getChildWithName (jam::IDtype::text) };
-            const juce::String foregroundProcess {
-                textState.getProperty (ID::foregroundProcess).toString()
-            };
-
-            title = foregroundProcess.isNotEmpty()
-                        ? foregroundProcess
-                        : juce::File (textState.getProperty (jam::ID::cwd).toString())
-                              .getFileName();
+            const jam::UUID uuid { static_cast<int64_t> (tabState.getProperty (jam::ID::id)) };
+            setName (uuid);
         }
     }
+}
 
-    return title;
+juce::String SessionView::getTerminalName (const juce::ValueTree& tabState)
+{
+    const jam::UUID sourceUuid { static_cast<int64_t> (
+        tabState.getProperty (ID::focusedPane)) };
+    const auto sourcePane {
+        jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
+    };
+
+    if (sourcePane.isValid())
+    {
+        const auto terminalState { sourcePane.getChildWithName (IDtype::terminal) };
+        jassert (terminalState.isValid());
+
+        const auto textState { terminalState.getChildWithName (jam::IDtype::text) };
+        const juce::String foregroundProcess {
+            textState.getProperty (ID::foregroundProcess).toString()
+        };
+
+        return foregroundProcess.isNotEmpty()
+                    ? foregroundProcess
+                    : juce::File (textState.getProperty (jam::ID::cwd).toString())
+                          .getFileName();
+    }
+
+    return {};
+}
+
+juce::String SessionView::getName (const juce::ValueTree& tabState)
+{
+    const juce::String rename { tabState.getProperty (jam::ID::name).toString() };
+
+    if (rename.isNotEmpty())
+        return rename;
+
+    return getTerminalName (tabState);
 }
 
 juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)
@@ -125,33 +116,27 @@ juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)
     return tree;
 }
 
-void SessionView::applyTabTitle (const juce::ValueTree& tabState)
+void SessionView::setName (jam::UUID uuid)
 {
-    const auto title { getTitle (tabState) };
-
-    for (int i { 0 }; i < getNumTabs(); ++i)
+    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) })
     {
-        if (static_cast<TabView*> (getTabContentComponent (i))->getValueTree() == tabState)
-        {
-            setTabName (i, title);
+        const auto name { getName (tabView->getValueTree()) };
+        setTabName (uuid, name);
 
-            if (auto* tab { getBar().getTabButton (i) })
-                tab->label.setText (title, juce::dontSendNotification);
-
-            break;
-        }
+        if (auto* tab { getBar().getTabButton (uuid) })
+            tab->label.setText (name, juce::dontSendNotification);
     }
 }
 
 void SessionView::lookAndFeelChanged()
 {
     setTabBarDepth (lookAndFeel.getTabBarDepth (*this));
-    setOrientation (lookAndFeel.getTabPosition());
+    setPosition (lookAndFeel.getTabPosition());
 }
 
-void SessionView::currentTabChanged (int newCurrentTabIndex, const juce::String&)
+void SessionView::currentTabChanged (jam::UUID newCurrentTab, const juce::String&)
 {
-    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (newCurrentTabIndex)) })
+    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (newCurrentTab)) })
     {
         state.setProperty (ID::focusedTab, tabView->getValueTree().getProperty (jam::ID::id), nullptr);
 

@@ -2,6 +2,65 @@
 
 ---
 
+## Sprint 68: TabbedComponent UUID Refactor + Position Bimap Absorption ✅
+
+**Date:** 2026-07-09 – 2026-07-10
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: design, delegation, verification, audit resolution, doxygen delegation
+- Pathfinder ×2: TabbedComponent/Bar internals survey, Position/Orientation alignment survey
+- Engineer ×8: Position→jam, Bar+TabbedComponent UUID rewrite, SessionView migration, UUID::none(), ownership+naming+FMap+fwd-decl fix, position rename+null+factory+IIFE, Auditor finding resolution, doxygen
+- Auditor ×1: clean sweep (10 findings, all resolved)
+
+### Files Modified (17 total)
+
+**JAM framework (9):**
+- `jam_gui/layout/jam_TabbedComponent.h` — full rewrite: UUID-keyed API, unique_ptr content ownership, edges Function::Map IIFE, ButtonBar inline (fwd-decl dead), dtor = default, doxygen
+- `jam_gui/layout/jam_TabbedComponent.cpp` — full rewrite: no panelComponent shadow state (component tree ground truth), setPosition/getPosition, bar not tabs, createTabButton returns unique_ptr, addTab asserts duplicate UUID
+- `jam_gui/button/jam_Bar.h` — full rewrite: HashMap<UUID,TabInfo> + Array<UUID> order, UUID currentTab, setPosition/getPosition, nextTab/prevTab, createTabButton returns unique_ptr, Orientation enum deleted
+- `jam_gui/button/jam_Bar.cpp` — full rewrite: UUID-keyed storage + drag-to-reorder + overflow popup, orderIndex locals (shadow fix), position member
+- `jam_gui/layout/jam_Position.h` — NEW: Position Bimap absorbed from END (top/right/bottom/left/center, getValidator)
+- `jam_gui/jam_gui.h:76` — jam_Position.h include before button submodule
+- `jam_gui/button/jam_Tab.h:99` — brace init fix (Auditor)
+- `jam_core/misc/jam_UUID.h:31-32` — UUID::none() factory
+- `jam_core/misc/jam_UUID.h:44-50` — std::hash<jam::UUID> (Sprint 67, carried)
+
+**END project (8):**
+- `Source/end/SessionView.h` — currentTabChanged(UUID), setName(UUID), getName(VT), getTerminalName static
+- `Source/end/SessionView.cpp` — UUID API: add/remove/get O(1), addTab unique_ptr, getTerminalName extracted, redundant include removed
+- `Source/end/ActionRegistration.cpp` — nextTab()/prevTab() direct, jam::Position:: qualification
+- `Source/end/TabView.cpp:103-108` — structured binding fix (Auditor)
+- `Source/Bimap.h` — Position struct deleted, Map::position typed jam::Position
+- `Source/config/ConfigModel.h:221-224` — jam::Position:: qualification
+- `Source/lookAndFeel/ENDLookAndFeel.cpp:34,58,86,144` — getPosition(), jam::Position::left
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Index-based TabbedComponent/Bar API forced O(n) scans in SessionView for every tab operation — replaced with UUID-keyed HashMap, all O(1)
+- Bar::Orientation enum duplicated Position Bimap values — absorbed Position into JAM, single source
+- contentComponents stored raw Component* (no ownership) — leaked TabViews on close; now unique_ptr in HashMap
+- panelComponent was shadow state of currentTab — killed, component tree is ground truth
+- orientation switch in paint/resized — replaced with edges Function::Map IIFE (L 3-branch)
+- ButtonBar forward declaration in header — defined inline
+- Local `position` shadowed member `position` after rename — renamed to `orderIndex`
+- createTabButton returned raw owning pointer — returns unique_ptr
+- addTab took raw Component* for ownership transfer — takes unique_ptr
+- getName at 36 lines — extracted getTerminalName (Lean 30-line)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- DEBT-20260629T100000 (`drawLine` native-line-pipeline gap) — carried
+- PANE-level mirror + closeTab terminal retirement — awaiting ARCHITECT's handcoded pane data structure
+
+---
+
 ## Sprint 67: APVTS-Isomorphic Model Contract + Session Tree Mirror + newSession Action Chain ✅
 
 **Date:** 2026-07-09

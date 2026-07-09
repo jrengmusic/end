@@ -218,10 +218,10 @@ public:
             treeValidators.addOrReplace (propertyName, std::move (validator));
         };
 
-        add (IDtype::statusBar, ID::position, Position::getValidator());
-        add (IDtype::actionList, ID::position, Position::getValidator());
-        add (IDtype::tab, ID::position, Position::getValidator());
-        add (IDtype::popup, ID::position, Position::getValidator());
+        add (IDtype::statusBar, ID::position, jam::Position::getValidator());
+        add (IDtype::actionList, ID::position, jam::Position::getValidator());
+        add (IDtype::tab, ID::position, jam::Position::getValidator());
+        add (IDtype::popup, ID::position, jam::Position::getValidator());
         add (IDtype::terminal, ID::dropMultifiles, DropMode::getValidator());
         add (IDtype::graphics, ID::filter, jam::map::ImageResample::getValidator());
         add (IDtype::graphics, ID::fontRasterizer, FontRasterizerBackend::getValidator());

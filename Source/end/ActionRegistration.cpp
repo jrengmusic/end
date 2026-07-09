@@ -96,24 +96,14 @@ void ENDView::registerActions()
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
-                              {
-                                  auto next { sessionView->getCurrentTabIndex() + 1 };
-
-                                  if (next < sessionView->getNumTabs())
-                                      sessionView->setCurrentTabIndex (next);
-                              }
+                                  sessionView->nextTab();
                           });
 
     actions.actions.add (ID::prevTab,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
-                              {
-                                  auto prev { sessionView->getCurrentTabIndex() - 1 };
-
-                                  if (prev >= 0)
-                                      sessionView->setCurrentTabIndex (prev);
-                              }
+                                  sessionView->prevTab();
                           });
 
     actions.actions.add (ID::splitHorizontal, [this] {});
@@ -216,18 +206,18 @@ void ENDView::registerActions()
                                       tabView->focusPane (ID::paneDown);
                           });
 
-    for (const auto& [key, id] : Position::get())
+    for (const auto& [key, id] : jam::Position::get())
     {
         const int positionKey { key };
 
         actions.actions.add (
-            Position::getPropertyId (key),
+            jam::Position::getPropertyId (key),
             [this, positionKey]
             {
-                if (positionKey != Position::center)
+                if (positionKey != jam::Position::center)
                 {
                     auto leaf { state.getChildWithProperty (
-                        ID::position, Position::get (positionKey)) };
+                        ID::position, jam::Position::get (positionKey)) };
 
                     if (leaf.isValid())
                     {

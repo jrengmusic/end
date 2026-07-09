@@ -4,98 +4,6 @@
 
 //==============================================================================
 /**
- * @brief Bimap for component position — "top", "bottom", "left", "right", or "center".
- *
- * Used by theme.tab.orientation, theme.status_bar.position,
- * theme.action_list.position, and any future positional config fields.
- *
- * Integer keys deliberately mirror jam::button::Bar::Orientation so that
- * orientation values can be forwarded directly to Bar::setOrientation():
- *   0 → "top"
- *   1 → "right"
- *   2 → "bottom"
- *   3 → "left"
- *   4 → "center"
- *
- * Registered in ENDApplication CONTEXT before ConfigModel construction.
- */
-struct Position : public jam::Bimap<Position>
-{
-    /** @brief Integer keys for all position entries.
-     *  Keys 0–3 are intentionally aligned with jam::button::Bar::Orientation
-     *  so that Position::get(string) can be forwarded to Bar::setOrientation()
-     *  without a secondary mapping.
-     */
-    enum
-    {
-        top,///< Position at top.
-        right,///< Position at right.
-        bottom,///< Position at bottom (default).
-        left,///< Position at left.
-        center,///< Centered position.
-    };
-
-    /** @brief Populates the bimap with all five entries. */
-    Position()
-    {
-        map = {
-            { Position::top,    "top"    },
-            { Position::right,  "right"  },
-            { Position::bottom, "bottom" },
-            { Position::left,   "left"   },
-            { Position::center, "center" },
-        };
-    }
-
-    const juce::String& getDefault() const noexcept override { return map.at (Position::bottom); }
-
-    static const auto& get() noexcept { return getInstance()->map; }
-
-    static int get (const juce::String& value) noexcept
-    {
-        return jam::Map::getKey (get()).at (value);
-    }
-
-    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
-
-    static const juce::Identifier getType (int key) noexcept
-    {
-        return { getInstance()->map.at (key).toUpperCase() };
-    }
-
-    // Returns the lowercase juce::Identifier for the given key, derived
-    // directly from this bimap's own map strings — used as the keybinding
-    // Identifier for the dock-position toggle actions (ActionRegistration.cpp).
-    static const juce::Identifier getPropertyId (int key) noexcept
-    {
-        return { getInstance()->map.at (key) };
-    }
-
-    /** @brief Returns a fused Validator for the Position value set.
-     *
-     *  check  — accepts any string present in the Position bimap.
-     *  create — registers a ParameterText on the model for the given property.
-     */
-    static jam::lua::Validator getValidator()
-    {
-        return jam::lua::Validator { [] (const juce::var& v)
-                                     {
-                                         return v.isString()
-                                                and getInstance()->contains (v.toString());
-                                     },
-                                     [] (jam::Model& model,
-                                         juce::ValueTree& tree,
-                                         const juce::Identifier& id,
-                                         const juce::var& value)
-                                     {
-                                         model.createAndAddParameter<jam::ParameterText> (
-                                             tree, id, value.toString());
-                                     } };
-    }
-};
-
-//==============================================================================
-/**
  * @brief Bimap for multi-file drop separator mode — "space" or "newline".
  *
  * Used by init.terminal.drop_multifiles.
@@ -519,7 +427,7 @@ struct FileShaders
 //==============================================================================
 struct Map
 {
-    Position position;
+    jam::Position position;
     DropMode dropMode;
     FileConfig file;
     FileThemes themes;

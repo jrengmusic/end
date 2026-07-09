@@ -31,7 +31,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+        if (parentBar->getPosition() == jam::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -55,7 +55,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+        if (parentBar->getPosition() == jam::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -83,7 +83,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+        if (parentBar->getPosition() == jam::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -141,7 +141,7 @@ int ENDLookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab,
 int ENDLookAndFeel::getTabPosition() const noexcept
 {
     const juce::String position { config.getValue (IDtype::tab, ID::position) };
-    return Position::get (position);
+    return jam::Position::get (position);
 }
 
 juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const

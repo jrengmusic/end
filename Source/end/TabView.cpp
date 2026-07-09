@@ -103,5 +103,6 @@ TerminalView& TabView::get (jam::UUID uuid)
 TerminalView& TabView::get()
 {
     jassert (not panes.empty());
-    return *panes.begin()->second;
+    auto& [uuid, view] { *panes.begin() };
+    return *view;
 }

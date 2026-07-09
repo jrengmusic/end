@@ -25,13 +25,14 @@ public:
 private:
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
     void lookAndFeelChanged() override;
-    void currentTabChanged (int newCurrentTabIndex, const juce::String&) override;
+    void currentTabChanged (jam::UUID newCurrentTab, const juce::String&) override;
 
-    juce::String getTitle (const juce::ValueTree& tabState);
+    juce::String getName (const juce::ValueTree& tabState);
+    static juce::String getTerminalName (const juce::ValueTree& tabState);
 
     static juce::ValueTree findAncestorTab (juce::ValueTree tree);
 
-    void applyTabTitle (const juce::ValueTree& tabState);
+    void setName (jam::UUID uuid);
 
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
