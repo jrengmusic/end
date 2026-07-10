@@ -131,7 +131,7 @@ int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noex
 {
     const float depth { config.getValue (IDtype::tab, ID::depth) };
     const bool alwaysVisible { config.getValue (IDtype::tab, ID::alwaysVisible) };
-    const bool shouldHide { tabs.getNumTabs() <= 1 and not alwaysVisible };
+    const bool shouldHide { tabs.getChildCount() <= 1 and not alwaysVisible };
     const int tabBarDepth { juce::roundToInt (getTabFont().getHeight() * depth) };
 
     return shouldHide ? 0 : tabBarDepth;

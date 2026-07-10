@@ -12,7 +12,7 @@ struct Nexus : jam::Instance<Nexus>
         model.createAndAddParameter<jam::Parameter<int64_t>> (
             sessionsTree, ID::focusedSession, int64_t { 0 });
         model.createAndAddParameter<jam::Parameter<int64_t>> (
-            sessionsTree, ID::focusedPane, int64_t { 0 });
+            sessionsTree, jam::ID::focusedPane, int64_t { 0 });
 
         model.getOrCreateChildWithName (IDtype::overlay);
     }

@@ -1,24 +1,17 @@
 #include "end/SessionView.h"
 
 SessionView::SessionView (jam::Model& m, juce::ValueTree sessionState)
-    : jam::Model::Component { *this, m, sessionState }
+    : jam::TabbedComponent { m, sessionState }
 {
-    model.createAndAddParameter<jam::Parameter<int64_t>> (state, ID::focusedTab, int64_t { 0 });
-
     setTabBarDepth (0);
-    state.addListener (this);
 }
-
-SessionView::~SessionView() { state.removeListener (this); }
 
 TabView& SessionView::add (jam::UUID uuid)
 {
-    addTab (uuid, juce::String {}, juce::Colours::transparentBlack,
-            std::make_unique<TabView> (uuid, model, state));
+    OwnerComponent::add (uuid, std::make_unique<TabView> (uuid, model, state));
     setCurrentTab (uuid);
 
-    auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) };
-    attachments.try_emplace (uuid, std::make_unique<jam::Model::Attachment> (*tabView));
+    auto* tabView { &get (uuid) };
 
     if (auto* tab { getBar().getTabButton (uuid) })
     {
@@ -36,29 +29,30 @@ TabView& SessionView::add (jam::UUID uuid)
 
 void SessionView::remove (jam::UUID uuid)
 {
-    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) })
-    {
-        state.removeChild (tabView->state, nullptr);
-        attachments.erase (uuid);
-        removeTab (uuid);
-        lookAndFeelChanged();
-    }
+    auto& tabView { get (uuid) };
+    state.removeChild (tabView.state, nullptr);
+    OwnerComponent::remove (uuid);
+    lookAndFeelChanged();
 }
 
 TabView& SessionView::get (jam::UUID uuid)
 {
-    auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) };
-    jassert (tabView != nullptr);
-    return *tabView;
+    return static_cast<TabView&> (OwnerComponent::get (uuid));
 }
 
 TabView* SessionView::getActiveTabView() noexcept
 {
-    return static_cast<TabView*> (getCurrentContentComponent());
+    const auto focused { getFocusedChild() };
+
+    return getChildren().contains (focused)
+               ? static_cast<TabView*> (getChildren().at (focused).get())
+               : nullptr;
 }
 
 void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
+    OwnerComponent::valueTreePropertyChanged (tree, property);
+
     if (property == jam::ID::name or property == jam::ID::cwd or property == ID::foregroundProcess)
     {
         const auto tabState { findAncestorTab (tree) };
@@ -74,7 +68,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 juce::String SessionView::getTerminalName (const juce::ValueTree& tabState)
 {
     const jam::UUID sourceUuid { static_cast<int64_t> (
-        tabState.getProperty (ID::focusedPane)) };
+        tabState.getProperty (jam::ID::focusedPane)) };
     const auto sourcePane {
         jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
     };
@@ -118,9 +112,9 @@ juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)
 
 void SessionView::setName (jam::UUID uuid)
 {
-    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (uuid)) })
+    if (getChildren().contains (uuid))
     {
-        const auto name { getName (tabView->getValueTree()) };
+        const auto name { getName (get (uuid).getValueTree()) };
         setTabName (uuid, name);
 
         if (auto* tab { getBar().getTabButton (uuid) })
@@ -136,19 +130,19 @@ void SessionView::lookAndFeelChanged()
 
 void SessionView::currentTabChanged (jam::UUID newCurrentTab, const juce::String&)
 {
-    if (auto* tabView { static_cast<TabView*> (getTabContentComponent (newCurrentTab)) })
+    if (getChildren().contains (newCurrentTab))
     {
-        state.setProperty (ID::focusedTab, tabView->getValueTree().getProperty (jam::ID::id), nullptr);
+        auto& tabView { get (newCurrentTab) };
 
-        if (tabView->getPaneCount() > 0)
+        if (tabView.getChildCount() > 0)
         {
             const jam::UUID rememberedPane { static_cast<int64_t> (
-                tabView->getValueTree().getProperty (ID::focusedPane)) };
+                tabView.getValueTree().getProperty (jam::ID::focusedPane)) };
 
-            if (rememberedPane.value != 0)
-                tabView->get (rememberedPane).grabKeyboardFocus();
+            if (rememberedPane != jam::UUID::none())
+                tabView.get (rememberedPane).grabKeyboardFocus();
             else
-                tabView->get().grabKeyboardFocus();
+                tabView.get().grabKeyboardFocus();
         }
     }
 }

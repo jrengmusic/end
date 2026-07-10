@@ -52,7 +52,7 @@ class TerminalModel : public jam::terminal::Model
 {
 public:
     /** @brief Unity zoom — the seeded default and setZoom()'s reset target
-     *  (ENDView's zoomReset action, ActionRegistration.cpp). */
+     *  (ENDView's zoomReset action, ENDActions.cpp). */
     static constexpr float defaultZoom { 1.0f };
 
     /** @brief Constructs with @p uuid stamped onto @c state as a plain
@@ -124,7 +124,7 @@ public:
      *  value — a pure tell: reads its own parameter, adds @p delta, clamps
      *  via the same [zoomMin, zoomMax] bound as setZoom(), and writes
      *  through the same parameter write path. Called by ENDView's
-     *  zoomIn/zoomOut actions (ActionRegistration.cpp) with +/- ID::zoomStep;
+     *  zoomIn/zoomOut actions (ENDActions.cpp) with +/- ID::zoomStep;
      *  zoomReset calls setZoom (defaultZoom) directly instead. TerminalView
      *  reads the resulting value via its own tree-listener path
      *  (processor.model.state ValueTree — TerminalProcessor.h's own public @c model

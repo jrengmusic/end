@@ -7,12 +7,10 @@
 
 class SessionView
     : public jam::TabbedComponent
-    , public jam::Model::Component
-    , public juce::ValueTree::Listener
 {
 public:
     SessionView (jam::Model& model, juce::ValueTree sessionState);
-    ~SessionView() override;
+    ~SessionView() override = default;
 
     TabView& add (jam::UUID uuid);
 
@@ -23,7 +21,10 @@ public:
     TabView* getActiveTabView() noexcept;
 
 private:
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
+
+    void
+    valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
     void lookAndFeelChanged() override;
     void currentTabChanged (jam::UUID newCurrentTab, const juce::String&) override;
 
@@ -33,10 +34,6 @@ private:
     static juce::ValueTree findAncestorTab (juce::ValueTree tree);
 
     void setName (jam::UUID uuid);
-
-    ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
-
-    jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SessionView)

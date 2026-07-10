@@ -328,9 +328,7 @@
 // now carries it; END reuses that row directly rather than re-declaring it
 // (this file's own top-of-file exclusion rule).
 #define IDENTIFIER_MODEL(X)                   \
-    X (focusedPane, "focused_pane")           \
     X (focusedSession, "focused_session")     \
-    X (focusedTab, "focused_tab")             \
     X (zoom, "zoom")                          \
     X (renderer, "renderer")                  \
     X (message, "message")

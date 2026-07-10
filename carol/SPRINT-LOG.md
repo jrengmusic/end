@@ -2,6 +2,75 @@
 
 ---
 
+## Sprint 69: Owner/Owned Composite Abstraction — TabbedComponent + MatrixComponent Strategies ✅
+
+**Date:** 2026-07-10
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: isomorphism analysis (SessionView→TabView ≅ TabView→TerminalView), design session with ARCHITECT (Owner/Owned names, composite ruling, CRTP Model::Component, focused_tab/focused_pane split), plan, delegation, line-by-line verification of every Engineer output, ARCHITECTURE.md/SPEC.md/CLAUDE.md sync, audit resolution
+- Pathfinder ×2: PaneManager/TabView survey, TabbedComponent contract + Model::Component/Attachment survey
+- Engineer ×9: CRTP Model::Component; OwnedComponent+OwnerComponent; TabbedComponent rewrite + identifiers; MatrixComponent + PaneManager deletion; END wiring; build fixes (getNumTabs consumer, VT::Listener ambiguity); header-only fold + doxygen; TabComponent deletion + TabbedComponent doxygen; audit fixes; ENDActions rename ×2 — PROTOCOL VIOLATION recorded: one Engineer ran `git mv` (agents never run git); rename correct, staging left for ARCHITECT
+- Auditor ×1: clean sweep — 18 findings (1 false positive, all others resolved or ARCHITECT-ruled)
+
+### Files Modified (~30 total)
+
+**JAM:**
+- `jam_data_structures/model/jam_Model.h` — `Model::Component<Derived>` CRTP (ComponentWithID pattern, one class): self param dead, `static_cast<Derived*>` ID stamping, static_assert juce::Component base; Attachment cross-cast → duck-typed `child.getValueTree()`
+- `jam_gui/layout/jam_OwnedComponent.h` — NEW (header-only, doxygen): juce::Component + Model::Component<OwnedComponent>, jam::ID::focus self-report
+- `jam_gui/layout/jam_OwnerComponent.h` — NEW (header-only, doxygen): abstract composite owner — UUID-keyed children + Attachment per child, focused-child param (identifier from derived), protected VT-listener focus aggregation, pure virtual childAdded/childRemoved/layout; children private + `getChildren()` const accessor (Auditor H1)
+- `jam_gui/layout/jam_TabbedComponent.h/.cpp` — rewritten as Owner strategy (doxygen): bar machinery, one-visible layout(), bar callback → setFocusedChild; contentComponents/addTab/removeTab/clearTabs/getNumTabs/getTabContentComponent/getCurrentContentComponent dead
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp` — NEW skeleton: edge-scalar spec carried, split stubs, full-rect layout(), UUID-keyed edges/panes/resizerBars machinery
+- `jam_gui/layout/jam_PaneComponent.h` — header-only OwnedComponent leaf (.cpp deleted)
+- `jam_gui/layout/jam_PaneManager.h/.cpp` — DELETED (superseded by MatrixComponent)
+- `jam_gui/layout/jam_PaneResizerBar.h/.cpp` — comments re-pointed PaneManager → MatrixComponent
+- `jam_gui/jam_gui.h/.cpp` — layout submodule registration updated
+- `jam_core/identifier/jam_IdentifierLayout.h` — focused_tab/focused_pane rows
+- `PLAN-Owner.md`, `RFC-Owner.md` — DELETED (executed)
+- `.claude/CLAUDE.md` — jam_gui module/dir listings synced
+
+**END:**
+- `Source/end/SessionView.h/.cpp` — `: jam::TabbedComponent` (adopts SESSION row); own attachments map + focusedTab registration dead; listener unified through OwnerComponent base (mandatory base call in valueTreePropertyChanged); UUID::none() sentinel comparison
+- `Source/end/TabView.h/.cpp` — `: jam::MatrixComponent` (build-or-adopts TAB row); paneManager/panes/events members dead
+- `Source/terminal/TerminalView.h/.cpp` — `class : jam::PaneComponent`, places own PANE row, paints componentID
+- `Source/end/ENDView.h/.cpp` — paneManager + components members dead; Model::Component<ENDView>
+- `Source/end/MessageOverlay.h` — Model::Component<MessageOverlay>
+- `Source/action/ENDActions.h` — NEW (rename of ActionRegistry, header-only fold)
+- `Source/action/ENDActions.cpp` — moved from Source/end/ActionRegistration.cpp
+- `Source/end/EventRegistration.cpp` — jam::ID::focus handler type-filtered to IDtype::pane; manual tab-walk focusedPane write dead (owners aggregate)
+- `Source/Main.h` — `ENDActions actions` member
+- `Source/Nexus.h`, `Source/Identifier.h` — focusedTab/focusedPane re-keyed to jam::ID, END rows retired
+- `Source/lookAndFeel/ENDLookAndFeel.h/.cpp` — getChildCount consumer, comment sync
+- `Source/terminal/TerminalModel.h` — comment refs ActionRegistration→ENDActions
+- `Source/sidebar/SidebarComponent.h` — ctor declaration migrated to new PaneComponent shape
+- `ARCHITECTURE.md` — Session Layer landed contract 2026-07-10 (Owner/Owned composite, CRTP mirror law, singular-focus chain), layer diagram, model tree
+- `SPEC.md` — view/model trees, naming table, jam_gui inventory, Phase 3 names synced
+- `CLAUDE.md` — UI layer line synced
+- `HANDOFF.md`, `PLAN-session-layer.md` — DELETED (superseded)
+
+### Alignment Check
+- [x] BLESSED principles followed — shadow state dead (three focus mechanisms → one self-report/aggregate chain), two-map sync defect dead, SSOT container contract
+- [x] NAMES.md adhered — all names ARCHITECT-ratified (OwnerComponent/OwnedComponent/MatrixComponent/ENDActions); TabComponent created then deleted (zero consumers)
+- [x] MANIFESTO.md principles applied — Encapsulation (children private + getChildren), Lean (edges Function::Map), Explicit ownership
+
+### Problems Solved
+- SessionView→TabView and TabView→TerminalView proved isomorphic contracts — deduplicated into one composite abstraction (Owner IS Owned, uniform recursion, no diamond)
+- Three focus mechanisms (keyboard self-report / bar-callback / nothing) collapsed to one: OwnedComponent self-reports, each OwnerComponent is sole author of its level's singular
+- PaneManager's two-map sync defect (TabView panes vs PaneManager panes) eliminated — owner owns children + geometry + machinery
+- Model::Component passed `*this` into a base ctor — CRTP moves enforcement to compile time
+- Double writer on TAB focusedPane (ENDView tab-walk + owner aggregation) eliminated; ENDView focus event type-filtered (all owned rows now self-report)
+- Ambiguous juce::ValueTree::Listener base (SessionView re-derived what OwnerComponent is) — unified through protected base listener
+- Audit clean sweep: 18 findings — C1/L4/M1/M2/M3/H1/M4/M5 resolved, C2/H2/H3 ARCHITECT-ruled keep, L1 false positive, L2/L3 held per doxygen order
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (untouched, carried)
+- MatrixComponent split/remove/edge-scalar layout implementation — skeleton by design, awaiting ARCHITECT direction
+
+---
+
 ## Sprint 68: TabbedComponent UUID Refactor + Position Bimap Absorption ✅
 
 **Date:** 2026-07-09 – 2026-07-10

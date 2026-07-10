@@ -1,13 +1,13 @@
 #pragma once
 #include <JuceHeader.h>
+#include "Identifier.h"
 
-struct TerminalView : public juce::Component
+class TerminalView : public jam::PaneComponent
 {
-    explicit TerminalView (jam::UUID uuid);
+public:
+    TerminalView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid);
 
     void paint (juce::Graphics& g) override;
-
-    const jam::UUID uuid;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TerminalView)

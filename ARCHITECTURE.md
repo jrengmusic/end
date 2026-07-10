@@ -54,7 +54,7 @@ window (end::View, depends on all above)
 ## Layer Separation
 
 ```
- Application (ENDApplication, end::View, Tabs, Panes)
+ Application (ENDApplication, ENDView, SessionView, TabView)
     — orchestrates; owns all top-level lifetimes (config::Model, LookAndFeel,
       jam::VulkanEngine — itself owning the Stamp/Grapheme/Link/Typeface
       globally-owned instances, Device, and GlyphAtlas — window)
@@ -257,20 +257,20 @@ config::Model (IDtype::config)              end::Model (IDtype::end)
   CONFIG                                      END
     GRAPHICS                                    VIEW (app-level, ephemeral)
       SHADER (ParameterText per pass)             ID::size (packed jam::Size<int16_t>, Parameter<int>)
-      gpu, fontRasterizer,                        ID::focusedPane (canonical copy)
-      fontGamma, fontContrast                   OVERLAY
-    THEME                                          ID::message (ParameterText)
-      FLEX                                     SESSIONS — the topology
-    KEYS                                          SESSION (jam::ID::id, ID::newTerminal)
-    POPUP                                           TABS (mirror ROOT — end::Tabs adopts)
-    WHELMED                                           TAB[N] (end::Panes state, jam::ID::name)
-                                                         PANES (direction/ratio/bounds)*
-                                                           PANE (uuid, ID::focus)
-                                                             TERMINAL (paired Processor tree,
-                                                                       grafted at attach())
+      gpu, fontRasterizer,                      OVERLAY
+      fontGamma, fontContrast                      ID::message (ParameterText)
+    THEME                                      SESSIONS — the topology
+      FLEX                                        (jam::ID::focusedPane app-singular, ID::focusedSession)
+    KEYS                                          SESSION (jam::ID::id, ID::newTerminal,
+    POPUP                                                  jam::ID::focusedTab — SessionView adopts)
+    WHELMED                                         TAB[N] (TabView row, jam::ID::name,
+                                                            jam::ID::focus, jam::ID::focusedPane)
+                                                       PANE (jam::ID::id, jam::ID::focus —
+                                                             TerminalView row)
+                                                          TERMINAL (paired Processor tree)
 ```
-\* `PANES` split containers exist only for nested splits — a `TAB`'s direct
-children may be `PANE` leaves directly (`jam::PaneManager`'s own class doc).
+\* Split geometry (EDGE rows, PANE edge references) lands with the
+`jam::MatrixComponent` implementation — PANE rows are direct TAB children.
 
 - **config::Model** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file). Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config (string-enum via `end::FontRasterizerBackend` bimap) and hot-reload live.
 - **end::Model** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state. Changes during app lifetime. State placement follows the Attachment Contract below — placement tokens exist only at the engine tier, never on views.
@@ -295,37 +295,55 @@ terminal::Model (IDtype::terminal, per-pane, paired under PANE)
 
 - **terminal::Model** — owned by `terminal::Processor`, one per pane. NOT a globally-owned instance (not `jam::Instance<T>`) — multiple concurrent terminals each own independent terminal::Model instances. VT state SSOT for the terminal (RFC-terminal-editor.md P12). Atomics (reader) and ValueTree (message) follow the scalar-data pattern. Direction A/B as described in Cross-Thread Data Contract.
 
-### Session Layer — Landed Contract (2026-07-09)
+### Session Layer — Landed Contract (2026-07-10)
 
-Supersedes the 2026-07-07 "Landed Contract" block and the 2026-07-08
-"Attachment Contract — Binding vs Placement" block. Both described the
-component-authored mirror with placement-token `jam::Model::Attachment`
-(ctor `appendChild` / dtor `removeChild`) — DEAD: `Attachment` no longer
-places or removes state. Describes the landed code:
+Supersedes the 2026-07-09 block (which described SessionView/TabView with
+per-consumer attachment maps and the dormant `jam::PaneManager` spec — both
+dead). Describes the landed code:
 
+- **Owner/Owned composite (jam_gui/layout).** One abstraction owns the
+  container contract at every level:
+  `jam::OwnedComponent` (`juce::Component` + `jam::Model::Component
+  <OwnedComponent>` CRTP mixin) — state-bound child, self-reports keyboard
+  focus onto its own row's `jam::ID::focus`.
+  `jam::OwnerComponent : OwnedComponent` (abstract) — owns UUID-keyed
+  children (`jam::HashMap<jam::UUID, std::unique_ptr<OwnedComponent>>` +
+  one `jam::Model::Attachment` per child), aggregates child focus
+  self-reports into one focused-child parameter on its own row (identifier
+  supplied by the derived strategy), pure virtual
+  `childAdded`/`childRemoved`/`layout`. An owner IS ownable — composite
+  recursion, no diamond.
+  Strategies: `jam::TabbedComponent : OwnerComponent` (machinery
+  `jam::button::Bar`, one-visible swap, authors `jam::ID::focusedTab`) and
+  `jam::MatrixComponent : OwnerComponent` (machinery EDGE rows +
+  `jam::PaneResizerBar`, edge-scalar tiling — skeleton, stubs full-rect;
+  authors `jam::ID::focusedPane`). Leaf: `jam::PaneComponent :
+  OwnedComponent`.
 - **Mirror law: the component tree is a pure function of the state tree.**
-  One component type per row type, one parent-child edge mirrored per level:
-  `SESSIONS` ↔ `ENDView` (`jam::HashMap<int64_t, std::unique_ptr<SessionView>>
-  sessions` + per-child `jam::Model::Attachment`), `SESSION` (+ its `TABS`
-  child) ↔ `end::SessionView`, `TAB` ↔ `end::TabView`, `PANE` ↔
-  `end::TerminalView` (PANE level pending — the pane data structure is
-  in-flight, ARCHITECT-owned; `TerminalView` is currently a uuid-painting
-  stub with no state row).
-- **`jam::Model::Component` (jam_Model.h) — build-or-adopt.** The 5-param
-  ctor `(self, model, parentState, type, uuid)` searches `parentState`'s
-  direct children for `type` + matching `jam::ID::id`: adopts when found,
-  else creates the row, stamps `jam::ID::id` (before any
+  `SESSIONS` ↔ `ENDView` (`sessions` map + per-child Attachment), `SESSION`
+  ↔ `SessionView : jam::TabbedComponent` (adopts the SESSION row), `TAB` ↔
+  `TabView : jam::MatrixComponent` (build-or-adopts its TAB row; sits
+  directly in SessionView's children — owner-as-owned), `PANE` ↔
+  `TerminalView : jam::PaneComponent` (build-or-adopts its PANE row;
+  paints its uuid — terminal content pending).
+- **`jam::Model::Component<Derived>` (jam_Model.h) — CRTP build-or-adopt.**
+  The 4-param ctor `(model, parentState, type, uuid)` searches
+  `parentState`'s direct children for `type` + matching `jam::ID::id`:
+  adopts when found, else creates the row, stamps `jam::ID::id` (before any
   `createAndAddParameter` — the grouping-order requirement is internal, no
-  caller hand-stamping), and appends under `parentState`. Fresh and restored
-  state ride the same path. The 3-param adopt-existing ctor remains for
-  root-level adoption (`ENDView` ↔ WINDOW, `MessageOverlay` ↔ OVERLAY).
+  caller hand-stamping), and appends under `parentState`. ComponentID is
+  stamped via `static_cast<Derived*> (this)` — compile-time enforced
+  (`static_assert` on `juce::Component` base), no self param. Fresh and
+  restored state ride the same path. The 2-param adopt-existing ctor
+  remains for root-level adoption (`ENDView` ↔ WINDOW, `MessageOverlay` ↔
+  OVERLAY, `SessionView` ↔ SESSION).
 - **`jam::Model::Attachment` — pure connector (JUCE attachment contract).**
   Ctor binds an already-placed row's component (asserts the row has a
   parent) and calls `sendInitialUpdate()` (resized + repaint); dtor
   disconnects only — NEVER `removeChild`. State survives every view death
   (the stateInformation contract). Each parent owns the Attachments of its
-  children (`ENDView.attachments`, `SessionView.attachments`), exactly as a
-  PluginEditor owns SliderAttachments.
+  children (`ENDView.attachments`; `OwnerComponent::attachments` for every
+  owner below), exactly as a PluginEditor owns SliderAttachments.
 - **Row removal is an explicit verb only** — `ID::closeTab` →
   `SessionView::remove (uuid)` → `state.removeChild`. No destructor removes
   state.
@@ -344,17 +362,19 @@ places or removes state. Describes the landed code:
   its own pool. `ID::closeTab` does not yet retire the tab's terminals
   (PANE-level mirror pending, see above).
 
-**Singular focus (ratified same date):** `focused_pane`/`focused_tab`/
-`focused_session` are SINGULAR uuid-valued parameters — the value IS the
-identity, `parameterChanged (id, value)` is fully self-describing downstream.
-The chain: each child self-reports on its OWN node (`ID::focus`, its own
-focus callback — the report channel); the parent listening to the whole
-structure is the SOLE AUTHOR of the singular parameter (ENDView's `ID::focus`
-events-map reaction → writes the reporting pane's uuid into
-`SESSIONS.focused_pane`); every downstream consumer (Session's setFocus tells,
-Nexus) reacts to the singular parameter by id+value alone. No other writer of
-a `focused_*` parameter may exist — action code, view ctors, and relay
-handlers other than the one parent listener are all forbidden authors.
+**Singular focus:** `focused_pane`/`focused_tab`/`focused_session` are
+SINGULAR uuid-valued parameters — the value IS the identity,
+`parameterChanged (id, value)` is fully self-describing downstream. The
+chain: each `OwnedComponent` self-reports on its OWN row (`jam::ID::focus`
+via focusGained/focusLost — the report channel); each `OwnerComponent` is
+the SOLE AUTHOR of its own row's focused-child parameter (its
+`valueTreePropertyChanged` sees a direct-child row's focus become 1 →
+writes that child's uuid — TabView authors `TAB.focused_pane`, SessionView
+authors `SESSION.focused_tab`); ENDView's `jam::ID::focus` events-map
+reaction authors the app-level `SESSIONS.focused_pane` singular from
+PANE-row reports only (type-filtered — TAB/SESSION rows also self-report).
+Every downstream consumer reacts to the singular parameter by id+value
+alone. No other writer of a `focused_*` parameter may exist.
 
 **No cross-tree references:** config → end → terminal dependency is one-way data flow. No upward references.
 

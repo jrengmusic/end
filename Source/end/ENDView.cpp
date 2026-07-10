@@ -1,8 +1,7 @@
 #include "end/ENDView.h"
 
 ENDView::ENDView (jam::Model& m)
-    : jam::Model::Component (*this, m, m.getChildWithName (IDtype::window))
-    , paneManager (m, state, *this)
+    : jam::Model::Component<ENDView> (m, m.getChildWithName (IDtype::window))
     , messageOverlay (m, m.getChildWithName (IDtype::overlay))
 {
     setOpaque (false);
@@ -58,8 +57,6 @@ void ENDView::resized()
 
     if (auto* sessionView { getActiveSessionView() })
         sessionView->setBounds (getLocalBounds());
-
-    paneManager.layout (getLocalBounds(), components);
 }
 
 bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)

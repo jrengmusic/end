@@ -2,7 +2,7 @@
 #include <JuceHeader.h>
 #include "end/SessionView.h"
 #include "end/MessageOverlay.h"
-#include "action/ActionRegistry.h"
+#include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "../lookAndFeel/ENDLookAndFeel.h"
 #include "Bimap.h"
@@ -10,7 +10,7 @@
 
 class ENDView
     : public juce::Component
-    , public jam::Model::Component
+    , public jam::Model::Component<ENDView>
     , public juce::ValueTree::Listener
     , public juce::KeyListener
 {
@@ -27,7 +27,7 @@ public:
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
 private:
-    ActionRegistry& actions { *ActionRegistry::getInstance() };
+    ENDActions& actions { *ENDActions::getInstance() };
     Nexus& nexus { *Nexus::getInstance() };
     ConfigModel& config { *ConfigModel::getInstance() };
     ENDLookAndFeel& endLookAndFeel { *ENDLookAndFeel::getInstance() };
@@ -56,9 +56,7 @@ private:
 
     //==============================================================================
     jam::vulkan::ShaderComponent background;
-    jam::PaneManager paneManager;
 
-    jam::HashMap<jam::UUID, std::unique_ptr<juce::Component>> components;
     jam::HashMap<jam::UUID, std::unique_ptr<SessionView>> sessions;
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
     jam::Function::Map<juce::Identifier, void> events;

@@ -4,7 +4,7 @@
 class SidebarComponent : public jam::PaneComponent
 {
 public:
-    SidebarComponent() noexcept;
+    SidebarComponent (jam::Model& model, juce::ValueTree existingState);
     ~SidebarComponent() override;
 
     void paint (juce::Graphics&) override;

@@ -209,9 +209,9 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
   │                 └── TTY
   │
   └── end::View (ephemeral)                            ← PluginEditor of ONE end::Session (ID::activeSession)
-        ├── Tabs (projection of the Session's tabs subtree)
-        │     └── Pane[N]
-        │           └── terminal::View (PaneView subclass)
+        ├── SessionView : jam::TabbedComponent (adopts the SESSION row)
+        │     └── TabView[N] : jam::MatrixComponent
+        │           └── terminal::View (jam::PaneComponent subclass)
         │                 ├── owns jam::CodeView — renders the Processor's document
         │                 ├── terminal::Input / terminal::Mouse — encode-path owners
         │                 └── stateless — zero cached visual state
@@ -265,12 +265,10 @@ END (end::Model root)
     ID::activeSession      ← which SESSION end::View projects
   SESSIONS                 ← IDtype::sessions — all session subtrees
     SESSION (uuid)[N]      ← one end::Session — complete with zero Views
-      TABS
-        TAB[N]
-          PANES            ← IS the PaneManager tree
-            PANE (uuid)    ← PaneManager leaf
-              ⤷ terminal::Model tree attached here — Processor-owned state,
-                RAII attachment held by terminal::View, built at attach()
+      TAB[N]               ← TabView row (jam::MatrixComponent)
+        PANE (uuid)        ← TerminalView row; EDGE rows (split geometry)
+          ⤷ terminal::Model tree attached here — Processor-owned state,
+            placed under the PANE row
   OVERLAY
 ```
 
@@ -309,13 +307,13 @@ Same proven pattern from the previous iteration:
 | Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
 | App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Owned by Nexus. THE runtime SSOT — all sessions' state included. |
 | Host | `Nexus` | Gui-less, daemon-capable. Owns end::Model + `HashMap<end::Session>` (uuid-keyed). Routes IPC in daemon mode. |
-| Session | `end::Session` (Source/end/Session.h) | Gui-less state of one end::View: uuid-keyed `HashMap<terminal::Processor>` + its own SESSION/TABS subtree (the mirror root `end::Tabs` adopts). |
+| Session | `end::Session` (Source/end/Session.h) | Gui-less state of one end::View: uuid-keyed `HashMap<terminal::Processor>` + its own SESSION row (which `SessionView` adopts). |
 | Per-terminal engine | `terminal::Processor` | = PluginProcessor. Owns terminal::Model, document, CellFifo, Resizer, TTY, drain (self-drains on screenDirty). |
 | Per-terminal state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Processor, attached into the Session's pane subtree. |
-| App surface | `end::View` | Ephemeral PluginEditor of one Session (`ID::activeSession`). `juce::KeyListener`. Owns Tabs. Centralizes keyboard dispatch. |
+| App surface | `end::View` | Ephemeral PluginEditor of one Session (`ID::activeSession`). `juce::KeyListener`. Owns the SessionViews. Centralizes keyboard dispatch. |
 | Terminal GUI | `terminal::View` | Stateless projection. Owns jam::CodeView + terminal::Input/Mouse (encode path). Listens on terminal::Model + config-derived LookAndFeel. |
 | Document renderer | `jam::CodeView` | Dumb jam_gui widget. Cell-space API. No state, no tree, no listener. |
-| Pane base | `PaneView` | Base for terminal::View, whelmed::View. |
+| Pane base | `jam::PaneComponent` | OwnedComponent leaf — base for terminal::View, whelmed::View. |
 
 ---
 
@@ -400,15 +398,18 @@ Foundation types and rendering:
 
 ### jam_gui
 - `jam::Model` — APVTS-analog state owner (ValueTree by value, atomic parameter map, timer flush).
-- `jam::ValueTree` — integration bag: `Component` (owns node), `ComponentWithID<T>` (CRTP, TYPE + optional UUID), `Attachment` (RAII graft).
+- `jam::Model::Component<Derived>` — CRTP state binding (build-or-adopt / adopt-existing); `jam::Model::Attachment` — pure connector (bind + initial update; never places or removes rows).
 - `jam::CodeView` — dumb monospace document widget. Cell-space setter/getter API (`setCaret`, `setSelection`/`getSelection`, `setViewportWidth`), every mutator calls `calc()`. Owns the wrapped projection internally. NOT a `jam::ValueTree::Component`; no tree, no listener, no pixel methods. Reused by terminal and WHELMED. See §2.1/§2.2.
 - `jam::CodeModel` — multi-screen dimensionless document model. `ParagraphsModel` per screen.
 - `jam::ParagraphsModel` — bounded deque of `ParagraphStorage`. Neovim-style line-indexed API: `insert`, `remove`, `set`.
-- `PaneManager` — binary tree ValueTree layout engine.
+- `OwnedComponent` — state-bound ownable child; self-reports focus onto its own row.
+- `OwnerComponent` — abstract composite owner: UUID-keyed children + Attachment per child, focused-child aggregation, strategy hooks.
+- `MatrixComponent` — tiled owner strategy (1D edge-scalar geometry; skeleton).
+- `PaneComponent` — OwnedComponent leaf for pane content.
 - `PaneResizerBar` — draggable divider.
-- `button::Group` — radio button strip with sliding indicator animation.
-- `button::TabButton` — tab button with drag-reorder and inline rename.
-- `TabbedComponent` — content panel host backed by `button::Group`.
+- `button::Bar` — tab bar with drag-reorder, overflow collapse, sliding indicator.
+- `button::Tab` — tab button with inline rename.
+- `TabbedComponent` — one-visible owner strategy backed by `button::Bar`.
 - `Window` — glass overlay window.
 
 ### jam_terminal (NEW — per RFC-jam-terminal-extraction)
@@ -553,9 +554,9 @@ Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse inp
 - `config::Model` — `jam::Model`. Parses **display.lua** (colours, font family/size, tab SVG, pane bar) and **keys.lua** (prefix key, bindings for pane/tab actions). Other modules (nexus, popups, actions, whelmed) not yet parsed.
 - `end::Model` — `jam::Model` + `Instance<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
 - `end::View` — `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns `Tabs`, `LookAndFeel`, GL context. Centralizes keyboard dispatch to active PaneView. Writes `activePaneID` on focus change.
-- `Tabs` — `jam::TabbedComponent` (button::Group, SVG 3-slice, sliding indicator). `jam::ValueTree::Component` — TABS node grafted into end::Model via Attachment.
-- `Panes` — per-tab container. `jam::ValueTree::Component` — PANES node grafted into TAB via Attachment. `PaneManager` binary tree (resizer bar lifecycle fix from Phase 0b), `PaneResizerBar`, `Owner<PaneView>`. Split horizontal/vertical, pane navigation (h/j/k/l).
-- `PaneView` base — `jam::ValueTree::ComponentWithID<PaneView>`
+- `SessionView` — `jam::TabbedComponent` (button::Bar, SVG 3-slice, sliding indicator); adopts the SESSION row.
+- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l) via the edge-scalar matrix (`PaneResizerBar` machinery).
+- `jam::PaneComponent` base — OwnedComponent leaf for pane content.
 - `Nexus` — `Instance<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
 - `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, next_tab, prev_tab). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).
 - `LookAndFeel` — style-driven from CONFIG/DISPLAY (colours, tab SVG, pane bar). Hot-reload: lua file change → Main re-parses → CONFIG in place → LookAndFeel reacts.

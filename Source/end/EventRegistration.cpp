@@ -5,20 +5,11 @@ void ENDView::registerEvents()
     events.add<juce::ValueTree&> (jam::ID::focus,
                                   [this] (juce::ValueTree& tree)
                                   {
-                                      if (jam::toBool (tree.getProperty (jam::ID::focus)))
+                                      if (tree.getType() == IDtype::pane
+                                          and jam::toBool (tree.getProperty (jam::ID::focus)))
                                       {
-                                          auto id { tree.getProperty (jam::ID::id) };
-
-                                          model.setValue (IDtype::sessions, ID::focusedPane, id);
-
-                                          auto tabTree { tree };
-
-                                          while (tabTree.isValid()
-                                                 and tabTree.getType() != IDtype::tab)
-                                              tabTree = tabTree.getParent();
-
-                                          jassert (tabTree.isValid());
-                                          tabTree.setProperty (ID::focusedPane, id, nullptr);
+                                          model.setValue (IDtype::sessions, jam::ID::focusedPane,
+                                                          tree.getProperty (jam::ID::id));
                                       }
                                   });
 
@@ -151,8 +142,8 @@ void ENDView::registerEvents()
                                       setMouseConfig();
                                   });
 
-    // WINDOW leaf visibility toggles (ActionRegistration.cpp's own
-    // Position-bimap loop) relayout the whole paneManager tree — one
+    // WINDOW leaf visibility toggles (ENDActions.cpp's own
+    // Position-bimap loop) relayout the dormant dock-pane machinery — one
     // registration on the shared jam::ID::visible property key serves all
     // five leaves, no per-leaf type fallback needed (every WINDOW leaf now
     // shares IDtype::pane, so a type-keyed fallback could no longer

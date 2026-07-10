@@ -15,7 +15,7 @@
 `Application → Config → Nexus → Session → terminal::Processor/View`  
 Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
 Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
-UI: `Source/end/` — View, Window, Tabs, Panes  
+UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite)  
 Constants: `Identifier.h` · `Bimap.h`
 
 ## Key Docs

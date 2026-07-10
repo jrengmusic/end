@@ -54,7 +54,7 @@
  */
 class MessageOverlay
     : public juce::Component
-    , public jam::Model::Component
+    , public jam::Model::Component<MessageOverlay>
     , private juce::Timer
 {
 public:
@@ -71,7 +71,7 @@ public:
      * @note MESSAGE THREAD.
      */
     MessageOverlay (jam::Model& m, juce::ValueTree overlayState)
-        : jam::Model::Component (*this, m, overlayState)
+        : jam::Model::Component<MessageOverlay> (m, overlayState)
     {
         setOpaque (false);
         setInterceptsMouseClicks (false, false);

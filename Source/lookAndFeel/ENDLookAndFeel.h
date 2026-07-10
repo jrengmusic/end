@@ -224,13 +224,13 @@ public:
 
     /** @brief Pane resizer bar thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
-     *  TabView to size jam::PaneManager's resizer bars.
+     *  TabView to size jam::MatrixComponent's resizer bars.
      */
     int getPaneResizerBarSize() const noexcept override;
 
     /** @brief Dock leaf seed ratio from pane config (pane.sidebar_size).
      *  Consumed wherever a WINDOW leaf's own split ratio is seeded from
-     *  theme — see PaneManager.h's own construction-order note (Nexus
+     *  theme — see jam_MatrixComponent.h's own construction-order note (Nexus
      *  bootstraps WINDOW's topology before this getter's own config/LAF
      *  dependency exists).
      */

@@ -1,4 +1,4 @@
-#include "ENDView.h"
+#include "end/ENDView.h"
 
 void ENDView::createDockPane (int positionKey)
 {
@@ -52,7 +52,7 @@ void ENDView::registerActions()
                     if (edge.isValid())
                     {
                         const jam::UUID anchor { static_cast<int64_t> (
-                            model.getValue (IDtype::sessions, ID::focusedPane)) };
+                            model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
                         uuid = tabView->add (anchor, edge);
                     }
@@ -78,12 +78,9 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                               {
-                                  if (sessionView->getNumTabs() > 1)
+                                  if (sessionView->getChildCount() > 1)
                                   {
-                                      const jam::UUID focusedTab { static_cast<int64_t> (
-                                          sessionView->getValueTree().getProperty (ID::focusedTab)) };
-
-                                      sessionView->remove (focusedTab);
+                                      sessionView->remove (sessionView->getFocusedChild());
                                   }
                                   else
                                   {
@@ -117,10 +114,10 @@ void ENDView::registerActions()
                               {
                                   if (auto* tabView { sessionView->getActiveTabView() })
                                   {
-                                      if (tabView->getPaneCount() > 1)
+                                      if (tabView->getChildCount() > 1)
                                       {
                                           const jam::UUID focusedUuid { static_cast<int64_t> (
-                                              model.getValue (IDtype::sessions, ID::focusedPane)) };
+                                              model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
                                           nexus.getActiveSession().removeTerminal (focusedUuid);
                                           tabView->remove (focusedUuid);
@@ -139,7 +136,7 @@ void ENDView::registerActions()
         {
             auto& session { nexus.getActiveSession() };
             const jam::UUID id { static_cast<int64_t> (
-                model.getValue (IDtype::sessions, ID::focusedPane)) };
+                model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
             if (id.value != 0)
             {
@@ -154,7 +151,7 @@ void ENDView::registerActions()
         {
             auto& session { nexus.getActiveSession() };
             const jam::UUID id { static_cast<int64_t> (
-                model.getValue (IDtype::sessions, ID::focusedPane)) };
+                model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
             if (id.value != 0)
             {
@@ -168,7 +165,7 @@ void ENDView::registerActions()
                           {
                               auto& session { nexus.getActiveSession() };
                               const jam::UUID id { static_cast<int64_t> (
-                                  model.getValue (IDtype::sessions, ID::focusedPane)) };
+                                  model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
                               if (id.value != 0)
                                   session.get (id).model.setZoom (TerminalModel::defaultZoom);
