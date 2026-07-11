@@ -212,10 +212,10 @@ return {
 
 	tab = {
 		-- Tab bar position: "top", "bottom", "left", "right".
-		position = "bottom",
+		position = "top",
 
 		-- Tab bar visibility when only single tab opened
-		always_visible = false,
+		always_visible = true,
 		--
 		-- Bar strip background (jam::button::Bar::backgroundColourId).
 		background = colours.continentalWaters,
@@ -300,9 +300,18 @@ return {
 		-- Pane divider bar thickness in pixels.
 		resize_bar_thickness = 8,
 
+		-- Pane outline stroke (jam::PaneComponent::outlineColourId).
+		outline = colours.transparent,
+
+		-- Focused pane outline stroke (jam::PaneComponent::focusedOutlineColourId).
+		focused_outline = colours.mediterranea,
+
 		-- Dock extent fraction applied at dock creation (ENDView's own
 		-- createDockPane converts it to pixels against the window axis).
 		sidebar_size = 0.25,
+
+		-- Split preview overlay axis line style: "solid", "dash", or "bracket".
+		split_line = "bracket",
 	},
 
 	-- ========================================================================

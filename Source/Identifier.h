@@ -48,7 +48,9 @@
     X (resizeBar, "resize_bar")                    \
     X (resizeBarHighlight, "resize_bar_highlight") \
     X (resizeBarThickness, "resize_bar_thickness") \
+    X (focusedOutline, "focused_outline")          \
     X (sidebarSize, "sidebar_size")                \
+    X (splitLine, "split_line")                    \
     X (borderColour, "border_colour")              \
     X (borderWidth, "border_width")                \
     X (scrollbackLines, "scrollback_lines")        \

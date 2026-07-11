@@ -107,6 +107,8 @@ void ENDLookAndFeel::initialiseColours()
     setColourId (jam::IDtype::overlay, jam::ID::text, juce::Label::textColourId);
     setColourId (IDtype::pane, ID::resizeBar, paneBarColourId);
     setColourId (IDtype::pane, ID::resizeBarHighlight, paneBarHighlightColourId);
+    setColourId (IDtype::pane, jam::ID::outline, jam::PaneComponent::outlineColourId);
+    setColourId (IDtype::pane, ID::focusedOutline, jam::PaneComponent::focusedOutlineColourId);
     setColourId (IDtype::statusBar, jam::ID::background, statusBarBackgroundColourId);
     setColourId (IDtype::statusBar, ID::labelBackground, statusBarLabelBackgroundColourId);
     setColourId (IDtype::statusBar, ID::labelText, statusBarLabelTextColourId);

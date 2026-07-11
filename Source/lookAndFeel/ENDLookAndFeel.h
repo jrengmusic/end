@@ -222,6 +222,11 @@ public:
      */
     void drawResizerBar (juce::Graphics& g, juce::Component& bar) override;
 
+    /** @brief Pane outline indicator — focused pane strokes with the focused
+     *  outline colour, unfocused panes with the plain outline colour.
+     */
+    void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
+
     /** @brief Pane resizer bar thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
      *  TabView to size jam::MatrixComponent's resizer bars.

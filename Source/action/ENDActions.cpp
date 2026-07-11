@@ -32,7 +32,7 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                               {
-                                  jam::UUID uuid;
+                                  jam::UUID uuid {};
                                   sessionView->add (uuid);
 
                                   actions.actions.get<const juce::Identifier&> (ID::newPane, juce::Identifier {});
@@ -47,21 +47,15 @@ void ENDView::registerActions()
             {
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    jam::UUID uuid;
+                    jam::UUID uuid {};
 
                     if (edge.isValid())
-                    {
-                        const jam::UUID anchor { static_cast<int64_t> (
-                            model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
-
-                        uuid = tabView->add (anchor, edge);
-                    }
+                        uuid = tabView->add (edge);
                     else
-                    {
                         uuid = tabView->add();
-                    }
 
-                    actions.actions.get (ID::newTerminal, std::move (uuid));
+                    if (uuid != jam::UUID::none())
+                        actions.actions.get (ID::newTerminal, std::move (uuid));
                 }
             }
         });
@@ -103,9 +97,17 @@ void ENDView::registerActions()
                                   sessionView->prevTab();
                           });
 
-    actions.actions.add (ID::splitHorizontal, [this] {});
+    actions.actions.add (ID::splitHorizontal,
+                          [this]
+                          {
+                              actions.actions.get<const juce::Identifier&> (ID::newPane, jam::ID::bottom);
+                          });
 
-    actions.actions.add (ID::splitVertical, [this] {});
+    actions.actions.add (ID::splitVertical,
+                          [this]
+                          {
+                              actions.actions.get<const juce::Identifier&> (ID::newPane, jam::ID::right);
+                          });
 
     actions.actions.add (ID::closePane,
                           [this]

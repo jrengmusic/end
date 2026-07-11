@@ -35,8 +35,108 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Identifier.h"
+#include "../Bimap.h"
 #include "../config/ConfigModel.h"
 #include "../lookAndFeel/ENDLookAndFeel.h"
+
+/** @brief Background fill alpha [0, 1]; applied on top of the window content. */
+static constexpr float backgroundAlpha { 0.8f };
+
+/** @brief Padding in pixels applied to the text bounds. */
+static constexpr int textPadding { 20 };
+
+/** @brief Maximum number of text lines rendered by drawFittedText(). */
+static constexpr int maxLines { 20 };
+
+/** @brief Length in pixels of a bracket-style endcap, centred on the axis line. */
+static constexpr float bracketEndcapLength { 8.0f };
+
+static void drawMessageOverlay (juce::Graphics& g,
+                                juce::Rectangle<int> bounds,
+                                const juce::String& message,
+                                const juce::Font& font,
+                                juce::Colour background,
+                                juce::Colour foreground,
+                                int splitLine = -1,
+                                bool splitVertical = false,
+                                int lineStyle = OverlayAxisLine::solid)
+{
+    g.setColour (background);
+    g.fillRect (bounds);
+    g.setFont (font);
+    g.setColour (foreground);
+
+    if (splitLine >= 0)
+    {
+        float dashLengths[] { 6.0f, 4.0f };
+        const auto numDashes { static_cast<int> (std::size (dashLengths)) };
+
+        if (splitVertical)
+        {
+            const auto x { static_cast<float> (splitLine) };
+            const auto top { static_cast<float> (bounds.getY()) };
+            const auto bottom { static_cast<float> (bounds.getBottom()) };
+
+            if (lineStyle == OverlayAxisLine::dash)
+            {
+                g.drawDashedLine ({ x, top, x, bottom }, dashLengths, numDashes);
+            }
+            else if (lineStyle == OverlayAxisLine::bracket)
+            {
+                const auto capTop { top + static_cast<float> (textPadding) };
+                const auto capBottom { bottom - static_cast<float> (textPadding) };
+
+                g.drawLine ({ x, capTop, x, capBottom });
+                g.drawLine ({ x - bracketEndcapLength * 0.5f, capTop, x + bracketEndcapLength * 0.5f, capTop });
+                g.drawLine ({ x - bracketEndcapLength * 0.5f, capBottom, x + bracketEndcapLength * 0.5f, capBottom });
+            }
+            else
+            {
+                g.drawLine ({ x, top, x, bottom });
+            }
+        }
+        else
+        {
+            const auto y { static_cast<float> (splitLine) };
+            const auto left { static_cast<float> (bounds.getX()) };
+            const auto right { static_cast<float> (bounds.getRight()) };
+
+            if (lineStyle == OverlayAxisLine::dash)
+            {
+                g.drawDashedLine ({ left, y, right, y }, dashLengths, numDashes);
+            }
+            else if (lineStyle == OverlayAxisLine::bracket)
+            {
+                const auto capLeft { left + static_cast<float> (textPadding) };
+                const auto capRight { right - static_cast<float> (textPadding) };
+
+                g.drawLine ({ capLeft, y, capRight, y });
+                g.drawLine ({ capLeft, y - bracketEndcapLength * 0.5f, capLeft, y + bracketEndcapLength * 0.5f });
+                g.drawLine ({ capRight, y - bracketEndcapLength * 0.5f, capRight, y + bracketEndcapLength * 0.5f });
+            }
+            else
+            {
+                g.drawLine ({ left, y, right, y });
+            }
+        }
+    }
+
+    if (splitLine >= 0 and message.contains (" | "))
+    {
+        const auto first { message.upToFirstOccurrenceOf (" | ", false, false) };
+        const auto second { message.fromFirstOccurrenceOf (" | ", false, false) };
+
+        const auto region1 { splitVertical ? bounds.withRight (splitLine) : bounds.withBottom (splitLine) };
+        const auto region2 { splitVertical ? bounds.withLeft (splitLine) : bounds.withTop (splitLine) };
+
+        g.drawFittedText (first, region1.reduced (textPadding), juce::Justification::centred, maxLines);
+        g.drawFittedText (second, region2.reduced (textPadding), juce::Justification::centred, maxLines);
+    }
+    else
+    {
+        g.drawFittedText (message, bounds.reduced (textPadding), juce::Justification::centred, maxLines);
+    }
+}
 
 /**
  * @class MessageOverlay
@@ -142,11 +242,7 @@ public:
         auto bgColour { findColour (juce::Label::backgroundColourId) };
         auto fgColour { findColour (juce::Label::textColourId) };
 
-        g.fillAll (bgColour.withAlpha (backgroundAlpha));
-        g.setFont (font);
-        g.setColour (fgColour);
-        g.drawFittedText (
-            message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
+        drawMessageOverlay (g, getLocalBounds(), message, font, bgColour.withAlpha (backgroundAlpha), fgColour);
     }
 
 private:
@@ -167,15 +263,6 @@ private:
     jam::Owner<jam::Model::ParameterAttachment> parameterAttachments;
 
     //==============================================================================
-    /** @brief Background fill alpha [0, 1]; applied on top of the window content. */
-    static constexpr float backgroundAlpha { 0.8f };
-
-    /** @brief Padding in pixels applied to the text bounds. */
-    static constexpr int textPadding { 20 };
-
-    /** @brief Maximum number of text lines rendered by drawFittedText(). */
-    static constexpr int maxLines { 20 };
-
     /** @brief Fade-in duration in milliseconds. */
     static constexpr int fadeInMs { 60 };
 

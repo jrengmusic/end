@@ -12,7 +12,8 @@ ENDLookAndFeel::ENDLookAndFeel()
 
 ENDLookAndFeel::~ENDLookAndFeel() { config.removeListener (this); }
 
-void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
+                                               const juce::Identifier& property)
 {
     auto key { events.contains (property) ? property : tree.getType() };
 
@@ -315,4 +316,18 @@ void ENDLookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 
     if (hover)
         setColour (paneBarColourId, savedColour);
+}
+
+void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
+{
+    auto colour { findColour (pane.hasKeyboardFocus (true)
+                                  ? jam::PaneComponent::focusedOutlineColourId
+                                  : jam::PaneComponent::outlineColourId) };
+
+    g.setColour (colour);
+    g.drawRoundedRectangle (
+        pane.getLocalBounds().toFloat().reduced (jam::PaneComponent::edgePadding
+                                                 + jam::PaneComponent::lineThickness),
+        jam::PaneComponent::cornerSize,
+        jam::PaneComponent::lineThickness);
 }

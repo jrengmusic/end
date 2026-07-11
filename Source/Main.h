@@ -35,9 +35,9 @@ private:
 #endif
 
     //==============================================================================
-    // CONTEXT — jam::Bimap<T> owner. Declared before any consumer so the
+    // Owned global instance Bimap — jam::Bimap<T> owner. Declared before any consumer so the
     // single-global-pointer Instance<T> slot is populated before first use.
-    Map context;
+    Map instances;
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member

@@ -199,6 +199,73 @@ struct CursorShape : public jam::Bimap<CursorShape>
 
 //==============================================================================
 /**
+ * @brief Bimap for the split preview overlay axis line style — "solid",
+ *        "dash", or "bracket".
+ *
+ * Used by theme.lua pane.split_line. Integer keys select the drawing
+ * routine dispatched by drawMessageOverlay():
+ *   0 → "solid"   — plain line, full length (default)
+ *   1 → "dash"    — dashed line, full length
+ *   2 → "bracket" — measured |--- N ---| with endcaps at edge padding
+ *
+ * Registered in ENDApplication CONTEXT before ConfigModel construction.
+ */
+struct OverlayAxisLine : public jam::Bimap<OverlayAxisLine>
+{
+    /** @brief Integer keys for all overlay axis line style entries. */
+    enum
+    {
+        solid,///< Plain line, full length (default).
+        dash,///< Dashed line, full length.
+        bracket,///< Measured |--- N ---| with endcaps at edge padding.
+    };
+
+    /** @brief Populates the bimap with all three entries. */
+    OverlayAxisLine()
+    {
+        map = {
+            { OverlayAxisLine::solid,   "solid"   },
+            { OverlayAxisLine::dash,    "dash"    },
+            { OverlayAxisLine::bracket, "bracket" },
+        };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (OverlayAxisLine::solid); }
+
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    static int get (const juce::String& value) noexcept
+    {
+        return jam::Map::getKey (get()).at (value);
+    }
+
+    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
+
+    /** @brief Returns a fused Validator for the OverlayAxisLine value set.
+     *
+     *  check  — accepts any string present in the OverlayAxisLine bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
+    {
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
+    }
+};
+
+//==============================================================================
+/**
  * @brief Registry of lua config files — 3 section keys.
  *        Top-level registry. CRTP-derived from jam::Bimap\<FileConfig\>.
  *
@@ -434,6 +501,7 @@ struct Map
     FileFlex flex;
     FontRasterizerBackend fontRasterizerBackend;
     CursorShape cursorShape;
+    OverlayAxisLine overlayAxisLine;
     jam::map::ImageResample imageResample;
     jam::map::WindowFX window;
     jam::map::Segment segment;

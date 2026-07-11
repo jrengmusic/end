@@ -226,6 +226,7 @@ public:
         add (IDtype::graphics, ID::filter, jam::map::ImageResample::getValidator());
         add (IDtype::graphics, ID::fontRasterizer, FontRasterizerBackend::getValidator());
         add (jam::IDtype::cursor, jam::ID::style, CursorShape::getValidator());
+        add (IDtype::pane, ID::splitLine, OverlayAxisLine::getValidator());
 
         // graphics.mouse (nested under graphics — IDtype::mouse, found by the
         // same recursive getChildWithName() as every other tree type here).
@@ -242,6 +243,19 @@ public:
             return juce::String (width) + "|" + juce::String (height);
         };
         add (IDtype::window, ID::size, sizeFormat);
+
+        jam::lua::Validator boundsFormat;
+        boundsFormat.format = jam::Format::fromBounds;
+        add (jam::IDtype::pane, jam::ID::bounds, boundsFormat);
+
+        jam::lua::Validator normalisedFormat;
+        normalisedFormat.format = [] (const juce::var& v)
+        {
+            const auto [x, y] { jam::bit_cast<jam::Size<float>> (static_cast<int64_t> (v)) };
+            return juce::String (x) + "," + juce::String (y);
+        };
+        add (jam::IDtype::pane, jam::ID::normalisedPosition, normalisedFormat);
+        add (jam::IDtype::pane, jam::ID::normalisedSize, normalisedFormat);
 
         return v;
     }();
