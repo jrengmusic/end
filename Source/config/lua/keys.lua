@@ -108,6 +108,30 @@ return {
     -- Focus pane to the right. Press prefix first.
     pane_right = "l",
 
+    -- Absorb the pane to the left into the focused pane.
+    join_left = "ctrl+h",
+
+    -- Absorb the pane below into the focused pane.
+    join_down = "ctrl+j",
+
+    -- Absorb the pane above into the focused pane.
+    join_up = "ctrl+k",
+
+    -- Absorb the pane to the right into the focused pane.
+    join_right = "ctrl+l",
+
+    -- Swap the focused pane with the pane to the left. Press prefix first.
+    swap_left = "shift+h",
+
+    -- Swap the focused pane with the pane below. Press prefix first.
+    swap_down = "shift+j",
+
+    -- Swap the focused pane with the pane above. Press prefix first.
+    swap_up = "shift+k",
+
+    -- Swap the focused pane with the pane to the right. Press prefix first.
+    swap_right = "shift+l",
+
     -- ---- Misc ----
 
     -- Insert a literal newline (LF) instead of carriage return.

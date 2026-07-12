@@ -35,7 +35,8 @@ void ENDView::registerActions()
                                   jam::UUID uuid {};
                                   sessionView->add (uuid);
 
-                                  actions.actions.get<const juce::Identifier&> (ID::newPane, juce::Identifier {});
+                                  const juce::Identifier edge {};
+                                  actions.actions.get (ID::newPane, edge);
                               }
                           });
 
@@ -50,7 +51,7 @@ void ENDView::registerActions()
                     jam::UUID uuid {};
 
                     if (edge.isValid())
-                        uuid = tabView->add (edge);
+                        uuid = tabView->split (edge);
                     else
                         uuid = tabView->add();
 
@@ -100,13 +101,13 @@ void ENDView::registerActions()
     actions.actions.add (ID::splitHorizontal,
                           [this]
                           {
-                              actions.actions.get<const juce::Identifier&> (ID::newPane, jam::ID::bottom);
+                              actions.actions.get (ID::newPane, jam::ID::bottom);
                           });
 
     actions.actions.add (ID::splitVertical,
                           [this]
                           {
-                              actions.actions.get<const juce::Identifier&> (ID::newPane, jam::ID::right);
+                              actions.actions.get (ID::newPane, jam::ID::right);
                           });
 
     actions.actions.add (ID::closePane,
@@ -177,7 +178,7 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (ID::paneLeft);
+                                      tabView->focusPane (jam::ID::left);
                           });
 
     actions.actions.add (ID::paneRight,
@@ -185,7 +186,7 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (ID::paneRight);
+                                      tabView->focusPane (jam::ID::right);
                           });
 
     actions.actions.add (ID::paneUp,
@@ -193,7 +194,7 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (ID::paneUp);
+                                      tabView->focusPane (jam::ID::top);
                           });
 
     actions.actions.add (ID::paneDown,
@@ -201,7 +202,91 @@ void ENDView::registerActions()
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (ID::paneDown);
+                                      tabView->focusPane (jam::ID::bottom);
+                          });
+
+    actions.actions.add (ID::joinLeft,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                  {
+                                      const auto target { tabView->join (jam::ID::left) };
+
+                                      if (target != jam::UUID::none())
+                                          nexus.getActiveSession().removeTerminal (target);
+                                  }
+                          });
+
+    actions.actions.add (ID::joinDown,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                  {
+                                      const auto target { tabView->join (jam::ID::bottom) };
+
+                                      if (target != jam::UUID::none())
+                                          nexus.getActiveSession().removeTerminal (target);
+                                  }
+                          });
+
+    actions.actions.add (ID::joinUp,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                  {
+                                      const auto target { tabView->join (jam::ID::top) };
+
+                                      if (target != jam::UUID::none())
+                                          nexus.getActiveSession().removeTerminal (target);
+                                  }
+                          });
+
+    actions.actions.add (ID::joinRight,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                  {
+                                      const auto target { tabView->join (jam::ID::right) };
+
+                                      if (target != jam::UUID::none())
+                                          nexus.getActiveSession().removeTerminal (target);
+                                  }
+                          });
+
+    actions.actions.add (ID::swapLeft,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                      tabView->swap (jam::ID::left);
+                          });
+
+    actions.actions.add (ID::swapDown,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                      tabView->swap (jam::ID::bottom);
+                          });
+
+    actions.actions.add (ID::swapUp,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                      tabView->swap (jam::ID::top);
+                          });
+
+    actions.actions.add (ID::swapRight,
+                          [this]
+                          {
+                              if (auto* sessionView { getActiveSessionView() })
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                      tabView->swap (jam::ID::right);
                           });
 
     actions.actions.add (

@@ -2,6 +2,50 @@
 
 ---
 
+## Sprint 73: JSN END Wiring + Audit Sweep + State-Pure Gesture Collapse ✅
+
+**Date:** 2026-07-12
+**Duration:** ~03:30
+
+### Agents Participated
+- COUNSELOR: JSN Step 2 spec intake (keys classifier ruling: join ctrl+hjkl direct / swap shift+hjkl modal — no classifier change), audit finding dispositions (H-1 rescale ruled, H-2 centre-from-proportions ruled, M-4 delete ruled), ARCHITECT-directed collapses carried through: zero-new-names law (rescale expressed in head/tail/region/proportions reuse), trust-the-framework (MouseEvent API), trust-the-state (gesture as model parameters)
+- Engineer ×9: Step 2 wiring; gestureTarget rename; M-1/M-3/L-2; H-1/H-2 jam fix (five paper traces); M-2 edge SSOT; drawMessageOverlay prep collapse; MouseEvent-API gesture collapse; PaneComponent::getCorner; gesture-as-parameters; dead get() deletion
+- Auditor ×2: Step 2 audit (PASS, shadow flag); Step 3 clean sweep (8 findings — 2 High, 4 Medium, 2 Low — all resolved or ARCHITECT-ruled)
+
+### Files Modified (~9 total)
+
+**JAM:**
+- `jam_gui/layout/jam_MatrixComponent.cpp` — `getNeighbor` rewritten state-pure: ascent accumulates the pane's normalized coordinate along the wall through perpendicular ancestors (`position`, from proportions only), descent picks the child whose span contains it (H-2, replaces interim mirrored-slot pick — Blender centre parity, zero pixels); `join` chain accumulator made side-aware (head-share vs tail-share) and case 2 rescales every intermediate EDGE's proportions before the wall write (H-1 — absorbed extent folds into the existing `proportions` accumulator; locals mirror layout()'s head/tail; only the initiator's pixels change, siblings hold exact extents)
+- `jam_gui/layout/jam_PaneComponent.h` — `getCorner (position)` API: corner zone rect under a local point, empty when none (pane knows its own bounds); `cornerZoneExtent` moved here beside minimumPaneExtent
+
+**END:**
+- `Source/end/TabView.h/.cpp` — `childRemoved` override strips the PANE row then delegates graph collapse: close and join ride ONE removal path (`TabView::remove` deleted, inherited OwnerComponent::remove is the verb); `focusPane`/`join`/`swap` on graph verbs keyed by `getFocusedChild()`; `findFocusedPane`/`findNearestPane` stubs deleted; `add (edge, position)` forwarder deleted (callers use `split`), `add()` reuses `createChild`; `mouseDown` override + `gestureTarget`/`gestureStart` members deleted — gesture derives from MouseEvent API (originalComponent, getMouseDownPosition, getOffsetFromDragStart) + `getCorner`; gesture state became registered model parameters `jam::ID::edge` + `jam::ID::position` on the TAB row (split's own arguments held as state) — TabView carries ZERO gesture members; mouseUp commits `split (edge, position)` straight from state; paintOverChildren gates on the edge parameter, preview = focused pane's bounds, head/tail cut mirrors drawMessageOverlay's idiom; dead no-arg `get()` deleted (M-4, ARCHITECT-ruled)
+- `Source/end/MessageOverlay.h` — `drawMessageOverlay` owns its presentation prep (font from config, colours from the overlay component, lineStyle) — signature slims to (g, overlay, bounds, message, splitLine, splitVertical); MessageOverlay::paint is one line; `config` member deleted
+- `Source/action/ENDActions.cpp` — four pane_* registrations pass jam Position directions (`jam::ID::left/right/top/bottom`) at the boundary; eight new registrations `join_left…swap_right` mirroring the pane family (join retires the terminal via `removeTerminal (target)` on valid return only); newPane edge branch calls `split (edge)`
+- `Source/Identifier.h` — eight X-macro entries `joinLeft…swapRight`
+- `Source/config/lua/keys.lua` — `join_* = ctrl+h/j/k/l` (direct map per classifier — ARCHITECT-ruled, no prefix), `swap_* = shift+h/j/k/l` (modal, prefix first)
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT: one removal path, edge derivation exists once, gesture truth lives in the model; Stateless: TabView holds no gesture members; Encapsulation: PaneComponent owns its corner zone, drawMessageOverlay owns its presentation; zero asserts added
+- [x] NAMES.md adhered — zero new names: `jam::ID::edge`/`jam::ID::position` reused as the gesture parameters, rescale locals reuse layout()'s head/tail + region/proportions, `getCorner`/`corner` from ARCHITECT's words; `gestureTarget` rename ARCHITECT-ratified
+- [x] MANIFESTO.md principles applied — framework API OOTB: MouseEvent mouseDownPosition/offsetFromDragStart/originalComponent, Position::isLow/isVertical, var float conversion; dead findParent fallback and dead getter deleted (YAGNI)
+- [ ] Open at log time (ARCHITECT-commanded log): JSN Step 4 doxygen pending (new verbs + getCorner undocumented; MessageOverlay stale `ResizableWindow::backgroundColourId` prose vs actual `Label::backgroundColourId`); Step 5 docs sync pending; ARCHITECT build/run validation of H-1/H-2 + gesture rewrite pending
+
+### Problems Solved
+- Auditor H-1: multi-level same-orientation join left intermediate EDGE proportions stale (siblings resized) — fixed by per-edge rescale from the absorbed extent; side-correctness bug in the tail direction fixed by the same pass (old formula was head-only)
+- Auditor H-2: mirrored-slot pick deviated from Blender centre semantics on asymmetric no-mirror cuts — replaced with proportions-only coordinate descent (state-pure, plan's centre contract restored)
+- keys classifier discrepancy resolved by ARCHITECT ruling: join is a direct binding (ctrl → direct map), swap modal — ENDActions.h untouched
+- ARCHITECT-driven collapse series: mouseDown/member shadow state died into MouseEvent API + focus contract; corner math moved into PaneComponent (getCorner); gesture preview became valid model parameters; drawMessageOverlay prep deduplicated; add forwarders died
+- Five paper traces re-verified after H-1/H-2 (single-level head/tail joins, multi-level rescale, asymmetric perpendicular descent, 2×2 mirror descent)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (carried, unrelated to this sprint)
+
+---
+
 ## Sprint 72: Binary-Space Closeout + Join/Swap/Navigation Graph Verbs (jam) ✅
 
 **Date:** 2026-07-12

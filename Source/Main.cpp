@@ -111,7 +111,7 @@ void ENDApplication::initialiseVulkan()
 
     jam::BackgroundBlur::setEnabled (canUseGpu);
 
-    vulkanEngine = std::make_unique<jam::VulkanEngine> (targetFrameBudgetMs, cacheFile, canUseGpu);
+    vulkanEngine = std::make_unique<jam::VulkanEngine> (ProjectInfo::projectName, targetFrameBudgetMs, cacheFile, canUseGpu);
 
     // LookAndFeel owns font knowledge but not the atlas — the atlas (owned by
     // the VulkanEngine just constructed above) does not exist at LookAndFeel

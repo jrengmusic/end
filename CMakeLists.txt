@@ -95,7 +95,6 @@ configure_app(
         juce_graphics
         juce_gui_basics
         juce_gui_extra
-        juce_opengl
     JAM_MODULES
         jam_core
         jam_vulkan

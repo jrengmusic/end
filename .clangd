@@ -3,7 +3,6 @@ CompileFlags:
   Add:
     - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
-    - -DGL_SILENCE_DEPRECATION
     - -DHAVE_FCNTL_H
     - -DHAVE_FREETYPE
     - -DHAVE_UNISTD_H
@@ -35,7 +34,6 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_juce_graphics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_extra=1
-    - -DJUCE_MODULE_AVAILABLE_juce_opengl=1
     - -DJUCE_STANDALONE_APPLICATION=1
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
     - -DJUCE_USE_CURL=0

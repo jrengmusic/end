@@ -171,6 +171,14 @@
     X (paneDown, "pane_down")                          \
     X (paneUp, "pane_up")                              \
     X (paneRight, "pane_right")                        \
+    X (joinLeft, "join_left")                          \
+    X (joinDown, "join_down")                          \
+    X (joinUp, "join_up")                              \
+    X (joinRight, "join_right")                        \
+    X (swapLeft, "swap_left")                          \
+    X (swapDown, "swap_down")                          \
+    X (swapUp, "swap_up")                              \
+    X (swapRight, "swap_right")                        \
     X (reducePaneWidth, "reduce_pane_width")           \
     X (reducePaneHeight, "reduce_pane_height")         \
     X (expandPaneWidth, "expand_pane_width")           \

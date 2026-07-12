@@ -1,15 +1,15 @@
 #include "end/TabView.h"
 #include "end/MessageOverlay.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "config/ConfigModel.h"
 #include "terminal/TerminalModel.h"
-#include "Bimap.h"
 
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
     : jam::MatrixComponent (m, sessionState, IDtype::tab, uuid)
 {
     setName (IDtype::tab.toString());
     model.createAndAddParameter<jam::ParameterText> (state, jam::ID::name, juce::String {});
+    model.createAndAddParameter<jam::ParameterText> (state, jam::ID::edge, juce::String {});
+    model.createAndAddParameter<jam::Parameter<float>> (state, jam::ID::position, 0.0f);
     addMouseListener (this, true);
 }
 
@@ -17,16 +17,10 @@ TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
 jam::UUID TabView::add()
 {
     jam::UUID uuid {};
-    auto pane { std::make_unique<TerminalView> (model, state, uuid) };
 
-    MatrixComponent::add (uuid, std::move (pane));
+    MatrixComponent::add (uuid, createChild (uuid));
 
     return uuid;
-}
-
-jam::UUID TabView::add (const juce::Identifier& edge, float position)
-{
-    return split (edge, position);
 }
 
 //==============================================================================
@@ -36,37 +30,32 @@ std::unique_ptr<jam::OwnedComponent> TabView::createChild (jam::UUID uuid)
 }
 
 //==============================================================================
-void TabView::remove (jam::UUID uuid)
+void TabView::childRemoved (jam::UUID uuid)
 {
-    auto& pane { MatrixComponent::get (uuid) };
-    state.removeChild (pane.getValueTree(), nullptr);
-    MatrixComponent::remove (uuid);
-}
-
-//==============================================================================
-TerminalView* TabView::findFocusedPane() const
-{
-    for (auto& [uuid, child] : getChildren())
-        if (child->hasKeyboardFocus (true))
-            return static_cast<TerminalView*> (child.get());
-
-    return nullptr;
-}
-
-TerminalView*
-TabView::findNearestPane (const juce::Identifier& direction, TerminalView* focused) const
-{
-    return nullptr;
+    state.removeChild (MatrixComponent::get (uuid).getValueTree(), nullptr);
+    MatrixComponent::childRemoved (uuid);
 }
 
 //==============================================================================
 void TabView::focusPane (const juce::Identifier& direction)
 {
-    auto* focused { findFocusedPane() };
-    auto* nearest { findNearestPane (direction, focused) };
+    const auto target { getNeighbor (getFocusedChild(), direction) };
 
-    if (focused != nullptr and nearest != nullptr)
-        nearest->toFront (true);
+    if (target != jam::UUID::none())
+        get (target).toFront (true);
+}
+
+jam::UUID TabView::join (const juce::Identifier& direction)
+{
+    return MatrixComponent::join (getFocusedChild(), direction);
+}
+
+void TabView::swap (const juce::Identifier& direction)
+{
+    const auto target { getNeighbor (getFocusedChild(), direction) };
+
+    if (target != jam::UUID::none())
+        MatrixComponent::swap (getFocusedChild(), target);
 }
 
 //==============================================================================
@@ -75,61 +64,31 @@ TerminalView& TabView::get (jam::UUID uuid)
     return static_cast<TerminalView&> (MatrixComponent::get (uuid));
 }
 
-TerminalView& TabView::get()
-{
-    jassert (getChildCount() > 0);
-    auto& [uuid, child] { *getChildren().begin() };
-    return static_cast<TerminalView&> (*child);
-}
-
 //==============================================================================
-void TabView::mouseDown (const juce::MouseEvent& event)
-{
-    if (event.eventComponent != this)
-    {
-        auto* pane { dynamic_cast<jam::PaneComponent*> (event.eventComponent) != nullptr
-                         ? dynamic_cast<jam::PaneComponent*> (event.eventComponent)
-                         : event.eventComponent->findParentComponentOfClass<jam::PaneComponent>() };
-
-        if (pane != nullptr)
-        {
-            const auto cursor { event.getEventRelativeTo (pane).getPosition() };
-            const auto bounds { pane->getLocalBounds() };
-
-            if ((cursor.getX() < cornerZoneExtent or cursor.getX() > bounds.getWidth() - cornerZoneExtent)
-                and (cursor.getY() < cornerZoneExtent or cursor.getY() > bounds.getHeight() - cornerZoneExtent))
-            {
-                target = jam::UUID { static_cast<int64_t> (pane->getComponentID().getLargeIntValue()) };
-                gestureStart = event.getEventRelativeTo (this).getPosition();
-            }
-        }
-    }
-}
-
 void TabView::mouseDrag (const juce::MouseEvent& event)
 {
-    if (target != jam::UUID::none())
+    if (auto* pane { dynamic_cast<jam::PaneComponent*> (event.originalComponent) })
     {
-        const auto cursor { event.getEventRelativeTo (this).getPosition() };
-        const auto delta { cursor - gestureStart };
+        const auto corner { pane->getCorner (event.getEventRelativeTo (pane).getMouseDownPosition()) };
+        const auto delta { event.getOffsetFromDragStart() };
 
-        if (std::abs (delta.getX()) >= splitDragThreshold or std::abs (delta.getY()) >= splitDragThreshold)
+        if (not corner.isEmpty()
+            and (std::abs (delta.getX()) >= splitDragThreshold or std::abs (delta.getY()) >= splitDragThreshold))
         {
-            const auto bounds { get (target).getBounds() };
+            const auto cursor { event.getEventRelativeTo (pane).getPosition() };
             const bool horizontal { std::abs (delta.getX()) > std::abs (delta.getY()) };
 
-            const juce::Identifier edge { horizontal
-                                              ? (gestureStart.getX() - bounds.getX() < cornerZoneExtent ? jam::ID::left : jam::ID::right)
-                                              : (gestureStart.getY() - bounds.getY() < cornerZoneExtent ? jam::ID::top : jam::ID::bottom) };
+            const juce::Identifier edge { horizontal ? (corner.getX() == 0 ? jam::ID::left : jam::ID::right)
+                                                     : (corner.getY() == 0 ? jam::ID::top : jam::ID::bottom) };
 
-            const bool inward { edge == jam::ID::left    ? delta.getX() > 0
-                                 : edge == jam::ID::right ? delta.getX() < 0
-                                 : edge == jam::ID::top   ? delta.getY() > 0
-                                                            : delta.getY() < 0 };
+            const bool inward { jam::Position::isLow (jam::Position::get (edge.toString()))
+                                == ((horizontal ? delta.getX() : delta.getY()) > 0) };
 
-            splitVertical = horizontal;
-            splitLine = inward ? (horizontal ? cursor.getX() : cursor.getY()) : -1;
-            preview = inward ? bounds : juce::Rectangle<int> {};
+            state.setProperty (jam::ID::edge, inward ? edge.toString() : juce::String {}, nullptr);
+            state.setProperty (jam::ID::position,
+                               horizontal ? static_cast<float> (cursor.getX()) / static_cast<float> (pane->getWidth())
+                                          : static_cast<float> (cursor.getY()) / static_cast<float> (pane->getHeight()),
+                               nullptr);
 
             repaint();
         }
@@ -138,24 +97,12 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
 
 void TabView::mouseUp (const juce::MouseEvent& event)
 {
-    if (target != jam::UUID::none())
+    const auto edge { state.getProperty (jam::ID::edge).toString() };
+
+    if (edge.isNotEmpty())
     {
-        if (not preview.isEmpty())
-        {
-            const auto bounds { get (target).getBounds() };
-            const juce::Identifier edge { splitVertical
-                                              ? (gestureStart.getX() - bounds.getX() < cornerZoneExtent ? jam::ID::left : jam::ID::right)
-                                              : (gestureStart.getY() - bounds.getY() < cornerZoneExtent ? jam::ID::top : jam::ID::bottom) };
-            const auto position { splitVertical
-                                       ? static_cast<float> (splitLine - bounds.getX()) / static_cast<float> (bounds.getWidth())
-                                       : static_cast<float> (splitLine - bounds.getY()) / static_cast<float> (bounds.getHeight()) };
-
-            add (edge, position);
-            preview = {};
-        }
-
-        target = jam::UUID::none();
-        splitLine = -1;
+        split (juce::Identifier { edge }, state.getProperty (jam::ID::position));
+        state.setProperty (jam::ID::edge, juce::String {}, nullptr);
         repaint();
     }
 }
@@ -163,31 +110,27 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 //==============================================================================
 void TabView::paintOverChildren (juce::Graphics& g)
 {
-    if (not preview.isEmpty())
+    const auto edge { state.getProperty (jam::ID::edge).toString() };
+
+    if (edge.isNotEmpty())
     {
+        const auto preview { get (getFocusedChild()).getBounds() };
+        const bool splitVertical { jam::Position::isVertical (jam::Position::get (edge)) };
+        const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
+        const int splitLine { splitVertical
+                                  ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
+                                  : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
         const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
 
-        const auto width1 { splitVertical ? splitLine - preview.getX() : preview.getWidth() };
-        const auto height1 { splitVertical ? preview.getHeight() : splitLine - preview.getY() };
-        const auto width2 { splitVertical ? preview.getRight() - splitLine : preview.getWidth() };
-        const auto height2 { splitVertical ? preview.getHeight() : preview.getBottom() - splitLine };
+        const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
+        const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
 
-        const juce::String message { juce::String (static_cast<int> (width1 / metrics.cellWidth)) + " x "
-                                     + juce::String (static_cast<int> (height1 / metrics.cellHeight))
+        const juce::String message { juce::String (static_cast<int> (head.getWidth() / metrics.cellWidth)) + " x "
+                                     + juce::String (static_cast<int> (head.getHeight() / metrics.cellHeight))
                                      + " | "
-                                     + juce::String (static_cast<int> (width2 / metrics.cellWidth)) + " x "
-                                     + juce::String (static_cast<int> (height2 / metrics.cellHeight)) };
+                                     + juce::String (static_cast<int> (tail.getWidth() / metrics.cellWidth)) + " x "
+                                     + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
 
-        const auto family { ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        const auto size { static_cast<float> (ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontSize)) };
-        const juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
-
-        const auto background { findColour (juce::Label::backgroundColourId).withAlpha (backgroundAlpha) };
-        const auto foreground { findColour (juce::Label::textColourId) };
-
-        const auto lineStyle { OverlayAxisLine::get (
-            ConfigModel::getInstance()->getValue (IDtype::pane, ID::splitLine).toString()) };
-
-        drawMessageOverlay (g, preview, message, font, background, foreground, splitLine, splitVertical, lineStyle);
+        drawMessageOverlay (g, *this, preview, message, splitLine, splitVertical);
     }
 }

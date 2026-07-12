@@ -28,7 +28,6 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -I/Users/jreng/Documents/Poems/dev/end/tests/build/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
-    - -DGL_SILENCE_DEPRECATION
     - -DJUCE_APPLICATION_NAME_STRING=
     - -DJUCE_APPLICATION_VERSION_STRING=
     - -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
@@ -54,7 +53,6 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_juce_graphics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_extra=1
-    - -DJUCE_MODULE_AVAILABLE_juce_opengl=1
     - -DJUCE_STANDALONE_APPLICATION=1
     - -DJUCE_WINDOWS=0
     - -DNDEBUG=1

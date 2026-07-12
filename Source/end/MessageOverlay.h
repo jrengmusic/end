@@ -52,15 +52,22 @@ static constexpr int maxLines { 20 };
 static constexpr float bracketEndcapLength { 8.0f };
 
 static void drawMessageOverlay (juce::Graphics& g,
+                                juce::Component& overlay,
                                 juce::Rectangle<int> bounds,
                                 const juce::String& message,
-                                const juce::Font& font,
-                                juce::Colour background,
-                                juce::Colour foreground,
                                 int splitLine = -1,
-                                bool splitVertical = false,
-                                int lineStyle = OverlayAxisLine::solid)
+                                bool splitVertical = false)
 {
+    const auto family { ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+    const auto size { static_cast<float> (ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontSize)) };
+    const juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
+
+    const auto background { overlay.findColour (juce::Label::backgroundColourId).withAlpha (backgroundAlpha) };
+    const auto foreground { overlay.findColour (juce::Label::textColourId) };
+
+    const auto lineStyle { OverlayAxisLine::get (
+        ConfigModel::getInstance()->getValue (IDtype::pane, ID::splitLine).toString()) };
+
     g.setColour (background);
     g.fillRect (bounds);
     g.setFont (font);
@@ -235,14 +242,7 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        auto family { config.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        auto size { static_cast<float> (config.getValue (jam::IDtype::overlay, ID::fontSize)) };
-        juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
-
-        auto bgColour { findColour (juce::Label::backgroundColourId) };
-        auto fgColour { findColour (juce::Label::textColourId) };
-
-        drawMessageOverlay (g, getLocalBounds(), message, font, bgColour.withAlpha (backgroundAlpha), fgColour);
+        drawMessageOverlay (g, *this, getLocalBounds(), message);
     }
 
 private:
@@ -254,8 +254,6 @@ private:
     }
 
     //==============================================================================
-    ConfigModel& config { *ConfigModel::getInstance() };
-
     /** @brief The text currently displayed. */
     juce::String message;
 
