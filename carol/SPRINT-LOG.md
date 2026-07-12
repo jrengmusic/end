@@ -2,6 +2,96 @@
 
 ---
 
+## Sprint 75: drawLine native quad expansion (DEBT-20260629T100000) ✅
+
+**Date:** 2026-07-13
+**Duration:** 01:30
+
+### Agents Participated
+- COUNSELOR: sprint planning, orchestration, direct edits (doxygen, diagnostic, scale fix)
+- Pathfinder: Vulkan pipeline architecture survey
+- Librarian: MoltenVK/LINE_LIST cross-platform research
+- Engineer: drawLine implementation, drawLineWithThickness override, stale doxygen fix, diagnostic test draws
+- Auditor: two full audit passes (pre- and post-drawLineWithThickness)
+
+### Files Modified (3 total)
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.cpp:249-308` — drawLine delegates to drawLineWithThickness(l, 1.0f); drawLineWithThickness computes user-space quad (4 vertices, 6 indices from perpendicular offset), transforms to device space, submits to existing triList pipeline via recordFillPathDrawCommands. static_assert guards vec2 layout. Zero heap alloc, zero juce::Path, zero earcut.
+- `jam_vulkan/context/jam_VulkanLowLevelGraphicsContext.h:14-17,285-294` — class-level doxygen updated (drawLine listed as native, DEBT reference removed); drawLineWithThickness override declared with @brief/@param; drawLine @brief updated to reflect delegation.
+- `Source/terminal/TerminalView.cpp` — temporary diagnostic drawLine test draws added and removed (net zero change). Exercised 14 arbitrary-angle 1px lines + 4 variable-thickness lines on retina display.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- `drawLine` no longer delegates to `fillPath` — eliminated juce::Path heap alloc, PathFlatteningIterator, and earcut triangulation overhead for a trivially deterministic 4-vertex quad
+- `drawLineWithThickness` overridden — JUCE base class default (which fell through to fillPath) replaced; 100% native LLGC surface, no backend gaps
+- Scale-aware thickness — quad computed in user space, transformed to device space; thickness scales correctly on retina/hi-DPI (initial implementation computed perpendicular in device space, causing 1-physical-pixel lines regardless of scale)
+- Cross-platform: VK_PRIMITIVE_TOPOLOGY_LINE_LIST with lineWidth > 1.0 rejected (MoltenVK requires MVK_USE_METAL_PRIVATE_API for wideLines, disqualifies App Store); quad expansion via existing triList pipeline is universally correct
+
+### Debts Paid
+- `DEBT-20260629T100000` — drawLine native pipeline gap resolved. Approach diverged from original expectation (LINE_LIST topology) to quad expansion via existing triList pipeline — MoltenVK lineWidth constraint makes LINE_LIST non-viable for arbitrary thickness cross-platform.
+
+### Debts Deferred
+- None
+
+---
+
+## Sprint 74: JSN Corner Join Gesture + Area Options Popup + Glassmorphism ✅
+
+**Date:** 2026-07-12
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: plan intake (Blender Area Options reference, KANJUT pattern survey), step sequencing (Steps 4–8), audit finding dispositions (C1 → fire through action system, M2/M3 → KANJUT fork pattern accepted, M10/M11/M12 → mechanical fixes), ARCHITECT-directed corrections (BinaryData SVG sourcing, jam::SVG::Button::paintSingleImage for corner buttons, drawPopupMenuItemWithOptions with jam::SVG::getPath for LAF colour-aware menu icons, getCommonFont for popup font)
+- Pathfinder ×2: corner gesture + popup infrastructure survey; KANJUT button::Menu + style::Theme pattern survey
+- Librarian ×1: JUCE PopupMenu + blur API research
+- Engineer ×11: docs sync; corner join gesture; button::Menu fork; PaneComponent corner buttons; popup menu content + swap-pick; glassmorphism LookAndFeel; UUID ambiguity fix + BinaryData SVG sourcing; getCommonFont/getPopupMenuFont; corner button SVG::Button paint; drawPopupMenuItemWithOptions with getPath; C1/M10/M11/M12 audit fixes; thorough doxygen pass
+- Auditor ×1: comprehensive sweep (C1 terminal retirement gap, M2/M3/M6 function length, M10 missing explicit, M11/M12 brace init + C-style cast, L4/L7 magic menu IDs — C1/M10/M11/M12 resolved)
+
+### Files Modified (~16 total)
+
+**JAM:**
+- `jam_gui/button/jam_Menu.h` — NEW. Fork of kuassa::button::Menu: setButton/setMenuFactory/setAction/showMenu via jam::showAsync, setButtonState for manual hover; full doxygen
+- `jam_gui/layout/jam_PaneComponent.h` — 4 corner jam::button::Menu per pane (24×24 zones); CornerButton nested class paints via jam::SVG::Button::paintSingleImage (LAF colour-aware, invisible at normal, painted on hover/down); resized() positions corners; mouseDown right-click triggers showMenu(); mouseEnter/mouseMove/mouseExit drive hover via setButtonState; setCornerMenuFactory/setCornerMenuAction broadcast to all 4; explicit on CornerButton ctor; file header + full doxygen
+- `jam_gui/jam_gui.h` — include order: jam_Menu.h before layout submodule (PaneComponent depends on complete Menu type)
+
+**END:**
+- `Source/end/TabView.h` — mouseDown override (swap-pick target + cancel); file header, class doc, full doxygen on all public/protected methods
+- `Source/end/TabView.cpp` — corner join gesture: mouseDrag outward branch writes position=-1 sentinel, mouseUp join branch fires through ENDActions (terminal retirement wired); buildAreaOptionsMenu (Blender Area Options: split/join with BinaryData SVG icons via jam::SVG::getDrawable, join neighbor-aware enable, swap-pick entry); handleAreaOptionsResult dispatches split directly, join through ENDActions, swap-pick via "swap:<uuid>" in edge parameter; mouseDown swap-pick handler (source UUID parsed from edge, target from event.originalComponent); paintOverChildren swap-pick overlay branch; swapPickPrefix constant; file header
+- `Source/lookAndFeel/ENDLookAndFeel.h` — preparePopupMenuWindow, drawPopupMenuBackgroundWithOptions, drawPopupMenuItemWithOptions, getPopupMenuFont override declarations; getCommonFont, setPopupMenuColours private declarations; doxygen for all
+- `Source/lookAndFeel/ENDLookAndFeel.cpp` — preparePopupMenuWindow (deferred async: jam::style::window::setMenu + jam::BackgroundBlur::enable, reads window blur/fx/menu.opacity from theme); drawPopupMenuBackgroundWithOptions (Windows: fill if blur disabled, macOS: no-op); drawPopupMenuItemWithOptions (separator/highlight/text/icon rendering, icons via jam::SVG::getPath + g.fillPath with LAF text colour, tick/arrow/shortcut); getCommonFont (Display font from IDtype::tab without kerning); getPopupMenuFont returns getCommonFont; getMenuItemSVG maps item IDs 1-6 to BinaryData SVG strings; brace init + static_cast throughout
+- `Source/lookAndFeel/EventRegistration.cpp` — setPopupMenuColours (PopupMenu::backgroundColourId from window bg + menu.opacity, textColourId/highlightedTextColourId from menu.text, highlightedBackgroundColourId from menu.highlight); IDtype::menu hot-reload event
+- `Source/end/MessageOverlay.h` — stale doxygen fix: ResizableWindow::backgroundColourId → Label::backgroundColourId (file header :24-25, paint block :236)
+- `Source/Identifier.h` — IDtype::menu ("menu") in IDENTIFIER_CONFIG; ID::opacity ("opacity") in IDENTIFIER_THEME
+- `Source/config/lua/theme/gfx/theme.lua` — menu.text = colours.crystal, menu.highlight = colours.cavoloNero
+- `CMakeLists.txt` — 4 JAM SVG assets (split_vertical/horizontal_normal, join_cells_vertical/horizontal_normal) appended to END_BINARY_FILES
+- `CLAUDE.md` — current state: Sprint 73, PLAN-join-swap-navigation.md Steps 4-8 pending
+- `ARCHITECTURE.md` — matrix verbs (getNeighbor/swap/join/rotate/split descriptions), gesture state (edge+position parameters, -1 sentinel), join death path (gesture → ENDActions → removeTerminal)
+- `SPEC.md` — TabView description extended (join/swap/gesture), action::Registry extended (join_*/swap_*/reduce/expand actions)
+
+### Alignment Check
+- [x] BLESSED principles followed — Bound: popup transient (MenuWindow lifecycle), corner buttons owned by PaneComponent, gesture state in existing parameters; Lean: button::Menu forked from working KANJUT pattern, jam::SVG::Button::paintSingleImage reused for LAF-aware icon paint, jam::SVG::getPath reused for menu item icons; Explicit: position -1 sentinel, swap:<uuid> encoding; SSOT: edge parameter single truth for gesture mode; Stateless: popup enablement queried fresh via getNeighbor; Encapsulation: PaneComponent owns corner detection, button::Menu owns popup lifecycle, BackgroundBlur owns native blur; Deterministic: same corner + same drag → same gesture
+- [x] NAMES.md adhered — IDtype::menu (config section), ID::opacity (theme property), CornerButton (nested private, descriptive), getCommonFont (KANJUT pattern name), swapPickPrefix (constant, descriptive); all other names reuse existing vocabulary
+- [x] JRENG-CODING-STANDARD — brace init throughout, static_cast (no C-style casts), explicit on single-arg ctor, and/or/not operators, positive control flow
+
+### Problems Solved
+- Corner join gesture: outward drag from corner triggers join with preview overlay showing merged cell dimensions; commits through ENDActions for terminal retirement
+- Area Options popup: Blender-faithful corner right-click menu with split/join/swap; join items neighbor-aware enabled/disabled; swap-pick mode via edge parameter encoding
+- Glassmorphism: native compositor blur on popup windows via jam::BackgroundBlur + jam::style::window::setMenu, KANJUT Theme pattern
+- LAF-aware icon rendering: menu item icons painted via jam::SVG::getPath (geometry extraction) + g.fillPath (text colour), corner button icons via jam::SVG::Button::paintSingleImage (findColour resolution)
+- Terminal retirement gap (C1): gesture/popup join paths now fire through ENDActions (registered action calls removeTerminal)
+- MessageOverlay stale doxygen: ResizableWindow → Label backgroundColourId fixed
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- DEBT-20260629T100000 (drawLine native-line-pipeline gap) — carried
+
+---
+
 ## Sprint 73: JSN END Wiring + Audit Sweep + State-Pure Gesture Collapse ✅
 
 **Date:** 2026-07-12

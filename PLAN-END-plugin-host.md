@@ -2,7 +2,7 @@
 
 **RFC:** RFC-end-plugin-host.md (+ INVENTORY-end-plugin-host.md as API ground truth)
 **Date:** 2026-07-12
-**Status:** APPROVED (ARCHITECT, 2026-07-12)
+**Status:** APPROVED (ARCHITECT, 2026-07-12) · AMENDED (ARCHITECT, 2026-07-13 — WHELMED viewer inserted as first plugin)
 **BLESSED Compliance:** verified (see Alignment)
 **Language Constraints:** C++17 / JUCE / JAM (LANGUAGE.md C++/JUCE — header-preferred, 300-LOC smell not portability constraint; 30/3 unchanged)
 
@@ -21,13 +21,26 @@ session). The RFC's plan-time open questions were settled this session:
 | 5 Vendor-pin mechanics | Vendored snapshot copies inside jam_clap (jam_vulkan/vulkan pattern); include-path order makes jam_clap/clap the SSOT for the vendored extensions wrapper |
 | 6 Cross-domain bridge | Deferred (RFC decision 7, unchanged) |
 | 7 ensureScratch bound | Superseded — terminal plugin is built FROM SCRATCH; drain-side storage designed preallocated from day one |
-| 8 ARCHITECTURE.md amendment | Step 16 |
-| 9 VST3 license posture | Step 16 documents hosting-only posture |
+| 8 ARCHITECTURE.md amendment | Step 19 |
+| 9 VST3 license posture | Step 19 documents hosting-only posture |
 
 **RFC supersession (ARCHITECT, this session):** END's `Source/terminal/*` is stubs only
 (5 files verified: TerminalProcessor.h/.cpp, TerminalModel.h, TerminalView.h/.cpp).
 NOTHING relocates. Stubs are DELETED (delete-first discipline); "no more terminal at
 END". The terminal plugin is built from scratch at `dev/plugins/terminal/`.
+
+**Amendment (ARCHITECT, 2026-07-13 — first-plugin sequencing):** WHELMED
+(markdown/mermaid viewer) is the FIRST real plugin, inserted as Phase 2 immediately
+after the VANILLA fixture. TERMINAL remains the capstone (Phase 4). Grounds,
+evidence-verified in session: jam_markdown (9,427 lines) and jam_mermaid (24,846
+lines) are API-complete, already linked in END, with zero consumers and zero runtime
+evidence — first consumption IS their validation; the viewer render path
+(parse → layout → draw, juce::Graphics) needs no focus loop and no services crossing,
+so it functions at Phase 1 host maturity; TERMINAL is gated on in-flight jam_terminal
+state-management/transport work plus the focus loop. WHELMED EDITOR scope
+(TextModel/CodeView editing) converges after the focus loop lands (Step 19) — out of
+viewer-step scope. Zero-audio-port legality and mandatory process() verified against
+tag-pinned CLAP 1.2.7 headers (ext/audio-ports.h:10, plugin.h:96).
 
 ## Names Ledger (Decision Gate — ratified with plan approval)
 
@@ -48,6 +61,9 @@ Ratified by plan approval:
 - END: Session map member `plugins`; verbs `newPlugin`/`removePlugin` (replace newTerminal/removeTerminal); identifiers registered in Identifier.h
 - jam_clap layout: `clap/` `helpers/` `extensions/` `format/` `services/` `editor/`
 - Extension registry = plain member table (`jam::HashMap<juce::String, const void*>`) on the host side — a table, not a class (Lean)
+
+Ratified with 2026-07-13 amendment:
+- Plugin: `dev/plugins/whelmed/`, product WHELMED, `com.jreng.whelmed`
 
 **Accepted deviation (RFC-ratified, confined):** `services/jam_ClapServices.h` uses
 forward-declared pointer types ONLY (RFC scaffold: jam_clap takes NO hard dependency on
@@ -221,9 +237,41 @@ sequence per format: instantiate → clock → editor-in-pane → state round-tr
 **Validation:** house standard, not throwaway (permanent fixture + template);
 Auditor full-contract pass.
 
-### Phase 2 — services/rendering + focus crossings proven
+### Phase 2 — WHELMED viewer plugin (first plugin — 2026-07-13 amendment)
 
-**Step 15: HostServices crossing + visual parity**
+**Step 15: WHELMED project scaffold**
+**Scope:** `~/Documents/Poems/dev/plugins/whelmed/` (new — clone of ___vanilla___)
+**Action:** Clone VANILLA; CLAP_ID `com.jreng.whelmed`, product WHELMED. Links
+jam_markdown + jam_mermaid (jam_markdown's declared dependency) on top of the template
+modules.
+**Validation:** clone discipline (metadata edits only at this step).
+
+**Step 16: Processor side — document source**
+**Scope:** WHELMED Source/
+**Action:** Processor owns the document source: file path + content snapshot as state
+(`getStateInformation`/`setStateInformation` via copyXmlToBinary/getXmlFromBinary
+pattern). Zero audio ports — `clap.audio-ports` not implemented (legal:
+ext/audio-ports.h:10); `process()` present and trivial (structurally mandatory:
+plugin.h:96). Document loading is main-thread; no RT machinery invented for a workload
+that has none (Lean).
+**Validation:** state round-trip; no bail-outs; no shadow state.
+
+**Step 17: Editor side — viewer, first consumption of jam_markdown/jam_mermaid**
+**Scope:** WHELMED editor
+**Action:** Editor on jam::clap::Editor base. Read-only render path:
+`jam::markdown::Document` lifecycle (parse → layout → draw → getBounds) inside a
+`juce::Viewport`; mermaid fences render through `jam::mermaid::Diagram`. Scroll only —
+no caret, no editing, no keyboard requirement. Acceptance: CommonMark + GFM corpus
+(table, strikethrough, tasklist, autolink) plus at least one diagram per implemented
+mermaid type renders without assert/crash. Defects surfaced are jam findings — fixed
+at source in jam_markdown/jam_mermaid; this plugin is the first-run harness for
+34,273 previously unexecuted lines.
+**Validation:** viewer functions with NO services crossing and NO focus loop — Phase 1
+host maturity proven by a real plugin; editor ephemeral over persistent processor.
+
+### Phase 3 — services/rendering + focus crossings proven
+
+**Step 18: HostServices crossing + visual parity**
 **Scope:** VANILLA editor glue, Nexus extension table, Application init
 **Action:** VANILLA's Editor (jam::clap::Editor base) receives host `Services` through
 `com.jreng.host-services/1`; registers host engine as dylib-local factory; fixture text
@@ -232,7 +280,7 @@ own-engine; externalContextFactory patch regression observable here.
 **Validation:** sharing per-process for in-house, per-binary isolation for third-party;
 state blob carries zero runtime handles.
 
-**Step 16: Focus loop + ARCHITECTURE.md amendment + license posture**
+**Step 19: Focus loop + ARCHITECTURE.md amendment + license posture**
 **Scope:** `Source/end/ENDView.h/.cpp`, `ARCHITECTURE.md`
 **Action:** Outward: `focused_pane` change dispatches OS keyboard focus to the pane's
 embedded native view (existing contract carries it). Inward: ENDView inherits
@@ -248,15 +296,15 @@ modules — Steinberg surface accepted for hosting per Decision 6).
 **Validation:** no second writer of any `focused_*` parameter; ARCHITECTURE.md mirrors
 landed code only.
 
-### Phase 3 — TERMINAL plugin from scratch
+### Phase 4 — TERMINAL plugin from scratch
 
-**Step 17: TERMINAL project scaffold**
+**Step 20: TERMINAL project scaffold**
 **Scope:** `~/Documents/Poems/dev/plugins/terminal/` (new — clone of ___vanilla___)
 **Action:** Clone VANILLA; CLAP_ID `com.jreng.terminal`, product TERMINAL. Links
 jam_terminal (TTY), jam modules.
 **Validation:** clone discipline (metadata edits only at this step).
 
-**Step 18: Processor side — built from scratch**
+**Step 21: Processor side — built from scratch**
 **Scope:** TERMINAL Source/
 **Action:** New processor implementation on the proven lock-free shape (endless
 architecture as evidence, not source): PTY reader thread (jam_terminal) → parser/video →
@@ -269,27 +317,29 @@ copyXmlToBinary/getXmlFromBinary.
 **Validation:** RT contract — zero allocation/locks/blocking in process; thread
 bindings ABI-enforced; BLESSED Bounds.
 
-**Step 19: Editor side — jam::Terminal / jam::CodeView to the fullest**
+**Step 22: Editor side — jam::Terminal / jam::CodeView to the fullest**
 **Scope:** TERMINAL editor + jam_gui/jam_terminal modules as needed
 **Action:** Editor on jam::clap::Editor base; jam::Terminal / jam::CodeView implemented
 to the fullest against the proven boundary; keyboard input lands on the editor natively
 (standard plugin input path — no host→plugin input channel).
 **Validation:** CodeView TETRIS E-contract (dumb widget, cell-space API only).
 
-**Step 20: END integration + closing docs**
+**Step 23: END integration + closing docs**
 **Scope:** END Resources sidecar, ARCHITECTURE.md/CLAUDE.md sync, dedicated doxygen task
 **Action:** TERMINAL sidecar-bundled (ConPTY.dll pattern); default pane plugin wired
 through newPlugin. Docs sync to landed reality. THEN one dedicated doxygen delegation
 (headers only, zero warnings) — last, after audit.
-**Validation:** full-system Auditor pass; whelmed/surf inherit the skeleton (no work,
-just verified cloneability).
+**Validation:** full-system Auditor pass; surf inherits the skeleton (no work, just
+verified cloneability); WHELMED editor scope (editing on TextModel/CodeView) follows
+the focus loop per Context amendment.
 
 ## BLESSED Alignment
 
 - **B** — thread bindings compiler/ABI-enforced at the plugin boundary; every resource
   owner named per step; RAII throughout; VirtualDevice clock single-owner (Nexus).
 - **L** — zero invented abstractions: shipped JUCE + spec'd CLAP + JAM patterns;
-  extension registry is a table, not a class; no speculative bridge (Decision 7).
+  extension registry is a table, not a class; no speculative bridge (Decision 7);
+  WHELMED viewer invents no RT machinery for a non-RT workload.
 - **E** — every crossing a declared, versioned channel; one documented deviation
   (services header forward declarations, RFC-ratified, single file).
 - **S (SSOT)** — one pinned CLAP header set both sides; blob = sole module-state
@@ -304,8 +354,12 @@ just verified cloneability).
 ## Risks
 
 - `externalContextFactory` JUCE patch is uncommitted — pin rides ARCHITECT's KANJUT
-  sync; Step 15 is its regression surface.
-- `globalFocusChanged (nullptr)` mechanism-asserted only — Step 16 FIRST acceptance
+  sync; Step 18 is its regression surface.
+- `globalFocusChanged (nullptr)` mechanism-asserted only — Step 19 FIRST acceptance
   test; fallback path named.
 - Step 9 own-engine fallback depends on the KANJUT jam_vulkan sync landing the Shared
   lifecycle — sequencing owned by ARCHITECT.
+- jam_markdown (9,427 lines) + jam_mermaid (24,846 lines) have zero runtime evidence —
+  Step 17 is deliberately their first-run harness; defect volume unknown, fixed at
+  source in jam. Known open item: flowchart label-collision system unimplemented
+  (layout/jam_MermaidFlowchartEdges.cpp, comment-only, non-blocking for acceptance).
