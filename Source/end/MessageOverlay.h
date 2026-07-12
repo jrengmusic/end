@@ -22,7 +22,7 @@
  * ### Font and colour
  * Font is read from the config tree (theme > overlay: family + size) on every
  * paint pass — hot-reload is free.  Background uses
- * `juce::ResizableWindow::backgroundColourId`; text uses
+ * `juce::Label::backgroundColourId`; text uses
  * `juce::Label::textColourId`.
  *
  * @note All methods are called on the **MESSAGE THREAD**.
@@ -234,7 +234,7 @@ public:
      * @brief Paints the semi-transparent background and centred message text.
      *
      * Font is read from the config tree on every paint pass (hot-reload safe).
-     * Background colour from `juce::ResizableWindow::backgroundColourId`,
+     * Background colour from `juce::Label::backgroundColourId`,
      * text colour from `juce::Label::textColourId`.
      *
      * @param g  JUCE graphics context for this paint pass.

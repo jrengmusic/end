@@ -1,8 +1,13 @@
+/**
+ * @file TabView.cpp
+ * @brief TabView implementation — pane graph mutation, corner drag gesture,
+ *        and Area Options menu dispatch.
+ */
 #include "end/TabView.h"
-#include "end/MessageOverlay.h"
-#include "lookAndFeel/ENDLookAndFeel.h"
-#include "terminal/TerminalModel.h"
+#include "action/ENDActions.h"
 
+
+/** @brief Prefix written to state's edge property while a swap-pick target is pending. */
 static constexpr const char* swapPickPrefix { "swap:" };
 
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
@@ -140,7 +145,14 @@ void TabView::mouseUp (const juce::MouseEvent& event)
         if (position >= 0.0f)
             split (juce::Identifier { edge }, position);
         else
-            join (juce::Identifier { edge });
+        {
+            const auto& direction { juce::Identifier { edge } };
+            const auto& action { direction == jam::ID::left  ? ID::joinLeft
+                               : direction == jam::ID::right ? ID::joinRight
+                               : direction == jam::ID::top   ? ID::joinUp
+                                                             : ID::joinDown };
+            ENDActions::getInstance()->run (action);
+        }
 
         state.setProperty (jam::ID::edge, juce::String {}, nullptr);
         repaint();
@@ -207,21 +219,16 @@ juce::PopupMenu TabView::buildAreaOptionsMenu()
 {
     const auto focused { getFocusedChild() };
 
-    const juce::String splitVerticalSVG { BinaryData::getString ("split_vertical_normal.svg") };
-    const juce::String splitHorizontalSVG { BinaryData::getString ("split_horizontal_normal.svg") };
-    const juce::String joinCellsVerticalSVG { BinaryData::getString ("join_cells_vertical_normal.svg") };
-    const juce::String joinCellsHorizontalSVG { BinaryData::getString ("join_cells_horizontal_normal.svg") };
-
     juce::PopupMenu menu;
 
     menu.addSectionHeader ("Area Options");
-    menu.addItem (1, "Vertical Split", true, false, jam::SVG::getDrawable (splitVerticalSVG.toRawUTF8()));
-    menu.addItem (2, "Horizontal Split", true, false, jam::SVG::getDrawable (splitHorizontalSVG.toRawUTF8()));
+    menu.addItem (1, "Vertical Split");
+    menu.addItem (2, "Horizontal Split");
     menu.addSeparator();
-    menu.addItem (3, "Join Left", getNeighbor (focused, jam::ID::left) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsVerticalSVG.toRawUTF8()));
-    menu.addItem (4, "Join Right", getNeighbor (focused, jam::ID::right) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsVerticalSVG.toRawUTF8()));
-    menu.addItem (5, "Join Up", getNeighbor (focused, jam::ID::top) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsHorizontalSVG.toRawUTF8()));
-    menu.addItem (6, "Join Down", getNeighbor (focused, jam::ID::bottom) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsHorizontalSVG.toRawUTF8()));
+    menu.addItem (3, "Join Left", getNeighbor (focused, jam::ID::left) != jam::UUID::none());
+    menu.addItem (4, "Join Right", getNeighbor (focused, jam::ID::right) != jam::UUID::none());
+    menu.addItem (5, "Join Up", getNeighbor (focused, jam::ID::top) != jam::UUID::none());
+    menu.addItem (6, "Join Down", getNeighbor (focused, jam::ID::bottom) != jam::UUID::none());
     menu.addSeparator();
     menu.addItem (7, "Swap Areas");
 
@@ -234,10 +241,10 @@ void TabView::handleAreaOptionsResult (int result)
     {
         case 1: split (jam::ID::left, 0.5f); break;
         case 2: split (jam::ID::top, 0.5f); break;
-        case 3: join (jam::ID::left); break;
-        case 4: join (jam::ID::right); break;
-        case 5: join (jam::ID::top); break;
-        case 6: join (jam::ID::bottom); break;
+        case 3: ENDActions::getInstance()->run (ID::joinLeft); break;
+        case 4: ENDActions::getInstance()->run (ID::joinRight); break;
+        case 5: ENDActions::getInstance()->run (ID::joinUp); break;
+        case 6: ENDActions::getInstance()->run (ID::joinDown); break;
 
         case 7:
             state.setProperty (jam::ID::edge, juce::String (swapPickPrefix) + getFocusedChild().toString(), nullptr);

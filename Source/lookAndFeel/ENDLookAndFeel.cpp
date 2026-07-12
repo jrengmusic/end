@@ -341,6 +341,120 @@ void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
 #endif
 }
 
+static const char* getMenuItemSVG (int itemID)
+{
+    static const juce::String splitVertical { BinaryData::getString ("split_vertical_normal.svg") };
+    static const juce::String splitHorizontal { BinaryData::getString ("split_horizontal_normal.svg") };
+    static const juce::String joinCellsVertical { BinaryData::getString ("join_cells_vertical_normal.svg") };
+    static const juce::String joinCellsHorizontal { BinaryData::getString ("join_cells_horizontal_normal.svg") };
+
+    switch (itemID)
+    {
+        case 1: return splitVertical.toRawUTF8();
+        case 2: return splitHorizontal.toRawUTF8();
+        case 3:
+        case 4: return joinCellsVertical.toRawUTF8();
+        case 5:
+        case 6: return joinCellsHorizontal.toRawUTF8();
+        default: return nullptr;
+    }
+}
+
+void ENDLookAndFeel::drawPopupMenuItemWithOptions (juce::Graphics& g,
+                                                   const juce::Rectangle<int>& area,
+                                                   bool isHighlighted,
+                                                   const juce::PopupMenu::Item& item,
+                                                   const juce::PopupMenu::Options&)
+{
+    if (item.isSeparator)
+    {
+        auto r { area.reduced (5, 0) };
+        r.removeFromTop (juce::roundToInt ((static_cast<float> (r.getHeight()) * 0.5f) - 0.5f));
+
+        g.setColour (findColour (juce::PopupMenu::textColourId).withAlpha (0.3f));
+        g.fillRect (r.removeFromTop (1));
+    }
+    else
+    {
+        const auto* textColourToUse { item.colour != juce::Colour() ? &item.colour : nullptr };
+        auto textColour { textColourToUse == nullptr ? findColour (juce::PopupMenu::textColourId) : *textColourToUse };
+
+        auto r { area.reduced (1) };
+
+        if (isHighlighted and item.isEnabled)
+        {
+            g.setColour (findColour (juce::PopupMenu::highlightedBackgroundColourId));
+            g.fillRect (r);
+
+            g.setColour (findColour (juce::PopupMenu::highlightedTextColourId));
+        }
+        else
+        {
+            g.setColour (textColour.withMultipliedAlpha (item.isEnabled ? 1.0f : 0.5f));
+
+            if (item.isTicked)
+            {
+                g.setColour (findColour (juce::PopupMenu::headerTextColourId));
+            }
+        }
+
+        r.reduce (juce::jmin (5, area.getWidth() / 12), 0);
+
+        auto font { getPopupMenuFont() };
+
+        auto maxFontHeight { static_cast<float> (r.getHeight()) };
+
+        g.setFont (font);
+
+        auto iconArea { r.removeFromLeft (juce::roundToInt (maxFontHeight)).toFloat() };
+
+        const auto* svg { getMenuItemSVG (item.itemID) };
+
+        if (svg != nullptr)
+        {
+            auto path { jam::SVG::getPath (svg, iconArea) };
+            g.fillPath (path);
+            r.removeFromLeft (juce::roundToInt (maxFontHeight * 0.5f));
+        }
+        else if (item.isTicked)
+        {
+            auto tick { getTickShape (1.0f) };
+            auto stroke { juce::PathStrokeType (2.0f) };
+            auto delta { iconArea.getWidth() / 3 };
+            g.strokePath (tick, stroke, tick.getTransformToScaleToFit (iconArea.reduced (delta).toFloat(), true));
+        }
+
+        const bool hasSubMenu { item.subMenu != nullptr and item.subMenu->getNumItems() > 0 };
+
+        if (hasSubMenu)
+        {
+            auto arrowH { 0.6f * getPopupMenuFont().getAscent() };
+
+            auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowH)).getX()) };
+            auto halfH { static_cast<float> (r.getCentreY()) };
+
+            juce::Path path;
+            path.startNewSubPath (x, halfH - arrowH * 0.5f);
+            path.lineTo (x + arrowH * 0.6f, halfH);
+            path.lineTo (x, halfH + arrowH * 0.5f);
+
+            g.strokePath (path, juce::PathStrokeType (2.0f));
+        }
+
+        r.removeFromRight (3);
+        g.drawFittedText (item.text, r, juce::Justification::centredLeft, 1);
+
+        if (item.shortcutKeyDescription.isNotEmpty())
+        {
+            auto f2 { font.withPointHeight (font.getHeightInPoints() * 0.75f) };
+            f2.setHorizontalScale (0.95f);
+            g.setFont (f2);
+
+            g.drawText (item.shortcutKeyDescription, r, juce::Justification::centredRight, true);
+        }
+    }
+}
+
 //==============================================================================
 void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
 {

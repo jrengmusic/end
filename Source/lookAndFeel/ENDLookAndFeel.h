@@ -222,11 +222,46 @@ public:
 
     Style getWindowStyle() const;
 
+    /**
+     * @brief Applies the window's tint/blur style and menu opacity to a newly
+     *        created popup menu window.
+     *
+     * Deferred to the next message-loop iteration via
+     * juce::MessageManager::callAsync, guarded by a SafePointer, since the
+     * window is not yet fully constructed at the point JUCE calls this.
+     * Background blur is skipped and full opacity used when
+     * jam::BackgroundBlur is disabled.
+     *
+     * @param newWindow The popup menu's top-level window component.
+     */
     void preparePopupMenuWindow (juce::Component& newWindow) override;
+
+    /** @brief Windows-only opaque background fill when background blur is disabled; no-op otherwise. */
     void drawPopupMenuBackgroundWithOptions (juce::Graphics&,
                                              int,
                                              int,
                                              const juce::PopupMenu::Options&) override;
+
+    /**
+     * @brief Renders a single popup menu row — separator, icon, tick, text,
+     *        submenu arrow, and shortcut key description.
+     *
+     * Icons are resolved by item ID via an internal SVG lookup (split/join
+     * entries); items without a matching icon fall back to a tick mark when
+     * ticked. Highlighted, enabled, and ticked states each select their own
+     * colour from the LookAndFeel's popup menu colours.
+     *
+     * @param g             Graphics context.
+     * @param area          The row's bounds.
+     * @param isHighlighted True when the row is under the pointer/selection.
+     * @param item          The menu item being drawn.
+     * @param options       Display options forwarded from the hosting popup.
+     */
+    void drawPopupMenuItemWithOptions (juce::Graphics& g,
+                                       const juce::Rectangle<int>& area,
+                                       bool isHighlighted,
+                                       const juce::PopupMenu::Item& item,
+                                       const juce::PopupMenu::Options& options) override;
 
     /** @brief Pane EDGE seam — SVG Flex rendering with pane colourIds.
      *  Hover/pressed state swaps bar colour to highlight colour.
@@ -464,6 +499,15 @@ private:
      */
     void initialiseColours();
 
+    /**
+     * @brief Applies window background, opacity, text, and highlight colours
+     *        to the juce::PopupMenu colour IDs.
+     *
+     * Reads IDtype::menu properties against the window background colour
+     * (IDtype::window). Called once at construction (after initialiseColours())
+     * and again on IDtype::menu's colour-refresh event. Defined in
+     * EventRegistration.cpp.
+     */
     void setPopupMenuColours();
 
     /**
