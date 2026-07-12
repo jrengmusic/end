@@ -62,6 +62,18 @@ return {
     -- Open a new window.
     new_window = "cmd+n",
 
+    -- Reduce the focused pane's width by pane_step (display.lua).
+    reduce_pane_width = "cmd+alt+h",
+
+    -- Reduce the focused pane's height by pane_step (display.lua).
+    reduce_pane_height = "cmd+alt+j",
+
+    -- Expand the focused pane's width by pane_step (display.lua).
+    expand_pane_width = "cmd+alt+l",
+
+    -- Expand the focused pane's height by pane_step (display.lua).
+    expand_pane_height = "cmd+alt+k",
+
     -- ---- Tabs ----
 
     -- Open a new tab.

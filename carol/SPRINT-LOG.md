@@ -2,6 +2,57 @@
 
 ---
 
+## Sprint 70: Seam-Truth Substrate — EDGE Rows Own Layout, Panes Own Nothing ✅
+
+**Date:** 2026-07-12
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: design carrier for ARCHITECT's seam-truth ruling (EDGE row schema, pane edge index, replay derivation, geometry-as-state), determinism analysis, delegation, per-diff verification, crash root-causing (Instance registration, state-before-view ordering) — PROTOCOL VIOLATIONS recorded: executed a moveSeam mechanism ARCHITECT had not ratified (corrected on the spot); passed Engineer-invented vocabulary (`leading/trailing`, `crossLow/crossHigh`, `seat`) through to ARCHITECT before the purge ruling
+- Engineer ×14: normalised-rect helpers; Edge head/tail; Function::Map split dispatch; moveSeam pipeline (later deleted); bar-writes-proportions (later deleted); seam-truth substrate (EDGE OwnedComponent, replay layout, resize verbs); END actions + config; Orientation instance registration; vocabulary purge + UUID var ctor + global keybindings; geometry-as-state bar + mapless layout; five surgical fixes (template args, seat→seam, ambiguous contains, ctor-time seat guard, Bimap.h instance)
+
+### Files Modified (~16 total)
+
+**JAM:**
+- `jam_core/misc/jam_UUID.h` — `explicit UUID (const juce::var&)` — every property-read cast site framework-wide absorbed into the type
+- `jam_core/identifier/jam_IdentifierLayout.h` — `head`/`tail`/`proportions`/`orientation` added; `normalisedPosition`/`normalisedSize` removed
+- `jam_gui/layout/jam_Orientation.h` — NEW: `Orientation : Bimap<Orientation>` (vertical/horizontal), mirror of jam_Position.h
+- `jam_gui/layout/jam_PaneResizerBar.h` — EDGE OwnedComponent, header-only: own row `<EDGE id= head= tail= proportions= orientation=/>`; birth-stamps/death-clears the pane edge coupling via `Position::getHigh/LowPropertyId`; bounds ARE the region — `getSeam()` derives the strip from own row, `hitTest` confines interaction, drag is local-space three statements writing only `proportions`
+- `jam_gui/layout/jam_PaneResizerBar.cpp` — DELETED (class header-only, matches siblings)
+- `jam_gui/layout/jam_PaneComponent.h` — normalised parameters and helpers removed — panes carry zero layout state
+- `jam_gui/layout/jam_OwnerComponent.h` — `add()` writes focusedChildId unconditionally (none unreachable once a child exists — split's jassert deleted); listener triggers `resized()` on `proportions` change; UUID var-ctor reads
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp` — split: copy-all-four edge inheritance (bar stamp overwrites seam-facing), head = geometric leading canon, proportions = position; `reducePane`/`expandPane` (distributed step) + `shiftSeam` (single seam-write verb, row + geometry reads only); layout = mapless tree-order replay — first PANE row seeded to container, each EDGE row cuts the already-placed member's live bounds via the `splits` Function::Map, `findChildWithID` seats bars (componentID = uuid, jam_Model.h:76); positive seat check (EDGE row transiently precedes its parented component during construction); `resizePane` and `splits` right/bottom entries deleted; `bars` OwnedArray is pure owner, never iterated
+- `jam_gui/jam_gui.h/.cpp` — Orientation include registered; PaneResizerBar.cpp include removed
+
+**END:**
+- `Source/Bimap.h` — `jam::Orientation orientation;` instance in `Map` (Instance<T> slot — crash root: getInstance() null without an owner)
+- `Source/Identifier.h` — `reducePaneWidth/Height`, `expandPaneWidth/Height` (IDENTIFIER_KEYS), `paneStep`/"pane_step" (IDENTIFIER_APP)
+- `Source/action/ENDActions.cpp` — four actions → `reducePane`/`expandPane` on focused pane, step from `config.getValue (display, paneStep)` (zoomStep channel pattern)
+- `Source/config/ConfigModel.h` — normalisedFormat validators removed
+- `Source/config/lua/display.lua` — `pane_step = 0.05`
+- `Source/config/lua/keys.lua` — four global (non-modal) bindings `cmd+alt+h/j/l/k`, CRLF preserved
+- `Source/lookAndFeel/ENDLookAndFeel.cpp` — `drawResizerBar` retargeted to `PaneResizerBar::getSeam()`, rotation transform translated to seam origin
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT: seam scalar stored once, cells derived, torn tilings unrepresentable; Stateless: only stores are the ValueTree and juce geometry (region member, cells HashMap, moveSeam sweep all deleted); Bound: pane↔edge coupling rides the bar's lifecycle
+- [x] NAMES.md adhered — mid-sprint violations (`leading/trailing`, `crossLow/crossHigh`, `seat`) caught and purged; final surface uses only the ratified lexicon; `getSeam` ratified
+- [x] MANIFESTO.md principles applied — trust-the-framework audit: `getProportion`/`removeFrom*`/`getConstrainedPoint`/`findChildWithID`/`getChildWithProperty`/`hitTest`, zero bit_cast in the matrix surface
+
+### Problems Solved
+- Layout truth moved from per-pane rects (N-row float-agreement invariants, drift-capable) to per-seam scalars (`proportions`, tail = 1 − p algebraic) — layout is one pure function of container + ordered EDGE rows
+- Bar vanishing + drag-region mismatch: seat/region now derive at the bar's replay step (full-span, Blender parity) — then the region member itself dissolved into bar bounds + hitTest strip
+- `jam::Orientation::get` crash: Instance<T> singletons need an owner — registered in END's `Map`
+- Ctor-time listener crash: OwnedComponent is state-first, so an EDGE row transiently precedes its parented component — seat waits, cuts proceed
+- Keyboard pane resize: distributed-step reduce/expand actions, globally bound
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 69: Owner/Owned Composite Abstraction — TabbedComponent + MatrixComponent Strategies ✅
 
 **Date:** 2026-07-10

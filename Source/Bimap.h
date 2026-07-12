@@ -495,6 +495,7 @@ struct FileShaders
 struct Map
 {
     jam::Position position;
+    jam::Orientation orientation;
     DropMode dropMode;
     FileConfig file;
     FileThemes themes;

@@ -205,6 +205,54 @@ void ENDView::registerActions()
                                       tabView->focusPane (ID::paneDown);
                           });
 
+    actions.actions.add (
+        ID::reducePaneWidth,
+        [this]
+        {
+            if (auto* sessionView { getActiveSessionView() })
+                if (auto* tabView { sessionView->getActiveTabView() })
+                {
+                    const float step { config.getValue (IDtype::display, ID::paneStep) };
+                    tabView->reducePane (tabView->getFocusedChild(), jam::ID::width, step);
+                }
+        });
+
+    actions.actions.add (
+        ID::reducePaneHeight,
+        [this]
+        {
+            if (auto* sessionView { getActiveSessionView() })
+                if (auto* tabView { sessionView->getActiveTabView() })
+                {
+                    const float step { config.getValue (IDtype::display, ID::paneStep) };
+                    tabView->reducePane (tabView->getFocusedChild(), jam::ID::height, step);
+                }
+        });
+
+    actions.actions.add (
+        ID::expandPaneWidth,
+        [this]
+        {
+            if (auto* sessionView { getActiveSessionView() })
+                if (auto* tabView { sessionView->getActiveTabView() })
+                {
+                    const float step { config.getValue (IDtype::display, ID::paneStep) };
+                    tabView->expandPane (tabView->getFocusedChild(), jam::ID::width, step);
+                }
+        });
+
+    actions.actions.add (
+        ID::expandPaneHeight,
+        [this]
+        {
+            if (auto* sessionView { getActiveSessionView() })
+                if (auto* tabView { sessionView->getActiveTabView() })
+                {
+                    const float step { config.getValue (IDtype::display, ID::paneStep) };
+                    tabView->expandPane (tabView->getFocusedChild(), jam::ID::height, step);
+                }
+        });
+
     for (const auto& [key, id] : jam::Position::get())
     {
         const int positionKey { key };

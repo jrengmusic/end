@@ -248,15 +248,6 @@ public:
         boundsFormat.format = jam::Format::fromBounds;
         add (jam::IDtype::pane, jam::ID::bounds, boundsFormat);
 
-        jam::lua::Validator normalisedFormat;
-        normalisedFormat.format = [] (const juce::var& v)
-        {
-            const auto [x, y] { jam::bit_cast<jam::Size<float>> (static_cast<int64_t> (v)) };
-            return juce::String (x) + "," + juce::String (y);
-        };
-        add (jam::IDtype::pane, jam::ID::normalisedPosition, normalisedFormat);
-        add (jam::IDtype::pane, jam::ID::normalisedSize, normalisedFormat);
-
         return v;
     }();
 

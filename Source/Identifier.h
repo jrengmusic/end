@@ -171,6 +171,10 @@
     X (paneDown, "pane_down")                          \
     X (paneUp, "pane_up")                              \
     X (paneRight, "pane_right")                        \
+    X (reducePaneWidth, "reduce_pane_width")           \
+    X (reducePaneHeight, "reduce_pane_height")         \
+    X (expandPaneWidth, "expand_pane_width")           \
+    X (expandPaneHeight, "expand_pane_height")         \
     X (newline, "newline")                             \
     X (actionList, "action_list")                      \
     X (enterSelection, "enter_selection")              \
@@ -213,7 +217,8 @@
     X (hyperlinks, "hyperlinks")          \
     X (atlasDimension, "atlas_dimension") \
     X (border, "border")                  \
-    X (zoomStep, "zoom_step")
+    X (zoomStep, "zoom_step")             \
+    X (paneStep, "pane_step")
 
 // Popup entry keys (popup.lua)
 #define IDENTIFIER_POPUPS(X) \

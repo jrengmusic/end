@@ -291,15 +291,17 @@ ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
 //==============================================================================
 void ENDLookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 {
-    auto bounds { bar.getLocalBounds().toFloat() };
+    auto& resizerBar { static_cast<jam::PaneResizerBar&> (bar) };
+    auto bounds { resizerBar.getSeam().toFloat() };
 
-    if (bar.getWidth() < bar.getHeight())
+    if (bounds.getWidth() < bounds.getHeight())
     {
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
         g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                            .translated (0.0f, height));
+                            .translated (0.0f, height)
+                            .translated (bounds.getX(), bounds.getY()));
 
         bounds = { 0.0f, 0.0f, height, width };
     }

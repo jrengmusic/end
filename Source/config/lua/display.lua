@@ -45,6 +45,11 @@ return {
 	-- directly, ignoring this step.
 	zoom_step = 0.1,
 
+	-- Proportion step applied by the reduce_pane_width/reduce_pane_height/
+	-- expand_pane_width/expand_pane_height actions (keys.lua) to the focused
+	-- pane's width or height.
+	pane_step = 0.05,
+
 	-- Keep window above all other windows.
 	always_on_top = true,
 

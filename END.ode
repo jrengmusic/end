@@ -1,18 +1,19 @@
 
 **********************************************************
 
-Log started: 11 Jul 2026 9:42:41pm
+Log started: 12 Jul 2026 10:16:38am
 
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: mtllib: could not open /Users/jreng/.config/end/shaders/end/end-icon.mtl, using default material
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_4e8c93', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_00c8d8', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_0ff', using default
-Owner aggregate: focused_pane = 8132754778180417539
-Owner aggregate: focused_pane = 5623855518719370676
-Owner aggregate: focused_pane = 8132754778180417539
-Owner aggregate: focused_pane = 5623855518719370676
-Owner aggregate: focused_pane = 8132754778180417539
-Owner aggregate: focused_pane = 5623855518719370676
-Owner aggregate: focused_pane = 8132754778180417539
-Owner aggregate: focused_pane = 5623855518719370676
-Owner aggregate: focused_pane = 6516843948648866199
+Owner aggregate: focused_pane = 4641110909705345605
+Owner aggregate: focused_pane = 4641110909705345605
+Owner aggregate: focused_pane = 4736956547227282002
+Owner aggregate: focused_pane = 1574087349386806320
+Owner aggregate: focused_pane = 3177244847487977169
+Owner aggregate: focused_pane = 1574087349386806320
+Owner aggregate: focused_pane = 4641110909705345605
+Owner aggregate: focused_pane = 31983920885944886
+Owner aggregate: focused_pane = 4641110909705345605
+Owner aggregate: focused_tab = 348279990279109174
