@@ -19,6 +19,7 @@ public:
 
     TerminalView& get (jam::UUID uuid);
 
+    void mouseDown (const juce::MouseEvent& event) override;
     void mouseDrag (const juce::MouseEvent& event) override;
     void mouseUp (const juce::MouseEvent& event) override;
     void paintOverChildren (juce::Graphics& g) override;
@@ -31,6 +32,9 @@ protected:
     void childRemoved (jam::UUID uuid) override;
 
 private:
+    juce::PopupMenu buildAreaOptionsMenu();
+    void handleAreaOptionsResult (int result);
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabView)
 };

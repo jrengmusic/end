@@ -4,7 +4,7 @@
 
 **Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). Terminal pipeline landed (`newTerminal` create machine — `terminal::Processor` self-drain, `end::Session` engine daemon, `terminal::View` pairing; see "Session Layer — Landed Contract").
 
-**Last Updated:** 2026-07-04
+**Last Updated:** 2026-07-12
 
 ---
 
@@ -324,6 +324,8 @@ dead). Describes the landed code:
   EDGE uuid), layout = recursive descent from the derived root, split
   rewires the referencing slot to the new edge, removal collapses the
   parent EDGE into the sibling space; authors `jam::ID::focusedPane`).
+  **Matrix verbs (jam_MatrixComponent.cpp):** `getNeighbor(pane, direction)` — ascend to the bounding EDGE, accumulate normalized coordinate through perpendicular ancestors, descend the far side to the leaf whose span contains it (centre-from-proportions, zero pixel reads); `swap(a, b)` — exchange two PANE uuids in their referencing EDGE slots, `layout()`; `join(pane, direction)` — three shapes: sibling collapse (shared parent dies), initiator-absorbs (multi-level: accumulated extent folds into proportions, intermediate edges rescaled), mirrored-perpendicular rotate; ineligible returns `UUID::none()`, zero mutation; `rotate(parent, child)` — AVL-style rotation of an EDGE and its child EDGE. `split(edge, position)` — creates new PANE + EDGE, rewires referencing slot.
+  **Gesture state:** corner drag-to-split/join gesture state held as registered model parameters on the TAB row: `jam::ID::edge` (ParameterText — direction or empty) + `jam::ID::position` (Parameter<float> — normalized split position; -1 sentinel = join mode). TabView carries zero gesture members.
   Leaf: `jam::PaneComponent : OwnedComponent`.
 - **Mirror law: the component tree is a pure function of the state tree.**
   `SESSIONS` ↔ `ENDView` (`sessions` map + per-child Attachment), `SESSION`
@@ -364,7 +366,9 @@ dead). Describes the landed code:
 - **Terminal lifecycle is verb-bound, one call stack per transition:**
   `ID::newPane` → `ID::newTerminal` → `Session::newTerminal (uuid)` (birth);
   `ID::closePane` → `Session::removeTerminal (uuid)` + `TabView::remove
-  (uuid)` (death). No view pokes the engine — `TabView::remove` touches only
+  (uuid)` (death); join → `TabView::join (direction)` → target returned →
+  `Session::removeTerminal (target)` (join death — same removeTerminal,
+  different trigger). No view pokes the engine — removal touches only
   its own pool. `ID::closeTab` does not yet retire the tab's terminals
   (PANE-level mirror pending, see above).
 

@@ -157,6 +157,11 @@ public:
      */
     juce::Font getTabFont() const override;
 
+    /** @brief Returns the popup menu font constructed from the Display font
+     *  config (same source as getTabFont(), no kerning).
+     */
+    juce::Font getPopupMenuFont() override;
+
     /** @brief Returns horizontal padding in pixels per side of the tab label.
      *  Reads tab.text_padding from the display config (user-configurable).
      */
@@ -216,6 +221,12 @@ public:
     };
 
     Style getWindowStyle() const;
+
+    void preparePopupMenuWindow (juce::Component& newWindow) override;
+    void drawPopupMenuBackgroundWithOptions (juce::Graphics&,
+                                             int,
+                                             int,
+                                             const juce::PopupMenu::Options&) override;
 
     /** @brief Pane EDGE seam — SVG Flex rendering with pane colourIds.
      *  Hover/pressed state swaps bar colour to highlight colour.
@@ -371,6 +382,12 @@ private:
      */
     static juce::String typefaceKey (const juce::String& name, const juce::String& style);
 
+    /** @brief Display font constructed from theme config (family, size), no kerning.
+     *  Reads IDtype::tab properties: ID::fontFamily, ID::fontSize — same source
+     *  as getTabFont() minus the kerning factor.
+     */
+    juce::Font getCommonFont() const;
+
     //==============================================================================
     /**
      * @brief Reads graphics.font_rasterizer/font_gamma/font_contrast from
@@ -446,6 +463,8 @@ private:
      * Defined in EventRegistration.cpp.
      */
     void initialiseColours();
+
+    void setPopupMenuColours();
 
     /**
      * @brief Populates the events map with ValueTree property/type-keyed callbacks.

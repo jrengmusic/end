@@ -3,6 +3,8 @@
 #include "lookAndFeel/ENDLookAndFeel.h"
 #include "terminal/TerminalModel.h"
 
+static constexpr const char* swapPickPrefix { "swap:" };
+
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
     : jam::MatrixComponent (m, sessionState, IDtype::tab, uuid)
 {
@@ -26,7 +28,12 @@ jam::UUID TabView::add()
 //==============================================================================
 std::unique_ptr<jam::OwnedComponent> TabView::createChild (jam::UUID uuid)
 {
-    return std::make_unique<TerminalView> (model, state, uuid);
+    auto child { std::make_unique<TerminalView> (model, state, uuid) };
+
+    child->setCornerMenuFactory ([this] { return buildAreaOptionsMenu(); });
+    child->setCornerMenuAction ([this] (int result) { handleAreaOptionsResult (result); });
+
+    return child;
 }
 
 //==============================================================================
@@ -65,6 +72,32 @@ TerminalView& TabView::get (jam::UUID uuid)
 }
 
 //==============================================================================
+void TabView::mouseDown (const juce::MouseEvent& event)
+{
+    const auto edge { state.getProperty (jam::ID::edge).toString() };
+
+    if (edge.startsWith (swapPickPrefix))
+    {
+        if (event.mods.isPopupMenu())
+        {
+            state.setProperty (jam::ID::edge, juce::String {}, nullptr);
+            repaint();
+        }
+        else if (auto* pane { dynamic_cast<jam::PaneComponent*> (event.originalComponent) })
+        {
+            const auto source { jam::UUID { juce::var { edge.fromFirstOccurrenceOf (":", false, false) } } };
+            const auto target { jam::UUID { pane->getValueTree().getProperty (jam::ID::id) } };
+
+            if (source != jam::UUID::none() and target != source)
+                MatrixComponent::swap (source, target);
+
+            state.setProperty (jam::ID::edge, juce::String {}, nullptr);
+            layout();
+            repaint();
+        }
+    }
+}
+
 void TabView::mouseDrag (const juce::MouseEvent& event)
 {
     if (auto* pane { dynamic_cast<jam::PaneComponent*> (event.originalComponent) })
@@ -84,10 +117,11 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
             const bool inward { jam::Position::isLow (jam::Position::get (edge.toString()))
                                 == ((horizontal ? delta.getX() : delta.getY()) > 0) };
 
-            state.setProperty (jam::ID::edge, inward ? edge.toString() : juce::String {}, nullptr);
+            state.setProperty (jam::ID::edge, edge.toString(), nullptr);
             state.setProperty (jam::ID::position,
-                               horizontal ? static_cast<float> (cursor.getX()) / static_cast<float> (pane->getWidth())
-                                          : static_cast<float> (cursor.getY()) / static_cast<float> (pane->getHeight()),
+                               inward ? (horizontal ? static_cast<float> (cursor.getX()) / static_cast<float> (pane->getWidth())
+                                                    : static_cast<float> (cursor.getY()) / static_cast<float> (pane->getHeight()))
+                                      : -1.0f,
                                nullptr);
 
             repaint();
@@ -101,7 +135,13 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 
     if (edge.isNotEmpty())
     {
-        split (juce::Identifier { edge }, state.getProperty (jam::ID::position));
+        const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
+
+        if (position >= 0.0f)
+            split (juce::Identifier { edge }, position);
+        else
+            join (juce::Identifier { edge });
+
         state.setProperty (jam::ID::edge, juce::String {}, nullptr);
         repaint();
     }
@@ -114,23 +154,94 @@ void TabView::paintOverChildren (juce::Graphics& g)
 
     if (edge.isNotEmpty())
     {
-        const auto preview { get (getFocusedChild()).getBounds() };
-        const bool splitVertical { jam::Position::isVertical (jam::Position::get (edge)) };
-        const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
-        const int splitLine { splitVertical
-                                  ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
-                                  : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
-        const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
+        if (edge.startsWith (swapPickPrefix))
+        {
+            drawMessageOverlay (g, *this, getLocalBounds(), "Click a pane to swap");
+        }
+        else
+        {
+            const auto preview { get (getFocusedChild()).getBounds() };
+            const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
 
-        const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
-        const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
+            if (position >= 0.0f)
+            {
+                const bool splitVertical { jam::Position::isVertical (jam::Position::get (edge)) };
+                const int splitLine { splitVertical
+                                          ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
+                                          : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
+                const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
 
-        const juce::String message { juce::String (static_cast<int> (head.getWidth() / metrics.cellWidth)) + " x "
-                                     + juce::String (static_cast<int> (head.getHeight() / metrics.cellHeight))
-                                     + " | "
-                                     + juce::String (static_cast<int> (tail.getWidth() / metrics.cellWidth)) + " x "
-                                     + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
+                const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
+                const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
 
-        drawMessageOverlay (g, *this, preview, message, splitLine, splitVertical);
+                const juce::String message { juce::String (static_cast<int> (head.getWidth() / metrics.cellWidth)) + " x "
+                                             + juce::String (static_cast<int> (head.getHeight() / metrics.cellHeight))
+                                             + " | "
+                                             + juce::String (static_cast<int> (tail.getWidth() / metrics.cellWidth)) + " x "
+                                             + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
+
+                drawMessageOverlay (g, *this, preview, message, splitLine, splitVertical);
+            }
+            else
+            {
+                const auto target { getNeighbor (getFocusedChild(), juce::Identifier { edge }) };
+
+                if (target != jam::UUID::none())
+                {
+                    const auto targetBounds { get (target).getBounds() };
+                    const auto merged { preview.getUnion (targetBounds) };
+                    const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
+
+                    const juce::String message { juce::String (static_cast<int> (merged.getWidth() / metrics.cellWidth)) + " x "
+                                                 + juce::String (static_cast<int> (merged.getHeight() / metrics.cellHeight)) };
+
+                    drawMessageOverlay (g, *this, targetBounds, message);
+                }
+            }
+        }
+    }
+}
+
+//==============================================================================
+juce::PopupMenu TabView::buildAreaOptionsMenu()
+{
+    const auto focused { getFocusedChild() };
+
+    const juce::String splitVerticalSVG { BinaryData::getString ("split_vertical_normal.svg") };
+    const juce::String splitHorizontalSVG { BinaryData::getString ("split_horizontal_normal.svg") };
+    const juce::String joinCellsVerticalSVG { BinaryData::getString ("join_cells_vertical_normal.svg") };
+    const juce::String joinCellsHorizontalSVG { BinaryData::getString ("join_cells_horizontal_normal.svg") };
+
+    juce::PopupMenu menu;
+
+    menu.addSectionHeader ("Area Options");
+    menu.addItem (1, "Vertical Split", true, false, jam::SVG::getDrawable (splitVerticalSVG.toRawUTF8()));
+    menu.addItem (2, "Horizontal Split", true, false, jam::SVG::getDrawable (splitHorizontalSVG.toRawUTF8()));
+    menu.addSeparator();
+    menu.addItem (3, "Join Left", getNeighbor (focused, jam::ID::left) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsVerticalSVG.toRawUTF8()));
+    menu.addItem (4, "Join Right", getNeighbor (focused, jam::ID::right) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsVerticalSVG.toRawUTF8()));
+    menu.addItem (5, "Join Up", getNeighbor (focused, jam::ID::top) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsHorizontalSVG.toRawUTF8()));
+    menu.addItem (6, "Join Down", getNeighbor (focused, jam::ID::bottom) != jam::UUID::none(), false, jam::SVG::getDrawable (joinCellsHorizontalSVG.toRawUTF8()));
+    menu.addSeparator();
+    menu.addItem (7, "Swap Areas");
+
+    return menu;
+}
+
+void TabView::handleAreaOptionsResult (int result)
+{
+    switch (result)
+    {
+        case 1: split (jam::ID::left, 0.5f); break;
+        case 2: split (jam::ID::top, 0.5f); break;
+        case 3: join (jam::ID::left); break;
+        case 4: join (jam::ID::right); break;
+        case 5: join (jam::ID::top); break;
+        case 6: join (jam::ID::bottom); break;
+
+        case 7:
+            state.setProperty (jam::ID::edge, juce::String (swapPickPrefix) + getFocusedChild().toString(), nullptr);
+            repaint();
+            break;
     }
 }

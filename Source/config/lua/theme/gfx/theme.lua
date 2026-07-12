@@ -363,6 +363,12 @@ return {
 	menu = {
 		-- Popup menu background opacity (0.0 - 1.0).
 		opacity = 0.65,
+
+		-- Popup menu text (juce::PopupMenu::textColourId, highlightedTextColourId).
+		text = colours.crystal,
+
+		-- Popup menu highlighted row background (juce::PopupMenu::highlightedBackgroundColourId).
+		highlight = colours.cavoloNero,
 	},
 
 	-- ========================================================================

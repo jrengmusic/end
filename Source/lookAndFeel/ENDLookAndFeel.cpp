@@ -128,6 +128,16 @@ juce::Font ENDLookAndFeel::getTabFont() const
         .withKerningFactor (kerning);
 }
 
+juce::Font ENDLookAndFeel::getCommonFont() const
+{
+    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
+    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
+
+    return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
+}
+
+juce::Font ENDLookAndFeel::getPopupMenuFont() { return getCommonFont(); }
+
 int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
 {
     const float depth { config.getValue (IDtype::tab, ID::depth) };
@@ -286,6 +296,49 @@ ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
     const bool windowButtons { config.getValue (IDtype::display, ID::titleBarButtons) };
 
     return Style { colour, static_cast<int16_t> (blur), fx, windowButtons };
+}
+
+void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
+{
+    newWindow.setOpaque (false);
+
+    auto safeComponent { juce::Component::SafePointer<juce::Component> (&newWindow) };
+
+    juce::MessageManager::callAsync (
+        [this, safeComponent]
+        {
+            if (safeComponent != nullptr)
+            {
+                const auto windowStyle { getWindowStyle() };
+                const float menuOpacity { config.getValue (IDtype::menu, ID::opacity) };
+                const auto opacity { jam::BackgroundBlur::isEnabled() ? menuOpacity : 1.0f };
+                const auto baseColour {
+                    safeComponent->findColour (juce::PopupMenu::backgroundColourId).withAlpha (opacity)
+                };
+                const auto blur { jam::BackgroundBlur::isEnabled()
+                                      ? static_cast<float> (windowStyle.blur)
+                                      : 0.0f };
+
+                jam::style::window::setMenu (safeComponent.getComponent(), baseColour);
+                jam::BackgroundBlur::enable (safeComponent.getComponent(),
+                                             static_cast<jam::BackgroundBlur::WindowFX> (windowStyle.fx),
+                                             blur,
+                                             baseColour);
+            }
+        });
+}
+
+void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
+                                                          int width,
+                                                          int height,
+                                                          const juce::PopupMenu::Options&)
+{
+#if JUCE_WINDOWS
+    if (not jam::BackgroundBlur::isEnabled())
+        g.fillAll (findColour (juce::PopupMenu::backgroundColourId));
+#else
+    juce::ignoreUnused (g, width, height);
+#endif
 }
 
 //==============================================================================

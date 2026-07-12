@@ -28,6 +28,7 @@
     X (end, "end")                           \
     X (keys, "keys")                         \
     X (popup, "popup")                       \
+    X (menu, "menu")                         \
     X (whelmed, "whelmed")                   \
     X (graphics, "graphics")                 \
     X (successMessage, "success_message")    \
@@ -117,6 +118,7 @@
     X (labelText, "label_text")                    \
     X (spinner, "spinner")                         \
     X (blurRadius, "blur_radius")                  \
+    X (opacity, "opacity")                         \
     X (alwaysOnTop, "always_on_top")               \
     X (alwaysVisible, "always_visible")            \
     X (confirmationOnExit, "confirmation_on_exit") \

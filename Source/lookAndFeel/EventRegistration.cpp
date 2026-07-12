@@ -117,6 +117,20 @@ void ENDLookAndFeel::initialiseColours()
     setColourId (IDtype::hint, jam::ID::text, hintLabelFgColourId);
 
     setColours (config.state);
+    setPopupMenuColours();
+}
+
+void ENDLookAndFeel::setPopupMenuColours()
+{
+    const auto windowColour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
+    const float menuOpacity { config.getValue (IDtype::menu, ID::opacity) };
+    const auto textColour { jam::Model::toColour (config.getValue (IDtype::menu, jam::ID::text)) };
+    const auto highlightColour { jam::Model::toColour (config.getValue (IDtype::menu, ID::highlight)) };
+
+    setColour (juce::PopupMenu::backgroundColourId, windowColour.withAlpha (menuOpacity));
+    setColour (juce::PopupMenu::textColourId, textColour);
+    setColour (juce::PopupMenu::highlightedBackgroundColourId, highlightColour);
+    setColour (juce::PopupMenu::highlightedTextColourId, textColour);
 }
 
 void ENDLookAndFeel::loadGraphics()
@@ -201,6 +215,12 @@ void ENDLookAndFeel::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
+                                  });
+
+    events.add<juce::ValueTree&> (IDtype::menu,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      setPopupMenuColours();
                                   });
 
     // Font-identity config coverage — fontRasterizer/fontGamma/fontContrast are

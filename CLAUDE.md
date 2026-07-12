@@ -6,10 +6,10 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 71 — Binary-Space Pane Substrate: PaneEdge Graph + Focus Contract Enforcement ✅ (2026-07-12)
+- **Last sprint:** Sprint 73 — JSN END Wiring + Audit Sweep + State-Pure Gesture Collapse ✅ (2026-07-12)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
 - **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap)
-- **Open PLAN:** `PLAN-binary-space.md` — Steps 1–5 executed (substrate, END retarget, audit, doxygen, docs sync); queued behind it: join/swap/pane navigation, corner join gesture, popup menu + glassmorphism
+- **Open PLAN:** `PLAN-join-swap-navigation.md` — Steps 1–3 executed (jam graph verbs, END wiring, audit sweep); Steps 4–8 pending (docs sync, corner join gesture, popup menu + glassmorphism, audit, doxygen)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → terminal::Processor/View`  

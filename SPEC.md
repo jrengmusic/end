@@ -555,10 +555,10 @@ Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse inp
 - `end::Model` — `jam::Model` + `Instance<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
 - `end::View` — `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns `Tabs`, `LookAndFeel`, GL context. Centralizes keyboard dispatch to active PaneView. Writes `activePaneID` on focus change.
 - `SessionView` — `jam::TabbedComponent` (button::Bar, SVG 3-slice, sliding indicator); adopts the SESSION row.
-- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l) via the binary space graph (`PaneEdge` machinery).
+- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l), join (ctrl+h/j/k/l, absorbs neighbor), swap (prefix+shift+h/j/k/l, exchanges content) via the binary space graph (`PaneEdge` machinery). Corner drag gesture: inward = split preview, outward = join preview. Gesture state held as model parameters (`jam::ID::edge`, `jam::ID::position`).
 - `jam::PaneComponent` base — OwnedComponent leaf for pane content.
 - `Nexus` — `Instance<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
-- `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, next_tab, prev_tab). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).
+- `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, join_left/right/up/down, swap_left/right/up/down, next_tab, prev_tab, reduce/expand_pane_width/height). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).
 - `LookAndFeel` — style-driven from CONFIG/DISPLAY (colours, tab SVG, pane bar). Hot-reload: lua file change → Main re-parses → CONFIG in place → LookAndFeel reacts.
 - GL pipeline — `renderOpenGL()` with background shader slot and post-process FBO capture slot (empty, compiling). JUCE GL compositing via `setComponentPaintingEnabled(true)`.
 
