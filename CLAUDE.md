@@ -6,16 +6,16 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 63 — mesh_shader mainMesh Hook + Two-Format Contract + graphics.mouse Config + jam::Array Adoption ✅ (2026-07-05)
+- **Last sprint:** Sprint 71 — Binary-Space Pane Substrate: PaneEdge Graph + Focus Contract Enforcement ✅ (2026-07-12)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
 - **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap)
-- **Open PLAN:** none — `PLAN-vt-correctness.md`/`RFC-vt-correctness.md` and `PLAN-obj-mesh-textures-imouse.md`/`RFC-obj-mesh-textures-imouse.md` deleted (fully executed, audited, verified; conformance suite at `tests/` and the shader/mesh system + `SHADERS.md` are the surviving artifacts)
+- **Open PLAN:** `PLAN-binary-space.md` — Steps 1–5 executed (substrate, END retarget, audit, doxygen, docs sync); queued behind it: join/swap/pane navigation, corner join gesture, popup menu + glassmorphism
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → terminal::Processor/View`  
 Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
 Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
-UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite)  
+UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
 Constants: `Identifier.h` · `Bimap.h`
 
 ## Key Docs

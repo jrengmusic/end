@@ -6,6 +6,9 @@ void ENDView::registerEvents()
         jam::ID::focusedPane,
         [this] (juce::ValueTree& tree)
         {
+            // Re-points the conduit to whichever TAB row last wrote its own
+            // focusedPane — valueChanged() below then mirrors that value
+            // onto the SESSIONS-level parameter, last change wins.
             if (tree.getType() == IDtype::tab)
                 focusedPane.referTo (tree.getPropertyAsValue (jam::ID::focusedPane, nullptr));
         });

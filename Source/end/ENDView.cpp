@@ -75,6 +75,10 @@ void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
 
 void ENDView::valueChanged (juce::Value&)
 {
+    // focusedPane currently refers to whichever TAB row's focusedPane the
+    // ID::focusedPane event last pointed it at — mirrors that value onto
+    // the SESSIONS-level focusedPane parameter, a valid registered parameter
+    // throughout.
     model.setValue (IDtype::sessions, jam::ID::focusedPane, focusedPane.getValue());
 }
 

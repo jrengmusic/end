@@ -2,6 +2,58 @@
 
 ---
 
+## Sprint 72: Binary-Space Closeout + Join/Swap/Navigation Graph Verbs (jam) ✅
+
+**Date:** 2026-07-12
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: Sprint-71 audit resolution (ternary collapse ruling intake), PLAN-join-swap-navigation.md (Blender-source semantics ratification), join mechanism derivation (collapse + rotation, worked examples), ARCHITECT-directed corrections carried through four rewrite passes: no asserts / trust-the-data-model / state-decides-geometry-never / vocabulary purge onto schema-kinship words
+- Pathfinder ×2: join/swap/navigation surface survey (END actions, TabView stubs, keybindings); Blender source survey (`SCREEN_OT_area_join`/`area_swap`, area_getorientation, actionzone_modal)
+- Librarian: framework API survey (juce::Rectangle adjacency/Range, ValueTree queries, Position/Orientation/Function::Map/LookupTable/UUID contracts)
+- Engineer ×7: ternary collapse; PLAN-binary-space doxygen pass; graph verbs first pass; Position-vocab + getParent/getRoot dedup; state-pure rewrite + Orientation::isVertical sweep; jam:: qualifier sweep (220); getPropertyId/sibling consolidation + vocabulary purge
+- Auditor ×2: doxygen/docs-sync audit (PASS, 2 findings resolved); JSN Step 1 audit (critical join corruption caught — initiator-direct-under-wall)
+
+### Files Modified (~15 total)
+
+**JAM:**
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp` — Sprint-71 ternary collapse (split slot rewrite, reducePane slot pick, childRemoved sibling+grandparent); then join/swap/navigation verbs: `getNeighbor` (state-pure graph descent — UUID membership in owner children is the pane test, mirrored-slot pick at perpendicular rows), `swap` (two property writes via pre-captured slot identifiers + layout), `join` (three graph shapes from state reads only: sibling collapse / initiator-absorbs via proportions product / ratified rotation gated on mirrored slots + proportions equality; refusal = none() before any mutation — Blender's own cancel semantics), `rotate` (three slot writes; grandparent repoint), `getParent (pane, direction)` (first-match return), `getRoot`, `getPropertyId (row, uuid)` + `sibling (row, uuid)` helpers; `find` stub deleted; unit-rect `layout(target)` overload deleted — `layout()` is the ONLY geometry op; layout locals cut/rest → head/tail; jam:: qualifiers swept (~187); vocabulary purge: wall/slot/release/chain/referencer/reached → parent/getPropertyId/other/proportions/grandparent/current
+- `jam_gui/layout/jam_Position.h` — `isLow (int)` API (mirrors isVertical)
+- `jam_gui/layout/jam_Orientation.h` — `isVertical (const juce::var&)` semantic query; jam:: sweep
+- `jam_gui/layout/jam_PaneEdge.h` — doxygen authored (binary-space contract); `isVertical()` onto Orientation API; jam:: sweep
+- `jam_gui/layout/jam_OwnerComponent.h` — stale briefs fixed (add stamps focusedChildId; setFocusedChild writes property only; listener's three reactions)
+- `jam_look_and_feel/jam_LookAndFeelCustom.h` — drawPaneEdge/getPaneEdgeSize prose retargeted; getPaneEdgeSize `//` → `/** @brief */`
+
+**END:**
+- `Source/lookAndFeel/ENDLookAndFeel.h` — pane-edge prose current; getPaneSidebarSize dangling cross-reference dropped (getter kept — unfinished sidebar dock, ARCHITECT-ruled)
+- `Source/end/EventRegistration.cpp` / `Source/end/ENDView.cpp` — focusedPane referTo conduit documented in file-local inline style
+- `ARCHITECTURE.md` — EDGE row in SESSIONS diagram + flat-sibling footnote; MatrixComponent binary-space description; singular-focus referTo-conduit paragraph
+- `SPEC.md` — MatrixComponent/PaneEdge/TabView lines onto binary space graph
+- `CLAUDE.md` — current state + UI line
+- `PLAN-binary-space.md` — wants-focus ctor line amended (code stands, ARCHITECT-ruled); Steps 1–5 complete
+- `PLAN-join-swap-navigation.md` — NEW at project root (Step 1 executed; Steps 2–5 pending)
+
+### Alignment Check
+- [x] BLESSED principles followed — layout() sole geometry op; verbs read/write state only; zero asserts; refusal as result return; SSOT: getPropertyId/sibling/getParent(direction)/getRoot collapse every repeated derivation
+- [x] NAMES.md adhered — after ARCHITECT-forced purge: foreign metaphors (wall, slot, cut, release, chain, referencer, leads-adjacent locals) died into parent/grandparent/sibling/own/other/current/space/head/tail/proportions; `getNeighbor`/`swap`/`join`/`rotate`/`getRoot`/`getPropertyId`/`isLow` ratified
+- [x] MANIFESTO.md principles applied — framework API OOTB (Orientation::isVertical, Position::isLow, Range semantics researched then superseded by state-pure ruling); Blender read from source, not priors
+- [ ] Open at log time (ARCHITECT-commanded log): JSN Steps 2–5 pending (END wiring: TabView childRemoved unification + focusPane + 8 actions + identifiers + keys.lua; audit sweep; dedicated doxygen — new verbs undocumented, header prose still says slot/cut/rest; docs sync); deep-nesting join refuses per plan Risk note (no iterated rotation)
+
+### Problems Solved
+- Sprint-71 residuals closed: M-1/M-2 ternary collapse, M-3/M-4/M-6/M-7 doxygen truthfulness, L-3 docs sync — audit PASS
+- Join semantics ratified from Blender source: initiator absorbs across a full shared wall; structurally inexpressible joins REFUSE (Blender's interference-cancel parity) — collapse + single rotation covers sibling / initiator-direct (proportions absorb) / mirrored-perpendicular shapes
+- Auditor-caught graph corruption (rotate reading a PANE row as EDGE when initiator sits directly under the wall) resolved by the state-shape dispatch — the corrupting path no longer exists
+- ARCHITECT course corrections enforced: zero asserts (pessimism), state decides — geometry never (enlargeIfAdjacent/unit-rect eligibility replaced by row/slot identity + one proportions equality), UUID membership replaces type probes, latch loops → first-match returns, jam:: noise swept, foreign vocabulary purged per NAMES.md
+- Build fix: const ValueTree handle blocked setProperty (join's parent)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (carried, unrelated to this sprint)
+
+---
+
 ## Sprint 71: Binary-Space Pane Substrate — PaneEdge Graph + Focus Contract Enforcement ✅
 
 **Date:** 2026-07-12

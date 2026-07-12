@@ -404,9 +404,9 @@ Foundation types and rendering:
 - `jam::ParagraphsModel` — bounded deque of `ParagraphStorage`. Neovim-style line-indexed API: `insert`, `remove`, `set`.
 - `OwnedComponent` — state-bound ownable child; self-reports focus onto its own row.
 - `OwnerComponent` — abstract composite owner: UUID-keyed children + Attachment per child, focused-child aggregation, strategy hooks.
-- `MatrixComponent` — tiled owner strategy (1D edge-scalar geometry; skeleton).
+- `MatrixComponent` — binary-space-graph owner strategy: EDGE head/tail name a SPACE (PANE or EDGE uuid), recursive-descent layout from the derived root.
 - `PaneComponent` — OwnedComponent leaf for pane content.
-- `PaneResizerBar` — draggable divider.
+- `PaneEdge` — EDGE row component; draggable seam, writes only its own proportions.
 - `button::Bar` — tab bar with drag-reorder, overflow collapse, sliding indicator.
 - `button::Tab` — tab button with inline rename.
 - `TabbedComponent` — one-visible owner strategy backed by `button::Bar`.
@@ -555,7 +555,7 @@ Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse inp
 - `end::Model` — `jam::Model` + `Instance<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
 - `end::View` — `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns `Tabs`, `LookAndFeel`, GL context. Centralizes keyboard dispatch to active PaneView. Writes `activePaneID` on focus change.
 - `SessionView` — `jam::TabbedComponent` (button::Bar, SVG 3-slice, sliding indicator); adopts the SESSION row.
-- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l) via the edge-scalar matrix (`PaneResizerBar` machinery).
+- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l) via the binary space graph (`PaneEdge` machinery).
 - `jam::PaneComponent` base — OwnedComponent leaf for pane content.
 - `Nexus` — `Instance<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
 - `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, next_tab, prev_tab). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).

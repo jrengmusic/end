@@ -268,9 +268,13 @@ config::Model (IDtype::config)              end::Model (IDtype::end)
                                                        PANE (jam::ID::id, jam::ID::focus —
                                                              TerminalView row)
                                                           TERMINAL (paired Processor tree)
+                                                       EDGE (jam::ID::id, jam::ID::head,
+                                                             jam::ID::tail, jam::ID::orientation,
+                                                             jam::ID::proportions — jam::PaneEdge row)
 ```
-\* Split geometry (EDGE rows, PANE edge references) lands with the
-`jam::MatrixComponent` implementation — PANE rows are direct TAB children.
+\* PANE and EDGE rows are flat TAB siblings — nesting is pure metadata:
+each EDGE's head/tail names a SPACE (a PANE row or another EDGE row) by
+UUID; the root space is derived — the one row no EDGE references.
 
 - **config::Model** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file). Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config (string-enum via `end::FontRasterizerBackend` bimap) and hot-reload live.
 - **end::Model** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state. Changes during app lifetime. State placement follows the Attachment Contract below — placement tokens exist only at the engine tier, never on views.
@@ -316,9 +320,11 @@ dead). Describes the landed code:
   Strategies: `jam::TabbedComponent : OwnerComponent` (machinery
   `jam::button::Bar`, one-visible swap, authors `jam::ID::focusedTab`) and
   `jam::MatrixComponent : OwnerComponent` (machinery EDGE rows +
-  `jam::PaneResizerBar`, edge-scalar tiling — skeleton, stubs full-rect;
-  authors `jam::ID::focusedPane`). Leaf: `jam::PaneComponent :
-  OwnedComponent`.
+  `jam::PaneEdge` — binary space graph: head/tail name a SPACE (PANE or
+  EDGE uuid), layout = recursive descent from the derived root, split
+  rewires the referencing slot to the new edge, removal collapses the
+  parent EDGE into the sibling space; authors `jam::ID::focusedPane`).
+  Leaf: `jam::PaneComponent : OwnedComponent`.
 - **Mirror law: the component tree is a pure function of the state tree.**
   `SESSIONS` ↔ `ENDView` (`sessions` map + per-child Attachment), `SESSION`
   ↔ `SessionView : jam::TabbedComponent` (adopts the SESSION row), `TAB` ↔
@@ -370,9 +376,12 @@ via focusGained/focusLost — the report channel); each `OwnerComponent` is
 the SOLE AUTHOR of its own row's focused-child parameter (its
 `valueTreePropertyChanged` sees a direct-child row's focus become 1 →
 writes that child's uuid — TabView authors `TAB.focused_pane`, SessionView
-authors `SESSION.focused_tab`); ENDView's `jam::ID::focus` events-map
-reaction authors the app-level `SESSIONS.focused_pane` singular from
-PANE-row reports only (type-filtered — TAB/SESSION rows also self-report).
+authors `SESSION.focused_tab`); ENDView's `jam::ID::focusedPane` events-map
+reaction re-points a `juce::Value` (`referTo`) at the reporting TAB row's
+`focused_pane` property (type-filtered — the SESSIONS write re-fires the
+same key); its `Value::Listener::valueChanged` writes the app-level
+`SESSIONS.focused_pane` parameter — last change wins, the singular stays a
+registered parameter.
 Every downstream consumer reacts to the singular parameter by id+value
 alone. No other writer of a `focused_*` parameter may exist.
 

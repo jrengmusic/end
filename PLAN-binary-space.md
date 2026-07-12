@@ -41,7 +41,7 @@ EDGE y  head=B  tail=C      horizontal
 ### jam::PaneEdge (`jam_gui/layout/jam_PaneEdge.h`, header-only; `jam_PaneResizerBar.h` deleted)
 
 Current PaneResizerBar minus the side-prop machinery:
-- ctor: registers head/tail (`Parameter<jam::UUID>`), orientation (`ParameterText`), proportions (`Parameter<float>`) on own EDGE row; `setWantsKeyboardFocus (false)` / `setRepaintsOnMouseActivity (true)` / `setAlwaysOnTop (true)`. **Sibling stamping deleted** (jam_PaneResizerBar.h:27-33). head = low-side space (left/top), tail = high-side.
+- ctor: registers head/tail (`Parameter<jam::UUID>`), orientation (`ParameterText`), proportions (`Parameter<float>`) on own EDGE row; `setRepaintsOnMouseActivity (true)` / `setAlwaysOnTop (true)` — no focus lines: focus contract, widgets opt in explicitly, non-widgets stay silent on defaults. **Sibling stamping deleted** (jam_PaneResizerBar.h:27-33). head = low-side space (left/top), tail = high-side.
 - dtor: **empty** — side-prop clearing deleted (jam_PaneResizerBar.h:36-49). Row removal stays the explicit remove verb in MatrixComponent (established contract).
 - `getSeam()` / `hitTest` / `mouseDown` / `mouseDrag` / `paint` / `resized` / accessors — carried unchanged. Drag writes own `jam::ID::proportions`; layout fires via owner listener.
 

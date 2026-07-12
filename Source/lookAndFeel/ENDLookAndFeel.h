@@ -13,7 +13,7 @@
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
  * Inherits jam::LookAndFeel::Methods for tab bar background, highlight, button,
- * and resizer rendering. Listens to both the config root ValueTree and the theme
+ * and pane edge rendering. Listens to both the config root ValueTree and the theme
  * subtree for live theme changes.
  *
  * Event dispatch uses a single-key lookup: property key takes priority; when no
@@ -217,7 +217,7 @@ public:
 
     Style getWindowStyle() const;
 
-    /** @brief Pane resizer bar — SVG Flex rendering with pane colourIds.
+    /** @brief Pane EDGE seam — SVG Flex rendering with pane colourIds.
      *  Hover/pressed state swaps bar colour to highlight colour.
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
@@ -227,18 +227,13 @@ public:
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
 
-    /** @brief Pane resizer bar thickness in pixels from pane config.
+    /** @brief Pane EDGE seam thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
-     *  TabView to size jam::MatrixComponent's resizer bars.
+     *  jam::PaneEdge::getSeam() to size the drag-hit region.
      */
     int getPaneEdgeSize() const noexcept override;
 
-    /** @brief Dock leaf seed ratio from pane config (pane.sidebar_size).
-     *  Consumed wherever a WINDOW leaf's own split ratio is seeded from
-     *  theme — see jam_MatrixComponent.h's own construction-order note (Nexus
-     *  bootstraps WINDOW's topology before this getter's own config/LAF
-     *  dependency exists).
-     */
+    /** @brief Sidebar dock seed ratio from pane config (pane.sidebar_size). */
     float getPaneSidebarSize() const noexcept;
 
     /**
