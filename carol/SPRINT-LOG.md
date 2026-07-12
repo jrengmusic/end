@@ -2,6 +2,57 @@
 
 ---
 
+## Sprint 71: Binary-Space Pane Substrate — PaneEdge Graph + Focus Contract Enforcement ✅
+
+**Date:** 2026-07-12
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: carried ARCHITECT's binary-space re-derivation (head/tail = SPACE references, flat tree, nesting by UUID metadata), rigidity proof for one-seam-per-wall-group, JUCE focus-machinery research (removeChildComponent dispatch, traverser default rules, referTo semantics), PLAN-binary-space.md, crash root-causing ×5
+- Pathfinder: pane substrate survey (JAM layout layer + END consumers)
+- Engineer ×9: substrate rewrite; getParent dedup + END retarget; reducePane for-loop; audit fixes (DIAG/rename/split order); split-order revert; manual-focus override deletion; closePane getFocusedChild; focusedPane referTo conduit; focus opt-in sweep; init focus seed
+- Auditor: Step 3 clean sweep (11 findings; plan conformance all-pass)
+
+### Files Modified (~17 total)
+
+**JAM:**
+- `jam_gui/layout/jam_PaneEdge.h` — NEW (renamed from `jam_PaneResizerBar.h`, DELETED): EDGE OwnedComponent whose head/tail name a SPACE (PANE or EDGE UUID); sibling side-prop stamping and dtor clearing deleted; LnF calls retargeted `drawPaneEdge`/`getPaneEdgeSize`
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp` — binary-space rewrite: `getParent (uuid)` = the EDGE row naming uuid (SSOT lookup, 4 scan sites collapsed); `split` rewires the referencing slot to the new edge (pane component mounted before any listener-triggered descent); `childRemoved` = graph collapse — sibling space inherits the grandparent slot, bar + EDGE row die, zero focus code; `reducePane` walks ancestors for bounding seams (distributed step preserved); `shiftSeam (row, delta)`; `layout()` = recursive descent from derived root (the one unreferenced row; empty-root guarded by ARCHITECT)
+- `jam_gui/layout/jam_Position.h` — `getOpposite` + `getHighPropertyId` deleted (consumerless after rewrite)
+- `jam_gui/layout/jam_OwnedComponent.h` — blanket `setWantsKeyboardFocus (true)` deleted: widgets opt in explicitly, containers never claim focus (close-dispatch now traverses into leaf panes)
+- `jam_gui/layout/jam_OwnerComponent.h` — DIAG debug::Log lines removed; listener reacts to own focusedChildId change with `resized()` — setFocusedChild/aggregation/add() all land on one state-driven layout path (tab visibility flip restored)
+- `jam_look_and_feel/jam_LookAndFeelCustom.h` — `drawResizerBar`→`drawPaneEdge`, `getPaneResizerBarSize`→`getPaneEdgeSize`
+- `jam_gui/jam_gui.h` — include swap; `.claude/CLAUDE.md` module map updated
+
+**END:**
+- `Source/lookAndFeel/ENDLookAndFeel.h/.cpp` — overrides renamed, cast retargeted `jam::PaneEdge&`, local `paneEdge`
+- `Source/end/SessionView.h/.cpp` — `currentTabChanged` manual-focus override DELETED (fired before visibility flip → juce_Component.cpp:3031 assert; violated focus contract)
+- `Source/end/ENDView.h/.cpp` — `juce::Value focusedPane` conduit (Value::Listener): referTo the last-changed TAB row's focused_pane, `valueChanged` writes the SESSIONS parameter (parameter machinery notifies readers); `setWantsKeyboardFocus (true)` deleted — bootstrap grab traverses to a pane
+- `Source/end/EventRegistration.cpp` — PANE focus event replaced by TAB focusedPane referTo re-point (last change wins)
+- `Source/action/ENDActions.cpp` — closePane reads `tabView->getFocusedChild()` (sessions-mirror read was stale → get() assert)
+- `Source/terminal/TerminalView.h/.cpp` — `visibilityChanged() { toFront (isVisible()); }` birth claim (pane-level setVisible happens once); `setExplicitFocusOrder (1)` — traverser default pick is a pane, never a bar button
+- `PLAN-binary-space.md` — NEW at project root
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT: seam graph stored once; cells, root, bounding seams, focus heir all derived; side-prop inverse index (second copy) eliminated; Stateless: no layout members anywhere; Bound: PaneEdge RAII in `bars`, focus lifecycle owned by JUCE machinery
+- [x] NAMES.md adhered — ratified: `PaneEdge`, `getParent`, `drawPaneEdge`/`getPaneEdgeSize`; `rewriteSlot` proposal withdrawn as foreign
+- [x] MANIFESTO.md principles applied — framework-first: `referTo` (juce_Value.cpp:186), traverser default (juce_KeyboardFocusTraverser.cpp:75), focus dispatch on removal (juce_Component.cpp:1523)
+- [ ] Open at log time (ARCHITECT-commanded log): Auditor M-1/M-2 branch-count (reducePane 4 branches; childRemoved slot-rewrite inline-ternary proposal unruled), M-3/M-4/M-6/M-7 stale doxygen prose (belongs to the dedicated doxygen pass), L-3 docs sync (ARCHITECTURE.md/SPEC.md/CLAUDE.md still name PaneResizerBar); PLAN Steps 4 (doxygen) and 5 (docs sync) pending; SidebarComponent no longer focusable (flagged, unruled)
+
+### Problems Solved
+- Removal had no principled resolution in the pair model — ARCHITECT re-derived head/tail as SPACE relationships: binary space graph, flat rows, nesting by reference; removal = pure graph collapse, sibling space is the exact complement by construction
+- One-seam-per-wall-group proven from pane rigidity (a rectangle's wall is one line) — collinear segments on a shared wall move together; 2×2 independent seams preserved (grouping is by shared wall, not coordinate)
+- Focus contract enforced end-to-end: no orchestrator assigns focus — blanket base opt-in removed, widget birth-claim via visibilityChanged, bootstrap seed via traverser, SESSIONS.focusedPane synced by referTo conduit through its own parameterChanged
+- Crash chain resolved: empty-root descent, split-order listener race (invalid L-1 reorder reverted — pane component must exist before any listener-triggered descent), stale sessions mirror in closePane, manual grab before visibility flip, tab render stuck (setFocusedChild wrote property but nothing relaid out)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260629T100000` — drawLine native-line-pipeline gap (carried, unrelated to this sprint)
+
+---
+
 ## Sprint 70: Seam-Truth Substrate — EDGE Rows Own Layout, Panes Own Nothing ✅
 
 **Date:** 2026-07-12

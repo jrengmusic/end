@@ -4,7 +4,12 @@ TerminalView::TerminalView (jam::Model& model, juce::ValueTree tabState, jam::UU
     : jam::PaneComponent (model, tabState, IDtype::pane, uuid)
 {
     setWantsKeyboardFocus (true);
-    toFront (true);
+    setExplicitFocusOrder (1);
+}
+
+void TerminalView::visibilityChanged()
+{
+    toFront (isVisible());
 }
 
 void TerminalView::paint (juce::Graphics& g)

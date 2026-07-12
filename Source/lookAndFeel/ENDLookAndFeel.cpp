@@ -154,7 +154,7 @@ juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 }
 
 //==============================================================================
-int ENDLookAndFeel::getPaneResizerBarSize() const noexcept
+int ENDLookAndFeel::getPaneEdgeSize() const noexcept
 {
     return config.getValue (IDtype::pane, ID::resizeBarThickness);
 }
@@ -289,10 +289,10 @@ ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
 }
 
 //==============================================================================
-void ENDLookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
+void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
 {
-    auto& resizerBar { static_cast<jam::PaneResizerBar&> (bar) };
-    auto bounds { resizerBar.getSeam().toFloat() };
+    auto& paneEdge { static_cast<jam::PaneEdge&> (bar) };
+    auto bounds { paneEdge.getSeam().toFloat() };
 
     if (bounds.getWidth() < bounds.getHeight())
     {

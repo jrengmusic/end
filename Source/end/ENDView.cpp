@@ -6,7 +6,6 @@ ENDView::ENDView (jam::Model& m)
 {
     setOpaque (false);
     addKeyListener (this);
-    setWantsKeyboardFocus (true);
     toFront (true);
 
     registerActions();
@@ -23,6 +22,7 @@ ENDView::ENDView (jam::Model& m)
     widget.setFormats (ConfigModel::validators);
 #endif
 
+    focusedPane.addListener (this);
     config.addListener (this);
     model.addListener (this);
 
@@ -45,6 +45,7 @@ ENDView::~ENDView()
 {
     model.removeListener (this);
     config.removeListener (this);
+    focusedPane.removeListener (this);
     removeKeyListener (this);
 }
 
@@ -70,6 +71,11 @@ void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
 
     if (events.contains (key))
         events.get (key, tree);
+}
+
+void ENDView::valueChanged (juce::Value&)
+{
+    model.setValue (IDtype::sessions, jam::ID::focusedPane, focusedPane.getValue());
 }
 
 void ENDView::createAndAttachParameters()

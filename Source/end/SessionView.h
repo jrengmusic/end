@@ -26,7 +26,6 @@ private:
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
     void lookAndFeelChanged() override;
-    void currentTabChanged (jam::UUID newCurrentTab, const juce::String&) override;
 
     juce::String getName (const juce::ValueTree& tabState);
     static juce::String getTerminalName (const juce::ValueTree& tabState);

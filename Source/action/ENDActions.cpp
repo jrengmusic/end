@@ -118,8 +118,7 @@ void ENDView::registerActions()
                                   {
                                       if (tabView->getChildCount() > 1)
                                       {
-                                          const jam::UUID focusedUuid { static_cast<int64_t> (
-                                              model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
+                                          const auto focusedUuid { tabView->getFocusedChild() };
 
                                           nexus.getActiveSession().removeTerminal (focusedUuid);
                                           tabView->remove (focusedUuid);

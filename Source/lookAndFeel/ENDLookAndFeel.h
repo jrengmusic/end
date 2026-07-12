@@ -220,7 +220,7 @@ public:
     /** @brief Pane resizer bar — SVG Flex rendering with pane colourIds.
      *  Hover/pressed state swaps bar colour to highlight colour.
      */
-    void drawResizerBar (juce::Graphics& g, juce::Component& bar) override;
+    void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
     /** @brief Pane outline indicator — focused pane strokes with the focused
      *  outline colour, unfocused panes with the plain outline colour.
@@ -231,7 +231,7 @@ public:
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
      *  TabView to size jam::MatrixComponent's resizer bars.
      */
-    int getPaneResizerBarSize() const noexcept override;
+    int getPaneEdgeSize() const noexcept override;
 
     /** @brief Dock leaf seed ratio from pane config (pane.sidebar_size).
      *  Consumed wherever a WINDOW leaf's own split ratio is seeded from

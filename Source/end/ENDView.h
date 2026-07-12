@@ -13,6 +13,7 @@ class ENDView
     , public jam::Model::Component<ENDView>
     , public juce::ValueTree::Listener
     , public juce::KeyListener
+    , public juce::Value::Listener
 {
 public:
     explicit ENDView (jam::Model& m);
@@ -25,6 +26,8 @@ public:
 
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    void valueChanged (juce::Value& value) override;
 
 private:
     ENDActions& actions { *ENDActions::getInstance() };
@@ -60,6 +63,8 @@ private:
     jam::HashMap<jam::UUID, std::unique_ptr<SessionView>> sessions;
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
     jam::Function::Map<juce::Identifier, void> events;
+
+    juce::Value focusedPane {};
 
     MessageOverlay messageOverlay;
 

@@ -127,22 +127,3 @@ void SessionView::lookAndFeelChanged()
     setTabBarDepth (lookAndFeel.getTabBarDepth (*this));
     setPosition (lookAndFeel.getTabPosition());
 }
-
-void SessionView::currentTabChanged (jam::UUID newCurrentTab, const juce::String&)
-{
-    if (getChildren().contains (newCurrentTab))
-    {
-        auto& tabView { get (newCurrentTab) };
-
-        if (tabView.getChildCount() > 0)
-        {
-            const jam::UUID rememberedPane { static_cast<int64_t> (
-                tabView.getValueTree().getProperty (jam::ID::focusedPane)) };
-
-            if (rememberedPane != jam::UUID::none())
-                tabView.get (rememberedPane).grabKeyboardFocus();
-            else
-                tabView.get().grabKeyboardFocus();
-        }
-    }
-}

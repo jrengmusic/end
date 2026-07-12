@@ -3,14 +3,11 @@
 void ENDView::registerEvents()
 {
     events.add<juce::ValueTree&> (
-        jam::ID::focus,
+        jam::ID::focusedPane,
         [this] (juce::ValueTree& tree)
         {
-            if (tree.getType() == IDtype::pane and jam::toBool (tree.getProperty (jam::ID::focus)))
-            {
-                model.setValue (
-                    IDtype::sessions, jam::ID::focusedPane, tree.getProperty (jam::ID::id));
-            }
+            if (tree.getType() == IDtype::tab)
+                focusedPane.referTo (tree.getPropertyAsValue (jam::ID::focusedPane, nullptr));
         });
 
     events.add<juce::ValueTree&> (ID::theme,

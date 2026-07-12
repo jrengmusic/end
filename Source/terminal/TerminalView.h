@@ -8,6 +8,7 @@ public:
     TerminalView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid);
 
     void paint (juce::Graphics& g) override;
+    void visibilityChanged() override;
 
 private:
     //==============================================================================
