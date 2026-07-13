@@ -6,10 +6,13 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 73 — JSN END Wiring + Audit Sweep + State-Pure Gesture Collapse ✅ (2026-07-12)
+- **Last sprint:** Sprint 76 — jam_clap In-House CLAP Wrapper Steps 1–6 ✅ (2026-07-13)
 - **Active ODE:** `END.ode` (opened 2026-06-29)
-- **Active debt:** DEBT-20260629T100000 (`drawLine` native-line-pipeline gap)
-- **Open PLAN:** `PLAN-join-swap-navigation.md` — Steps 1–3 executed (jam graph verbs, END wiring, audit sweep); Steps 4–8 pending (docs sync, corner join gesture, popup menu + glassmorphism, audit, doxygen)
+- **Active debt:** none (ledger clean)
+- **Open PLANs:**
+  - `PLAN-jam-clap-wrapper.md` — Steps 1–6 executed (vendor prune, ClientExtensions, wrapper skeleton + PluginBuilder, params/bypass/state, process/transport/MIDI/latency/tail, GUI embed); Step 7 in progress (acceptance + docs sync)
+  - `PLAN-END-plugin-host.md` — Phase 0 Step 1 superseded by jam_clap wrapper; Steps 2–23 pending
+  - `PLAN-join-swap-navigation.md` — Steps 1–3 executed; Steps 4–8 pending
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → terminal::Processor/View`  

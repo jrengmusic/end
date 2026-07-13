@@ -19,6 +19,7 @@ session). The RFC's plan-time open questions were settled this session:
 | 3 Clock home in JAM | **New module `jam_audio_devices`**, `audio_io/` subdir |
 | 4 Names | Ledger below; fixture = `dev/___boilerplate___/___vanilla___/` VANILLA `com.jreng.vanilla`; plugin projects at `dev/plugins/`; terminal = `dev/plugins/terminal/` TERMINAL `com.jreng.terminal` |
 | 5 Vendor-pin mechanics | Vendored snapshot copies inside jam_clap (jam_vulkan/vulkan pattern); include-path order makes jam_clap/clap the SSOT for the vendored extensions wrapper |
+| 5b In-house plugin path | `~/.config/end/plugins/` — canon location for in-house `.clap` output; post-build copy in every plugin CMakeLists; added to PluginFormat search paths alongside standard OS CLAP paths |
 | 6 Cross-domain bridge | Deferred (RFC decision 7, unchanged) |
 | 7 ensureScratch bound | Superseded — terminal plugin is built FROM SCRATCH; drain-side storage designed preallocated from day one |
 | 8 ARCHITECTURE.md amendment | Step 19 |
@@ -84,6 +85,12 @@ no doxygen authoring, no plan/RFC-citing comments, zero identifier latitude.
 ### Phase 0 — jam_clap + jam_audio_devices (JAM capital expenditure)
 
 **Step 1: jam_clap module skeleton + vendor pins**
+**SUPERSEDED (Sprint 76, 2026-07-13):** Vendored upstream wrapper sources (`extensions/`,
+`clap-juce-extensions/`) deleted and replaced by in-house `jam_clap` wrapper — see
+`PLAN-jam-clap-wrapper.md` Steps 1–6. Module skeleton, vendor pins (`clap/`, `helpers/`),
+and AppBuilder include-path block landed as specified; wrapper TU relocated to
+`jam/cmake/clap/` (outside module tree) with verbatim-JUCE INTERFACE wrapper lib pattern
+in `PluginBuilder.cmake`. Plugin sources are pure `juce::AudioProcessor` — no mixin bases.
 **Scope:** `~/Documents/Poems/dev/jam/jam_clap/` (new), `jam/cmake/AppBuilder.cmake`
 **Action:** Create module per house anatomy (topmost `jam_clap.h` with
 BEGIN_JUCE_MODULE_DECLARATION, zero-include submodules). Vendor pinned snapshots:
@@ -120,6 +127,10 @@ Typeface, Stamp, Grapheme, Link (forward-declared — accepted deviation above) 
 CLAPPluginFormat.cpp:107-287), `findAllTypesForFile` (whole-factory enumeration),
 `fileMightContainThisPluginType` (.clap + existence), `searchPathsForPlugins`,
 known-path loading (no scanning required — Decision 10), PluginDescription fill.
+`getDefaultLocationsToSearch` includes standard OS CLAP paths (macOS
+`~/Library/Audio/Plug-Ins/CLAP`, Windows `%APPDATA%/CLAP` +
+`%PROGRAMFILES%/Common Files/CLAP`) AND `~/.config/end/plugins/` (in-house canon
+path — Decision 5b).
 **Validation:** clean-room vs spec headers (PoC as map only); result returns; lookup
 tables over branch chains.
 
@@ -165,10 +176,15 @@ componentMovedOrResized) per VST3PluginWindow reference
 **Validation:** lifecycle bound (destroy on editor death); no leaked native views.
 
 **Step 9: Plugin-side glue — jam::clap::Editor**
+**AMENDED (Sprint 76, 2026-07-13):** Plugin-side glue consumes `jam::clap::ClientExtensions`
+(in-house surface, `jam_ClapClientExtensions.h`) instead of the upstream
+`clap_juce_audio_processor_capabilities` mixin. Host-query and demand-clock wired through
+`setHostExtension` / `setRequestProcess` setter-virtuals — same `setIHostApplication`
+idiom as `juce_VST3ClientExtensions.h`.
 **Scope:** `jam_clap/editor/jam_ClapEditor.h`
 **Action:** Editor base for in-house modules: queries
-`getExtension ("com.jreng.host-services/1")` (clap-juce-extensions capabilities
-crossing, working example HostSpecificExtensionsPlugin.cpp:10-12); injected-engine
+`getExtension ("com.jreng.host-services/1")` (ClientExtensions surface —
+wrapper injects host-query via `setHostExtension`); injected-engine
 mode registers HOST VulkanEngine* as dylib-local `externalContextFactory`; own-engine
 fallback via `SharedResourcePointer` Shared lifecycle (**arrives with the KANJUT
 jam_vulkan sync — ARCHITECT's workstream; this step consumes the seam, does not build
@@ -232,8 +248,10 @@ contract; editor ephemeral over persistent processor.
 `kuassa/___boilerplate___/___vanilla___/` shape — PluginProcessor/PluginEditor on jam
 modules, built as `.clap` via vendored clap-juce-extensions
 (`clap_juce_extensions_plugin`, CLAP_ID `com.jreng.vanilla`) + VST3/AU + Standalone
-dev target (own-engine branch exercised by construction — Decision 8). Acceptance
-sequence per format: instantiate → clock → editor-in-pane → state round-trip → destroy.
+dev target (own-engine branch exercised by construction — Decision 8). CMakeLists
+includes post-build copy of `.clap` to `~/.config/end/plugins/` (Decision 5b).
+Acceptance sequence per format: instantiate → clock → editor-in-pane → state
+round-trip → destroy.
 **Validation:** house standard, not throwaway (permanent fixture + template);
 Auditor full-contract pass.
 
@@ -243,22 +261,28 @@ Auditor full-contract pass.
 **Scope:** `~/Documents/Poems/dev/plugins/whelmed/` (new — clone of ___vanilla___)
 **Action:** Clone VANILLA; CLAP_ID `com.jreng.whelmed`, product WHELMED. Links
 jam_markdown + jam_mermaid (jam_markdown's declared dependency) on top of the template
-modules.
+modules. Post-build copy to `~/.config/end/plugins/` inherited from VANILLA scaffold
+(Decision 5b).
 **Validation:** clone discipline (metadata edits only at this step).
 
 **Step 16: Processor side — document source**
 **Scope:** WHELMED Source/
-**Action:** Processor owns the document source: file path + content snapshot as state
-(`getStateInformation`/`setStateInformation` via copyXmlToBinary/getXmlFromBinary
-pattern). Zero audio ports — `clap.audio-ports` not implemented (legal:
-ext/audio-ports.h:10); `process()` present and trivial (structurally mandatory:
-plugin.h:96). Document loading is main-thread; no RT machinery invented for a workload
-that has none (Lean).
+**Action:** PluginProcessor is a clean orchestrator — owns ProcessorChain, state
+round-trip (`getStateInformation`/`setStateInformation` via
+copyXmlToBinary/getXmlFromBinary pattern). ProcessorChain owns document source (file
+path + content snapshot) and parser state; `ProcessorChain::process()` calls `parse()`
+— same API shape as KANJUT spectrum analyzer (ProcessorChain is the analysis engine,
+process() is the verb, no new semantics). Zero audio ports — `clap.audio-ports` not
+implemented (legal: ext/audio-ports.h:10); processBlock clocked by VirtualDevice
+pipeline (demand-driven via `request_process`). Document loading triggers
+`request_process` → Nexus pumps VirtualDevice.clock() → processBlock fires →
+ProcessorChain::process() parses.
 **Validation:** state round-trip; no bail-outs; no shadow state.
 
 **Step 17: Editor side — viewer, first consumption of jam_markdown/jam_mermaid**
 **Scope:** WHELMED editor
-**Action:** Editor on jam::clap::Editor base. Read-only render path:
+**Action:** PluginEditor is a clean orchestrator — owns `WhelmedView` as child
+component. `WhelmedView` (separate file `WhelmedView.h/.cpp`) is the render surface:
 `jam::markdown::Document` lifecycle (parse → layout → draw → getBounds) inside a
 `juce::Viewport`; mermaid fences render through `jam::mermaid::Diagram`. Scroll only —
 no caret, no editing, no keyboard requirement. Acceptance: CommonMark + GFM corpus
@@ -301,7 +325,8 @@ landed code only.
 **Step 20: TERMINAL project scaffold**
 **Scope:** `~/Documents/Poems/dev/plugins/terminal/` (new — clone of ___vanilla___)
 **Action:** Clone VANILLA; CLAP_ID `com.jreng.terminal`, product TERMINAL. Links
-jam_terminal (TTY), jam modules.
+jam_terminal (TTY), jam modules. Post-build copy to `~/.config/end/plugins/` inherited
+from VANILLA scaffold (Decision 5b).
 **Validation:** clone discipline (metadata edits only at this step).
 
 **Step 21: Processor side — built from scratch**

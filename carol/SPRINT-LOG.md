@@ -2,6 +2,140 @@
 
 ---
 
+## Sprint 78: jam_clap Host Format Layer (Services + PluginFormat + PluginInstance) + END Build Additions ✅
+
+**Date:** 2026-07-13
+**Duration:** 03:00
+
+### Agents Participated
+- COUNSELOR: orchestration, CLAP API synthesis (entry/factory/process/host/audio-ports/events specs), include architecture fix (PluginInstance internal to unity TU, CLAP C types out of public surface), compile error analysis (7 errors: DsoHandle ctor, return types, BusesProperties access, tryAllocate template), reinterpret_cast correction (header*→midi_t* is type pun, not void* cast)
+- Engineer: Services header, PluginFormat (DsoHandle + DSO loader + scanning + search paths), PluginInstance (lifecycle + process + multi-bus + MIDI), END CMakeLists additions, compile fixes, audit clean sweep (9 findings), doxygen (3 headers)
+- Librarian: CLAP host format API research (entry/factory/descriptor lifecycle, feature constants, search paths), juce::AudioPluginInstance/AudioProcessor contract (pure virtuals, BusesProperties, prepareToPlay/processBlock), PoC CLAPPluginInstance analysis, VST3PluginInstanceHeadless reference patterns
+- Auditor: full-contract pass (9 findings: 0 critical, 1 high, 4 medium, 4 low)
+- Pathfinder: current state survey (PLAN steps, module structure, ARCHITECTURE.md, SPRINT-LOG)
+
+### Files Modified (8 total)
+- `jam/jam_clap/services/jam_ClapServices.h` — new: Services struct with extensionId "com.jreng.host-services/1", six forward-declared pointer fields for cross-boundary rendering resource sharing
+- `jam/jam_clap/format/jam_ClapPluginFormat.h` — new: PluginFormat : AudioPluginFormat declaration, all scanning/enumeration overrides, comprehensive doxygen
+- `jam/jam_clap/format/jam_ClapPluginFormat.cpp` — new: DsoHandle RAII struct, DsoHandle() = default, static_cast for void* entry cast, hasFeature/buildCategory/fillDescription/recursivePluginSearch helpers, all method implementations, platform-conditioned CLAP_PATH replace
+- `jam/jam_clap/format/jam_ClapPluginInstance.h` — new: PluginInstance : AudioPluginInstance declaration, static create factory, isBusesLayoutSupported override, processBlock decomposition helpers, comprehensive doxygen
+- `jam/jam_clap/format/jam_ClapPluginInstance.cpp` — new: host identity SSOT constants, event buffer named constants, host callback trampolines, channelSetFromPortInfo/scanBusesProperties/scanHasMidiPort (result-return) helpers, two-phase create, lifecycle methods, processBlock decomposed (setupAudioBuffers + convertMidiToClap + convertClapToMidi), isBusesLayoutSupported (port count + channel count validation), createPluginInstance (factory enumeration + uniqueId hash match)
+- `jam/jam_clap/jam_clap.h:27-29` — Services + PluginFormat includes added (public surface); CLAP C types kept internal
+- `jam/jam_clap/jam_clap.cpp:1-6` — clap/clap.h, helpers/event-list.hh, PluginInstance.h/.cpp includes added (internal, compilation-order-critical)
+- `end/CMakeLists.txt:106-111,128-129,137-138` — MODULES += juce_audio_basics/devices/formats/processors_headless/processors/utils; JAM_MODULES += jam_audio_devices jam_clap; JUCE_PLUGINHOST_VST3=1 + JUCE_PLUGINHOST_AU=1 (Darwin)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- CLAP host format layer implemented clean-room from CLAP spec headers — PoC as structural map only, not copied
+- Two-phase PluginInstance creation: temporary plugin for bus scanning (BusesProperties must be known at AudioPluginInstance construction), real plugin with instance-owned clap_host_t; avoids the PoC's empty-buses hack
+- PluginInstance.h kept internal to unity TU (not in jam_clap.h public surface) — CLAP C types never leak to module consumers; DsoHandle forward declaration eliminated (complete type from PluginFormat.cpp in same TU)
+- 7 compile errors fixed: DsoHandle default ctor suppressed by JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR, getName/getProgramName return type (const String vs String), BusesProperties protected access (moved scanBusesProperties to PluginInstance static member), EventList::tryAllocate non-template (explicit alignof/sizeof call), reinterpret_cast for header*→midi_t* type pun (not void*)
+- 9 Auditor findings resolved: CLAP_PATH Windows drive-letter corruption (#if not JUCE_WINDOWS), reinterpret→static for void* casts, host identity SSOT (4 constexpr constants), processBlock decomposed 91→25 lines, isBusesLayoutSupported validates against audio-ports, scanHasMidiPort result-return, named event buffer constants
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
+## Sprint 77: Wrapper Clean Sweep + jam_audio_devices + WHELMED Rename ✅
+
+**Date:** 2026-07-13
+**Duration:** 02:30
+
+### Agents Participated
+- COUNSELOR: orchestration, Auditor finding verification (C1/C2/C3 at file:line), plan intake (jam_audio_devices), docs sync (PLAN-END-plugin-host.md supersession notes, CLAUDE.md)
+- Auditor: full-contract pass over jam_clap/wrapper + PluginBuilder (25 findings: 3 critical, 7 high, 10 medium, 5 low)
+- Engineer: clean sweep implementation (all 25 findings), jam_audio_devices module creation, ProcessorChain→WhelmedDocumentProcessor rename
+- Pathfinder: WHELMED ProcessorChain discovery, JAM module anatomy + JUCE MockDevice/AudioIODevice/AudioIODeviceType interface survey
+
+### Files Modified (17 total)
+- `jam/jam_clap/wrapper/jam_ClapWrapper.h` — WrapperEditor rename, ParamChangeState struct, HeapBlock channel pointers, listener inheritance, index-based param maps, transportInfo copy, clientExtensions ptr, event handler declarations, onResize callback
+- `jam/cmake/clap/jam_ClapWrapper.cpp` — full clean sweep: RT alloc fixed, process() decomposed (171→67 lines), bypass branch, param output events + gesture support, named constants, brace init, jassert standardized, ClientExtensions wired in init()
+- `jam/jam_clap/wrapper/jam_ClapClientExtensions.h` — parameter names + ignoreUnused
+- `jam/cmake/PluginBuilder.cmake:508-511` — CLAP_PLUGIN_VERSION compile def added
+- `jam/jam_audio_devices/jam_audio_devices.h` — new module header (deps: juce_audio_devices, jam_core)
+- `jam/jam_audio_devices/jam_audio_devices.cpp` — new unity TU
+- `jam/jam_audio_devices/audio_io/jam_VirtualDevice.h` — jam::VirtualDevice (demand-driven clock) + jam::VirtualDeviceType (device "END")
+- `jam/CMakeLists.txt:7-9` — jam_audio_devices + jam_clap registered in _JAM_MODULES
+- `plugins/whelmed/Source/WhelmedDocumentProcessor.h` — new (renamed from ProcessorChain.h)
+- `plugins/whelmed/Source/WhelmedDocumentProcessor.cpp` — new (renamed from ProcessorChain.cpp)
+- `plugins/whelmed/Source/ProcessorChain.h` — deleted
+- `plugins/whelmed/Source/ProcessorChain.cpp` — deleted
+- `plugins/whelmed/Source/WhelmedProcessor.h` — include + member + getter renamed
+- `plugins/whelmed/Source/WhelmedProcessor.cpp` — all processorChain→documentProcessor call sites
+- `plugins/whelmed/Source/WhelmedView.h` — DocumentView param + member renamed
+- `plugins/whelmed/Source/WhelmedView.cpp` — all processorChain→documentProcessor call sites
+- `PLAN-END-plugin-host.md` — Step 1 supersession note (in-house wrapper), Step 9 amendment (ClientExtensions)
+- `CLAUDE.md` — Sprint 76 state, active plans updated, debt ledger clean
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- 25 Auditor findings resolved in clean sweep — RT allocation in process (C1), release null-deref (C2), ClientExtensions dead surface (C3), missing bypass/gesture/param-output (H1-H3), 171-line process decomposed (H6), naked pointer members eliminated (H5/M7/M8), all magic numbers named, brace init standardized, assert macros unified
+- std::vector<ParamChangeState> impossible (atomic deletes move ctor) — Engineer used std::deque (no relocation on growth)
+- HostProxy::getExtension is templated, not raw C API — wired via _host.host()->get_extension()
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
+## Sprint 76: jam_clap In-House CLAP Wrapper (Steps 1-6) ✅
+
+**Date:** 2026-07-13
+**Duration:** 04:00
+
+### Agents Participated
+- COUNSELOR: orchestration, root-cause analysis (HEADER_FILE_ONLY poisoning, ScopedJuceInitialiser_GUI lifetime, editorBeingDeleted lifecycle), CONTRACT enforcement
+- Engineer: PluginBuilder.cmake implementation, wrapper TU (params/state/process/GUI), .mm platform split, EditorWrapper destructor
+- Pathfinder: build-tree inspection (empty WHELMED_CLAP.dir, build.ninja analysis), compile-command verification
+- Librarian: CMake repro (confirmed no CMake-level cause), upstream ClapTargetHelpers reference extraction
+- Auditor: Step 3 validation (prior session)
+
+### Files Modified (10 total)
+- `jam/cmake/PluginBuilder.cmake` — full configure_plugin() implementation (+648 lines); CLAP block mirrors JUCE _juce_add_plugin_wrapper_target / _juce_link_plugin_wrapper verbatim (INTERFACE wrapper lib, empty MODULE target, platform .mm/.cpp split)
+- `jam/cmake/clap/jam_ClapWrapper.cpp` — wrapper TU outside module tree; params (hashCode IDs, CLAP_PARAM_IS_BYPASS, stepped), state (chunked ostream/istream), block-split process (float+double, MIDI, transport→AudioPlayHead), latency/tail, GUI (EditorWrapper, NSView attach, editorBeingDeleted)
+- `jam/cmake/clap/jam_ClapWrapper.mm` — ObjC++ platform wrapper (1 line, includes .cpp)
+- `jam/jam_clap/jam_clap.h` — pin-record comment, ClientExtensions include
+- `jam/jam_clap/wrapper/jam_ClapClientExtensions.h` — jam::clap::ClientExtensions (getExtension, setHostExtension, setRequestProcess)
+- `jam/jam_clap/wrapper/jam_ClapWrapper.h` — Wrapper class (clap::helpers::Plugin + AudioPlayHead), EditorWrapper nested struct with destructor, ScopedJuceInitialiser_GUI member
+- `jam/jam_clap/wrapper/jam_ClapWrapperEntry.h` — clap_entry / factory / descriptor; ScopedJuceInitialiser_GUI removed from factory (moved to Wrapper member)
+- `jam/cmake/AppBuilder.cmake` — JUCE_MODAL_LOOPS_PERMITTED for macOS CLAP GUI
+- `plugins/whelmed/Source/WhelmedProcessor.h` — pure juce::AudioProcessor (mixin bases removed)
+- `plugins/whelmed/Source/WhelmedProcessor.cpp` — createPluginFilter(), bypass param, WhelmedView topology
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- CLAP binary empty (no clap_entry): JUCE's _juce_fixup_module_source_groups marked wrapper .cpp HEADER_FILE_ONLY because it lived inside jam_clap module tree subdir — relocated TU to cmake/clap/ outside module glob
+- CLAP MODULE target zero compile rules: verbatim JUCE pattern (INTERFACE wrapper lib + empty MODULE target) replaced direct add_library(MODULE <cpp>)
+- VSTWindowUtilities.h ObjC in .cpp: platform .mm wrapper (verbatim upstream pattern)
+- LegacyAudioParameter missing in JUCE 8: replaced with AudioProcessorParameterWithID::paramID
+- REAPER hang on editor open: ScopedJuceInitialiser_GUI was stack-scoped in clapCreatePlugin (message thread died on return) — moved to Wrapper member for plugin-lifetime scope
+- Editor never reopens after close: EditorWrapper destructor was missing editorBeingDeleted() call — JUCE's activeEditor stayed non-null, createEditorAndMakeActive() returned nullptr
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 75: drawLine native quad expansion (DEBT-20260629T100000) ✅
 
 **Date:** 2026-07-13

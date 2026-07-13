@@ -103,6 +103,12 @@ configure_app(
         juce_graphics
         juce_gui_basics
         juce_gui_extra
+        juce_audio_basics
+        juce_audio_devices
+        juce_audio_formats
+        juce_audio_processors_headless
+        juce_audio_processors
+        juce_audio_utils
     JAM_MODULES
         jam_core
         jam_vulkan
@@ -119,6 +125,8 @@ configure_app(
         jam_animation
         jam_debug
         jam_terminal
+        jam_audio_devices
+        jam_clap
     BINARY_FILES     ${END_BINARY_FILES}
     EXTRA_DEFINES
         JUCE_WEB_BROWSER=1
@@ -126,6 +134,8 @@ configure_app(
         HAVE_FREETYPE
         $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>
         $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>
+        JUCE_PLUGINHOST_VST3=1
+        $<$<PLATFORM_ID:Darwin>:JUCE_PLUGINHOST_AU=1>
 )
 
 # ============================================================================

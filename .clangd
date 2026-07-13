@@ -11,6 +11,8 @@ CompileFlags:
     - -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
     - -DJUCE_IN_APP_PURCHASES=0
     - -DJUCE_MODULE_AVAILABLE_jam_animation=1
+    - -DJUCE_MODULE_AVAILABLE_jam_audio_devices=1
+    - -DJUCE_MODULE_AVAILABLE_jam_clap=1
     - -DJUCE_MODULE_AVAILABLE_jam_core=1
     - -DJUCE_MODULE_AVAILABLE_jam_data_structures=1
     - -DJUCE_MODULE_AVAILABLE_jam_debug=1
@@ -26,20 +28,26 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_terminal=1
     - -DJUCE_MODULE_AVAILABLE_jam_vulkan=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_devices=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_formats=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1
+    - -DJUCE_MODULE_AVAILABLE_juce_audio_utils=1
     - -DJUCE_MODULE_AVAILABLE_juce_core=1
     - -DJUCE_MODULE_AVAILABLE_juce_data_structures=1
     - -DJUCE_MODULE_AVAILABLE_juce_events=1
     - -DJUCE_MODULE_AVAILABLE_juce_graphics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_gui_extra=1
+    - -DJUCE_PLUGINHOST_AU=1
+    - -DJUCE_PLUGINHOST_VST3=1
     - -DJUCE_STANDALONE_APPLICATION=1
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
     - -DJUCE_USE_CURL=0
     - -DJUCE_WEB_BROWSER=1
     - -DVMA_VULKAN_VERSION=1002000
     - -D_DEBUG=1
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
@@ -49,8 +57,6 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/JUCE/modules
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
@@ -60,6 +66,8 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -isystem

@@ -1,7 +1,7 @@
 
 **********************************************************
 
-Log started: 13 Jul 2026 12:52:55am
+Log started: 13 Jul 2026 10:48:08pm
 
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: mtllib: could not open /Users/jreng/.config/end/shaders/end/end-icon.mtl, using default material
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_4e8c93', using default
