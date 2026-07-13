@@ -48,7 +48,7 @@ void ENDLookAndFeel::setFontRasterization()
 
     // Rebuilding the atlas invalidates every cached glyph bitmap for an
     // otherwise-unchanged GlyphAtlas::Key (backend/gamma/contrast changed,
-    // typeface/glyphIndex/fontSize did not) — TerminalView's own
+    // typeface/glyphIndex/fontSize did not) — EditorView's own
     // lookAndFeelChanged() (via ENDLookAndFeel::getCodeMetrics()) is the
     // sole path that recomputes cell metrics against the now-current atlas
     // state and repaints every pane. ENDLookAndFeel owns no Component of

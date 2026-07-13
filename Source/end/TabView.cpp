@@ -33,7 +33,7 @@ jam::UUID TabView::add()
 //==============================================================================
 std::unique_ptr<jam::OwnedComponent> TabView::createChild (jam::UUID uuid)
 {
-    auto child { std::make_unique<TerminalView> (model, state, uuid) };
+    auto child { std::make_unique<EditorView> (model, state, uuid) };
 
     child->setCornerMenuFactory ([this] { return buildAreaOptionsMenu(); });
     child->setCornerMenuAction ([this] (int result) { handleAreaOptionsResult (result); });
@@ -71,9 +71,9 @@ void TabView::swap (const juce::Identifier& direction)
 }
 
 //==============================================================================
-TerminalView& TabView::get (jam::UUID uuid)
+EditorView& TabView::get (jam::UUID uuid)
 {
-    return static_cast<TerminalView&> (MatrixComponent::get (uuid));
+    return static_cast<EditorView&> (MatrixComponent::get (uuid));
 }
 
 //==============================================================================
@@ -181,7 +181,7 @@ void TabView::paintOverChildren (juce::Graphics& g)
                 const int splitLine { splitVertical
                                           ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
                                           : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
-                const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
+                const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (EditorView::defaultZoom) };
 
                 const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
                 const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
@@ -202,7 +202,7 @@ void TabView::paintOverChildren (juce::Graphics& g)
                 {
                     const auto targetBounds { get (target).getBounds() };
                     const auto merged { preview.getUnion (targetBounds) };
-                    const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (TerminalModel::defaultZoom) };
+                    const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics (EditorView::defaultZoom) };
 
                     const juce::String message { juce::String (static_cast<int> (merged.getWidth() / metrics.cellWidth)) + " x "
                                                  + juce::String (static_cast<int> (merged.getHeight() / metrics.cellHeight)) };

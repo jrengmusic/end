@@ -1,20 +1,19 @@
 /**
  * @file TabView.h
- * @brief Binary-space pane graph for a single tab — hosts TerminalView panes
+ * @brief Binary-space pane graph for a single tab — hosts EditorView panes
  *        as jam::MatrixComponent children and drives split/join/swap gestures.
  */
 #pragma once
 #include <JuceHeader.h>
-#include "terminal/TerminalView.h"
+#include "end/EditorView.h"
 #include "Identifier.h"
 #include "end/MessageOverlay.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "terminal/TerminalModel.h"
 
 /**
  * @class TabView
  * @brief Owns one tab's binary-space pane graph — a jam::MatrixComponent
- *        whose children are TerminalView panes reachable through jam::PaneEdge
+ *        whose children are EditorView panes reachable through jam::PaneEdge
  *        seams.
  *
  * Wires each minted pane's corner menu (Area Options: split, join, swap) to
@@ -59,9 +58,9 @@ public:
 
     /** @brief Resolves a child pane by identity.
      *  @param uuid Identity of the pane.
-     *  @return The matching TerminalView.
+     *  @return The matching EditorView.
      */
-    TerminalView& get (jam::UUID uuid);
+    EditorView& get (jam::UUID uuid);
 
     /**
      * @brief Resolves a pending swap-pick target, or cancels swap-pick on right-click.
@@ -122,11 +121,11 @@ public:
 
 protected:
     /**
-     * @brief Mints a TerminalView for uuid and wires its corner menu to
+     * @brief Mints an EditorView for uuid and wires its corner menu to
      *        this tab's Area Options handlers.
      *
      * @param uuid Identity to bind the new pane to.
-     * @return The newly constructed TerminalView, owned by the caller.
+     * @return The newly constructed EditorView, owned by the caller.
      */
     std::unique_ptr<jam::OwnedComponent> createChild (jam::UUID uuid) override;
 

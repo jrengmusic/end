@@ -56,16 +56,16 @@ void ENDView::registerActions()
                         uuid = tabView->add();
 
                     if (uuid != jam::UUID::none())
-                        actions.actions.get (ID::newTerminal, std::move (uuid));
+                        actions.actions.get (ID::newPlugin, std::move (uuid));
                 }
             }
         });
 
     actions.actions.add<jam::UUID> (
-        ID::newTerminal,
+        ID::newPlugin,
         [this] (jam::UUID uuid)
         {
-            nexus.getActiveSession().newTerminal (uuid);
+            nexus.getActiveSession().newPlugin (uuid, {}, nullptr);
         });
 
     actions.actions.add (ID::closeTab,
@@ -121,7 +121,7 @@ void ENDView::registerActions()
                                       {
                                           const auto focusedUuid { tabView->getFocusedChild() };
 
-                                          nexus.getActiveSession().removeTerminal (focusedUuid);
+                                          nexus.getActiveSession().removePlugin (focusedUuid);
                                           tabView->remove (focusedUuid);
                                       }
                                       else
@@ -136,14 +136,17 @@ void ENDView::registerActions()
         ID::zoomIn,
         [this]
         {
-            auto& session { nexus.getActiveSession() };
             const jam::UUID id { static_cast<int64_t> (
                 model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
             if (id.value != 0)
             {
                 const float step { config.getValue (IDtype::display, ID::zoomStep) };
-                session.get (id).model.zoomBy (step);
+                const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
+                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+
+                jassert (zoomParameter != nullptr);
+                zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, zoomParameter->getValue() + step));
             }
         });
 
@@ -151,26 +154,34 @@ void ENDView::registerActions()
         ID::zoomOut,
         [this]
         {
-            auto& session { nexus.getActiveSession() };
             const jam::UUID id { static_cast<int64_t> (
                 model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
             if (id.value != 0)
             {
                 const float step { config.getValue (IDtype::display, ID::zoomStep) };
-                session.get (id).model.zoomBy (-step);
+                const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
+                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+
+                jassert (zoomParameter != nullptr);
+                zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, zoomParameter->getValue() - step));
             }
         });
 
     actions.actions.add (ID::zoomReset,
                           [this]
                           {
-                              auto& session { nexus.getActiveSession() };
                               const jam::UUID id { static_cast<int64_t> (
                                   model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
 
                               if (id.value != 0)
-                                  session.get (id).model.setZoom (TerminalModel::defaultZoom);
+                              {
+                                  const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
+                                  auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+
+                                  jassert (zoomParameter != nullptr);
+                                  zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, EditorView::defaultZoom));
+                              }
                           });
 
     actions.actions.add (ID::paneLeft,
@@ -214,7 +225,7 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::left) };
 
                                       if (target != jam::UUID::none())
-                                          nexus.getActiveSession().removeTerminal (target);
+                                          nexus.getActiveSession().removePlugin (target);
                                   }
                           });
 
@@ -227,7 +238,7 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::bottom) };
 
                                       if (target != jam::UUID::none())
-                                          nexus.getActiveSession().removeTerminal (target);
+                                          nexus.getActiveSession().removePlugin (target);
                                   }
                           });
 
@@ -240,7 +251,7 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::top) };
 
                                       if (target != jam::UUID::none())
-                                          nexus.getActiveSession().removeTerminal (target);
+                                          nexus.getActiveSession().removePlugin (target);
                                   }
                           });
 
@@ -253,7 +264,7 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::right) };
 
                                       if (target != jam::UUID::none())
-                                          nexus.getActiveSession().removeTerminal (target);
+                                          nexus.getActiveSession().removePlugin (target);
                                   }
                           });
 

@@ -53,7 +53,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == jam::ID::name or property == jam::ID::cwd or property == ID::foregroundProcess)
+    if (property == jam::ID::name or property == ID::pluginId)
     {
         const auto tabState { findAncestorTab (tree) };
 
@@ -65,33 +65,6 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
     }
 }
 
-juce::String SessionView::getTerminalName (const juce::ValueTree& tabState)
-{
-    const jam::UUID sourceUuid { static_cast<int64_t> (
-        tabState.getProperty (jam::ID::focusedPane)) };
-    const auto sourcePane {
-        jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
-    };
-
-    if (sourcePane.isValid())
-    {
-        const auto terminalState { sourcePane.getChildWithName (IDtype::terminal) };
-        jassert (terminalState.isValid());
-
-        const auto textState { terminalState.getChildWithName (jam::IDtype::text) };
-        const juce::String foregroundProcess {
-            textState.getProperty (ID::foregroundProcess).toString()
-        };
-
-        return foregroundProcess.isNotEmpty()
-                    ? foregroundProcess
-                    : juce::File (textState.getProperty (jam::ID::cwd).toString())
-                          .getFileName();
-    }
-
-    return {};
-}
-
 juce::String SessionView::getName (const juce::ValueTree& tabState)
 {
     const juce::String rename { tabState.getProperty (jam::ID::name).toString() };
@@ -99,7 +72,13 @@ juce::String SessionView::getName (const juce::ValueTree& tabState)
     if (rename.isNotEmpty())
         return rename;
 
-    return getTerminalName (tabState);
+    const jam::UUID sourceUuid { static_cast<int64_t> (
+        tabState.getProperty (jam::ID::focusedPane)) };
+    const auto sourcePane {
+        jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
+    };
+
+    return sourcePane.isValid() ? sourcePane.getProperty (ID::pluginId).toString() : juce::String {};
 }
 
 juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)

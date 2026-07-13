@@ -28,7 +28,6 @@ private:
     void lookAndFeelChanged() override;
 
     juce::String getName (const juce::ValueTree& tabState);
-    static juce::String getTerminalName (const juce::ValueTree& tabState);
 
     static juce::ValueTree findAncestorTab (juce::ValueTree tree);
 

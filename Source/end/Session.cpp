@@ -11,20 +11,26 @@ Session::Session (jam::UUID newUuid, ENDModel& newModel)
 
 Session::~Session() { model.removeListener (this); }
 
-TerminalProcessor& Session::get (jam::UUID uuid) { return *processors.at (uuid); }
+juce::AudioPluginInstance& Session::get (jam::UUID uuid) { return *plugins.at (uuid); }
 
-void Session::newTerminal (jam::UUID uuid)
+void Session::newPlugin (jam::UUID uuid, const juce::String& pluginId, std::unique_ptr<juce::AudioPluginInstance> instance)
 {
-    const auto [entry, inserted] {
-        processors.try_emplace (uuid, std::make_unique<TerminalProcessor> (uuid))
-    };
-    juce::ignoreUnused (entry);
-    jassert (inserted);
+    auto paneRow { jam::Model::getChildWithID (state, juce::var (uuid.value)) };
+    jassert (paneRow.isValid());
+
+    paneRow.setProperty (ID::pluginId, pluginId, nullptr);
+
+    if (instance != nullptr)
+    {
+        const auto [entry, inserted] { plugins.try_emplace (uuid, std::move (instance)) };
+        juce::ignoreUnused (entry);
+        jassert (inserted);
+    }
 }
 
-void Session::removeTerminal (jam::UUID uuid)
+void Session::removePlugin (jam::UUID uuid)
 {
-    processors.erase (uuid);
+    plugins.erase (uuid);
 }
 
 void Session::parameterChanged (const juce::Identifier& id, const juce::var& newValue)

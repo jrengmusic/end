@@ -2,6 +2,51 @@
 
 ---
 
+## Sprint 79: Nexus Host Machinery + Session Plugin Substitution + Terminal Stub Deletion (Steps 2Δ/11/12/13-min) ✅
+
+**Date:** 2026-07-14
+**Duration:** 02:00
+
+### Agents Participated
+- COUNSELOR: orchestration; demand-domain topology synthesis (per-plugin VirtualDevice+Player pairs vs graph/direct-dispatch, BLESSED-grounded); name gates ratified with ARCHITECT (VirtualClock, pluginId "plugin_id", pluginState "plugin_state"); JUCE fork API verification (addDefaultFormats deleted at juce_AudioPluginFormatManager.h:57 → addDefaultFormatsToManager); jam::Model::getChildWithID recursion verified (jam_ModelUtils.cpp:118) for grandchild PANE lookup; zoom survival decision translated (PANE-row parameter for WHELMED/SURF)
+- Engineer: VirtualDevice spec deltas; Nexus host machinery; terminal tier deletion + plugin tier substitution + EditorView; tests/ModelTests removal
+- Pathfinder: exhaustive terminal-reference inventory (includes, symbols, call sites, identifiers, PANE row lifecycle)
+
+### Files Modified (20 total)
+- `jam/jam_audio_devices/jam_audio_devices.h` — module declaration completed (website/license fields, description)
+- `jam/jam_audio_devices/audio_io/jam_VirtualDevice.h` — defaultBlockSize/bitDepth named constants; start/stop positive nesting + notify-then-clear order; virtualDeviceTypeName SSOT constant replacing three "END" literals; getIndexOfDevice compares device name against the constant (was trivially-true getTypeName comparison)
+- `end/Source/Nexus.h:7-12,26-38,83-103,110-117` — VirtualClock struct (VirtualDevice + AudioProcessorPlayer); ctor: extensions table seeded with Services::extensionId, addDefaultFormatsToManager + jam::clap::PluginFormat (unique_ptr addFormat), deviceManager.initialiseWithDefaultDevices (2,2), player→graph→deviceManager wiring; explicit dtor (removeAudioCallback, setProcessor nullptr); createVirtualClock/removeVirtualClock/pump verbs; createPlugin (search-path walk, CLAP id hashCode match vs uniqueId, sync createPluginInstance); members: services, extensions, formatManager, graph, player, deviceManager, virtualClocks, virtualSampleRate 48000.0, virtualBlockSize 512
+- `end/Source/terminal/` — DELETED (TerminalProcessor.h/.cpp, TerminalModel.h, TerminalView.h/.cpp)
+- `end/Source/end/Session.h/.cpp` — plugins map (jam::HashMap<jam::UUID, std::unique_ptr<juce::AudioPluginInstance>>); newPlugin (uuid, pluginId, instance) writes ID::pluginId onto PANE row (recursive getChildWithID) + conditional try_emplace; removePlugin; get → AudioPluginInstance&
+- `end/Source/end/EditorView.h/.cpp` — NEW: jam::PaneComponent subclass; registers PANE-row ID::zoom parameter; defaultZoom/zoomMin/zoomMax constants (relocated from deleted TerminalModel); editor embed deferred to Step 8
+- `end/Source/end/TabView.h/.cpp` — EditorView replaces TerminalView (includes, get() cast, createChild); EditorView::defaultZoom at two getCodeMetrics sites; stale comment fixes
+- `end/Source/action/ENDActions.cpp` — ID::newPlugin registration + forward (empty-id contract until default wiring); removePlugin at closePane + 4 join actions; zoomIn/zoomOut/zoomReset rewritten to focused PANE row's ID::zoom parameter via PANE#<uuid> composite group id, jlimit-clamped
+- `end/Source/end/SessionView.h/.cpp` — getTerminalName deleted, folded into getName (fallback = focused pane's ID::pluginId); listener condition swaps cwd/foregroundProcess for pluginId
+- `end/Source/Identifier.h` — newPlugin/removePlugin replace newTerminal (IDENTIFIER_KEYS); pluginId/pluginState added (IDENTIFIER_MODEL); IDENTIFIER_TERMINAL_STATE block deleted
+- `end/Source/lookAndFeel/ENDLookAndFeel.h`, `end/Source/lookAndFeel/EventRegistration.cpp` — stale TerminalView/TerminalModel doc references swapped to EditorView
+- `end/tests/ModelTests.cpp` — DELETED (validated deleted TerminalModel only); `end/tests/CMakeLists.txt` — SOURCES line, stale comment block, ../Source include dir removed; `end/tests/TestTerm.h` — two stale TerminalProcessor doc mentions dropped
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Demand-domain topology settled: per-plugin VirtualClock (VirtualDevice + AudioProcessorPlayer) — request maps 1:1 to processBlock (D); no-op AudioProcessorGraph routing for zero-port plugins rejected (L); AudioProcessorPlayer as OOTB prepare/dispatch adapter (no hand-rolled callback). Amends PLAN's singular "VirtualDevice" wording — ARCHITECT-ratified
+- Hardware + virtual clock domains coexist: AudioDeviceManager drives one hardware device; VirtualDevice never registered with the manager, Nexus-owned, demand-clocked
+- Plugin identity = plugin id string (cross-platform reverse-DNS; file paths rejected as machine-bound); pluginState = opaque Base64 blob for session persistence (AudioPluginHost PluginGraph precedent)
+- Zoom survives terminal deletion as PANE-row parameter (ARCHITECT: zoom serves WHELMED/SURF) — constants relocated to EditorView, actions clamp centrally
+- JUCE fork API drift caught: addDefaultFormats() = delete → free function addDefaultFormatsToManager; deprecated raw-pointer addFormat → unique_ptr overload
+- tests/ suite: jam_terminal conformance suite preserved; only ModelTests.cpp (END TerminalModel gate) died with its subject
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 78: jam_clap Host Format Layer (Services + PluginFormat + PluginInstance) + END Build Additions ✅
 
 **Date:** 2026-07-13

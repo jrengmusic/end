@@ -162,7 +162,8 @@
     X (newWindow, "new_window")                        \
     X (newSession, "new_session")                      \
     X (newTab, "new_tab")                              \
-    X (newTerminal, "new_terminal")                    \
+    X (newPlugin, "new_plugin")                        \
+    X (removePlugin, "remove_plugin")                  \
     X (newPane, "new_pane")                            \
     X (prevTab, "prev_tab")                            \
     X (nextTab, "next_tab")                            \
@@ -348,27 +349,9 @@
     X (focusedSession, "focused_session")     \
     X (zoom, "zoom")                          \
     X (renderer, "renderer")                  \
-    X (message, "message")
-
-// TerminalModel schema — names not already carried by jam::ID
-// (jam_IdentifierTerminal.h already
-// hosts activeScreen/cursor/cursorShape/cursorColor/keyboardFlags/
-// keyboardSetAllFlags/keyboardSetGivenFlags/keyboardResetGivenFlags/
-// savedKeyboardFlags/savedKeyboardFlagsCount/cwd/title/
-// applicationCursor/applicationKeypad/bracketedPaste/mouseTracking/
-// mouseSgr/focusEvents/win32InputMode/
-// pasteEchoRemaining/syncOutputActive/screenDirty/bell/promptRow/shellExited/
-// modes(group tag)/session/alternate — those are reused directly, not
-// duplicated here). mouseTracking now carries a jam::terminal::MouseTracking
-// value (DEC private modes 1000/1002/1003 collapsed onto one parameter,
-// jam_terminal/video/jam_MouseTracking.h) — mouseMotionTracking/
-// mouseAllTracking (formerly independent bool identifiers) are retired.
-#define IDENTIFIER_TERMINAL_STATE(X)            \
-    X (gridSize, "grid_size")                   \
-    X (winsize, "winsize")                      \
-    X (cellSize, "cell_size")                   \
-    X (foregroundProcess, "foreground_process") \
-    X (clearRequested, "clear_requested")
+    X (message, "message")                    \
+    X (pluginId, "plugin_id")                 \
+    X (pluginState, "plugin_state")
 
 // ============================================================================
 #define END_MAKE_VIEW(ViewName, EXPANDER)    \
@@ -386,7 +369,6 @@
         IDENTIFIER_SHADER (EXPANDER)         \
         IDENTIFIER_MOUSE (EXPANDER)          \
         IDENTIFIER_MODEL (EXPANDER)          \
-        IDENTIFIER_TERMINAL_STATE (EXPANDER) \
     };
 
 END_MAKE_VIEW (ID, AS_IDENTIFIER)

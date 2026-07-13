@@ -43,9 +43,9 @@
  * root; no fixture-side `DecMode` instance is needed or permitted. `video` no longer
  * takes a Model reference — it fires `stateChanged`/`textChanged`/
  * `modeChanged` (`jam_VideoEvents.h`) instead; this fixture registers
- * `onStateChanged`/`onTextChanged`/`onModeChanged` trampolines (same shape
- * as `TerminalProcessor`) that resolve those channels straight onto
- * `model`, so every conformance assertion on Model parameters keeps passing.
+ * `onStateChanged`/`onTextChanged`/`onModeChanged` trampolines that resolve
+ * those channels straight onto `model`, so every conformance assertion on
+ * Model parameters keeps passing.
  *
  * @par Deadline-injection seam (V2 expiry testing)
  * `Term` is `TermBase<jam::terminal::Video>` — templated on the owned Video
@@ -285,9 +285,8 @@ private:
 
     /** @brief `Events::Entry` trampoline for the `stateChanged` member —
      *  resolves `(tag, id)` onto `model`'s `jam::Parameter<int>` and stores
-     *  `value`. Same shape as `TerminalProcessor::onStateChanged()` —
-     *  a null `tag` (the former VIDEO group's four scalars) resolves to
-     *  `model.getType()`.
+     *  `value`. A null `tag` (the former VIDEO group's four scalars) resolves
+     *  to `model.getType()`.
      *  @param context  The owning `TermBase*`, opaque to Video. */
     static void onStateChanged (void* context, juce::Identifier tag, juce::Identifier id, int value) noexcept
     {

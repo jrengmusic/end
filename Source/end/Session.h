@@ -1,7 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/ENDModel.h"
-#include "terminal/TerminalProcessor.h"
 #include "Identifier.h"
 
 class Session : public jam::Model::Listener
@@ -11,11 +10,11 @@ public:
 
     ~Session();
 
-    TerminalProcessor& get (jam::UUID uuid);
+    juce::AudioPluginInstance& get (jam::UUID uuid);
 
-    void newTerminal (jam::UUID uuid);
+    void newPlugin (jam::UUID uuid, const juce::String& pluginId, std::unique_ptr<juce::AudioPluginInstance> instance);
 
-    void removeTerminal (jam::UUID uuid);
+    void removePlugin (jam::UUID uuid);
 
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
 
@@ -25,7 +24,7 @@ private:
     jam::UUID uuid;
     ENDModel& model;
 
-    jam::HashMap<jam::UUID, std::unique_ptr<TerminalProcessor>> processors;
+    jam::HashMap<jam::UUID, std::unique_ptr<juce::AudioPluginInstance>> plugins;
 
     jam::Function::Map<juce::Identifier, void> events;
 

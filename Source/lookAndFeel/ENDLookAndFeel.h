@@ -288,14 +288,14 @@ public:
      *
      * Reads IDtype::code properties: ID::fontFamily, ID::fontSize. Unlike
      * getTabFont(), carries no kerning factor (code.font_family/font_size
-     * has no kerning_factor property) and no zoom — zoom is a
-     * TerminalModel parameter applied inside getCodeMetrics() below.
+     * has no kerning_factor property) and no zoom — zoom is an
+     * EditorView parameter applied inside getCodeMetrics() below.
      */
     juce::Font getCodeFont() const;
 
     /**
      * @brief Computed terminal cell metrics at @p zoom — LnF is the font
-     *        owner AND the sanctioned jam::GlyphAtlas caller; TerminalView
+     *        owner AND the sanctioned jam::GlyphAtlas caller; EditorView
      *        never touches glyph machinery directly.
      *
      * Applies @p zoom to getCodeFont() via juce::Font::withPointHeight()
@@ -304,12 +304,12 @@ public:
      * glyphs will rasterize at. The raw FT cell width/height are then scaled
      * by the theme's own cell ratios (code.cell_width / code.line_height)
      * to produce the final pixel cell size. Returns the zoomed font itself
-     * alongside the computed metrics — TerminalView's lookAndFeelChanged()
+     * alongside the computed metrics — EditorView's lookAndFeelChanged()
      * consumes every field directly (codeView::setFont/setCellSize/
      * setBaseline, mouse.setCellSize, model.setCellSize) with no ratio-only
      * getter anywhere in the chain.
      *
-     * @param zoom  TerminalModel's own zoom factor (Direction B ID::zoom).
+     * @param zoom  EditorView's own zoom factor (Direction B ID::zoom).
      * @return Populated CodeMetrics — font, cellWidth, cellHeight, baseline,
      *         all in pixels except font (points).
      */
@@ -351,7 +351,7 @@ public:
 
     /** @brief Terminal ligature toggle from the active theme (code.ligatures)
      *  — the 5th getCode* visual getter. Routes through LnF like every
-     *  other code-family value; TerminalView no longer reads config
+     *  other code-family value; EditorView no longer reads config
      *  directly for ligatures.
      */
     bool getCodeLigatures() const noexcept;
@@ -453,7 +453,7 @@ private:
      * on every juce::Desktop top-level window (ENDLookAndFeel owns no
      * Component of its own to call it on directly) — the atlas rebuild above
      * invalidates every cached glyph bitmap for an otherwise-unchanged
-     * GlyphAtlas::Key, and TerminalView's own lookAndFeelChanged() is the
+     * GlyphAtlas::Key, and EditorView's own lookAndFeelChanged() is the
      * sole path that recomputes cell metrics against the now-current atlas
      * state and repaints. A no-op at startup (registerTypeface()'s own tail
      * call runs before ENDWindow exists). Defined in EventRegistration.cpp.
@@ -547,9 +547,8 @@ private:
      * StatusBar/ActionList components do not exist in Source yet, nothing to
      * route to until they do. The terminal code font (code.font_family/
      * font_size) is no longer this audit's gap: the glyph-rendering pipeline
-     * now exists, and TerminalView owns its own zoom event handler
-     * (Source/terminal/EventRegistration.cpp, TerminalModel's own ID::zoom)
-     * which funnels into TerminalView's own lookAndFeelChanged(), which
+     * now exists, and EditorView owns its own zoom event handler
+     * which funnels into EditorView's own lookAndFeelChanged(), which
      * calls this class's getCodeMetrics (zoom) to recompute cell metrics and
      * re-applies them to jam::CodeView, entirely independent of this class's
      * own event map. Only fontRasterizer/fontGamma/fontContrast/embolden
