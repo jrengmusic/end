@@ -1,8 +1,8 @@
 #include "end/ENDView.h"
 
 ENDView::ENDView (jam::Model& m)
-    : jam::Model::Component<ENDView> (m, m.getChildWithName (IDtype::window))
-    , messageOverlay (m, m.getChildWithName (IDtype::overlay))
+    : jam::Model::Component<ENDView> (m, m.getChildWithName (Id::toType (Id::window)))
+    , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)))
 {
     setOpaque (false);
     addKeyListener (this);
@@ -19,7 +19,7 @@ ENDView::ENDView (jam::Model& m)
     createAndAttachParameters();
 
 #if JUCE_DEBUG
-    widget.setFormats (ConfigModel::validators);
+    widget.setFormats (ConfigModel::getValidators());
 #endif
 
     focusedPane.addListener (this);
@@ -29,12 +29,12 @@ ENDView::ENDView (jam::Model& m)
     juce::MessageManager::callAsync (
         [this]
         {
-            events.get (ID::gpu, config.state);
-            events.get (ID::alwaysOnTop, config.state);
-            events.get (ID::titleBarButtons, config.state);
-            events.get (jam::ID::enabled, config.state);
+            events.get (Id::useGpu, config.state);
+            events.get (Id::alwaysOnTop, config.state);
+            events.get (Id::titleBarButtons, config.state);
+            events.get (Id::enabled, config.state);
 
-            actions.run (ID::newSession);
+            actions.run (Id::newSession);
             grabKeyboardFocus();
         });
 
@@ -76,19 +76,19 @@ void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
 void ENDView::valueChanged (juce::Value&)
 {
     // focusedPane currently refers to whichever TAB row's focusedPane the
-    // ID::focusedPane event last pointed it at — mirrors that value onto
+    // Id::focusedPane event last pointed it at — mirrors that value onto
     // the SESSIONS-level focusedPane parameter, a valid registered parameter
     // throughout.
-    model.setValue (IDtype::sessions, jam::ID::focusedPane, focusedPane.getValue());
+    model.setValue (Id::toType (Id::sessions), Id::focusedPane, focusedPane.getValue());
 }
 
 void ENDView::createAndAttachParameters()
 {
-    auto [width, height] = config.getInt (IDtype::display, ID::size);
+    auto [width, height] = config.getInt (Id::toType (Id::display), Id::size);
 
     //==============================================================================
     model.createAndAddParameter<jam::Parameter<int>> (
-        state, ID::size, jam::Size<int16_t> (width, height).toInt());
+        state, Id::size, jam::Size<int16_t> (width, height).toInt());
 
     messageOverlay.registerParameters();
 
@@ -98,13 +98,13 @@ void ENDView::createAndAttachParameters()
 
 void ENDView::setViewState (jam::Size<int16_t> size)
 {
-    state.setProperty (ID::size, size.toInt(), nullptr);
+    state.setProperty (Id::size, size.toInt(), nullptr);
 }
 
 SessionView* ENDView::getActiveSessionView() noexcept
 {
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-        IDtype::sessions, ID::focusedSession) };
+        Id::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
     const jam::UUID sessionUuid { focusedSessionParameter->getValue() };

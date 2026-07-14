@@ -1,4 +1,5 @@
 #include "Main.h"
+#include "LexiconFiles.h"
 
 #if JUCE_MAC
 #include <CoreGraphics/CGDirectDisplay.h>
@@ -101,12 +102,12 @@ void ENDApplication::initialiseVulkan()
                                          : standardRefreshFrameBudgetMs };
 
     // Vulkan pipeline cache — resolved under END's own config directory
-    // (FileConfig::path, ~/.config/end/), never decided by JAM. Explicit
+    // (Id::Files::Config::path, ~/.config/end/), never decided by JAM. Explicit
     // per VulkanEngine's contract, mirroring targetFrameBudgetMs above.
-    const auto cacheDir { jam::File::getOrCreateDirectory (FileConfig::path, IDref::cache) };
+    const auto cacheDir { jam::File::getOrCreateDirectory (Id::Files::Config::path, Id::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
-        jam::Format::toFileName (ProjectInfo::projectName, IDref::cache)) };
-    const bool canUseGpu { config.getValue (IDtype::display, ID::gpu)
+        jam::Format::toFileName (ProjectInfo::projectName, Id::cache)) };
+    const bool canUseGpu { config.getValue (Id::toType (Id::display), Id::useGpu)
                            and jam::GpuProbe::probe().isAvailable };
 
     jam::BackgroundBlur::setEnabled (canUseGpu);

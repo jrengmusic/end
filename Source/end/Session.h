@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/ENDModel.h"
-#include "Identifier.h"
+#include "generated/Lexicon.h"
 
 class Session : public jam::Model::Listener
 {
@@ -20,7 +20,7 @@ public:
 
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
 
-    juce::ValueTree state { jam::IDtype::session };
+    juce::ValueTree state { Id::toType (Id::session) };
 
 private:
     jam::UUID uuid;

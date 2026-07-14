@@ -11,12 +11,12 @@
 static constexpr const char* swapPickPrefix { "swap:" };
 
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
-    : jam::MatrixComponent (m, sessionState, IDtype::tab, uuid)
+    : jam::MatrixComponent (m, sessionState, Id::toType (Id::tab), uuid)
 {
-    setName (IDtype::tab.toString());
-    model.createAndAddParameter<jam::ParameterText> (state, jam::ID::name, juce::String {});
-    model.createAndAddParameter<jam::ParameterText> (state, jam::ID::edge, juce::String {});
-    model.createAndAddParameter<jam::Parameter<float>> (state, jam::ID::position, 0.0f);
+    setName (Id::toType (Id::tab).toString());
+    model.createAndAddParameter<jam::ParameterText> (state, Id::name, juce::String {});
+    model.createAndAddParameter<jam::ParameterText> (state, Id::edge, juce::String {});
+    model.createAndAddParameter<jam::Parameter<float>> (state, Id::position, 0.0f);
     addMouseListener (this, true);
 }
 
@@ -79,24 +79,24 @@ EditorView& TabView::get (jam::UUID uuid)
 //==============================================================================
 void TabView::mouseDown (const juce::MouseEvent& event)
 {
-    const auto edge { state.getProperty (jam::ID::edge).toString() };
+    const auto edge { state.getProperty (Id::edge).toString() };
 
     if (edge.startsWith (swapPickPrefix))
     {
         if (event.mods.isPopupMenu())
         {
-            state.setProperty (jam::ID::edge, juce::String {}, nullptr);
+            state.setProperty (Id::edge, juce::String {}, nullptr);
             repaint();
         }
         else if (auto* pane { dynamic_cast<jam::PaneComponent*> (event.originalComponent) })
         {
             const auto source { jam::UUID { juce::var { edge.fromFirstOccurrenceOf (":", false, false) } } };
-            const auto target { jam::UUID { pane->getValueTree().getProperty (jam::ID::id) } };
+            const auto target { jam::UUID { pane->getValueTree().getProperty (Id::id) } };
 
             if (source != jam::UUID::none() and target != source)
                 MatrixComponent::swap (source, target);
 
-            state.setProperty (jam::ID::edge, juce::String {}, nullptr);
+            state.setProperty (Id::edge, juce::String {}, nullptr);
             layout();
             repaint();
         }
@@ -116,14 +116,14 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
             const auto cursor { event.getEventRelativeTo (pane).getPosition() };
             const bool horizontal { std::abs (delta.getX()) > std::abs (delta.getY()) };
 
-            const juce::Identifier edge { horizontal ? (corner.getX() == 0 ? jam::ID::left : jam::ID::right)
-                                                     : (corner.getY() == 0 ? jam::ID::top : jam::ID::bottom) };
+            const juce::Identifier edge { horizontal ? (corner.getX() == 0 ? Id::left : Id::right)
+                                                     : (corner.getY() == 0 ? Id::top : Id::bottom) };
 
-            const bool inward { jam::Position::isLow (jam::Position::get (edge.toString()))
+            const bool inward { isLow (Id::Position::get (edge.toString()))
                                 == ((horizontal ? delta.getX() : delta.getY()) > 0) };
 
-            state.setProperty (jam::ID::edge, edge.toString(), nullptr);
-            state.setProperty (jam::ID::position,
+            state.setProperty (Id::edge, edge.toString(), nullptr);
+            state.setProperty (Id::position,
                                inward ? (horizontal ? static_cast<float> (cursor.getX()) / static_cast<float> (pane->getWidth())
                                                     : static_cast<float> (cursor.getY()) / static_cast<float> (pane->getHeight()))
                                       : -1.0f,
@@ -136,25 +136,25 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
 
 void TabView::mouseUp (const juce::MouseEvent& event)
 {
-    const auto edge { state.getProperty (jam::ID::edge).toString() };
+    const auto edge { state.getProperty (Id::edge).toString() };
 
     if (edge.isNotEmpty())
     {
-        const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
+        const auto position { static_cast<float> (state.getProperty (Id::position)) };
 
         if (position >= 0.0f)
             split (juce::Identifier { edge }, position);
         else
         {
             const auto& direction { juce::Identifier { edge } };
-            const auto& action { direction == jam::ID::left  ? ID::joinLeft
-                               : direction == jam::ID::right ? ID::joinRight
-                               : direction == jam::ID::top   ? ID::joinUp
-                                                             : ID::joinDown };
+            const auto& action { direction == Id::left  ? Id::joinLeft
+                               : direction == Id::right ? Id::joinRight
+                               : direction == Id::top   ? Id::joinUp
+                                                        : Id::joinDown };
             ENDActions::getInstance()->run (action);
         }
 
-        state.setProperty (jam::ID::edge, juce::String {}, nullptr);
+        state.setProperty (Id::edge, juce::String {}, nullptr);
         repaint();
     }
 }
@@ -162,7 +162,7 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 //==============================================================================
 void TabView::paintOverChildren (juce::Graphics& g)
 {
-    const auto edge { state.getProperty (jam::ID::edge).toString() };
+    const auto edge { state.getProperty (Id::edge).toString() };
 
     if (edge.isNotEmpty())
     {
@@ -173,11 +173,12 @@ void TabView::paintOverChildren (juce::Graphics& g)
         else
         {
             const auto preview { get (getFocusedChild()).getBounds() };
-            const auto position { static_cast<float> (state.getProperty (jam::ID::position)) };
+            const auto position { static_cast<float> (state.getProperty (Id::position)) };
 
             if (position >= 0.0f)
             {
-                const bool splitVertical { jam::Position::isVertical (jam::Position::get (edge)) };
+                const auto edgeKey { Id::Position::get (edge) };
+                const bool splitVertical { edgeKey == Id::Position::right or edgeKey == Id::Position::left };
                 const int splitLine { splitVertical
                                           ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
                                           : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
@@ -225,10 +226,10 @@ juce::PopupMenu TabView::buildAreaOptionsMenu()
     menu.addItem (1, "Vertical Split");
     menu.addItem (2, "Horizontal Split");
     menu.addSeparator();
-    menu.addItem (3, "Join Left", getNeighbor (focused, jam::ID::left) != jam::UUID::none());
-    menu.addItem (4, "Join Right", getNeighbor (focused, jam::ID::right) != jam::UUID::none());
-    menu.addItem (5, "Join Up", getNeighbor (focused, jam::ID::top) != jam::UUID::none());
-    menu.addItem (6, "Join Down", getNeighbor (focused, jam::ID::bottom) != jam::UUID::none());
+    menu.addItem (3, "Join Left", getNeighbor (focused, Id::left) != jam::UUID::none());
+    menu.addItem (4, "Join Right", getNeighbor (focused, Id::right) != jam::UUID::none());
+    menu.addItem (5, "Join Up", getNeighbor (focused, Id::top) != jam::UUID::none());
+    menu.addItem (6, "Join Down", getNeighbor (focused, Id::bottom) != jam::UUID::none());
     menu.addSeparator();
     menu.addItem (7, "Swap Areas");
 
@@ -239,15 +240,15 @@ void TabView::handleAreaOptionsResult (int result)
 {
     switch (result)
     {
-        case 1: split (jam::ID::left, 0.5f); break;
-        case 2: split (jam::ID::top, 0.5f); break;
-        case 3: ENDActions::getInstance()->run (ID::joinLeft); break;
-        case 4: ENDActions::getInstance()->run (ID::joinRight); break;
-        case 5: ENDActions::getInstance()->run (ID::joinUp); break;
-        case 6: ENDActions::getInstance()->run (ID::joinDown); break;
+        case 1: split (Id::left, 0.5f); break;
+        case 2: split (Id::top, 0.5f); break;
+        case 3: ENDActions::getInstance()->run (Id::joinLeft); break;
+        case 4: ENDActions::getInstance()->run (Id::joinRight); break;
+        case 5: ENDActions::getInstance()->run (Id::joinUp); break;
+        case 6: ENDActions::getInstance()->run (Id::joinDown); break;
 
         case 7:
-            state.setProperty (jam::ID::edge, juce::String (swapPickPrefix) + getFocusedChild().toString(), nullptr);
+            state.setProperty (Id::edge, juce::String (swapPickPrefix) + getFocusedChild().toString(), nullptr);
             repaint();
             break;
     }

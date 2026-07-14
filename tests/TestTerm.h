@@ -224,13 +224,13 @@ public:
     // ---- Grid access (scaffold shape: t.cell(row,col), t.line(row)) --
 
     /** @brief Cell at (row, col) on the given screen (0 = normal, 1 = alternate). */
-    jam::Char cell (int row, int col, int screen = jam::terminal::Screen::normal) const noexcept
+    jam::Char cell (int row, int col, int screen = Id::Screen::normal) const noexcept
     {
         return video.getBlock (screen).getRowPointer (row)->chars[col];
     }
 
     /** @brief Row view at `row` on the given screen. */
-    Line line (int row, int screen = jam::terminal::Screen::normal) const noexcept
+    Line line (int row, int screen = Id::Screen::normal) const noexcept
     {
         return Line { video.getBlock (screen).getRowPointer (row) };
     }
@@ -240,7 +240,7 @@ public:
     int cursorRow() const noexcept { return video.getCursorRow().value; }
     int cursorCol() const noexcept { return video.getCursorCol().value; }
 
-    /** @brief Reads a named root mode parameter (`jam::ID::xxx`) directly from
+    /** @brief Reads a named root mode parameter (`Id::xxx`) directly from
      *  the fixture-owned `jam::terminal::Model` — kept in sync with Video's
      *  own working-copy member via `events.modeChanged`'s trampoline (Video
      *  holds zero Model knowledge). */
@@ -265,7 +265,7 @@ public:
 
     juce::String lastTitle() const noexcept
     {
-        auto* title { model.getParameter<jam::ParameterText> (jam::IDtype::text, jam::ID::title) };
+        auto* title { model.getParameter<jam::ParameterText> (Id::toType (Id::text), Id::title) };
         jassert (title != nullptr);   // title must be a registered TEXT parameter
         return title->getValue();
     }

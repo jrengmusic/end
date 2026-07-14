@@ -4,8 +4,8 @@
 #include "end/MessageOverlay.h"
 #include "action/ENDActions.h"
 #include "config/ConfigModel.h"
-#include "../lookAndFeel/ENDLookAndFeel.h"
-#include "Bimap.h"
+#include "lookAndFeel/ENDLookAndFeel.h"
+#include "generated/Lexicon.h"
 #include "Nexus.h"
 
 class ENDView

@@ -3,7 +3,7 @@
 #include "end/TabView.h"
 #include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "Identifier.h"
+#include "generated/Lexicon.h"
 
 class SessionView
     : public jam::TabbedComponent

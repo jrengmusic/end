@@ -482,10 +482,10 @@ TEST_CASE ("Video's own working-copy member reads correctly after DECRST 2027 di
 {
     Test::Term t { 10, 2 };
 
-    REQUIRE (t.mode (jam::ID::graphemeClustering));   // default true
+    REQUIRE (t.mode (Id::graphemeClustering));   // default true
 
     t.feed ("\x1b[?2027l");   // DECRST 2027
-    REQUIRE_FALSE (t.mode (jam::ID::graphemeClustering));
+    REQUIRE_FALSE (t.mode (Id::graphemeClustering));
 
     // printCodepoint() reads the graphemeClustering working-copy member
     // directly on every call — with clustering disabled, the combining

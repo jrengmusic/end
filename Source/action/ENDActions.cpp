@@ -8,12 +8,12 @@ void ENDView::createDockPane (int positionKey)
 
 void ENDView::registerActions()
 {
-    actions.actions.add (ID::newSession,
+    actions.actions.add (Id::newSession,
                           [this]
                           {
                               auto& session { nexus.createSession() };
                               const jam::UUID sessionUuid { static_cast<int64_t> (
-                                  session.state.getProperty (jam::ID::id)) };
+                                  session.state.getProperty (Id::id)) };
 
                               auto [entry, inserted] = sessions.try_emplace (
                                   sessionUuid, std::make_unique<SessionView> (model, session.state));
@@ -26,10 +26,10 @@ void ENDView::registerActions()
                                                        std::make_unique<jam::Model::Attachment> (*sessionView));
                               resized();
 
-                              actions.run (ID::newTab);
+                              actions.run (Id::newTab);
                           });
 
-    actions.actions.add (ID::newTab,
+    actions.actions.add (Id::newTab,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
@@ -38,12 +38,12 @@ void ENDView::registerActions()
                                   sessionView->add (uuid);
 
                                   const juce::Identifier edge {};
-                                  actions.actions.get (ID::newPane, edge);
+                                  actions.actions.get (Id::newPane, edge);
                               }
                           });
 
     actions.actions.add<const juce::Identifier&> (
-        ID::newPane,
+        Id::newPane,
         [this] (const juce::Identifier& edge)
         {
             if (auto* sessionView { getActiveSessionView() })
@@ -58,13 +58,13 @@ void ENDView::registerActions()
                         uuid = tabView->add();
 
                     if (uuid != jam::UUID::none())
-                        actions.actions.get (ID::newPlugin, std::move (uuid));
+                        actions.actions.get (Id::newPlugin, std::move (uuid));
                 }
             }
         });
 
     actions.actions.add<jam::UUID> (
-        ID::newPlugin,
+        Id::newPlugin,
         [this] (jam::UUID uuid)
         {
             auto instance { nexus.createPlugin (whelmedPluginId) };
@@ -80,7 +80,7 @@ void ENDView::registerActions()
             }
         });
 
-    actions.actions.add (ID::closeTab,
+    actions.actions.add (Id::closeTab,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
@@ -96,33 +96,33 @@ void ENDView::registerActions()
                               }
                           });
 
-    actions.actions.add (ID::nextTab,
+    actions.actions.add (Id::nextTab,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   sessionView->nextTab();
                           });
 
-    actions.actions.add (ID::prevTab,
+    actions.actions.add (Id::prevTab,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   sessionView->prevTab();
                           });
 
-    actions.actions.add (ID::splitHorizontal,
+    actions.actions.add (Id::splitHorizontal,
                           [this]
                           {
-                              actions.actions.get (ID::newPane, jam::ID::bottom);
+                              actions.actions.get (Id::newPane, Id::bottom);
                           });
 
-    actions.actions.add (ID::splitVertical,
+    actions.actions.add (Id::splitVertical,
                           [this]
                           {
-                              actions.actions.get (ID::newPane, jam::ID::right);
+                              actions.actions.get (Id::newPane, Id::right);
                           });
 
-    actions.actions.add (ID::closePane,
+    actions.actions.add (Id::closePane,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
@@ -139,24 +139,24 @@ void ENDView::registerActions()
                                       }
                                       else
                                       {
-                                          actions.run (ID::closeTab);
+                                          actions.run (Id::closeTab);
                                       }
                                   }
                               }
                           });
 
     actions.actions.add (
-        ID::zoomIn,
+        Id::zoomIn,
         [this]
         {
             const jam::UUID id { static_cast<int64_t> (
-                model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
+                model.getValue (::Id::toType (::Id::sessions), ::Id::focusedPane)) };
 
             if (id.value != 0)
             {
-                const float step { config.getValue (IDtype::display, ID::zoomStep) };
-                const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
-                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+                const float step { config.getValue (::Id::toType (::Id::display), ::Id::zoomStep) };
+                const juce::Identifier paneGroup { ::Id::toType (::Id::pane).toString() + "#" + juce::String (id.value) };
+                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ::Id::zoom) };
 
                 jassert (zoomParameter != nullptr);
                 zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, zoomParameter->getValue() + step));
@@ -164,78 +164,78 @@ void ENDView::registerActions()
         });
 
     actions.actions.add (
-        ID::zoomOut,
+        Id::zoomOut,
         [this]
         {
             const jam::UUID id { static_cast<int64_t> (
-                model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
+                model.getValue (::Id::toType (::Id::sessions), ::Id::focusedPane)) };
 
             if (id.value != 0)
             {
-                const float step { config.getValue (IDtype::display, ID::zoomStep) };
-                const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
-                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+                const float step { config.getValue (::Id::toType (::Id::display), ::Id::zoomStep) };
+                const juce::Identifier paneGroup { ::Id::toType (::Id::pane).toString() + "#" + juce::String (id.value) };
+                auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ::Id::zoom) };
 
                 jassert (zoomParameter != nullptr);
                 zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, zoomParameter->getValue() - step));
             }
         });
 
-    actions.actions.add (ID::zoomReset,
+    actions.actions.add (Id::zoomReset,
                           [this]
                           {
                               const jam::UUID id { static_cast<int64_t> (
-                                  model.getValue (IDtype::sessions, jam::ID::focusedPane)) };
+                                  model.getValue (::Id::toType (::Id::sessions), ::Id::focusedPane)) };
 
                               if (id.value != 0)
                               {
-                                  const juce::Identifier paneGroup { IDtype::pane.toString() + "#" + juce::String (id.value) };
-                                  auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ID::zoom) };
+                                  const juce::Identifier paneGroup { ::Id::toType (::Id::pane).toString() + "#" + juce::String (id.value) };
+                                  auto* zoomParameter { model.getParameter<jam::Parameter<float>> (paneGroup, ::Id::zoom) };
 
                                   jassert (zoomParameter != nullptr);
                                   zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, EditorView::defaultZoom));
                               }
                           });
 
-    actions.actions.add (ID::paneLeft,
+    actions.actions.add (Id::paneLeft,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (jam::ID::left);
+                                      tabView->focusPane (Id::left);
                           });
 
-    actions.actions.add (ID::paneRight,
+    actions.actions.add (Id::paneRight,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (jam::ID::right);
+                                      tabView->focusPane (Id::right);
                           });
 
-    actions.actions.add (ID::paneUp,
+    actions.actions.add (Id::paneUp,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (jam::ID::top);
+                                      tabView->focusPane (Id::top);
                           });
 
-    actions.actions.add (ID::paneDown,
+    actions.actions.add (Id::paneDown,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->focusPane (jam::ID::bottom);
+                                      tabView->focusPane (Id::bottom);
                           });
 
-    actions.actions.add (ID::joinLeft,
+    actions.actions.add (Id::joinLeft,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
                                   {
-                                      const auto target { tabView->join (jam::ID::left) };
+                                      const auto target { tabView->join (Id::left) };
 
                                       if (target != jam::UUID::none())
                                       {
@@ -245,13 +245,13 @@ void ENDView::registerActions()
                                   }
                           });
 
-    actions.actions.add (ID::joinDown,
+    actions.actions.add (Id::joinDown,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
                                   {
-                                      const auto target { tabView->join (jam::ID::bottom) };
+                                      const auto target { tabView->join (Id::bottom) };
 
                                       if (target != jam::UUID::none())
                                       {
@@ -261,13 +261,13 @@ void ENDView::registerActions()
                                   }
                           });
 
-    actions.actions.add (ID::joinUp,
+    actions.actions.add (Id::joinUp,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
                                   {
-                                      const auto target { tabView->join (jam::ID::top) };
+                                      const auto target { tabView->join (Id::top) };
 
                                       if (target != jam::UUID::none())
                                       {
@@ -277,13 +277,13 @@ void ENDView::registerActions()
                                   }
                           });
 
-    actions.actions.add (ID::joinRight,
+    actions.actions.add (Id::joinRight,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
                                   {
-                                      const auto target { tabView->join (jam::ID::right) };
+                                      const auto target { tabView->join (Id::right) };
 
                                       if (target != jam::UUID::none())
                                       {
@@ -293,105 +293,108 @@ void ENDView::registerActions()
                                   }
                           });
 
-    actions.actions.add (ID::swapLeft,
+    actions.actions.add (Id::swapLeft,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->swap (jam::ID::left);
+                                      tabView->swap (Id::left);
                           });
 
-    actions.actions.add (ID::swapDown,
+    actions.actions.add (Id::swapDown,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->swap (jam::ID::bottom);
+                                      tabView->swap (Id::bottom);
                           });
 
-    actions.actions.add (ID::swapUp,
+    actions.actions.add (Id::swapUp,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->swap (jam::ID::top);
+                                      tabView->swap (Id::top);
                           });
 
-    actions.actions.add (ID::swapRight,
+    actions.actions.add (Id::swapRight,
                           [this]
                           {
                               if (auto* sessionView { getActiveSessionView() })
                                   if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->swap (jam::ID::right);
+                                      tabView->swap (Id::right);
                           });
 
     actions.actions.add (
-        ID::reducePaneWidth,
+        Id::reducePaneWidth,
         [this]
         {
             if (auto* sessionView { getActiveSessionView() })
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    const float step { config.getValue (IDtype::display, ID::paneStep) };
-                    tabView->reducePane (tabView->getFocusedChild(), jam::ID::width, step);
+                    const float step { config.getValue (Id::toType (Id::display), Id::paneStep) };
+                    tabView->reducePane (tabView->getFocusedChild(), Id::width, step);
                 }
         });
 
     actions.actions.add (
-        ID::reducePaneHeight,
+        Id::reducePaneHeight,
         [this]
         {
             if (auto* sessionView { getActiveSessionView() })
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    const float step { config.getValue (IDtype::display, ID::paneStep) };
-                    tabView->reducePane (tabView->getFocusedChild(), jam::ID::height, step);
+                    const float step { config.getValue (Id::toType (Id::display), Id::paneStep) };
+                    tabView->reducePane (tabView->getFocusedChild(), Id::height, step);
                 }
         });
 
     actions.actions.add (
-        ID::expandPaneWidth,
+        Id::expandPaneWidth,
         [this]
         {
             if (auto* sessionView { getActiveSessionView() })
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    const float step { config.getValue (IDtype::display, ID::paneStep) };
-                    tabView->expandPane (tabView->getFocusedChild(), jam::ID::width, step);
+                    const float step { config.getValue (Id::toType (Id::display), Id::paneStep) };
+                    tabView->expandPane (tabView->getFocusedChild(), Id::width, step);
                 }
         });
 
     actions.actions.add (
-        ID::expandPaneHeight,
+        Id::expandPaneHeight,
         [this]
         {
             if (auto* sessionView { getActiveSessionView() })
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    const float step { config.getValue (IDtype::display, ID::paneStep) };
-                    tabView->expandPane (tabView->getFocusedChild(), jam::ID::height, step);
+                    const float step { config.getValue (Id::toType (Id::display), Id::paneStep) };
+                    tabView->expandPane (tabView->getFocusedChild(), Id::height, step);
                 }
         });
 
-    for (const auto& [key, id] : jam::Position::get())
+    // `id` (structured binding, lowercase) does not shadow `Id::` (the
+    // vocabulary namespace, case-sensitive) — ::Id::position and
+    // ::Id::visible below are globally qualified for consistency only.
+    for (const auto& [key, id] : Id::Position::get())
     {
         const int positionKey { key };
 
         actions.actions.add (
-            jam::Position::getPropertyId (key),
+            juce::Identifier { Id::Position::get (key) },
             [this, positionKey]
             {
-                if (positionKey != jam::Position::center)
+                if (positionKey != Id::Position::center)
                 {
                     auto leaf { state.getChildWithProperty (
-                        ID::position, jam::Position::get (positionKey)) };
+                        ::Id::position, Id::Position::get (positionKey)) };
 
                     if (leaf.isValid())
                     {
-                        const bool visible { jam::toBool (leaf.getProperty (jam::ID::visible)) };
+                        const bool visible { jam::toBool (leaf.getProperty (::Id::visible)) };
 
                         leaf.setProperty (
-                            jam::ID::visible, static_cast<int> (not visible), nullptr);
+                            ::Id::visible, static_cast<int> (not visible), nullptr);
                     }
                     else
                     {

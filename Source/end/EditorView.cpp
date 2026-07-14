@@ -2,9 +2,9 @@
 #include "Nexus.h"
 
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
-    : jam::PaneComponent (model, tabState, IDtype::pane, uuid)
+    : jam::PaneComponent (model, tabState, Id::toType (Id::pane), uuid)
 {
-    model.createAndAddParameter<jam::Parameter<float>> (state, ID::zoom, defaultZoom);
+    model.createAndAddParameter<jam::Parameter<float>> (state, Id::zoom, defaultZoom);
 
     model.addListener (this);
 
@@ -40,21 +40,21 @@ void EditorView::childBoundsChanged (juce::Component* child)
 
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (tree == state and property == ID::pluginId)
+    if (tree == state and property == Id::pluginId)
         createProcessorEditor();
 }
 
 void EditorView::createProcessorEditor()
 {
-    const auto pluginId { state.getProperty (ID::pluginId).toString() };
-    const jam::UUID uuid { state.getProperty (jam::ID::id) };
+    const auto pluginId { state.getProperty (Id::pluginId).toString() };
+    const jam::UUID uuid { state.getProperty (Id::id) };
 
     auto sessionState { state.getParent() };
 
-    while (sessionState.isValid() and sessionState.getType() != jam::IDtype::session)
+    while (sessionState.isValid() and sessionState.getType() != Id::toType (Id::session))
         sessionState = sessionState.getParent();
 
-    const jam::UUID sessionUuid { sessionState.getProperty (jam::ID::id) };
+    const jam::UUID sessionUuid { sessionState.getProperty (Id::id) };
     auto& session { Nexus::getInstance()->getSession (sessionUuid) };
 
     if (editor == nullptr and pluginId.isNotEmpty() and session.contains (uuid))

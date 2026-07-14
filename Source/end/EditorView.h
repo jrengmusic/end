@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "Identifier.h"
+#include "generated/Lexicon.h"
 
 class EditorView
     : public jam::PaneComponent

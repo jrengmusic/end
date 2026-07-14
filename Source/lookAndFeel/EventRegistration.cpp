@@ -1,5 +1,4 @@
 #include "ENDLookAndFeel.h"
-#include "Bimap.h"
 
 void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 {
@@ -39,10 +38,10 @@ void ENDLookAndFeel::setFontRasterization()
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
 
-    const auto backendName { config.getValue (IDtype::graphics, ID::fontRasterizer).toString() };
-    const auto backend { static_cast<jam::GlyphAtlas::Backend> (FontRasterizerBackend::get (backendName)) };
-    const float gamma { config.getValue (IDtype::graphics, ID::fontGamma) };
-    const float contrast { config.getValue (IDtype::graphics, ID::fontContrast) };
+    const auto backendName { config.getValue (Id::toType (Id::graphics), Id::fontRasterizer).toString() };
+    const auto backend { static_cast<jam::GlyphAtlas::Backend> (Id::FontRasterizerBackend::get (backendName)) };
+    const float gamma { config.getValue (Id::toType (Id::graphics), Id::fontGamma) };
+    const float contrast { config.getValue (Id::toType (Id::graphics), Id::fontContrast) };
 
     atlas->setRasterization (backend, gamma, contrast);
 
@@ -70,7 +69,7 @@ void ENDLookAndFeel::setEmbolden()
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
 
-    const bool embolden { config.getValue (IDtype::code, ID::embolden) };
+    const bool embolden { config.getValue (Id::toType (Id::code), Id::embolden) };
 
     atlas->setEmbolden (embolden);
 
@@ -87,34 +86,34 @@ void ENDLookAndFeel::initialiseColours()
 {
     colourMap = jam::ColourMap::fromValueTree (config.state);
 
-    setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
-    setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
-    setColourId (IDtype::code, ID::caret, juce::CaretComponent::caretColourId);
-    setColourId (IDtype::code, ID::highlight, jam::CodeView::selectionColourId);
-    setColourId (IDtype::code, ID::selectionCursor, selectionCursorColourId);
-    setColourId (IDtype::code, ID::editorBackground, juce::TextEditor::backgroundColourId);
-    setColourId (IDtype::code, ID::editorOutline, juce::TextEditor::outlineColourId);
-    setColourId (IDtype::scrollbar, ID::thumb, juce::ScrollBar::thumbColourId);
-    setColourId (IDtype::scrollbar, ID::track, juce::ScrollBar::trackColourId);
-    setColourId (IDtype::tab, jam::ID::background, jam::button::Bar::backgroundColourId);
-    setColourId (IDtype::tab, ID::highlight, jam::button::Bar::highlightColourId);
-    setColourId (IDtype::tab, jam::ID::outline, jam::button::Bar::outlineColourId);
-    setColourId (jam::IDtype::button, jam::ID::button, juce::TextButton::buttonColourId);
-    setColourId (jam::IDtype::button, ID::buttonOn, juce::TextButton::buttonOnColourId);
-    setColourId (jam::IDtype::button, ID::textOff, juce::TextButton::textColourOffId);
-    setColourId (jam::IDtype::button, ID::textOn, juce::TextButton::textColourOnId);
-    setColourId (jam::IDtype::overlay, jam::ID::background, juce::Label::backgroundColourId);
-    setColourId (jam::IDtype::overlay, jam::ID::text, juce::Label::textColourId);
-    setColourId (IDtype::pane, ID::resizeBar, paneBarColourId);
-    setColourId (IDtype::pane, ID::resizeBarHighlight, paneBarHighlightColourId);
-    setColourId (IDtype::pane, jam::ID::outline, jam::PaneComponent::outlineColourId);
-    setColourId (IDtype::pane, ID::focusedOutline, jam::PaneComponent::focusedOutlineColourId);
-    setColourId (IDtype::statusBar, jam::ID::background, statusBarBackgroundColourId);
-    setColourId (IDtype::statusBar, ID::labelBackground, statusBarLabelBackgroundColourId);
-    setColourId (IDtype::statusBar, ID::labelText, statusBarLabelTextColourId);
-    setColourId (IDtype::statusBar, ID::spinner, statusBarSpinnerColourId);
-    setColourId (IDtype::hint, jam::ID::background, hintLabelBgColourId);
-    setColourId (IDtype::hint, jam::ID::text, hintLabelFgColourId);
+    setColourId (Id::toType (Id::code), Id::text, jam::CodeView::textColourId);
+    setColourId (Id::toType (Id::code), Id::background, jam::CodeView::backgroundColourId);
+    setColourId (Id::toType (Id::code), Id::caret, juce::CaretComponent::caretColourId);
+    setColourId (Id::toType (Id::code), Id::highlight, jam::CodeView::selectionColourId);
+    setColourId (Id::toType (Id::code), Id::selectionCursor, selectionCursorColourId);
+    setColourId (Id::toType (Id::code), Id::editorBackground, juce::TextEditor::backgroundColourId);
+    setColourId (Id::toType (Id::code), Id::editorOutline, juce::TextEditor::outlineColourId);
+    setColourId (Id::toType (Id::scrollbar), Id::thumb, juce::ScrollBar::thumbColourId);
+    setColourId (Id::toType (Id::scrollbar), Id::track, juce::ScrollBar::trackColourId);
+    setColourId (Id::toType (Id::tab), Id::background, jam::button::Bar::backgroundColourId);
+    setColourId (Id::toType (Id::tab), Id::highlight, jam::button::Bar::highlightColourId);
+    setColourId (Id::toType (Id::tab), Id::outline, jam::button::Bar::outlineColourId);
+    setColourId (Id::toType (Id::button), Id::button, juce::TextButton::buttonColourId);
+    setColourId (Id::toType (Id::button), Id::buttonOn, juce::TextButton::buttonOnColourId);
+    setColourId (Id::toType (Id::button), Id::textOff, juce::TextButton::textColourOffId);
+    setColourId (Id::toType (Id::button), Id::textOn, juce::TextButton::textColourOnId);
+    setColourId (Id::toType (Id::overlay), Id::background, juce::Label::backgroundColourId);
+    setColourId (Id::toType (Id::overlay), Id::text, juce::Label::textColourId);
+    setColourId (Id::toType (Id::pane), Id::resizeBar, paneBarColourId);
+    setColourId (Id::toType (Id::pane), Id::resizeBarHighlight, paneBarHighlightColourId);
+    setColourId (Id::toType (Id::pane), Id::outline, jam::PaneComponent::outlineColourId);
+    setColourId (Id::toType (Id::pane), Id::focusedOutline, jam::PaneComponent::focusedOutlineColourId);
+    setColourId (Id::toType (Id::statusBar), Id::background, statusBarBackgroundColourId);
+    setColourId (Id::toType (Id::statusBar), Id::labelBackground, statusBarLabelBackgroundColourId);
+    setColourId (Id::toType (Id::statusBar), Id::labelText, statusBarLabelTextColourId);
+    setColourId (Id::toType (Id::statusBar), Id::spinner, statusBarSpinnerColourId);
+    setColourId (Id::toType (Id::hint), Id::background, hintLabelBgColourId);
+    setColourId (Id::toType (Id::hint), Id::text, hintLabelFgColourId);
 
     setColours (config.state);
     setPopupMenuColours();
@@ -122,10 +121,10 @@ void ENDLookAndFeel::initialiseColours()
 
 void ENDLookAndFeel::setPopupMenuColours()
 {
-    const auto windowColour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
-    const float menuOpacity { config.getValue (IDtype::menu, ID::opacity) };
-    const auto textColour { jam::Model::toColour (config.getValue (IDtype::menu, jam::ID::text)) };
-    const auto highlightColour { jam::Model::toColour (config.getValue (IDtype::menu, ID::highlight)) };
+    const auto windowColour { jam::Model::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
+    const float menuOpacity { config.getValue (Id::toType (Id::menu), Id::opacity) };
+    const auto textColour { jam::Model::toColour (config.getValue (Id::toType (Id::menu), Id::text)) };
+    const auto highlightColour { jam::Model::toColour (config.getValue (Id::toType (Id::menu), Id::highlight)) };
 
     setColour (juce::PopupMenu::backgroundColourId, windowColour.withAlpha (menuOpacity));
     setColour (juce::PopupMenu::textColourId, textColour);
@@ -137,7 +136,7 @@ void ENDLookAndFeel::loadGraphics()
 {
     graphics.clear();
 
-    auto graphicsTree { jam::Model::getChildWithName (config.state, IDtype::flex) };
+    auto graphicsTree { jam::Model::getChildWithName (config.state, Id::toType (Id::flex)) };
 
     if (graphicsTree.isValid())
     {
@@ -150,7 +149,7 @@ void ENDLookAndFeel::loadGraphics()
                     auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
 
                     juce::Identifier id { suffix.isNotEmpty()
-                        and jam::map::ButtonState::getInstance()->contains (suffix)
+                        and ::Id::ButtonState::getInstance()->contains (suffix)
                             ? suffix : stem };
 
                     graphics.addOrReplace (id,
@@ -162,62 +161,62 @@ void ENDLookAndFeel::loadGraphics()
 
 void ENDLookAndFeel::registerEvents()
 {
-    events.add<juce::ValueTree&> (ID::theme,
+    events.add<juce::ValueTree&> (Id::theme,
                                   [this] (juce::ValueTree&)
                                   {
                                       initialiseColours();
                                       loadGraphics();
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::code,
+    events.add<juce::ValueTree&> (Id::toType (Id::code),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::scrollbar,
+    events.add<juce::ValueTree&> (Id::toType (Id::scrollbar),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::tab,
+    events.add<juce::ValueTree&> (Id::toType (Id::tab),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (jam::IDtype::button,
+    events.add<juce::ValueTree&> (Id::toType (Id::button),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (jam::IDtype::overlay,
+    events.add<juce::ValueTree&> (Id::toType (Id::overlay),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::pane,
+    events.add<juce::ValueTree&> (Id::toType (Id::pane),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::statusBar,
+    events.add<juce::ValueTree&> (Id::toType (Id::statusBar),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::hint,
+    events.add<juce::ValueTree&> (Id::toType (Id::hint),
                                   [this] (juce::ValueTree&)
                                   {
                                       setColours (config.state);
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::menu,
+    events.add<juce::ValueTree&> (Id::toType (Id::menu),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPopupMenuColours();
@@ -226,19 +225,19 @@ void ENDLookAndFeel::registerEvents()
     // Font-identity config coverage — fontRasterizer/fontGamma/fontContrast are
     // the ONLY config.lua values requiring a route to setFontRasterization().
     // See this method's own doc comment for the full glyph-identity audit.
-    events.add<juce::ValueTree&> (ID::fontRasterizer,
+    events.add<juce::ValueTree&> (Id::fontRasterizer,
                                   [this] (juce::ValueTree&)
                                   {
                                       setFontRasterization();
                                   });
 
-    events.add<juce::ValueTree&> (ID::fontGamma,
+    events.add<juce::ValueTree&> (Id::fontGamma,
                                   [this] (juce::ValueTree&)
                                   {
                                       setFontRasterization();
                                   });
 
-    events.add<juce::ValueTree&> (ID::fontContrast,
+    events.add<juce::ValueTree&> (Id::fontContrast,
                                   [this] (juce::ValueTree&)
                                   {
                                       setFontRasterization();
@@ -246,7 +245,7 @@ void ENDLookAndFeel::registerEvents()
 
     // code.embolden — same font-owner precedent as fontRasterizer/fontGamma/
     // fontContrast.
-    events.add<juce::ValueTree&> (ID::embolden,
+    events.add<juce::ValueTree&> (Id::embolden,
                                   [this] (juce::ValueTree&)
                                   {
                                       setEmbolden();

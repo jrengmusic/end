@@ -96,6 +96,7 @@ configure_app(
     ICON_BIG         "${CMAKE_CURRENT_SOURCE_DIR}/Source/icons/end-icon.png"
     ICON_SMALL       "${CMAKE_CURRENT_SOURCE_DIR}/Source/icons/end-icon.png"
     TARGET_TYPE      GUIApp
+    LEXICON          Source/lexicon.md
     MODULES
         juce_core
         juce_data_structures

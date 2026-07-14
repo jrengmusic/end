@@ -6,7 +6,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/EditorView.h"
-#include "Identifier.h"
+#include "generated/Lexicon.h"
 #include "end/MessageOverlay.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 
@@ -41,18 +41,18 @@ public:
     jam::UUID add();
 
     /** @brief Moves keyboard focus to the neighbouring pane in direction, when one exists.
-     *  @param direction Edge to look across — jam::ID::left/right/top/bottom.
+     *  @param direction Edge to look across — Id::left/right/top/bottom.
      */
     void focusPane (const juce::Identifier& direction);
 
     /** @brief Joins the focused pane with its neighbour across direction.
-     *  @param direction Edge to join across — jam::ID::left/right/top/bottom.
+     *  @param direction Edge to join across — Id::left/right/top/bottom.
      *  @return Identity of the pane absorbed into the surviving pane, or jam::UUID::none() when no neighbour exists.
      */
     jam::UUID join (const juce::Identifier& direction);
 
     /** @brief Swaps the focused pane with its neighbour across direction, when one exists.
-     *  @param direction Edge to look across — jam::ID::left/right/top/bottom.
+     *  @param direction Edge to look across — Id::left/right/top/bottom.
      */
     void swap (const juce::Identifier& direction);
 

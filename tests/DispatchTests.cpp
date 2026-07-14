@@ -52,14 +52,14 @@ TEST_CASE ("CUP (CSI Pr;Pc H) moves the cursor to a one-based absolute position"
 TEST_CASE ("DECAWM defaults to set and DECRQM reports it (mode-state surface)", "[video][decawm]")
 {
     Test::Term t { 10, 2 };
-    REQUIRE (t.mode (jam::ID::autoWrap));
+    REQUIRE (t.mode (Id::autoWrap));
 }
 
 TEST_CASE ("DECRST 7 disables auto-wrap: the last column is overwritten instead of wrapping", "[video][decawm]")
 {
     Test::Term t { 4, 2 };
     t.feed ("\x1b[?7l");
-    REQUIRE_FALSE (t.mode (jam::ID::autoWrap));
+    REQUIRE_FALSE (t.mode (Id::autoWrap));
 
     t.feed ("abcd");   // fills the row exactly, wrapPending set but autoWrap off
     t.feed ("e");       // resolveWrapPending() no-ops (autoWrap false) — overwrites col 3
@@ -90,18 +90,18 @@ TEST_CASE ("?1049h switches to a cleared alternate screen; ?1049l restores norma
     t.feed ("\x1b[3;3H");   // move cursor to (row 2, col 2, zero-based) before entering the alt screen
 
     t.feed ("\x1b[?1049h");
-    REQUIRE (t.cell (0, 0, jam::terminal::Screen::alternate).codepoint() == 0);   // cleared
+    REQUIRE (t.cell (0, 0, Id::Screen::alternate).codepoint() == 0);   // cleared
 
     // setScreen() (jam_VideoEdit.cpp) does not reset the cursor to origin —
     // only clamps it to bounds. The alt-screen write lands where the
     // pre-switch cursor was: (row 2, col 2).
     t.feed ("alt");
-    REQUIRE (t.cell (2, 2, jam::terminal::Screen::alternate).codepoint() == uint32_t ('a'));
+    REQUIRE (t.cell (2, 2, Id::Screen::alternate).codepoint() == uint32_t ('a'));
 
     t.feed ("\x1b[?1049l");
 
     // Normal screen content survived the alt-screen excursion.
-    REQUIRE (t.cell (0, 0, jam::terminal::Screen::normal).codepoint() == uint32_t ('n'));
+    REQUIRE (t.cell (0, 0, Id::Screen::normal).codepoint() == uint32_t ('n'));
 
     // Cursor restored to the position saveCursor() captured on ?1049h entry.
     REQUIRE (t.cursorRow() == 2);

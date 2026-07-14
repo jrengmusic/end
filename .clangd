@@ -20,6 +20,7 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_fuzzy=1
     - -DJUCE_MODULE_AVAILABLE_jam_graphics=1
     - -DJUCE_MODULE_AVAILABLE_jam_gui=1
+    - -DJUCE_MODULE_AVAILABLE_jam_lexicon=1
     - -DJUCE_MODULE_AVAILABLE_jam_look_and_feel=1
     - -DJUCE_MODULE_AVAILABLE_jam_lua=1
     - -DJUCE_MODULE_AVAILABLE_jam_markdown=1

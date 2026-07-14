@@ -244,7 +244,7 @@ TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the dig
 TEST_CASE ("mode 2027 defaults to set (cluster-aware advance on)", "[video][mode2027][v1]")
 {
     Test::Term t { 10, 2 };
-    REQUIRE (t.mode (jam::ID::graphemeClustering));
+    REQUIRE (t.mode (Id::graphemeClustering));
 
     t.feed ("\x1b[?2027$p");
     REQUIRE (t.lastResponse() == "\x1b[?2027;1$y");
@@ -254,7 +254,7 @@ TEST_CASE ("DECRST 2027 disables clustering and DECRQM reports reset", "[video][
 {
     Test::Term t { 10, 2 };
     t.feed ("\x1b[?2027l");
-    REQUIRE_FALSE (t.mode (jam::ID::graphemeClustering));
+    REQUIRE_FALSE (t.mode (Id::graphemeClustering));
 
     t.clearResponse();
     t.feed ("\x1b[?2027$p");
@@ -266,7 +266,7 @@ TEST_CASE ("DECSET 2027 after DECRST re-enables clustering", "[video][mode2027][
     Test::Term t { 10, 2 };
     t.feed ("\x1b[?2027l");
     t.feed ("\x1b[?2027h");
-    REQUIRE (t.mode (jam::ID::graphemeClustering));
+    REQUIRE (t.mode (Id::graphemeClustering));
 }
 
 TEST_CASE ("mode 2027 off — no fold: every codepoint takes the single-codepoint path", "[video][mode2027][v1][gate]")

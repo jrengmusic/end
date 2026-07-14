@@ -1,7 +1,7 @@
 #include "end/ENDModel.h"
 
 ENDModel::ENDModel()
-    : jam::Model (IDtype::end)
+    : jam::Model (Id::toType (Id::end))
 {
 }
 

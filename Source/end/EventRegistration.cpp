@@ -3,24 +3,24 @@
 void ENDView::registerEvents()
 {
     events.add<juce::ValueTree&> (
-        jam::ID::focusedPane,
+        Id::focusedPane,
         [this] (juce::ValueTree& tree)
         {
             // Re-points the conduit to whichever TAB row last wrote its own
             // focusedPane — valueChanged() below then mirrors that value
             // onto the SESSIONS-level parameter, last change wins.
-            if (tree.getType() == IDtype::tab)
-                focusedPane.referTo (tree.getPropertyAsValue (jam::ID::focusedPane, nullptr));
+            if (tree.getType() == Id::toType (Id::tab))
+                focusedPane.referTo (tree.getPropertyAsValue (Id::focusedPane, nullptr));
         });
 
-    events.add<juce::ValueTree&> (ID::theme,
+    events.add<juce::ValueTree&> (Id::theme,
                                   [this] (juce::ValueTree&)
                                   {
                                       getTopLevelComponent()->sendLookAndFeelChange();
                                   });
 
     events.add<juce::ValueTree&> (
-        ID::gpu,
+        Id::useGpu,
         [this] (juce::ValueTree&)
         {
             // jam::VulkanEngine is constructed unconditionally, once, by
@@ -28,7 +28,7 @@ void ENDView::registerEvents()
             // availability/preference only selects which rendering engine
             // createContext() dispatches to per paint (see ENDApplication's
             // vulkanEngine doc comment, Main.h).
-            const bool canUseGpu { config.getValue (IDtype::display, ID::gpu)
+            const bool canUseGpu { config.getValue (Id::toType (Id::display), Id::useGpu)
                                    and jam::GpuProbe::probe().isAvailable };
 
             jam::BackgroundBlur::setEnabled (canUseGpu);
@@ -48,31 +48,31 @@ void ENDView::registerEvents()
             setPostProcess();
         });
 
-    events.add<juce::ValueTree&> (ID::background,
+    events.add<juce::ValueTree&> (Id::background,
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackground();
                                   });
 
-    events.add<juce::ValueTree&> (ID::backgroundOpacity,
+    events.add<juce::ValueTree&> (Id::backgroundOpacity,
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackgroundParams();
                                   });
 
-    events.add<juce::ValueTree&> (ID::frameRate,
+    events.add<juce::ValueTree&> (Id::frameRate,
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackgroundParams();
                                   });
 
-    events.add<juce::ValueTree&> (ID::backgroundResolution,
+    events.add<juce::ValueTree&> (Id::backgroundResolution,
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackgroundParams();
                                   });
 
-    events.add<juce::ValueTree&> (ID::filter,
+    events.add<juce::ValueTree&> (Id::filter,
                                   [this] (juce::ValueTree&)
                                   {
                                       // filter is shared by both slots (display.lua: applies to both the
@@ -84,59 +84,59 @@ void ENDView::registerEvents()
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (ID::postProcessing,
+    events.add<juce::ValueTree&> (Id::postProcessing,
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (ID::postProcessingOpacity,
+    events.add<juce::ValueTree&> (Id::postProcessingOpacity,
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
                                   });
 
-    events.add<juce::ValueTree&> (ID::postProcessingResolution,
+    events.add<juce::ValueTree&> (Id::postProcessingResolution,
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
                                   });
 
     events.add<juce::ValueTree&> (
-        ID::alwaysOnTop,
+        Id::alwaysOnTop,
         [this] (juce::ValueTree& tree)
         {
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setAlwaysOnTop (tree.getProperty (ID::alwaysOnTop));
+                window->setAlwaysOnTop (tree.getProperty (Id::alwaysOnTop));
         });
 
     events.add<juce::ValueTree&> (
-        ID::titleBarButtons,
+        Id::titleBarButtons,
         [this] (juce::ValueTree& tree)
         {
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setWindowButtons (tree.getProperty (ID::titleBarButtons));
+                window->setWindowButtons (tree.getProperty (Id::titleBarButtons));
         });
 
-    events.add<juce::ValueTree&> (jam::ID::enabled,
+    events.add<juce::ValueTree&> (Id::enabled,
                                   [this] (juce::ValueTree&)
                                   {
                                       setMouseConfig();
                                   });
 
-    events.add<juce::ValueTree&> (ID::imouse,
+    events.add<juce::ValueTree&> (Id::imouse,
                                   [this] (juce::ValueTree&)
                                   {
                                       setMouseConfig();
                                   });
 
-    events.add<juce::ValueTree&> (ID::orbit,
+    events.add<juce::ValueTree&> (Id::orbit,
                                   [this] (juce::ValueTree&)
                                   {
                                       setMouseConfig();
                                   });
 
-    events.add<juce::ValueTree&> (ID::reset,
+    events.add<juce::ValueTree&> (Id::reset,
                                   [this] (juce::ValueTree&)
                                   {
                                       setMouseConfig();
@@ -144,11 +144,11 @@ void ENDView::registerEvents()
 
     // WINDOW leaf visibility toggles (ENDActions.cpp's own
     // Position-bimap loop) relayout the dormant dock-pane machinery — one
-    // registration on the shared jam::ID::visible property key serves all
+    // registration on the shared Id::visible property key serves all
     // five leaves, no per-leaf type fallback needed (every WINDOW leaf now
-    // shares IDtype::pane, so a type-keyed fallback could no longer
+    // shares Id::toType (Id::pane), so a type-keyed fallback could no longer
     // distinguish them the way the four old Position edge node TYPES did).
-    events.add<juce::ValueTree&> (jam::ID::visible,
+    events.add<juce::ValueTree&> (Id::visible,
                                   [this] (juce::ValueTree&)
                                   {
                                       resized();
@@ -160,27 +160,27 @@ void ENDView::setBackground()
     // Same effective-gpu truth ENDApplication resolves for the VulkanEngine
     // ctor and the gpu event handler resolves for setGpuEnabled() — never
     // raw config alone.
-    const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
+    const bool gpuEnabled { config.getValue (Id::toType (Id::display), Id::useGpu)
                             and jam::GpuProbe::probe().isAvailable };
 
-    const auto projectName { config.getValue (IDtype::graphics, ID::background).toString() };
-    const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
-    const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
-    const int frameRate { config.getValue (IDtype::graphics, ID::frameRate) };
+    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::background).toString() };
+    const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
+    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::backgroundResolution) };
+    const int frameRate { config.getValue (Id::toType (Id::graphics), Id::frameRate) };
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
-        const auto shaderState { jam::Model::getChildWithName (config.state, IDtype::background) };
-        const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
-        const auto filter { jam::map::ImageResample::get (filterName) };
+        const auto shaderState { jam::Model::getChildWithName (config.state, Id::toType (Id::background)) };
+        const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
+        const auto filter { static_cast<Id::ImageResample::value> (Id::ImageResample::get (filterName)) };
 
-        // ConfigShader::loadFromPath() always stamps ID::shaderFormat with a
+        // ConfigShader::loadFromPath() always stamps Id::shaderFormat with a
         // definite format ordinal (jam::vulkan::ShaderFormat::shadertoy or
         // ::slang) before this state is ever readable here — ConfigModel's
         // constructor runs loadFromPath() to completion, and
         // jam::Instance<ConfigModel>::getInstance() (which View::config
         // resolves through) cannot return before that constructor finishes.
-        const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
+        const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
 
         auto compiled { jam::vulkan::ShaderCompiler::compile (
             shaderState, true, shaderFormat, filter) };
@@ -198,22 +198,22 @@ void ENDView::setBackground()
 
 void ENDView::setBackgroundParams()
 {
-    const float opacity { config.getValue (IDtype::graphics, ID::backgroundOpacity) };
-    const float resolutionScale { config.getValue (IDtype::graphics, ID::backgroundResolution) };
-    const int frameRate { config.getValue (IDtype::graphics, ID::frameRate) };
+    const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
+    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::backgroundResolution) };
+    const int frameRate { config.getValue (Id::toType (Id::graphics), Id::frameRate) };
 
     background.setParams (opacity, resolutionScale, frameRate);
 }
 
 void ENDView::setPostProcess()
 {
-    const bool gpuEnabled { config.getValue (IDtype::display, ID::gpu)
+    const bool gpuEnabled { config.getValue (Id::toType (Id::display), Id::useGpu)
                             and jam::GpuProbe::probe().isAvailable };
 
-    const auto projectName { config.getValue (IDtype::graphics, ID::postProcessing).toString() };
-    const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
+    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
+    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
     const float resolutionScale { config.getValue (
-        IDtype::graphics, ID::postProcessingResolution) };
+        Id::toType (Id::graphics), Id::postProcessingResolution) };
 
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);
@@ -221,14 +221,14 @@ void ENDView::setPostProcess()
     if (gpuEnabled and projectName.isNotEmpty())
     {
         const auto shaderState { jam::Model::getChildWithName (
-            config.state, IDtype::postProcessing) };
-        const auto filterName { config.getValue (IDtype::graphics, ID::filter).toString() };
-        const auto filter { jam::map::ImageResample::get (filterName) };
+            config.state, Id::toType (Id::postProcessing)) };
+        const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
+        const auto filter { static_cast<Id::ImageResample::value> (Id::ImageResample::get (filterName)) };
 
-        // See setBackground()'s matching comment — ID::shaderFormat is
+        // See setBackground()'s matching comment — Id::shaderFormat is
         // always a definite format ordinal by the time this state is
         // readable here.
-        const int shaderFormat { shaderState.getProperty (ID::shaderFormat) };
+        const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
 
         auto compiled { jam::vulkan::ShaderCompiler::compile (
             shaderState, false, shaderFormat, filter) };
@@ -246,9 +246,9 @@ void ENDView::setPostProcess()
 
 void ENDView::setPostProcessParams()
 {
-    const float opacity { config.getValue (IDtype::graphics, ID::postProcessingOpacity) };
+    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
     const float resolutionScale { config.getValue (
-        IDtype::graphics, ID::postProcessingResolution) };
+        Id::toType (Id::graphics), Id::postProcessingResolution) };
 
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);
@@ -257,13 +257,13 @@ void ENDView::setPostProcessParams()
 
 void ENDView::setMouseConfig()
 {
-    const bool enabled { config.getValue (IDtype::mouse, jam::ID::enabled) };
-    const auto imouseButton { jam::map::MouseButton::get (
-        config.getValue (IDtype::mouse, ID::imouse).toString()) };
-    const auto orbitButton { jam::map::MouseButton::get (
-        config.getValue (IDtype::mouse, ID::orbit).toString()) };
-    const auto resetButton { jam::map::MouseButton::get (
-        config.getValue (IDtype::mouse, ID::reset).toString()) };
+    const bool enabled { config.getValue (Id::toType (Id::mouse), Id::enabled) };
+    const auto imouseButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+        config.getValue (Id::toType (Id::mouse), Id::imouse).toString())) };
+    const auto orbitButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+        config.getValue (Id::toType (Id::mouse), Id::orbit).toString())) };
+    const auto resetButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+        config.getValue (Id::toType (Id::mouse), Id::reset).toString())) };
 
     background.setMouseConfig (enabled, imouseButton, orbitButton, resetButton);
 }

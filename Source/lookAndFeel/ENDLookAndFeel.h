@@ -5,8 +5,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include <JamFontsBinaryData.h>
-#include "Identifier.h"
-#include "../config/ConfigModel.h"
+#include "generated/Lexicon.h"
+#include "config/ConfigModel.h"
 
 /**
  * @class ENDLookAndFeel
@@ -18,8 +18,8 @@
  *
  * Event dispatch uses a single-key lookup: property key takes priority; when no
  * event is registered for the property, the lookup falls back to tree.getType().
- * This routes theme rebuild (ID::theme) and per-component colour refresh
- * (IDtype::code, scrollbar, tab, button, overlay, pane, statusBar, hint)
+ * This routes theme rebuild (Id::theme) and per-component colour refresh
+ * (Id::toType (Id::code), scrollbar, tab, button, overlay, pane, statusBar, hint)
  * through one code path.
  */
 class ENDLookAndFeel
@@ -96,7 +96,7 @@ public:
      * @brief Single-key event dispatch through the events map.
      *
      * Checks whether @p property has a registered handler; if not, falls back to
-     * @p tree.getType(). Routes theme rebuild (ID::theme) and per-component
+     * @p tree.getType(). Routes theme rebuild (Id::theme) and per-component
      * colour refresh to their respective callbacks.
      *
      * @param tree     The ValueTree whose property changed.
@@ -106,7 +106,7 @@ public:
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
-     * @brief Renders the tab bar background using SVG Flex segments (ID::tabBar).
+     * @brief Renders the tab bar background using SVG Flex segments (Id::tabBar).
      *
      * Applies a rotation AffineTransform for vertical orientations: -90 degrees
      * for left-side bars, +90 degrees for right-side bars.
@@ -117,7 +117,7 @@ public:
     void drawBarBackground (juce::Graphics& g, juce::Component& bar) override;
 
     /**
-     * @brief Renders the tab highlight indicator using SVG Flex segments (ID::tabHighlight).
+     * @brief Renders the tab highlight indicator using SVG Flex segments (Id::tabHighlight).
      *
      * Applies a rotation AffineTransform for vertical orientations: -90 degrees
      * for left-side bars, +90 degrees for right-side bars.
@@ -131,7 +131,7 @@ public:
      * @brief Renders a tab button using the per-state SVG from the sparse graphics bank.
      *
      * State is resolved via jam::SVG::Button::getState and mapped to a
-     * jam::map::ButtonState identifier. Paint occurs only when that state slot
+     * Id::ButtonState identifier. Paint occurs only when that state slot
      * was authored in the theme.lua graphics section (sparse bank — missing states
      * are silently skipped). Applies rotation transform for vertical bars.
      *
@@ -153,7 +153,7 @@ public:
     /**
      * @brief Returns tab font constructed from theme config (family, size, kerning).
      *
-     * Reads IDtype::tab properties: ID::fontFamily, ID::fontSize, ID::kerningFactor.
+     * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::fontSize, Id::kerningFactor.
      */
     juce::Font getTabFont() const override;
 
@@ -209,7 +209,7 @@ public:
 
     /** @brief Window style parameters from the active theme.
      *  Returns { tint colour, blur radius, windowFX style, window-button visibility }
-     *  read from IDtype::window and IDtype::style.  Consumer unpacks via structured binding.
+     *  read from Id::toType (Id::window) and Id::toType (Id::style).  Consumer unpacks via structured binding.
      *  Returns a default-constructed Style when theme is not loaded.
      */
     struct Style
@@ -286,7 +286,7 @@ public:
      * @brief Returns the terminal code font constructed from theme config
      *        (family, size).
      *
-     * Reads IDtype::code properties: ID::fontFamily, ID::fontSize. Unlike
+     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::fontSize. Unlike
      * getTabFont(), carries no kerning factor (code.font_family/font_size
      * has no kerning_factor property) and no zoom — zoom is an
      * EditorView parameter applied inside getCodeMetrics() below.
@@ -309,7 +309,7 @@ public:
      * setBaseline, mouse.setCellSize, model.setCellSize) with no ratio-only
      * getter anywhere in the chain.
      *
-     * @param zoom  EditorView's own zoom factor (Direction B ID::zoom).
+     * @param zoom  EditorView's own zoom factor (Direction B Id::zoom).
      * @return Populated CodeMetrics — font, cellWidth, cellHeight, baseline,
      *         all in pixels except font (points).
      */
@@ -336,7 +336,7 @@ public:
 
     /** @brief Cursor block parameters from the active theme.
      *  Returns { style, blink, blinkInterval, cursorChar, force } read from
-     *  jam::IDtype::cursor. Consumer unpacks via structured binding.
+     *  Id::toType (Id::cursor). Consumer unpacks via structured binding.
      */
     struct CursorStyle
     {
@@ -379,10 +379,10 @@ private:
      *  Each entry is a SVG::Flex::Segments set (9-slice layout, paint-ready)
      *  produced by SVG::Flex::getSegments from the SVG content stored as a
      *  property of the GRAPHICS child of config.state. Rebuilt by loadGraphics()
-     *  on construction and on every ID::theme rebuild event.
+     *  on construction and on every Id::theme rebuild event.
      *
      *  Keys are resolved from the property name: the suffix after the last '_'
-     *  is used when it matches a jam::map::ButtonState entry; otherwise the full
+     *  is used when it matches a Id::ButtonState entry; otherwise the full
      *  property name is the key. All SVGs are coloured with the full colourMap.
      */
     jam::HashMap<juce::Identifier, jam::SVG::Flex::Segments> graphics;
@@ -391,11 +391,11 @@ private:
      * @brief Event dispatch map keyed by juce::Identifier (property or tree type).
      *
      * Populated by registerEvents(). Handles:
-     * - ID::theme         — full theme rebuild via initialiseColours() + loadGraphics()
-     * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
-     *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
+     * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
+     * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
+     *   Id::toType (Id::overlay), Id::toType (Id::pane), Id::toType (Id::statusBar), Id::toType (Id::hint)
      *                     — per-component colour refresh via setColours()
-     * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
+     * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     — re-applies setFontRasterization() on config hot-reload,
      *                       which itself cascades Component::sendLookAndFeelChange()
      *                       (see setFontRasterization()'s own doc comment)
@@ -418,7 +418,7 @@ private:
     static juce::String typefaceKey (const juce::String& name, const juce::String& style);
 
     /** @brief Display font constructed from theme config (family, size), no kerning.
-     *  Reads IDtype::tab properties: ID::fontFamily, ID::fontSize — same source
+     *  Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::fontSize — same source
      *  as getTabFont() minus the kerning factor.
      */
     juce::Font getCommonFont() const;
@@ -482,7 +482,7 @@ private:
      *
      * Iterates properties of the GRAPHICS child via jam::Model::forEachProperty.
      * For each string property: the key is the suffix after the last '_' when it
-     * matches a jam::map::ButtonState entry, or the full property name otherwise.
+     * matches a Id::ButtonState entry, or the full property name otherwise.
      * All SVGs are coloured with the full colourMap. No disk I/O.
      * Defined in EventRegistration.cpp.
      */
@@ -503,9 +503,9 @@ private:
      * @brief Applies window background, opacity, text, and highlight colours
      *        to the juce::PopupMenu colour IDs.
      *
-     * Reads IDtype::menu properties against the window background colour
-     * (IDtype::window). Called once at construction (after initialiseColours())
-     * and again on IDtype::menu's colour-refresh event. Defined in
+     * Reads Id::toType (Id::menu) properties against the window background colour
+     * (Id::toType (Id::window)). Called once at construction (after initialiseColours())
+     * and again on Id::toType (Id::menu)'s colour-refresh event. Defined in
      * EventRegistration.cpp.
      */
     void setPopupMenuColours();
@@ -514,17 +514,17 @@ private:
      * @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      * Registers handlers for:
-     * - ID::theme         → initialiseColours() + loadGraphics()
-     * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
-     *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
+     * - Id::theme         → initialiseColours() + loadGraphics()
+     * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
+     *   Id::toType (Id::overlay), Id::toType (Id::pane), Id::toType (Id::statusBar), Id::toType (Id::hint)
      *                     → setColours(config.state)
-     * - ID::fontRasterizer, ID::fontGamma, ID::fontContrast
+     * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     → setFontRasterization() (font events live with the
      *                       font owner — relocated from ENDView), whose own
      *                       tail cascades Component::sendLookAndFeelChange()
      *                       to every juce::Desktop top-level window (see
      *                       setFontRasterization()'s own doc comment)
-     * - ID::embolden      → setEmbolden() (same font-owner precedent as
+     * - Id::embolden      → setEmbolden() (same font-owner precedent as
      *                       fontRasterizer/fontGamma/fontContrast, same
      *                       tail cascade)
      *
@@ -539,7 +539,7 @@ private:
      * atlas call required; kerning_factor never reaches Key at all (it shifts
      * glyph pen positions, never glyph identity). getTabFont() and
      * MessageOverlay::paint() already re-read config on every paint, and any
-     * theme.lua edit unconditionally fires ID::theme (ConfigTheme::loadFromPath)
+     * theme.lua edit unconditionally fires Id::theme (ConfigTheme::loadFromPath)
      * into the theme handler above, which repaints the whole component tree
      * (juce::Component::sendLookAndFeelChange descends to every child) — so the
      * new family/size is picked up immediately. status_bar/action_list

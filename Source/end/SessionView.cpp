@@ -17,7 +17,7 @@ TabView& SessionView::add (jam::UUID uuid)
     {
         tab->label.onTextChange = [tabView, tab]
         {
-            tabView->state.setProperty (jam::ID::name, tab->label.getText(), nullptr);
+            tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
         };
     }
 
@@ -53,13 +53,13 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == jam::ID::name or property == ID::pluginId)
+    if (property == Id::name or property == Id::pluginId)
     {
         const auto tabState { findAncestorTab (tree) };
 
         if (tabState.isValid())
         {
-            const jam::UUID uuid { static_cast<int64_t> (tabState.getProperty (jam::ID::id)) };
+            const jam::UUID uuid { static_cast<int64_t> (tabState.getProperty (Id::id)) };
             setName (uuid);
         }
     }
@@ -67,23 +67,23 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
 juce::String SessionView::getName (const juce::ValueTree& tabState)
 {
-    const juce::String rename { tabState.getProperty (jam::ID::name).toString() };
+    const juce::String rename { tabState.getProperty (Id::name).toString() };
 
     if (rename.isNotEmpty())
         return rename;
 
     const jam::UUID sourceUuid { static_cast<int64_t> (
-        tabState.getProperty (jam::ID::focusedPane)) };
+        tabState.getProperty (Id::focusedPane)) };
     const auto sourcePane {
         jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
     };
 
-    return sourcePane.isValid() ? sourcePane.getProperty (jam::ID::name).toString() : juce::String {};
+    return sourcePane.isValid() ? sourcePane.getProperty (Id::name).toString() : juce::String {};
 }
 
 juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)
 {
-    while (tree.isValid() and tree.getType() != IDtype::tab)
+    while (tree.isValid() and tree.getType() != Id::toType (Id::tab))
         tree = tree.getParent();
 
     return tree;

@@ -1,7 +1,8 @@
 #pragma once
 #include <JuceHeader.h>
-#include "../Bimap.h"
-#include "../end/ENDModel.h"
+#include "generated/Lexicon.h"
+#include "LexiconFiles.h"
+#include "end/ENDModel.h"
 #include "ConfigDirectory.h"
 
 /**
@@ -30,7 +31,7 @@ class ConfigShader : public ConfigDirectory
 {
 public:
     /** @brief Constructs with an empty shader tree of the given type.
-     *  @param treeType  Tree type identifier (IDtype::background or IDtype::postProcessing).
+     *  @param treeType  Tree type identifier (Id::toType (Id::background) or Id::toType (Id::postProcessing)).
      */
     explicit ConfigShader (juce::Identifier treeType);
 
@@ -38,7 +39,7 @@ public:
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c FileShaders::getPath, then reads
+     *  Locates the shader directory via @c Id::Files::Shaders::getPath, then reads
      *  that directory's own @c .slangp manifest (any filename, extension-only
      *  discovery via @c jam::vulkan::ShaderFormat::getExtension() — only
      *  @c slang carries a manifest-extension entry, the SAME wildcard both
@@ -58,16 +59,16 @@ public:
      *  this method never parses either format itself.
      *
      *  The read tree is overlaid onto @c state via @c setValuesFrom, and
-     *  @c ID::shaderFormat is stamped with the resolved format ordinal (a plain
+     *  @c Id::shaderFormat is stamped with the resolved format ordinal (a plain
      *  int — @c jam::vulkan::ShaderFormat::shadertoy or @c ::slang) so callers
      *  always read a definite, resolved format — never an empty or missing
-     *  value, even before any project has ever been loaded. @c jam::ID::path
+     *  value, even before any project has ever been loaded. @c Id::path
      *  is also stamped at @c state's own root level with @p dir's own full
      *  path, so @c jam::vulkan::ShaderCompiler::compile() can absolutize every
      *  parsed @c textures=/mesh= path against it (both are as-written,
      *  relative to the project directory).
      *
-     *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
+     *  Fires @c state.sendPropertyChangeMessage(Id::toType (Id::graphics)) so downstream
      *  listeners (jam::vulkan::ShaderCompiler, via ENDView's funnels) pick up the
      *  new source.
      *
@@ -91,9 +92,9 @@ private:
            on-disk @c themes/ directory as a THEMES subtree.
 
     The constructor init-list builds a THEMES-rooted tree via
-    @c jam::Model::fromLua from @c FileThemes BinaryData lua (THEME and
+    @c jam::Model::fromLua from @c Id::FileThemes BinaryData lua (THEME and
     WHELMED children) and adopts it through @c ConfigDirectory's ValueTree ctor. The
-    body appends a FLEX child (from @c FileFlex SVGs) as a sibling of THEME
+    body appends a FLEX child (from @c Id::FileFlex SVGs) as a sibling of THEME
     and WHELMED. @c ConfigModel attaches the whole @c theme.state THEMES
     subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
     @c theme.state remains the live THEMES tree, so @c loadFromPath() and
@@ -115,9 +116,9 @@ public:
 
     /** @brief Reads each theme lua from disk and overlays valid properties onto @c state
      *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
-     *         @c state.sendPropertyChangeMessage(ID::theme). Accumulates errors in @c errors.
+     *         @c state.sendPropertyChangeMessage(Id::theme). Accumulates errors in @c errors.
      *
-     *  Locates the theme directory via @c FileThemes::getPath and performs a
+     *  Locates the theme directory via @c Id::Files::Themes::getPath and performs a
      *  single @c setValuesFrom pass after assembling a disk-mirror THEMES tree
      *  (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
      *
@@ -151,7 +152,7 @@ private:
     @c theme, @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) are
     member objects whose constructors build their own subtrees via
     @c jam::Model::fromLua / @c jam::Model::fromFiles and adopt the result
-    directly. @c ConfigModel's init-list builds the CONFIG tree from @c FileConfig
+    directly. @c ConfigModel's init-list builds the CONFIG tree from @c Id::FileConfig
     BinaryData via @c jam::Model::fromLua and adopts it through @c jam::Model's
     ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
     @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
@@ -166,9 +167,9 @@ private:
     @c appendChild — all are single-rooted subtrees, so no unwrapping is needed.
 
     @par Three-phase init (in constructor body)
-    1. @c saveToPath()     — writes missing root lua files to @c FileConfig::path.
+    1. @c saveToPath()     — writes missing root lua files to @c Id::Files::Config::path.
     2. @c loadFromPath()   — reads lua from disk and overlays via @c setValuesFrom.
-    3. @c startWatcher()   — installs @c jam::File::Watcher on @c FileConfig::path.
+    3. @c startWatcher()   — installs @c jam::File::Watcher on @c Id::Files::Config::path.
 
     @par Composition via jam::Model aggregators
     @c jam::Model::fromLua and @c jam::Model::fromFiles are the SSOT builders.
@@ -197,59 +198,88 @@ public:
      */
     static constexpr int glslBufferSize { 65536 };
 
+private:
+    // Bimap membership Validator (check + ParameterText create) — generated
+    // bimaps carry no behavioral getValidator() of their own. Bimap::getInstance()
+    // resolves inside the stored lambda, at check-time, not at this function's
+    // own call time — Id::Lexicon does not exist yet that early.
+    template<typename Bimap>
+    static jam::lua::Validator getValidator()
+    {
+        return jam::lua::Validator { [] (const juce::var& value)
+                                     {
+                                         return value.isString()
+                                                and Bimap::getInstance()->contains (value.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& propertyId,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, propertyId, value.toString());
+                                     } };
+    }
+
+public:
     /**
         @brief Bimap and type-based validators consumed during @c loadFromPath().
 
         Outer key = tree type. Inner key = property name. Bimap validators
-        (Position, DropMode) are pre-populated via IIFE at static init time.
+        (Position, DropMode) are pre-populated via IIFE on first call.
         Type-based predicates for all other properties are appended by
         @c jam::Model::fromLua during the init-list build walk.
     */
-    static inline jam::lua::Validators validators = []
+    static jam::lua::Validators& getValidators()
     {
-        jam::lua::Validators v;
-
-        const auto& add = [&v] (juce::Identifier treeType,
-                                juce::Identifier propertyName,
-                                jam::lua::Validator validator)
+        static jam::lua::Validators validators = []
         {
-            auto [treeEntry, inserted] = v.try_emplace (treeType);
-            auto& [treeKey, treeValidators] = *treeEntry;
-            treeValidators.addOrReplace (propertyName, std::move (validator));
-        };
+            jam::lua::Validators v;
 
-        add (IDtype::statusBar, ID::position, jam::Position::getValidator());
-        add (IDtype::actionList, ID::position, jam::Position::getValidator());
-        add (IDtype::tab, ID::position, jam::Position::getValidator());
-        add (IDtype::popup, ID::position, jam::Position::getValidator());
-        add (IDtype::terminal, ID::dropMultifiles, DropMode::getValidator());
-        add (IDtype::graphics, ID::filter, jam::map::ImageResample::getValidator());
-        add (IDtype::graphics, ID::fontRasterizer, FontRasterizerBackend::getValidator());
-        add (jam::IDtype::cursor, jam::ID::style, CursorShape::getValidator());
-        add (IDtype::pane, ID::splitLine, OverlayAxisLine::getValidator());
+            const auto& add = [&v] (juce::Identifier treeType,
+                                    juce::Identifier propertyName,
+                                    jam::lua::Validator validator)
+            {
+                auto [treeEntry, inserted] = v.try_emplace (treeType);
+                auto& [treeKey, treeValidators] = *treeEntry;
+                treeValidators.addOrReplace (propertyName, std::move (validator));
+            };
 
-        // graphics.mouse (nested under graphics — IDtype::mouse, found by the
-        // same recursive getChildWithName() as every other tree type here).
-        // enabled/zoom carry no entry — plain bool/string, auto type-validated
-        // by jam::Model::fromLua (ConfigModel.h's own validators doc comment).
-        add (IDtype::mouse, ID::imouse, jam::map::MouseButton::getValidator());
-        add (IDtype::mouse, ID::orbit, jam::map::MouseButton::getValidator());
-        add (IDtype::mouse, ID::reset, jam::map::MouseButton::getValidator());
+            add (Id::toType (Id::statusBar), Id::position, getValidator<Id::Position>());
+            add (Id::toType (Id::actionList), Id::position, getValidator<Id::Position>());
+            add (Id::toType (Id::tab), Id::position, getValidator<Id::Position>());
+            add (Id::toType (Id::popup), Id::position, getValidator<Id::Position>());
+            add (Id::toType (Id::terminal), Id::dropMultifiles, getValidator<Id::DropMode>());
+            add (Id::toType (Id::graphics), Id::filter, getValidator<Id::ImageResample>());
+            add (Id::toType (Id::graphics), Id::fontRasterizer, getValidator<Id::FontRasterizerBackend>());
+            add (Id::toType (Id::cursor), Id::style, getValidator<Id::CursorShape>());
+            add (Id::toType (Id::pane), Id::splitLine, getValidator<Id::OverlayAxisLine>());
 
-        jam::lua::Validator sizeFormat;
-        sizeFormat.format = [] (const juce::var& v)
-        {
-            const auto [width, height] = jam::Size<int16_t> { v };
-            return juce::String (width) + "|" + juce::String (height);
-        };
-        add (IDtype::window, ID::size, sizeFormat);
+            // graphics.mouse (nested under graphics — Id::toType (Id::mouse), found by the
+            // same recursive getChildWithName() as every other tree type here).
+            // enabled/zoom carry no entry — plain bool/string, auto type-validated
+            // by jam::Model::fromLua (ConfigModel.h's own validators doc comment).
+            add (Id::toType (Id::mouse), Id::imouse, getValidator<Id::MouseButton>());
+            add (Id::toType (Id::mouse), Id::orbit, getValidator<Id::MouseButton>());
+            add (Id::toType (Id::mouse), Id::reset, getValidator<Id::MouseButton>());
 
-        jam::lua::Validator boundsFormat;
-        boundsFormat.format = jam::Format::fromBounds;
-        add (jam::IDtype::pane, jam::ID::bounds, boundsFormat);
+            jam::lua::Validator sizeFormat;
+            sizeFormat.format = [] (const juce::var& v)
+            {
+                const auto [width, height] = jam::Size<int16_t> { v };
+                return juce::String (width) + "|" + juce::String (height);
+            };
+            add (Id::toType (Id::window), Id::size, sizeFormat);
 
-        return v;
-    }();
+            jam::lua::Validator boundsFormat;
+            boundsFormat.format = jam::Format::fromBounds;
+            add (Id::toType (Id::pane), Id::bounds, boundsFormat);
+
+            return v;
+        }();
+
+        return validators;
+    }
 
     //==========================================================================
     /**
@@ -269,7 +299,7 @@ public:
         @c validators, overlays valid properties via @c setValuesFrom, then
         drives @c theme.loadFromPath(errors) and @c shader.loadFromPath(errors)
         in sequence. Writes the final result to @c ENDModel's message overlay:
-        @c ID::successMessage on success, or the accumulated error string on
+        @c Id::successMessage on success, or the accumulated error string on
         failure.
     */
     void loadFromPath();
@@ -278,12 +308,12 @@ private:
     ENDModel& appModel { *ENDModel::getInstance() };
 
     /**
-        @brief Writes missing root lua files from BinaryData to @c FileConfig::path.
+        @brief Writes missing root lua files from BinaryData to @c Id::Files::Config::path.
     */
     void saveToPath();
 
     /**
-        @brief Installs @c watcher on @c FileConfig::path with @c coalesceMs
+        @brief Installs @c watcher on @c Id::Files::Config::path with @c coalesceMs
                event coalescing and registers this ConfigModel as a listener.
     */
     void startWatcher();
@@ -300,7 +330,7 @@ private:
     /**
         @brief Reloads root lua config on @c .lua @c fileUpdated events.
 
-        Only @c fileUpdated for a @c FileConfig::extension file triggers
+        Only @c fileUpdated for a @c Id::lua file triggers
         @c loadFromPath(). All other events and extensions are ignored.
 
         @param file   The file that changed.
@@ -309,7 +339,7 @@ private:
     void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
 
     /**
-        @brief Watches @c FileConfig::path (root lua directory only) for
+        @brief Watches @c Id::Files::Config::path (root lua directory only) for
                @c .lua changes.
     */
     jam::File::Watcher watcher;
@@ -318,8 +348,8 @@ private:
     static constexpr int coalesceMs { 300 };
 
     ConfigTheme theme;
-    ConfigShader background { IDtype::background };
-    ConfigShader postProcessing { IDtype::postProcessing };
+    ConfigShader background { Id::toType (Id::background) };
+    ConfigShader postProcessing { Id::toType (Id::postProcessing) };
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigModel)

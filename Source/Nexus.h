@@ -6,15 +6,15 @@ struct Nexus : jam::Instance<Nexus>
 {
     Nexus()
     {
-        model.getOrCreateChildWithName (IDtype::window);
+        model.getOrCreateChildWithName (Id::toType (Id::window));
 
-        auto sessionsTree { model.getOrCreateChildWithName (IDtype::sessions) };
+        auto sessionsTree { model.getOrCreateChildWithName (Id::toType (Id::sessions)) };
         model.createAndAddParameter<jam::Parameter<int64_t>> (
-            sessionsTree, ID::focusedSession, int64_t { 0 });
+            sessionsTree, Id::focusedSession, int64_t { 0 });
         model.createAndAddParameter<jam::Parameter<int64_t>> (
-            sessionsTree, jam::ID::focusedPane, int64_t { 0 });
+            sessionsTree, Id::focusedPane, int64_t { 0 });
 
-        model.getOrCreateChildWithName (IDtype::overlay);
+        model.getOrCreateChildWithName (Id::toType (Id::overlay));
 
         extensions.try_emplace (juce::String { jam::clap::Services::extensionId }, &services);
         juce::addDefaultFormatsToManager (formatManager);
@@ -43,11 +43,11 @@ struct Nexus : jam::Instance<Nexus>
         jassert (inserted);
         auto& [key, session] = *entry;
 
-        auto sessionsTree { model.getChildWithName (IDtype::sessions) };
+        auto sessionsTree { model.getChildWithName (Id::toType (Id::sessions)) };
         sessionsTree.appendChild (session->state, nullptr);
 
         auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-            IDtype::sessions, ID::focusedSession) };
+            Id::toType (Id::sessions), Id::focusedSession) };
         jassert (focusedSessionParameter != nullptr);
 
         if (focusedSessionParameter->getValue() == 0)
@@ -60,7 +60,7 @@ struct Nexus : jam::Instance<Nexus>
 
     void removeSession (jam::UUID sessionUuid)
     {
-        auto sessionsTree { model.getChildWithName (IDtype::sessions) };
+        auto sessionsTree { model.getChildWithName (Id::toType (Id::sessions)) };
         sessionsTree.removeChild (sessions.at (sessionUuid)->state, nullptr);
         sessions.erase (sessionUuid);
     }
@@ -100,11 +100,11 @@ struct Nexus : jam::Instance<Nexus>
     Session& getActiveSession()
     {
         auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-            IDtype::sessions, ID::focusedSession) };
+            Id::toType (Id::sessions), Id::focusedSession) };
         jassert (focusedSessionParameter != nullptr);
 
         // Threat: called before ENDApplication's bootstrap createSession() —
-        // ID::focusedSession is still its 0 (no-session) seed value.
+        // Id::focusedSession is still its 0 (no-session) seed value.
         jassert (focusedSessionParameter->getValue() != 0);
 
         return getSession (jam::UUID (focusedSessionParameter->getValue()));

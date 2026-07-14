@@ -2,6 +2,46 @@
 
 ---
 
+## Sprint 81: Lexicon Migration — Global Id:: Vocabulary Replaces Identifier.h/Bimap.h ✅
+
+**Date:** 2026-07-15
+**Duration:** multi-day, multi-session (jam PLAN-lexicon.md Steps 8–10 END-side + Step 16 + toString elimination + audit fixes + doxygen; jam-side counterpart logged as jam Sprint 48)
+
+### Agents Participated
+- COUNSELOR: orchestration under jam's PLAN-lexicon.md; Decision Gate on END-side naming (getValidator/getValidators, LexiconFiles nesting); independent verification of all subagent reports
+- Pathfinder: END call-site inventory (323 ID:: + 15 IDref:: + 23 map:: sites), Identifier.h/Bimap.h row/bimap parity source
+- Engineer: END lexicon.md transcription (848 rows, 12 categories, 7 bimaps), generated pair + CMake wiring, Identifier.h/Bimap.h deletion, call-site migration incl. tests, ConfigModel validator SIOF fix, LexiconFiles.h authorship, magic-string extinction, toString drops, stale-prose sweep, doxygen
+- Auditor: END diff sweep (2 HIGH stale test sites, prose groups, false shadow comments) — all resolved same-sprint
+
+### Files Modified
+- `Source/lexicon.md` (NEW) — 848 words + 7 bimaps (FileConfig, FileThemes, FileFlex, FileShaders, DropMode, OverlayAxisLine, WindowFX platform-conditional) with mandatory category docs
+- `Source/generated/Lexicon.h/.cpp` (NEW, committed 0444) — global `Id::` externs + bimap structs + `Id::Lexicon` aggregate (constructed at `Main.h:40`); regenerated 4× (Id rename, total add/remove, non-const get())
+- DELETED: `Source/Identifier.h` (848-row END_MAKE_VIEW clone), `Source/Bimap.h` (7 bimaps + Map aggregate)
+- `Source/LexiconFiles.h` (NEW) — hand-written `Id::Files` aggregate (Config/Themes/Flex/Shaders), runtime-composed paths, zero static Id:: initializers, full doxygen
+- `Source/config/ConfigModel.h/.cpp` — validators → function-local static `getValidators()` + `getValidator<Bimap>()` (SIOF-safe); `Id::lua` bare via hasFileExtension; stale doxygen corrected (16 tokens)
+- `Source/end/EventRegistration.cpp` — `static_cast<Id::ImageResample::value>`/`<Id::MouseButton::value>`; false "id shadows" comment removed; stale prose fixed
+- `Source/action/ENDActions.cpp/.h`, `Source/end/{TabView,SessionView,EditorView,MessageOverlay,ENDView}`, `Source/Nexus.h`, `Source/lookAndFeel/ENDLookAndFeel.*`, `Source/Main.h/.cpp` — Id:: migration + toString drops (10 sites) + stale prose (~60 tokens); `debugLogFileExtension` ".ode" constant; SVG constants
+- `tests/` — TestTerm.h, DispatchTests.cpp, WritePathTests.cpp, LookupTableTests.cpp migrated to Id:: (audit HIGH findings)
+- `CMakeLists.txt` — `configure_app(... LEXICON Source/lexicon.md)`; AppBuilder §1.5 twin generator passes, CMAKE_CONFIGURE_DEPENDS
+
+### Alignment Check
+- [x] BLESSED principles followed — **S** (SSOT): END vocabulary collision with jam now generator-fatal (closes the comment-guarded hole at old Identifier.h:10); **B**: zero cross-TU static init on Id:: (validators lazy, Files paths runtime); **E** (Explicit): zero magic strings outside menu-item exemption; **D**: committed generated pair byte-deterministic
+- [x] NAMES.md adhered — getValidators/getValidator, LexiconFiles nested structs ARCHITECT-ratified; no improvised names
+- [x] MANIFESTO.md principles applied — all Auditor findings resolved same-sprint, tests included, zero pre-existing immunity
+
+### Problems Solved
+- Persisted config compatibility: vocabulary strings byte-identical through migration — configs/themes/keybindings load unchanged (build+run verified by ARCHITECT)
+- ConfigModel `static inline` member initializer parse order (declaration-point, not complete-class) — getValidator template declared before validators use
+- False "id shadows ::Id" comments (namespace is uppercase, case-sensitive — no shadowing) removed
+
+### Debts Paid
+- None (no `DEBT.md` at project root this sprint)
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 80: CLAP Host Bring-Up — Steps 6/7/8/13 + Verbatim-JUCE Hosting + WHELMED Live in a Pane ✅
 
 **Date:** 2026-07-14

@@ -32,7 +32,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == jam::Position::left)
+        if (parentBar->getPosition() == Id::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -42,8 +42,8 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         bounds = { 0.0f, 0.0f, height, width };
     }
 
-    if (graphics.contains (ID::tabBar))
-        jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabBar), bounds);
+    if (graphics.contains (Id::tabBar))
+        jam::SVG::Flex::paint (g, *this, graphics.at (Id::tabBar), bounds);
 }
 
 void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
@@ -56,7 +56,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == jam::Position::left)
+        if (parentBar->getPosition() == Id::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -66,8 +66,8 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
         bounds = { 0.0f, 0.0f, height, width };
     }
 
-    if (graphics.contains (ID::tabHighlight))
-        jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabHighlight), bounds);
+    if (graphics.contains (Id::tabHighlight))
+        jam::SVG::Flex::paint (g, *this, graphics.at (Id::tabHighlight), bounds);
 }
 
 void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
@@ -84,7 +84,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == jam::Position::left)
+        if (parentBar->getPosition() == Id::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -95,8 +95,8 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
     }
 
     const auto state { jam::SVG::Button::getState (
-        button, isMouseOver, isMouseDown, jam::map::ButtonState::get().size()) };
-    const juce::Identifier stateId { jam::map::ButtonState::get (state) };
+        button, isMouseOver, isMouseDown, Id::ButtonState::get().size()) };
+    const juce::Identifier stateId { Id::ButtonState::get (state) };
 
     // Sparse bank — paint only when the state slot was authored in theme.lua graphics section.
     if (graphics.contains (stateId))
@@ -118,9 +118,9 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 //==============================================================================
 juce::Font ENDLookAndFeel::getTabFont() const
 {
-    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
-    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
-    const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
+    auto fontFamily { config.getValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontSize { config.getValue (Id::toType (Id::tab), Id::textFontSize) };
+    const float kerning { config.getValue (Id::toType (Id::tab), Id::kerningFactor) };
 
     return juce::FontOptions()
         .withName (fontFamily)
@@ -130,8 +130,8 @@ juce::Font ENDLookAndFeel::getTabFont() const
 
 juce::Font ENDLookAndFeel::getCommonFont() const
 {
-    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
-    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
+    auto fontFamily { config.getValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontSize { config.getValue (Id::toType (Id::tab), Id::textFontSize) };
 
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
@@ -140,24 +140,24 @@ juce::Font ENDLookAndFeel::getPopupMenuFont() { return getCommonFont(); }
 
 int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
 {
-    const float depth { config.getValue (IDtype::tab, ID::depth) };
-    const bool alwaysVisible { config.getValue (IDtype::tab, ID::alwaysVisible) };
+    const float depth { config.getValue (Id::toType (Id::tab), Id::depth) };
+    const bool alwaysVisible { config.getValue (Id::toType (Id::tab), Id::alwaysVisible) };
     const bool shouldHide { tabs.getChildCount() <= 1 and not alwaysVisible };
     const int tabBarDepth { juce::roundToInt (getTabFont().getHeight() * depth) };
 
     return shouldHide ? 0 : tabBarDepth;
 }
 
-int ENDLookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+int ENDLookAndFeel::getTabPadding() const { return config.getValue (Id::toType (Id::tab), Id::textPadding); }
 int ENDLookAndFeel::getTabPosition() const noexcept
 {
-    const juce::String position { config.getValue (IDtype::tab, ID::position) };
-    return jam::Position::get (position);
+    const juce::String position { config.getValue (Id::toType (Id::tab), Id::position) };
+    return Id::Position::get (position);
 }
 
 juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 {
-    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
+    if (bool uppercase { config.getValue (Id::toType (Id::tab), Id::uppercase) })
         return tabName.toUpperCase();
 
     return tabName;
@@ -166,19 +166,19 @@ juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 //==============================================================================
 int ENDLookAndFeel::getPaneEdgeSize() const noexcept
 {
-    return config.getValue (IDtype::pane, ID::resizeBarThickness);
+    return config.getValue (Id::toType (Id::pane), Id::resizeBarThickness);
 }
 
 float ENDLookAndFeel::getPaneSidebarSize() const noexcept
 {
-    return config.getValue (IDtype::pane, ID::sidebarSize);
+    return config.getValue (Id::toType (Id::pane), Id::sidebarSize);
 }
 
 //==============================================================================
 juce::Font ENDLookAndFeel::getCodeFont() const
 {
-    auto fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
-    auto fontSize { config.getValue (IDtype::code, ID::fontSize) };
+    auto fontFamily { config.getValue (Id::toType (Id::code), Id::fontFamily) };
+    auto fontSize { config.getValue (Id::toType (Id::code), Id::textFontSize) };
 
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
@@ -198,8 +198,8 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
     jassert (atlas != nullptr);
     const auto metrics { atlas->calcMetrics (resolvedTypeface, font.getHeight()) };
 
-    const float cellWidthRatio { config.getValue (IDtype::code, ID::cellWidth) };
-    const float lineHeightRatio { config.getValue (IDtype::code, ID::lineHeight) };
+    const float cellWidthRatio { config.getValue (Id::toType (Id::code), Id::cellWidth) };
+    const float lineHeightRatio { config.getValue (Id::toType (Id::code), Id::lineHeight) };
 
     const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth)
                                             * cellWidthRatio) };
@@ -212,30 +212,30 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
 juce::BorderSize<int> ENDLookAndFeel::getCodePadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = config.getInt16 (IDtype::code, jam::ID::padding);
+    auto [top, right, bottom, left] = config.getInt16 (Id::toType (Id::code), Id::padding);
 
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
 int ENDLookAndFeel::getGutterWidth() const noexcept
 {
-    return config.getValue (IDtype::scrollbar, jam::ID::width);
+    return config.getValue (Id::toType (Id::scrollbar), Id::width);
 }
 
 ENDLookAndFeel::CursorStyle ENDLookAndFeel::getCursorStyle() const
 {
-    juce::String style { config.getValue (jam::IDtype::cursor, jam::ID::style).toString() };
-    bool blink { config.getValue (jam::IDtype::cursor, ID::blink) };
-    int blinkInterval { config.getValue (jam::IDtype::cursor, ID::blinkInterval) };
-    juce::String cursorChar { config.getValue (jam::IDtype::cursor, ID::cursorChar).toString() };
-    bool force { config.getValue (jam::IDtype::cursor, ID::force) };
+    juce::String style { config.getValue (Id::toType (Id::cursor), Id::style).toString() };
+    bool blink { config.getValue (Id::toType (Id::cursor), Id::blink) };
+    int blinkInterval { config.getValue (Id::toType (Id::cursor), Id::blinkInterval) };
+    juce::String cursorChar { config.getValue (Id::toType (Id::cursor), Id::cursorChar).toString() };
+    bool force { config.getValue (Id::toType (Id::cursor), Id::force) };
 
     return CursorStyle { style, blink, blinkInterval, cursorChar, force };
 }
 
 bool ENDLookAndFeel::getCodeLigatures() const noexcept
 {
-    return config.getValue (IDtype::code, ID::ligatures);
+    return config.getValue (Id::toType (Id::code), Id::ligatures);
 }
 
 juce::String ENDLookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
@@ -273,27 +273,27 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
 juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
+    auto [top, right, bottom, left] = config.getInt16 (Id::toType (Id::tab), Id::padding);
 
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
 ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
 {
-    auto colour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
-    int blur { config.getValue (IDtype::window, ID::blurRadius) };
+    auto colour { jam::Model::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
+    int blur { config.getValue (Id::toType (Id::window), Id::blurRadius) };
     int16_t fx { 0 };
 
 #if JUCE_MAC
-    auto name { config.getValue (jam::IDtype::style, ID::mac).toString() };
+    auto name { config.getValue (Id::toType (Id::style), Id::mac).toString() };
 #elif JUCE_WINDOWS
-    auto name { config.getValue (jam::IDtype::style, ID::win).toString() };
+    auto name { config.getValue (Id::toType (Id::style), Id::win).toString() };
 #endif
 
-    if (jam::map::WindowFX::getInstance()->contains (name))
-        fx = static_cast<int16_t> (jam::map::WindowFX::get (name));
+    if (Id::WindowFX::getInstance()->contains (name))
+        fx = static_cast<int16_t> (Id::WindowFX::get (name));
 
-    const bool windowButtons { config.getValue (IDtype::display, ID::titleBarButtons) };
+    const bool windowButtons { config.getValue (Id::toType (Id::display), Id::titleBarButtons) };
 
     return Style { colour, static_cast<int16_t> (blur), fx, windowButtons };
 }
@@ -310,7 +310,7 @@ void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
             if (safeComponent != nullptr)
             {
                 const auto windowStyle { getWindowStyle() };
-                const float menuOpacity { config.getValue (IDtype::menu, ID::opacity) };
+                const float menuOpacity { config.getValue (Id::toType (Id::menu), Id::opacity) };
                 const auto opacity { jam::BackgroundBlur::isEnabled() ? menuOpacity : 1.0f };
                 const auto baseColour {
                     safeComponent->findColour (juce::PopupMenu::backgroundColourId).withAlpha (opacity)
@@ -341,12 +341,17 @@ void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
 #endif
 }
 
+static constexpr const char* const splitVerticalNormalSVG { "split_vertical_normal.svg" };
+static constexpr const char* const splitHorizontalNormalSVG { "split_horizontal_normal.svg" };
+static constexpr const char* const joinCellsVerticalNormalSVG { "join_cells_vertical_normal.svg" };
+static constexpr const char* const joinCellsHorizontalNormalSVG { "join_cells_horizontal_normal.svg" };
+
 static const char* getMenuItemSVG (int itemID)
 {
-    static const juce::String splitVertical { BinaryData::getString ("split_vertical_normal.svg") };
-    static const juce::String splitHorizontal { BinaryData::getString ("split_horizontal_normal.svg") };
-    static const juce::String joinCellsVertical { BinaryData::getString ("join_cells_vertical_normal.svg") };
-    static const juce::String joinCellsHorizontal { BinaryData::getString ("join_cells_horizontal_normal.svg") };
+    static const juce::String splitVertical { BinaryData::getString (splitVerticalNormalSVG) };
+    static const juce::String splitHorizontal { BinaryData::getString (splitHorizontalNormalSVG) };
+    static const juce::String joinCellsVertical { BinaryData::getString (joinCellsVerticalNormalSVG) };
+    static const juce::String joinCellsHorizontal { BinaryData::getString (joinCellsHorizontalNormalSVG) };
 
     switch (itemID)
     {
@@ -480,8 +485,8 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
     if (hover)
         setColour (paneBarColourId, findColour (paneBarHighlightColourId));
 
-    if (graphics.contains (ID::resizerBar))
-        jam::SVG::Flex::paint (g, *this, graphics.at (ID::resizerBar), bounds);
+    if (graphics.contains (Id::resizerBar))
+        jam::SVG::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
 
     if (hover)
         setColour (paneBarColourId, savedColour);

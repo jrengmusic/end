@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "Identifier.h"
+#include "generated/Lexicon.h"
 
 class ENDModel
     : public jam::Model
@@ -16,7 +16,7 @@ public:
      */
     void setMessage (const juce::String& text)
     {
-        auto* param { getParameter<jam::ParameterText> (IDtype::overlay, ID::message) };
+        auto* param { getParameter<jam::ParameterText> (Id::toType (Id::overlay), Id::message) };
 
         if (param != nullptr)
             param->setValue (text);

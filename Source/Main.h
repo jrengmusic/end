@@ -6,7 +6,7 @@
 #include "end/ENDView.h"
 #include "end/ENDWindow.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "Bimap.h"
+#include "generated/Lexicon.h"
 #include "Nexus.h"
 
 class ENDApplication : public juce::JUCEApplication
@@ -22,7 +22,9 @@ public:
 private:
     //==============================================================================
 #if JUCE_DEBUG
-    /** @brief Diagnostic log sink — canonical location: FileConfig::path
+    static inline const char* const debugLogFileExtension { ".ode" };
+
+    /** @brief Diagnostic log sink — canonical location: Id::Files::Config::path
      *  (\~/.config/end/end.ode, jam::Format::toFileName), never the launch
      *  cwd — the same deterministic path regardless of how the app was
      *  started (IDE, Finder, terminal), so runtime diagnostics always land
@@ -30,14 +32,14 @@ private:
 
     jam::debug::Log::Scope logScope {
         juce::File ("~/Documents/Poems/dev/end")
-            .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, ".ode"))
+            .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, debugLogFileExtension))
     };
 #endif
 
     //==============================================================================
-    // Owned global instance Bimap — jam::Bimap<T> owner. Declared before any consumer so the
+    // Owned global registry aggregate — jam::Bimap<T> owner. Declared before any consumer so the
     // single-global-pointer Instance<T> slot is populated before first use.
-    Map instances;
+    Id::Lexicon lexicon;
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member
@@ -53,7 +55,7 @@ private:
 
     /** @brief Unified Vulkan resource-ownership tree — constructed unconditionally
      *  in initialiseVulkan(), after lookAndFeel exists, and never reset/
-     *  reconstructed thereafter (see EventRegistration.cpp's ID::gpu handler).
+     *  reconstructed thereafter (see EventRegistration.cpp's Id::useGpu handler).
      *  Owns the shared Device, every SharedResources<T> interning table
      *  (Typeface, Stamp, Grapheme, Link — each self-registers as its own
      *  getInstance() singleton on construction), the shared glyph atlas, and

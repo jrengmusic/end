@@ -49,17 +49,17 @@ public:
         keys.clear();
         modalKeys.clear();
 
-        auto keysSection { config.getChildWithName (IDtype::keys) };
+        auto keysSection { config.getChildWithName (Id::toType (Id::keys)) };
 
         prefixKey = juce::KeyPress::createFromDescription (
-            keysSection.getProperty (ID::prefix).toString());
-        prefixTimeout = keysSection.getProperty (ID::prefixTimeout);
+            keysSection.getProperty (Id::prefix).toString());
+        prefixTimeout = keysSection.getProperty (Id::prefixTimeout);
 
         jam::Model::forEachProperty (
             keysSection,
             [this] (const juce::Identifier& propName, const juce::var& value)
             {
-                if (propName != ID::prefix and propName != ID::prefixTimeout)
+                if (propName != Id::prefix and propName != Id::prefixTimeout)
                 {
                     auto key { juce::KeyPress::createFromDescription (value.toString()) };
 

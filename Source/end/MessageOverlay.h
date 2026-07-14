@@ -6,7 +6,7 @@
  * briefly over the application to communicate transient text status:
  *
  * - **Config reload** — success or error text written to the overlay's own
- *   @c ID::message property (owned via @c jam::Model::Component),
+ *   @c Id::message property (owned via @c jam::Model::Component),
  *   shown for the default duration (5000 ms) via View::valueTreePropertyChanged.
  * - **Arbitrary messages** — multi-line text shown via showMessage().
  *
@@ -34,10 +34,9 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "Identifier.h"
-#include "../Bimap.h"
-#include "../config/ConfigModel.h"
-#include "../lookAndFeel/ENDLookAndFeel.h"
+#include "generated/Lexicon.h"
+#include "config/ConfigModel.h"
+#include "lookAndFeel/ENDLookAndFeel.h"
 
 /** @brief Background fill alpha [0, 1]; applied on top of the window content. */
 static constexpr float backgroundAlpha { 0.8f };
@@ -58,15 +57,15 @@ static void drawMessageOverlay (juce::Graphics& g,
                                 int splitLine = -1,
                                 bool splitVertical = false)
 {
-    const auto family { ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-    const auto size { static_cast<float> (ConfigModel::getInstance()->getValue (jam::IDtype::overlay, ID::fontSize)) };
+    const auto family { ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString() };
+    const auto size { static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize)) };
     const juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
 
     const auto background { overlay.findColour (juce::Label::backgroundColourId).withAlpha (backgroundAlpha) };
     const auto foreground { overlay.findColour (juce::Label::textColourId) };
 
-    const auto lineStyle { OverlayAxisLine::get (
-        ConfigModel::getInstance()->getValue (IDtype::pane, ID::splitLine).toString()) };
+    const auto lineStyle { Id::OverlayAxisLine::get (
+        ConfigModel::getInstance()->getValue (Id::toType (Id::pane), Id::splitLine).toString()) };
 
     g.setColour (background);
     g.fillRect (bounds);
@@ -84,11 +83,11 @@ static void drawMessageOverlay (juce::Graphics& g,
             const auto top { static_cast<float> (bounds.getY()) };
             const auto bottom { static_cast<float> (bounds.getBottom()) };
 
-            if (lineStyle == OverlayAxisLine::dash)
+            if (lineStyle == Id::OverlayAxisLine::dash)
             {
                 g.drawDashedLine ({ x, top, x, bottom }, dashLengths, numDashes);
             }
-            else if (lineStyle == OverlayAxisLine::bracket)
+            else if (lineStyle == Id::OverlayAxisLine::bracket)
             {
                 const auto capTop { top + static_cast<float> (textPadding) };
                 const auto capBottom { bottom - static_cast<float> (textPadding) };
@@ -108,11 +107,11 @@ static void drawMessageOverlay (juce::Graphics& g,
             const auto left { static_cast<float> (bounds.getX()) };
             const auto right { static_cast<float> (bounds.getRight()) };
 
-            if (lineStyle == OverlayAxisLine::dash)
+            if (lineStyle == Id::OverlayAxisLine::dash)
             {
                 g.drawDashedLine ({ left, y, right, y }, dashLengths, numDashes);
             }
-            else if (lineStyle == OverlayAxisLine::bracket)
+            else if (lineStyle == Id::OverlayAxisLine::bracket)
             {
                 const auto capLeft { left + static_cast<float> (textPadding) };
                 const auto capRight { right - static_cast<float> (textPadding) };
@@ -188,7 +187,7 @@ public:
     ~MessageOverlay() override = default;
 
     /**
-     * @brief Registers the ID::message ParameterText on the overlay's state.
+     * @brief Registers the Id::message ParameterText on the overlay's state.
      *
      * @c state is already parented in the model tree at construction time —
      * this class adopts Nexus's own pre-bootstrapped OVERLAY node — so this
@@ -199,7 +198,7 @@ public:
     void registerParameters()
     {
         auto& messageParam { model.createAndAddParameter<jam::ParameterText> (
-            state, ID::message, juce::String {}, 4096) };
+            state, Id::message, juce::String {}, 4096) };
 
         parameterAttachments.add (
             std::make_unique<jam::Model::ParameterAttachment> (messageParam,
@@ -257,7 +256,7 @@ private:
     /** @brief The text currently displayed. */
     juce::String message;
 
-    /** @brief RAII parameter attachment for ID::message — delivers changes to showMessage. */
+    /** @brief RAII parameter attachment for Id::message — delivers changes to showMessage. */
     jam::Owner<jam::Model::ParameterAttachment> parameterAttachments;
 
     //==============================================================================
