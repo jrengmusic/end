@@ -2,6 +2,60 @@
 
 ---
 
+## Sprint 80: CLAP Host Bring-Up — Steps 6/7/8/13 + Verbatim-JUCE Hosting + WHELMED Live in a Pane ✅
+
+**Date:** 2026-07-14
+**Duration:** 05:00
+
+### Agents Participated
+- COUNSELOR: orchestration; independent verification of every subagent claim (HostedParameter fork surface, CFBundle URL semantics, CAMetalLayer zPosition 1 at jam_VulkanMetal.mm:15, OwnerComponent::remove assert, gui.h/plugin.h/entry.h spec clauses); runtime-trace root-causing (bundle dlopen, relative executable URL, AU boot-load scan, focus-heir staleness, layer occlusion, unflipped manual addSubview); canonical-hosting synthesis from Pathfinder map after ARCHITECT's verbatim-JUCE directive; audit clean-sweep dispositions (result-return ruling, Button::onClick precedent for public onRequestProcess)
+- Pathfinder: jam_clap host-side inventory; macOS embed/compositing chain trace (Vulkan sublayer vs subview stacking); canonical JUCE hosting flow map (AudioPluginHost/VST3PluginWindow/AU window, both resize directions)
+- Engineer (×18 tasks): Steps 6/7/8/13 implementation, harness wiring, threading contract, hosting restructure, all runtime fixes, audit clean sweep
+- Auditor: full-contract audit of the sprint scope (12 findings, all resolved)
+
+### Files Modified (24 total)
+**jam repo:**
+- `jam_clap/format/jam_ClapPluginInstance.h/.cpp` — Step 6: nested `Parameter : AudioPluginInstance::Parameter` bridge (normalized↔plain, text via value_to_text/text_to_value), reducing-param-queue host→plugin, output PARAM_VALUE/GESTURE drain, state via clap_istream/ostream ↔ MemoryBlock, hostParams (rescan/clear/request_flush per params.h threading) + hostState mark_dirty. Step 7: data-driven `hostExtensions` registry (log/thread-check/params/state/timer/posix-fd/gui/audio-ports/note-ports + com.jreng.* merge), request_callback → callAsync on_main_thread, request_restart → deactivate/reactivate, `onRequestProcess` demand hook, PluginTimer. Threading: lazy start_processing in processBlock, `stopProcessing()` SSOT (dtor/releaseResources/prepareToPlay deduped), atomic pluginActive/pluginProcessing, `audioThreadId` stamp for honest is_audio_thread, WeakReference async guards. Host identity parameterized (name/vendor/url/version from app). Audit sweep: create()/ctor decomposed (scanCreateBusesProperties/scanPluginCapabilities/scanCreateParameters, registerHostCallbacks/registerHostExtensions), jam::HashMap param map, tokens, false doxygen clauses deleted
+- `jam_clap/format/jam_ClapPluginFormat.h/.cpp` — ctor gains hostServices table + host identity strings (threaded to instances); DsoHandle declared in header (fwd-decl eliminated); macOS bundle loading via CFBundleCopyExecutableURL + CFURLCopyAbsoluteURL (dlopen the inner Mach-O, entry->init gets the bundle path per entry.h:93); createPluginInstance relocated to its own TU, positive-nested
+- `jam_clap/format/jam_ClapPluginWindow.h/.cpp` — NEW, Step 8: VST3PluginWindow mirror — ComponentMovementWatcher host→plugin resize (adjust_size/set_size), window-is-constrainer checkBounds, resizeToFit from get_size, applyHostRequestedResize guard, gui.h lifecycle order (can_resize before get_size; no set_scale on Cocoa), paint fills black, `hostedViewZPosition { 2.0 }` raises the embedded NSView layer above END's CAMetalLayer (zPosition 1)
+- `jam_clap/jam_clap.h` — publishes clap/clap.h + event-list + reducing-param-queue + PluginFormat + PluginInstance (module public surface); `jam_clap.cpp` aggregation reordered; `jam_clap.mm` NEW (ObjC++ unity on Apple)
+- `jam_clap/wrapper/jam_ClapWrapper.h` + `cmake/clap/jam_ClapWrapper.cpp` — guiSetParent unified to `addToDesktop (0, parentHandle)` (manual addSubview deleted — unflipped-Y root cause); WrapperEditor::resized forwards shell→child; brace-init
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp` — focus heir on collapse: childRemoved restamps focused-child with `getFirstPane (sib)` via existing setFocusedChild (fixes closePane assert at jam_OwnerComponent.h:91)
+**end repo:**
+- `Source/Nexus.h` — VirtualClock : juce::Thread (private) — the demand domain's real audio thread; pump = cross-thread notify; onThreadExit runs stopProcessing on the clock thread at teardown; createPlugin resolves through the CLAP format only (per-call dynamic_cast — AU boot-load scan eliminated); host identity passed from ProjectInfo + hostUrl constant
+- `Source/end/EditorView.h/.cpp` — canonical pane owner: createProcessorEditor (AudioPluginHost verb), layout rule solely in resized() (resizable → fill pane, fixed → own size), childBoundsChanged → resized(), attach ends with resized() (ResizableWindow::setContent precedent), editorBeingDeleted dtor
+- `Source/end/Session.h/.cpp` — contains(); instance stored before pluginId property (commit-signal ordering); jam::ID::name stamped from instance->getName()
+- `Source/end/SessionView.cpp` — title fallback reads jam::ID::name (plugin display name, not id)
+- `Source/action/ENDActions.cpp` — whelmedPluginId boundary constant; newPlugin: createPlugin → createVirtualClock → Session::newPlugin (empty-pane fallback); removeVirtualClock before removePlugin at closePane + 4 joins
+- `tests/scripts/test.md`, `tests/scripts/mermaid.md` — bench corpus (ARCHITECT-authored)
+- `DEBT.md` — DEBT-20260713T230500 captured
+**plugins repo:**
+- `whelmed/Source/WhelmedView.cpp` — setResizable (true, false)
+
+### Alignment Check
+- [x] BLESSED principles followed (post 12-finding clean sweep)
+- [x] NAMES.md adhered — ledger additions ratified-by-construction: DsoHandle, ReadCursor, PluginTimer, ViewComponent/Inner, windowingApi, applyHostRequestedResize, handlePluginClosedGui, scanCreateBusesProperties/scanPluginCapabilities/scanCreateParameters, registerHostCallbacks/registerHostExtensions, onThreadExit, audioThreadId, hostedViewZPosition, whelmedPluginId, Session::contains, createProcessorEditor, resizeToFit, stopProcessing
+- [x] MANIFESTO.md principles applied (registry as data, SSOT stop path, honest capability returns, injection over stored pointers)
+
+### Problems Solved
+- Demand-domain threading contract: VirtualClock owns a real audio thread — activate/deactivate main, start_processing lazy on clock thread, stop_processing on clock thread at exit (plugin.h annotations honored end-to-end)
+- macOS .clap bundle loading: dlopen of bundle dir failed silently → CFBundle executable resolution with absolute URL; entry->init keeps bundle path
+- Cross-format scan disaster: createPlugin walked AU locations, instantiating every AU on the machine → CLAP-format-only resolution
+- Compositing: END's Vulkan CAMetalLayer (sublayer, zPosition 1) occluded embedded plugin views → hosted container layer raised to 2.0
+- Wrapper attach: manual addSubview of a free desktop peer (bottom-left, untracked) → JUCE shared-window addToDesktop(0, parent)
+- Hosting semantics reset to verbatim JUCE after ARCHITECT rejection: PluginWindow = VST3PluginWindow analog, EditorView = AudioPluginHost owner analog; invented verbs (embedEditor, notifyPluginOfResize, layoutEditor) eliminated
+- Focus-heir staleness crash on pane close (native views never re-stamp JUCE focus) → deterministic heir in MatrixComponent::childRemoved
+- Tab titles show plugin display name; module public surface fixed (PluginInstance published through jam_clap.h)
+- WHELMED live in an END pane, filling bounds — bench corpus ready
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260713T230500` — keyboard focus taken over by hosted plugin's native view (Step 19 focus loop is the planned resolution)
+
+---
+
 ## Sprint 79: Nexus Host Machinery + Session Plugin Substitution + Terminal Stub Deletion (Steps 2Δ/11/12/13-min) ✅
 
 **Date:** 2026-07-14

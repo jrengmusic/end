@@ -78,7 +78,7 @@ juce::String SessionView::getName (const juce::ValueTree& tabState)
         jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
     };
 
-    return sourcePane.isValid() ? sourcePane.getProperty (ID::pluginId).toString() : juce::String {};
+    return sourcePane.isValid() ? sourcePane.getProperty (jam::ID::name).toString() : juce::String {};
 }
 
 juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)

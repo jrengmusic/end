@@ -12,6 +12,8 @@ public:
 
     juce::AudioPluginInstance& get (jam::UUID uuid);
 
+    bool contains (jam::UUID uuid) const;
+
     void newPlugin (jam::UUID uuid, const juce::String& pluginId, std::unique_ptr<juce::AudioPluginInstance> instance);
 
     void removePlugin (jam::UUID uuid);

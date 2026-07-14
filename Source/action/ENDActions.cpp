@@ -1,5 +1,7 @@
 #include "end/ENDView.h"
 
+static constexpr const char* whelmedPluginId { "com.jreng.whelmed" };
+
 void ENDView::createDockPane (int positionKey)
 {
 }
@@ -65,7 +67,17 @@ void ENDView::registerActions()
         ID::newPlugin,
         [this] (jam::UUID uuid)
         {
-            nexus.getActiveSession().newPlugin (uuid, {}, nullptr);
+            auto instance { nexus.createPlugin (whelmedPluginId) };
+
+            if (instance != nullptr)
+            {
+                nexus.createVirtualClock (uuid, *instance);
+                nexus.getActiveSession().newPlugin (uuid, whelmedPluginId, std::move (instance));
+            }
+            else
+            {
+                nexus.getActiveSession().newPlugin (uuid, {}, nullptr);
+            }
         });
 
     actions.actions.add (ID::closeTab,
@@ -121,8 +133,9 @@ void ENDView::registerActions()
                                       {
                                           const auto focusedUuid { tabView->getFocusedChild() };
 
-                                          nexus.getActiveSession().removePlugin (focusedUuid);
                                           tabView->remove (focusedUuid);
+                                          nexus.removeVirtualClock (focusedUuid);
+                                          nexus.getActiveSession().removePlugin (focusedUuid);
                                       }
                                       else
                                       {
@@ -225,7 +238,10 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::left) };
 
                                       if (target != jam::UUID::none())
+                                      {
+                                          nexus.removeVirtualClock (target);
                                           nexus.getActiveSession().removePlugin (target);
+                                      }
                                   }
                           });
 
@@ -238,7 +254,10 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::bottom) };
 
                                       if (target != jam::UUID::none())
+                                      {
+                                          nexus.removeVirtualClock (target);
                                           nexus.getActiveSession().removePlugin (target);
+                                      }
                                   }
                           });
 
@@ -251,7 +270,10 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::top) };
 
                                       if (target != jam::UUID::none())
+                                      {
+                                          nexus.removeVirtualClock (target);
                                           nexus.getActiveSession().removePlugin (target);
+                                      }
                                   }
                           });
 
@@ -264,7 +286,10 @@ void ENDView::registerActions()
                                       const auto target { tabView->join (jam::ID::right) };
 
                                       if (target != jam::UUID::none())
+                                      {
+                                          nexus.removeVirtualClock (target);
                                           nexus.getActiveSession().removePlugin (target);
+                                      }
                                   }
                           });
 

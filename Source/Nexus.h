@@ -4,13 +4,6 @@
 
 struct Nexus : jam::Instance<Nexus>
 {
-    struct VirtualClock
-    {
-        jam::VirtualDevice device { jam::VirtualDeviceType::virtualDeviceTypeName,
-                                    jam::VirtualDeviceType::virtualDeviceTypeName };
-        juce::AudioProcessorPlayer player;
-    };
-
     Nexus()
     {
         model.getOrCreateChildWithName (IDtype::window);
@@ -25,7 +18,12 @@ struct Nexus : jam::Instance<Nexus>
 
         extensions.try_emplace (juce::String { jam::clap::Services::extensionId }, &services);
         juce::addDefaultFormatsToManager (formatManager);
-        formatManager.addFormat (std::make_unique<jam::clap::PluginFormat>());
+        formatManager.addFormat (std::make_unique<jam::clap::PluginFormat> (
+            extensions,
+            juce::String { ProjectInfo::projectName },
+            juce::String { ProjectInfo::companyName },
+            juce::String { hostUrl },
+            juce::String { ProjectInfo::versionString }));
         deviceManager.initialiseWithDefaultDevices (2, 2);
         player.setProcessor (&graph);
         deviceManager.addAudioCallback (&player);
@@ -40,8 +38,8 @@ struct Nexus : jam::Instance<Nexus>
     Session& createSession()
     {
         jam::UUID sessionUuid;
-        auto [entry, inserted] = sessions.try_emplace (
-            sessionUuid, std::make_unique<Session> (sessionUuid, model));
+        auto [entry, inserted] =
+            sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model));
         jassert (inserted);
         auto& [key, session] = *entry;
 
@@ -71,23 +69,27 @@ struct Nexus : jam::Instance<Nexus>
     {
         if (pluginId.isNotEmpty())
         {
-            juce::OwnedArray<juce::PluginDescription> descriptions;
-
             for (auto* format : formatManager.getFormats())
             {
-                const auto files { format->searchPathsForPlugins (format->getDefaultLocationsToSearch(), true) };
-
-                for (const auto& file : files)
-                    format->findAllTypesForFile (descriptions, file);
-            }
-
-            for (auto* description : descriptions)
-            {
-                if (description->uniqueId == pluginId.hashCode())
+                if (auto* clapFormat { dynamic_cast<jam::clap::PluginFormat*> (format) })
                 {
-                    juce::String errorMessage;
-                    return formatManager.createPluginInstance (
-                        *description, virtualSampleRate, virtualBlockSize, errorMessage);
+                    juce::OwnedArray<juce::PluginDescription> descriptions;
+
+                    const auto searchPaths { clapFormat->getDefaultLocationsToSearch() };
+                    const auto files { clapFormat->searchPathsForPlugins (searchPaths, true) };
+
+                    for (const auto& file : files)
+                        clapFormat->findAllTypesForFile (descriptions, file);
+
+                    for (auto* description : descriptions)
+                    {
+                        if (description->uniqueId == pluginId.hashCode())
+                        {
+                            juce::String errorMessage;
+                            return formatManager.createPluginInstance (
+                                *description, virtualSampleRate, virtualBlockSize, errorMessage);
+                        }
+                    }
                 }
             }
         }
@@ -108,7 +110,7 @@ struct Nexus : jam::Instance<Nexus>
         return getSession (jam::UUID (focusedSessionParameter->getValue()));
     }
 
-    VirtualClock& createVirtualClock (jam::UUID uuid, juce::AudioProcessor& processor)
+    void createVirtualClock (jam::UUID uuid, juce::AudioProcessor& processor)
     {
         auto [entry, inserted] = virtualClocks.try_emplace (uuid, std::make_unique<VirtualClock>());
         jassert (inserted);
@@ -117,33 +119,87 @@ struct Nexus : jam::Instance<Nexus>
         clock->player.setProcessor (&processor);
         clock->device.open ({}, {}, virtualSampleRate, clock->device.getDefaultBufferSize());
         clock->device.start (&clock->player);
+        clock->blockSize = virtualBlockSize;
 
-        return *clock;
+        if (auto* plugin { dynamic_cast<jam::clap::PluginInstance*> (&processor) })
+        {
+            plugin->onRequestProcess = [this, uuid] { pump (uuid); };
+            clock->onThreadExit = [plugin] { plugin->stopProcessing(); };
+        }
+
+        clock->startThread();
     }
 
     void removeVirtualClock (jam::UUID uuid)
     {
-        virtualClocks.at (uuid)->device.stop();
-        virtualClocks.at (uuid)->player.setProcessor (nullptr);
-        virtualClocks.erase (uuid);
+        if (virtualClocks.contains (uuid))
+        {
+            auto& clock { *virtualClocks.at (uuid) };
+            clock.signalThreadShouldExit();
+            clock.notify();
+            clock.waitForThreadToExit (-1);
+            clock.device.stop();
+            clock.player.setProcessor (nullptr);
+            virtualClocks.erase (uuid);
+        }
     }
 
-    void pump (jam::UUID uuid, int numSamples) { virtualClocks.at (uuid)->device.clock (numSamples); }
+    void pump (jam::UUID uuid)
+    {
+        virtualClocks.at (uuid)->notify();
+    }
 
 private:
+    struct VirtualClock : juce::Thread
+    {
+        VirtualClock() : juce::Thread ("VirtualClock") {}
+
+        ~VirtualClock() override
+        {
+            signalThreadShouldExit();
+            notify();
+            waitForThreadToExit (-1);
+        }
+
+        void run() override
+        {
+            for (;;)
+            {
+                wait (-1);
+
+                if (threadShouldExit())
+                {
+                    if (onThreadExit)
+                        onThreadExit();
+
+                    return;
+                }
+
+                device.clock (blockSize);
+            }
+        }
+
+        jam::VirtualDevice device { jam::VirtualDeviceType::virtualDeviceTypeName,
+                                    jam::VirtualDeviceType::virtualDeviceTypeName };
+        juce::AudioProcessorPlayer player;
+        std::function<void()> onThreadExit;
+        int blockSize { 0 };
+    };
+
     ENDModel model;
 
     jam::HashMap<jam::UUID, std::unique_ptr<Session>> sessions;
+    jam::HashMap<jam::UUID, std::unique_ptr<VirtualClock>> virtualClocks;
+    jam::HashMap<juce::String, const void*> extensions;
 
     jam::clap::Services services;
-    jam::HashMap<juce::String, const void*> extensions;
     juce::AudioPluginFormatManager formatManager;
     juce::AudioProcessorGraph graph;
     juce::AudioProcessorPlayer player;
     juce::AudioDeviceManager deviceManager;
-    jam::HashMap<jam::UUID, std::unique_ptr<VirtualClock>> virtualClocks;
     static constexpr double virtualSampleRate { 48000.0 };
     static constexpr int virtualBlockSize { 512 };
+    static constexpr const char* hostUrl { "https://jrengmusic.com" };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)
