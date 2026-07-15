@@ -55,6 +55,7 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/sdk/macOS/include
     - -I/Users/jreng/Documents/Poems/dev/end/../../JUCE/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/vma/include
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/shaderc/macOS/include
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/JUCE/modules
@@ -73,8 +74,6 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -isystem
     - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/moltenVK/include
-    - -isystem
-    - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/shaderc/macOS/include
     - -isystem
     - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/spirv-cross/macOS/include
     - -g

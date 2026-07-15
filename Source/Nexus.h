@@ -56,6 +56,22 @@ struct Nexus : jam::Instance<Nexus>
         return *session;
     }
 
+    /** @brief Fills services from the host's live Vulkan/glyph state.
+     *
+     *  Must be called after jam::VulkanEngine and its interning tables are
+     *  constructed — resolves stale/null Services otherwise. */
+    void initialiseServices()
+    {
+        services.vulkanEngine       = jam::VulkanEngine::getInstance();
+        services.glyphAtlas         = jam::GlyphAtlas::getInstance();
+        services.typeface           = jam::Typeface::getInstance();
+        services.stamp              = jam::Stamp::getInstance();
+        services.grapheme           = jam::Grapheme::getInstance();
+        services.link               = jam::Link::getInstance();
+        services.contextFactory     = juce::ComponentPeer::externalContextFactory;
+        services.cachedImageFactory = juce::Component::externalCachedImageFactory;
+    }
+
     Session& getSession (jam::UUID sessionUuid) { return *sessions.at (sessionUuid); }
 
     void removeSession (jam::UUID sessionUuid)

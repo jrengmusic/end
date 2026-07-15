@@ -36,6 +36,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
     }
 #endif
     initialiseVulkan();
+    nexus.initialiseServices();
 
     auto* view { new ENDView (*ENDModel::getInstance()) };
     window.reset (new ENDWindow { view, ProjectInfo::projectName });

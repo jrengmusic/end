@@ -91,6 +91,12 @@ VST3/AU/Standalone still build; CLAP target intentionally broken until Step 3.
 repo; plugin classes pure JUCE.
 
 ### Step 2: ClientExtensions surface
+**SUPERSEDED (Sprint 76, 2026-07-13):** The virtual-setter shape below
+(`getExtension`/`setHostExtension`/`setRequestProcess`) was reshaped to a
+`jam::Function::Map`-backed surface — `jam::clap::ClientExtensions` now exposes
+`queryHostExtension` and `requestProcess` accessor methods over a
+`jam::Function::Map<juce::String, void> extensions` member, in
+`jam_ClapClientExtensions.h`.
 **Scope:** `jam_clap/wrapper/jam_ClapClientExtensions.h`, `jam_clap/jam_clap.h`
 **Action:** `jam::clap::ClientExtensions` per Names Ledger — mirrors JUCE
 VST3ClientExtensions exactly (struct of virtuals, plugin overrides, default no-ops;

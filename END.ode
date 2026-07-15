@@ -1,51 +1,9 @@
 
 **********************************************************
 
-Log started: 15 Jul 2026 12:49:32am
+Log started: 15 Jul 2026 5:36:47pm
 
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: mtllib: could not open /Users/jreng/.config/end/shaders/end/end-icon.mtl, using default material
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_4e8c93', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_00c8d8', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_0ff', using default
-CLAPWIN ctor window 0 0 400 300 embedded 0 0 400 300
-CLAPWIN   inner frame 0,0 0x0 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 400x300 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 640 445 embedded 0 0 640 445
-CLAPWIN   inner frame 0,35 640x445 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 640x445 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 650 447 embedded 0 0 650 447
-CLAPWIN   inner frame 0,35 650x447 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 650x447 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 650 448 embedded 0 0 650 448
-CLAPWIN   inner frame 0,35 650x448 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 650x448 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 650 457 embedded 0 0 650 457
-CLAPWIN   inner frame 0,35 650x457 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 650x457 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 651 461 embedded 0 0 651 461
-CLAPWIN   inner frame 0,35 651x461 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 651x461 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 649 460 embedded 0 0 649 460
-CLAPWIN   inner frame 0,35 649x460 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 649x460 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 640 459 embedded 0 0 640 459
-CLAPWIN   inner frame 0,35 640x459 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 640x459 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 635 455 embedded 0 0 635 455
-CLAPWIN   inner frame 0,35 635x455 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 635x455 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 615 449 embedded 0 0 615 449
-CLAPWIN   inner frame 0,35 615x449 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 615x449 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 613 447 embedded 0 0 613 447
-CLAPWIN   inner frame 0,35 613x447 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 613x447 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 613 446 embedded 0 0 613 446
-CLAPWIN   inner frame 0,35 613x446 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 613x446 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 611 442 embedded 0 0 611 442
-CLAPWIN   inner frame 0,35 611x442 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 611x442 flipped 1 opaque 0 layerOpaque 0
-CLAPWIN movedOrResized window 0 0 610 442 embedded 0 0 610 442
-CLAPWIN   inner frame 0,35 610x442 flipped 0 wantsLayer 1 layerOpaque 0 masks 1
-CLAPWIN   sub JUCEView_710fc3e8783c2d84 frame 0,0 610x442 flipped 1 opaque 0 layerOpaque 0
