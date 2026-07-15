@@ -2,6 +2,61 @@
 
 ---
 
+## Sprint 82: WHELMED Vulkan Standalone + Hosted Rendering ✅
+
+**Date:** 2026-07-15
+**Duration:** 08:00+
+
+### Agents Participated
+- COUNSELOR: orchestration; root-cause investigation (Nexus construction-order bug, BinaryData wrapper template miss, shaderc weak-symbol coalescing); Pathfinder delegation for JFS/KANJUT reference patterns + WHELMED structure + cross-binary static leak trace; Researcher delegation for macOS dyld coalescing mechanism; independent verification of all subagent reports; direct stale-doc-ref fixes; direct audit finding resolution
+- Pathfinder: JFS VulkanEngine ownership pattern, WHELMED plugin structure, cross-binary static variable trace (Instance<T>, ComponentPeer, SharedResourcePointer, shaderc/glslang)
+- Researcher: macOS dyld weak-symbol coalescing mechanism — confirmed `RTLD_LOCAL` does NOT prevent weak-bind pass; confirmed `-load_hidden` as canonical ld64 fix
+- Engineer: WhelmedView VERBATIM rewrite, diagnostic instrumentation, PluginBuilder BinaryData template glob, shaderc static↔shared transitions, lexicon migration (ShaderCompiler.cpp + ShaderFormat.cpp), ShaderCompiler String/File compile overloads, WhelmedView String overload consumer, KANJUT PluginBuilder sync, Instance<T> STANDALONE branch removal
+- Auditor: full-contract audit (5 findings: diagnostics removal, Windows cmake type mismatch, stray literals, member order — all resolved)
+
+### Files Modified (20 total)
+**jam repo:**
+- `jam_vulkan/lexicon.md` — 4 new categories (shader, placeholder, template, glsl) + slangp in files; 24 new words
+- `jam_vulkan/shader/jam_VulkanShaderCompiler.h` — removed meshDefaultVertexTemplate/meshEdgeVertexTemplate static constexpr members; added String + File compile overloads
+- `jam_vulkan/shader/jam_VulkanShaderCompiler.cpp` — all file-scope string statics → Id:: references (41 Id:: usages); String + File compile overload implementations; samplerArrayLut constexpr → const (Id:: non-constexpr)
+- `jam_vulkan/bimap/jam_VulkanShaderFormat.cpp` — stray string literals → Id:: references (buffer, includeDirective, errorDirective, shadertoyWrapper, slangp)
+- `jam_vulkan/context/jam_VulkanGraphics.h:1085-1098` — stale doc refs → Id::meshDefaultVertex/Id::meshEdgeVertex
+- `jam_vulkan/resource/jam_VulkanShaderInstance.h:960` — stale doc ref → Id::meshDefaultVertex/Id::meshEdgeVertex
+- `jam_vulkan/context/jam_VulkanGraphicsMesh.cpp:158-168` — call sites → Id::meshDefaultVertex.toString()/Id::meshEdgeVertex.toString()
+- `jam_vulkan/resource/jam_VulkanShaderInstanceMesh.cpp:196-199` — same call-site update
+- `jam_lexicon/utils/jam_Instance.h` — STANDALONE branch removed entirely; thread-local LIFO unconditional (RFC resolution — fixes multi-instance crash where JUCE_STANDALONE_APPLICATION=1 in all formats)
+- `cmake/PluginBuilder.cmake` — jam_vulkan/shader/ templates embedded as BinaryData when jam_vulkan linked; shaderc stays static with if(NOT TARGET) guard
+- `cmake/AppBuilder.cmake` — shaderc linked via `-load_hidden` on macOS (prevents host executable's weak C++ symbols from dyld coalescing with plugin bundles)
+
+**end repo:**
+- `CMakeLists.txt` — `-Wl,-no_exported_symbols` added then replaced by surgical `-load_hidden` in AppBuilder
+
+**plugins repo:**
+- `whelmed/Source/WhelmedView.h` — SharedResourcePointer<VulkanEngine::Shared> as first member, ShaderComponent; diagnostic logScope added then removed (audit)
+- `whelmed/Source/WhelmedView.cpp` — String compile overload replaces ValueTree ceremony; diagnostics added then removed (audit)
+
+**kuassa repo:**
+- `___lib___/cmake/PluginBuilder.cmake` — shaderc: static restored (was briefly shared for testing); if(NOT TARGET) guard added; platform-conditional target type (SHARED macOS / STATIC Windows) then reverted to STATIC unconditional
+
+### Alignment Check
+- [x] BLESSED principles followed — **S** (SSOT): zero stray string statics in ShaderCompiler/ShaderFormat (all Id::); **B** (Bound): VulkanEngine::Shared lifetime via SharedResourcePointer member-order contract; **E** (Explicit): compile overloads expose the API consumers actually need (String for inline GLSL, File for project directories); **D** (Deterministic): -load_hidden deterministically prevents weak-symbol coalescing
+- [x] NAMES.md adhered — no improvised names; new Id:: entries from lexicon.md (24 words ratified by generator)
+- [x] MANIFESTO.md principles applied — all Auditor findings resolved same-sprint; Instance<T> RFC resolved
+
+### Problems Solved
+- **BinaryData wrapper template miss**: PluginBuilder did not embed jam_vulkan/shader/ templates (shadertoy_wrapper.frag, channel/scene macros, mesh vertex stages) — ShaderCompiler::compile failed with shaderc `#version` error. Fixed by adding template glob to PluginBuilder BinaryData, mirroring KANJUT's established pattern.
+- **Nexus construction-order bug** (prior sprint, carried forward): Nexus ctor ran services-fill before VulkanEngine existed — extracting to initialiseServices() called after initialiseVulkan() fixed permanently-null Services.
+- **macOS dyld weak-symbol coalescing**: host executable's statically-linked libshaderc_combined.a exported weak C++ symbols (templates, inline functions) that dyld coalesced with identical symbols in plugin bundles at load time, corrupting glslang's pool allocator. Confirmed by `-no_exported_symbols` test. Fixed surgically with `-load_hidden` on the shaderc archive in AppBuilder.
+- **Instance<T> STANDALONE branch**: JUCE shared-code architecture compiles all formats with JUCE_STANDALONE_APPLICATION=1 — the STANDALONE branch (single global pointer + uniqueness assert) crashed on second plugin instance. Resolved per KANJUT RFC: STANDALONE branch removed, thread-local LIFO unconditional.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 81: Lexicon Migration — Global Id:: Vocabulary Replaces Identifier.h/Bimap.h ✅
 
 **Date:** 2026-07-15
