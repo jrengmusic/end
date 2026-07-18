@@ -319,7 +319,7 @@ void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
                                       ? static_cast<float> (windowStyle.blur)
                                       : 0.0f };
 
-                jam::style::window::setMenu (safeComponent.getComponent(), baseColour);
+                jam::StyleWindow::setMenu (safeComponent.getComponent(), baseColour);
                 jam::BackgroundBlur::enable (safeComponent.getComponent(),
                                              static_cast<jam::BackgroundBlur::WindowFX> (windowStyle.fx),
                                              blur,

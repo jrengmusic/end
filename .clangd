@@ -21,7 +21,6 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_graphics=1
     - -DJUCE_MODULE_AVAILABLE_jam_gui=1
     - -DJUCE_MODULE_AVAILABLE_jam_lexicon=1
-    - -DJUCE_MODULE_AVAILABLE_jam_look_and_feel=1
     - -DJUCE_MODULE_AVAILABLE_jam_lua=1
     - -DJUCE_MODULE_AVAILABLE_jam_markdown=1
     - -DJUCE_MODULE_AVAILABLE_jam_mermaid=1
@@ -49,33 +48,27 @@ CompileFlags:
     - -DVMA_VULKAN_VERSION=1002000
     - -D_DEBUG=1
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/sdk/macOS/include
-    - -I/Users/jreng/Documents/Poems/dev/end/../../JUCE/modules/juce_graphics/fonts/harfbuzz
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/vma/include
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/shaderc/macOS/include
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
-    - -I/Users/jreng/Documents/Poems/JUCE/modules
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/VST3_SDK
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
-    - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/VST3_SDK
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -isystem
-    - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/moltenVK/include
-    - -isystem
-    - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/spirv-cross/macOS/include
+    - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/macOS/include
     - -g
     - -std=c++17
     - -arch

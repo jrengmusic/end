@@ -81,7 +81,8 @@ struct Nexus : jam::Instance<Nexus>
         sessions.erase (sessionUuid);
     }
 
-    std::unique_ptr<juce::AudioPluginInstance> createPlugin (const juce::String& pluginId)
+    void createPlugin (const juce::String& pluginId,
+                       std::function<void (std::unique_ptr<juce::AudioPluginInstance>)> callback)
     {
         if (pluginId.isNotEmpty())
         {
@@ -101,16 +102,22 @@ struct Nexus : jam::Instance<Nexus>
                     {
                         if (description->uniqueId == pluginId.hashCode())
                         {
-                            juce::String errorMessage;
-                            return formatManager.createPluginInstance (
-                                *description, virtualSampleRate, virtualBlockSize, errorMessage);
+                            formatManager.createPluginInstanceAsync (
+                                *description, virtualSampleRate, virtualBlockSize,
+                                [cb = std::move (callback)] (std::unique_ptr<juce::AudioPluginInstance> instance,
+                                                              const juce::String&)
+                                {
+                                    cb (std::move (instance));
+                                });
+
+                            return;
                         }
                     }
                 }
             }
         }
 
-        return nullptr;
+        callback (nullptr);
     }
 
     Session& getActiveSession()
@@ -138,10 +145,7 @@ struct Nexus : jam::Instance<Nexus>
         clock->blockSize = virtualBlockSize;
 
         if (auto* plugin { dynamic_cast<jam::clap::PluginInstance*> (&processor) })
-        {
-            plugin->onRequestProcess = [this, uuid] { pump (uuid); };
             clock->onThreadExit = [plugin] { plugin->stopProcessing(); };
-        }
 
         clock->startThread();
     }
@@ -160,12 +164,12 @@ struct Nexus : jam::Instance<Nexus>
         }
     }
 
-    void pump (jam::UUID uuid)
-    {
-        virtualClocks.at (uuid)->notify();
-    }
-
 private:
+    static constexpr double virtualSampleRate { 48000.0 };
+    static constexpr int virtualBlockSize { 512 };
+    static constexpr int blockPeriodMilliseconds { static_cast<int> (1000.0 * virtualBlockSize / virtualSampleRate) };
+    static constexpr const char* hostUrl { "https://jrengmusic.com" };
+
     struct VirtualClock : juce::Thread
     {
         VirtualClock() : juce::Thread ("VirtualClock") {}
@@ -181,7 +185,7 @@ private:
         {
             for (;;)
             {
-                wait (-1);
+                wait (blockPeriodMilliseconds);
 
                 if (threadShouldExit())
                 {
@@ -213,9 +217,6 @@ private:
     juce::AudioProcessorGraph graph;
     juce::AudioProcessorPlayer player;
     juce::AudioDeviceManager deviceManager;
-    static constexpr double virtualSampleRate { 48000.0 };
-    static constexpr int virtualBlockSize { 512 };
-    static constexpr const char* hostUrl { "https://jrengmusic.com" };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

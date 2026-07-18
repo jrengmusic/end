@@ -6,7 +6,6 @@ Root ValueTree type names and config-file section identifiers ConfigModel and Ma
 |---|---|
 | config | config |
 | display | display |
-| graphics | graphics |
 | hint | hint |
 | keys | keys |
 | menu | menu |
@@ -25,7 +24,6 @@ File extension tokens Files::Config/Files::Themes/Files::Flex append when compos
 | word | string |
 |---|---|
 | lua | lua |
-| svg | svg |
 
 ## common
 
@@ -68,7 +66,6 @@ theme.lua visual property keys — tab/pane/window chrome, font metrics, cursor/
 | labelText | label_text |
 | ligatures | ligatures |
 | lineHeight | line_height |
-| opacity | opacity |
 | overlay | overlay |
 | pane | pane |
 | resizerBar | resizer_bar |
@@ -86,8 +83,6 @@ theme.lua visual property keys — tab/pane/window chrome, font metrics, cursor/
 | textPadding | text_padding |
 | thumb | thumb |
 | track | track |
-| uppercase | uppercase |
-| window | window |
 
 ## keys
 
@@ -169,15 +164,6 @@ graphics.mouse nested config-table keys — interaction toggle and the imouse/or
 | orbit | orbit |
 | reset | reset |
 
-## backend
-
-theme.lua window_fx platform-select keys distinguishing the macOS/Windows sections of the window-effect material table.
-
-| word | string |
-|---|---|
-| mac | mac |
-| win | win |
-
 ## model
 
 ENDModel runtime state keys — focused session, viewport zoom, status message, and the hosted plugin identifier stamped onto a pane row.
@@ -198,7 +184,6 @@ Generic ValueTree property keys and a terminal-session type-name token that jam:
 | button | button |
 | enabled | enabled |
 | outline | outline |
-| padding | padding |
 | session | session |
 | visible | visible |
 

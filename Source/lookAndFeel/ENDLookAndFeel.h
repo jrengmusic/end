@@ -12,7 +12,7 @@
  * @class ENDLookAndFeel
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
- * Inherits jam::LookAndFeel::Methods for tab bar background, highlight, button,
+ * Inherits jam::style::Methods for tab bar background, highlight, button,
  * and pane edge rendering. Listens to both the config root ValueTree and the theme
  * subtree for live theme changes.
  *
@@ -23,7 +23,7 @@
  * through one code path.
  */
 class ENDLookAndFeel
-    : public jam::LookAndFeel::Methods<ENDLookAndFeel>
+    : public jam::style::Methods<ENDLookAndFeel>
     , public jam::Instance<ENDLookAndFeel>
     , public juce::ValueTree::Listener
 {

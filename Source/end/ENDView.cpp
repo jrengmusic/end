@@ -18,10 +18,10 @@ ENDView::ENDView (jam::Model& m)
 
     createAndAttachParameters();
 
-#if JUCE_DEBUG
-    widget.setFormats (ConfigModel::getValidators());
-#endif
-
+// #if JUCE_DEBUG
+//     widget.setFormats (ConfigModel::getValidators());
+// #endif
+//
     focusedPane.addListener (this);
     config.addListener (this);
     model.addListener (this);

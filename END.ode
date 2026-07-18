@@ -1,9 +1,98 @@
 
 **********************************************************
 
-Log started: 15 Jul 2026 5:36:47pm
+Log started: 19 Jul 2026 1:33:40am
 
+SURFTRACE createMetalLayerForView nsView=7d6017480 bounds=640x480 windowNil=0 scale=2
+SURFTRACE createContext handle=7d6017480 component=640x480 contexts=1
+SURFTRACE beginFrame selfHeal this=7d7320a00 layerSize=640x480 scale=2 physical=1280x960 swapchainExtent=1280x960 decision=proceed
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: mtllib: could not open /Users/jreng/.config/end/shaders/end/end-icon.mtl, using default material
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_4e8c93', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_00c8d8', using default
 jam::vulkan::ShaderCompiler::compile: /Users/jreng/.config/end/shaders/end/end.obj: usemtl: unknown material 'mat_0ff', using default
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::resized w=0 h=0 editorResizable=0
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::resized w=640 h=445 editorResizable=0
+SURFTRACE beginFrame selfHeal this=7d7320a00 layerSize=640x480 scale=2 physical=1280x960 swapchainExtent=1280x960 decision=proceed
+SURFTRACE HOST componentMovedOrResized w=10 h=10 applyingHostRequestedResize=0 peerNonNull=0 canResizeByDrag=0
+SURFTRACE HOST resizeToFit get_size w=800 h=600
+SURFTRACE HOST componentMovedOrResized w=800 h=600 applyingHostRequestedResize=0 peerNonNull=0 canResizeByDrag=1
+SURFTRACE HOST componentVisibilityChanged isShowing=1 w=800 h=600
+SURFTRACE HOST resizeToFit get_size w=800 h=600
+SURFTRACE HOST componentMovedOrResized w=800 h=600 applyingHostRequestedResize=0 peerNonNull=1 canResizeByDrag=1
+SURFTRACE HOST componentMovedOrResized adjust_size out w=800 h=600
+SURFTRACE HOST EditorView::resized w=640 h=445 editorResizable=1
+SURFTRACE HOST EditorView::childBoundsChanged w=640 h=445
+SURFTRACE HOST EditorView::resized w=640 h=445 editorResizable=1
+SURFTRACE HOST componentMovedOrResized w=640 h=445 applyingHostRequestedResize=0 peerNonNull=1 canResizeByDrag=1
+SURFTRACE HOST componentMovedOrResized adjust_size out w=640 h=445
+SURFTRACE HOST applyHostRequestedResize w=640 h=445
+SURFTRACE beginFrame selfHeal this=7d7320a00 layerSize=640x480 scale=2 physical=1280x960 swapchainExtent=1280x960 decision=proceed
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::resized w=640 h=648 editorResizable=1
+SURFTRACE HOST EditorView::childBoundsChanged w=640 h=648
+SURFTRACE HOST EditorView::resized w=640 h=648 editorResizable=1
+SURFTRACE HOST componentMovedOrResized w=640 h=648 applyingHostRequestedResize=0 peerNonNull=1 canResizeByDrag=1
+SURFTRACE HOST componentMovedOrResized adjust_size out w=640 h=648
+SURFTRACE HOST applyHostRequestedResize w=640 h=648
+SURFTRACE resize this=7d7320a00 oldExtent=1280x960 newW=640 newH=683 scale=2
+SURFTRACE updateMetalLayerFrame layer=7d7aa0690 w=640 h=683 scale=2
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::resized w=640 h=1138 editorResizable=1
+SURFTRACE HOST EditorView::childBoundsChanged w=640 h=1138
+SURFTRACE HOST EditorView::resized w=640 h=1138 editorResizable=1
+SURFTRACE HOST componentMovedOrResized w=640 h=1138 applyingHostRequestedResize=0 peerNonNull=1 canResizeByDrag=1
+SURFTRACE HOST componentMovedOrResized adjust_size out w=640 h=1138
+SURFTRACE HOST applyHostRequestedResize w=640 h=1138
+SURFTRACE resize this=7d7320a00 oldExtent=1280x1366 newW=640 newH=1173 scale=2
+SURFTRACE updateMetalLayerFrame layer=7d7aa0690 w=640 h=1173 scale=2
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::childBoundsChanged w=24 h=24
+SURFTRACE HOST EditorView::resized w=640 h=1611 editorResizable=1
+SURFTRACE HOST EditorView::childBoundsChanged w=640 h=1611
+SURFTRACE HOST EditorView::resized w=640 h=1611 editorResizable=1
+SURFTRACE HOST componentMovedOrResized w=640 h=1611 applyingHostRequestedResize=0 peerNonNull=1 canResizeByDrag=1
+SURFTRACE HOST componentMovedOrResized adjust_size out w=640 h=1611
+SURFTRACE HOST applyHostRequestedResize w=640 h=1611
+SURFTRACE resize this=7d7320a00 oldExtent=1280x2346 newW=640 newH=1646 scale=2
+SURFTRACE updateMetalLayerFrame layer=7d7aa0690 w=640 h=1646 scale=2
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00108337 totalMs=24.7697
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00141668 totalMs=56.1128
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00104165 totalMs=43.8861
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000625134 totalMs=67.9037
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00370836 totalMs=58.455
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00212502 totalMs=41.4191
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000625134 totalMs=51.5869
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000458241 totalMs=45.2501
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000374794 totalMs=40.916
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00179172 totalMs=61.3505
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00141644 totalMs=54.3177
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00458336 totalMs=47.2888
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00141668 totalMs=64.7974
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00100017 totalMs=57.3544
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.0027082 totalMs=59.2182
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00337505 totalMs=57.0068
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00200009 totalMs=51.398
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00112486 totalMs=45.1558
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000833273 totalMs=55.4945
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00475001 totalMs=66.0202
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000999928 totalMs=48.2841
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.0023334 totalMs=42.8536
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00254178 totalMs=39.9846
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00145841 totalMs=50.0836
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00129175 totalMs=64.607
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00145841 totalMs=51.2337
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00104165 totalMs=24.65
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00149989 totalMs=36.0972
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00358343 totalMs=32.0076
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.00133324 totalMs=20.0748
+SURFTRACE beginFrame slow this=7d7320a00 preAcquireMs=0.000249863 totalMs=30.6842
+SURFTRACE removePeer handle=7d6017480 contexts=0

@@ -23,6 +23,9 @@ void EditorView::resized()
 {
     jam::PaneComponent::resized();
 
+    jam::debug::Log::write ("SURFTRACE HOST EditorView::resized w=" + juce::String (getLocalBounds().getWidth()) + " h=" + juce::String (getLocalBounds().getHeight())
+        + " editorResizable=" + juce::String (static_cast<int> (editor != nullptr ? editor->isResizable() : false)));
+
     if (editor != nullptr)
     {
         if (editor->isResizable())
@@ -34,6 +37,8 @@ void EditorView::resized()
 
 void EditorView::childBoundsChanged (juce::Component* child)
 {
+    jam::debug::Log::write ("SURFTRACE HOST EditorView::childBoundsChanged w=" + juce::String (child->getBounds().getWidth()) + " h=" + juce::String (child->getBounds().getHeight()));
+
     if (child == editor.get())
         resized();
 }

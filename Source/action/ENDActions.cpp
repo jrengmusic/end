@@ -67,17 +67,19 @@ void ENDView::registerActions()
         Id::newPlugin,
         [this] (jam::UUID uuid)
         {
-            auto instance { nexus.createPlugin (whelmedPluginId) };
-
-            if (instance != nullptr)
-            {
-                nexus.createVirtualClock (uuid, *instance);
-                nexus.getActiveSession().newPlugin (uuid, whelmedPluginId, std::move (instance));
-            }
-            else
-            {
-                nexus.getActiveSession().newPlugin (uuid, {}, nullptr);
-            }
+            nexus.createPlugin (whelmedPluginId,
+                [this, uuid] (std::unique_ptr<juce::AudioPluginInstance> instance)
+                {
+                    if (instance != nullptr)
+                    {
+                        nexus.createVirtualClock (uuid, *instance);
+                        nexus.getActiveSession().newPlugin (uuid, whelmedPluginId, std::move (instance));
+                    }
+                    else
+                    {
+                        nexus.getActiveSession().newPlugin (uuid, {}, nullptr);
+                    }
+                });
         });
 
     actions.actions.add (Id::closeTab,

@@ -20,8 +20,8 @@
  *
  *  Inherits jam::Window. Style (tint colour, blur radius, WindowFX, traffic-light
  *  visibility) is applied in lookAndFeelChanged(), which reads the four values
- *  from ENDLookAndFeel and inlines the primitives (jam::style::window::apply,
- *  jam::BackgroundBlur::enable, jam::style::window::setButtons). No config listener.
+ *  from ENDLookAndFeel and inlines the primitives (jam::StyleWindow::apply,
+ *  jam::BackgroundBlur::enable, jam::StyleWindow::setButtons). No config listener.
  *
  *  Ownership: constructed and owned by ENDApplication.
  */
@@ -42,8 +42,8 @@ public:
 
     /** @brief Applies window style from the LAF when theme properties change.
      *  Reads colour, blur, FX, and windowButtons from ENDLookAndFeel::getWindowStyle()
-     *  and inlines jam::style::window::apply, jam::BackgroundBlur::enable, and
-     *  jam::style::window::setButtons.
+     *  and inlines jam::StyleWindow::apply, jam::BackgroundBlur::enable, and
+     *  jam::StyleWindow::setButtons.
      */
     void lookAndFeelChanged() override;
 

@@ -70,7 +70,7 @@ private:
 
 //==============================================================================
 #if JUCE_DEBUG
-    jam::debug::Widget widget { this, model.state, false };
+    // jam::debug::Widget widget { this, model.state, false };
 #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDView)
