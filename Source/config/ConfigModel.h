@@ -41,18 +41,18 @@ public:
      *
      *  Locates the shader directory via @c Id::Files::Shaders::getPath, then reads
      *  that directory's own @c .slangp manifest (any filename, extension-only
-     *  discovery via @c jam::vulkan::ShaderFormat::getExtension() — only
+     *  discovery via @c jam::VulkanShaderFormat::getExtension() — only
      *  @c slang carries a manifest-extension entry, the SAME wildcard both
-     *  this detection and @c jam::vulkan::ShaderFormat's own directory readers
-     *  resolve through) and parses it via @c jam::vulkan::ShaderPreset::parse()
+     *  this detection and @c jam::VulkanShaderFormat's own directory readers
+     *  resolve through) and parses it via @c jam::VulkanShaderPreset::parse()
      *  — the ONE lex both this detection and those readers share, never a
      *  second, independently hand-rolled scan. Format is content-derived from
      *  the parsed result: a non-empty @c preset.passes (a @c shaders=
-     *  directive present) is @c jam::vulkan::ShaderFormat::slang; an absent
+     *  directive present) is @c jam::VulkanShaderFormat::slang; an absent
      *  @c .slangp, or one with no passes at all (an END-extension resource
-     *  manifest carrying only @c textures=/mesh=), is @c jam::vulkan::
-     *  ShaderFormat::shadertoy. The resolved format ordinal is then handed to
-     *  @c jam::vulkan::ShaderFormat::load(), which owns both formats' own
+     *  manifest carrying only @c textures=/mesh=), is @c jam::
+     *  VulkanShaderFormat::shadertoy. The resolved format ordinal is then handed to
+     *  @c jam::VulkanShaderFormat::load(), which owns both formats' own
      *  directory-to-ValueTree reading (shadertoy's fixed Common/Image/BufferX
      *  @c .frag files, plus its own @c .slangp resource-manifest text when one
      *  exists; slang's own @c .slangp @c shaders/shaderN directive parsing) —
@@ -60,16 +60,16 @@ public:
      *
      *  The read tree is overlaid onto @c state via @c setValuesFrom, and
      *  @c Id::shaderFormat is stamped with the resolved format ordinal (a plain
-     *  int — @c jam::vulkan::ShaderFormat::shadertoy or @c ::slang) so callers
+     *  int — @c jam::VulkanShaderFormat::shadertoy or @c ::slang) so callers
      *  always read a definite, resolved format — never an empty or missing
      *  value, even before any project has ever been loaded. @c Id::path
      *  is also stamped at @c state's own root level with @p dir's own full
-     *  path, so @c jam::vulkan::ShaderCompiler::compile() can absolutize every
+     *  path, so @c jam::VulkanShaderCompiler::compile() can absolutize every
      *  parsed @c textures=/mesh= path against it (both are as-written,
      *  relative to the project directory).
      *
      *  Fires @c state.sendPropertyChangeMessage(Id::toType (Id::graphics)) so downstream
-     *  listeners (jam::vulkan::ShaderCompiler, via ENDView's funnels) pick up the
+     *  listeners (jam::VulkanShaderCompiler, via ENDView's funnels) pick up the
      *  new source.
      *
      *  @param path    Active shader project name from ConfigModel.
@@ -183,7 +183,7 @@ private:
     @see ConfigTheme
     @see ConfigShader
     @see jam::Model
-    @see jam::lua::Validators
+    @see jam::LuaValidators
     @see ENDApplication
 */
 class ConfigModel
@@ -204,9 +204,9 @@ private:
     // resolves inside the stored lambda, at check-time, not at this function's
     // own call time — Id::Lexicon does not exist yet that early.
     template<typename Bimap>
-    static jam::lua::Validator getValidator()
+    static jam::LuaValidator getValidator()
     {
-        return jam::lua::Validator { [] (const juce::var& value)
+        return jam::LuaValidator { [] (const juce::var& value)
                                      {
                                          return value.isString()
                                                 and Bimap::getInstance()->contains (value.toString());
@@ -230,15 +230,15 @@ public:
         Type-based predicates for all other properties are appended by
         @c jam::Model::fromLua during the init-list build walk.
     */
-    static jam::lua::Validators& getValidators()
+    static jam::LuaValidators& getValidators()
     {
-        static jam::lua::Validators validators = []
+        static jam::LuaValidators validators = []
         {
-            jam::lua::Validators v;
+            jam::LuaValidators v;
 
             const auto& add = [&v] (juce::Identifier treeType,
                                     juce::Identifier propertyName,
-                                    jam::lua::Validator validator)
+                                    jam::LuaValidator validator)
             {
                 auto [treeEntry, inserted] = v.try_emplace (treeType);
                 auto& [treeKey, treeValidators] = *treeEntry;
@@ -263,7 +263,7 @@ public:
             add (Id::toType (Id::mouse), Id::orbit, getValidator<Id::MouseButton>());
             add (Id::toType (Id::mouse), Id::reset, getValidator<Id::MouseButton>());
 
-            jam::lua::Validator sizeFormat;
+            jam::LuaValidator sizeFormat;
             sizeFormat.format = [] (const juce::var& v)
             {
                 const auto [width, height] = jam::Size<int16_t> { v };
@@ -271,7 +271,7 @@ public:
             };
             add (Id::toType (Id::window), Id::size, sizeFormat);
 
-            jam::lua::Validator boundsFormat;
+            jam::LuaValidator boundsFormat;
             boundsFormat.format = jam::Format::fromBounds;
             add (Id::toType (Id::pane), Id::bounds, boundsFormat);
 

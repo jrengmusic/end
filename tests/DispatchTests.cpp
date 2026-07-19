@@ -92,7 +92,7 @@ TEST_CASE ("?1049h switches to a cleared alternate screen; ?1049l restores norma
     t.feed ("\x1b[?1049h");
     REQUIRE (t.cell (0, 0, Id::Screen::alternate).codepoint() == 0);   // cleared
 
-    // setScreen() (jam_VideoEdit.cpp) does not reset the cursor to origin —
+    // setScreen() (jam_TerminalVideoEdit.cpp) does not reset the cursor to origin —
     // only clamps it to bounds. The alt-screen write lands where the
     // pre-switch cursor was: (row 2, col 2).
     t.feed ("alt");

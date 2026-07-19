@@ -136,6 +136,7 @@ configure_app(
         $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>
         JUCE_PLUGINHOST_VST3=1
         $<$<PLATFORM_ID:Darwin>:JUCE_PLUGINHOST_AU=1>
+        JAM_VULKAN_RUNTIME_SHADER_COMPILER=1
 )
 
 # ============================================================================

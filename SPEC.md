@@ -157,10 +157,10 @@ The old pattern used `DisplayCallbacks` — a struct of `std::function` closures
 
 ### 1.8 Rendering Engine — First-Class Vulkan Architecture (RESOLVED in Phase 4)
 
-`jam::VulkanEngine` (Application-owned, via `end::Application::vulkanEngine`) is the application's rendering authority — not a bolt-on, but first-class architecture, and the unified resource-ownership tree for the Vulkan rendering backend. It owns six singular/interning members — the shared `jam::vulkan::Device` (one per application), the `jam::Typeface`/`jam::Stamp`/`jam::Grapheme`/`jam::Link` `SharedResources<T>` interning tables, and the shared `jam::GlyphAtlas` (one per application) — plus the per-window `jam::vulkan::Graphics` collection. Member-declaration order inside `jam::VulkanEngine` governs teardown (reverse-order destruction): Device first (destructs last, since every GPU resource depends on it), then Typeface/Stamp/Grapheme/Link, then GlyphAtlas, then the per-window Graphics collection.
+`jam::VulkanEngine` (Application-owned, via `end::Application::vulkanEngine`) is the application's rendering authority — not a bolt-on, but first-class architecture, and the unified resource-ownership tree for the Vulkan rendering backend. It owns six singular/interning members — the shared `jam::VulkanDevice` (one per application), the `jam::Typeface`/`jam::Stamp`/`jam::Grapheme`/`jam::Link` `SharedResources<T>` interning tables, and the shared `jam::GlyphAtlas` (one per application) — plus the per-window `jam::VulkanGraphics` collection. Member-declaration order inside `jam::VulkanEngine` governs teardown (reverse-order destruction): Device first (destructs last, since every GPU resource depends on it), then Typeface/Stamp/Grapheme/Link, then GlyphAtlas, then the per-window Graphics collection.
 
 **Dual-engine dispatch (never-null factory pattern):**
-- GPU path: `jam::vulkan::LowLevelGraphicsContext` (Vulkan LLGC) on available hardware
+- GPU path: `jam::VulkanLowLevelGraphicsContext` (Vulkan LLGC) on available hardware
 - CPU fallback: `jam::LowLevelGraphicsGlyphRenderer` (software rasterizer with shared atlas) when GPU unavailable/disabled
 
 `VulkanEngine::createContext()` (installed as `juce::ComponentPeer::externalContextFactory`) **never returns nullptr** — JUCE's default renderers are structurally unreachable.
@@ -682,7 +682,7 @@ User-configurable multi-format shader pipeline (background + post-process) with 
 - **Vulkan SPIR-V compilation** — `shaderc` (vendored) compiles GLSL/SPIRV sources; pipeline cache persisted, driver/OS updates silently invalidate
 - **Resource loader** ✅ — extra resources (OBJ geometry, external image LUTs) loadable within shaders via a per-project `.slangp` resource manifest (`textures=`/`mesh=`, content-based format detection, name-based Shadertoy channel binding)
   - OBJ loader (`jam::WavefrontObj`) — triangulated meshes, vertex-pulling SSBO upload, auto-fit orbit camera, offscreen depth-tested gather target composited back into the existing combine pipeline
-  - Image sampler binding — external LUT textures (`jam::vulkan::BindlessTexture`) resolved by name into the bindless set (Shadertoy channel macros or slang reflected texture names)
+  - Image sampler binding — external LUT textures (`jam::VulkanBindlessTexture`) resolved by name into the bindless set (Shadertoy channel macros or slang reflected texture names)
   - Per-pass resource lifecycle — LUTs and mesh GPU resources owned per `ShaderInstance`, released with it
 
 **Shader framework features:**

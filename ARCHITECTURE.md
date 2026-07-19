@@ -24,7 +24,7 @@ END is a **JUCE GUI application** that renders terminal output. See SPEC.md Sect
 | **Stamp** | `jam::Stamp` | `jam::VulkanEngine` member | `jam::Stamp::getInstance()` |
 | **Grapheme** | `jam::Grapheme` | `jam::VulkanEngine` member | `jam::Grapheme::getInstance()` |
 | **Link** | `jam::Link` | `jam::VulkanEngine` member | `jam::Link::getInstance()` |
-| **Device** | `jam::vulkan::Device` | `jam::VulkanEngine` member | `jam::vulkan::Device::getInstance()` |
+| **Device** | `jam::VulkanDevice` | `jam::VulkanEngine` member | `jam::VulkanDevice::getInstance()` |
 | **GlyphAtlas** | `jam::GlyphAtlas` | `jam::VulkanEngine` member | `jam::GlyphAtlas::getInstance()` |
 
 `end::Application` declares `vulkanEngine` (`std::unique_ptr<jam::VulkanEngine>`) **after** `lookAndFeel`, **before** `window` (Main.h). Destruction order is reverse: window → vulkanEngine (which itself tears down, in reverse member-declaration order: contexts → glyphAtlas → link/grapheme/stamp/typeface → device) → lookAndFeel, ensuring every consumer is torn down before its dependencies.
@@ -116,7 +116,7 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 | **Reader** (TTY) | high | terminal::Model atomics, Buffer\<Row\> cells, CellFifo push | Raw PTY bytes | ValueTree, CodeModel, mutex, allocation, block |
 | **Timer** (JUCE) | default | terminal::Model's ValueTree properties (flush dirty atomics) | `needsFlush` atomic on terminal::Model | Buffer\<Row\>, CodeModel |
 | **Message** (main) | user-interactive | terminal::Model ValueTree, CodeModel mutations (drain) | terminal::Model ValueTree (listener), CellFifo drain | Atomics (except flush) |
-| **Message** (Vulkan paint) | user-interactive | Vulkan command buffer recording, swapchain/pipeline/atlas-image creation (`jam::vulkan::Graphics`), glyph rasterization + dirty-flag clears (`jam::GlyphAtlas`, MESSAGE THREAD only) | Component paint bounds, glyph/font state | Buffer\<Row\>, atomics (except flush) |
+| **Message** (Vulkan paint) | user-interactive | Vulkan command buffer recording, swapchain/pipeline/atlas-image creation (`jam::VulkanGraphics`), glyph rasterization + dirty-flag clears (`jam::GlyphAtlas`, MESSAGE THREAD only) | Component paint bounds, glyph/font state | Buffer\<Row\>, atomics (except flush) |
 
 There is **no dedicated GPU thread** — the entire Vulkan pipeline (and the CPU-fallback renderer) runs synchronously inside JUCE's paint dispatch on the message thread.
 
@@ -447,10 +447,10 @@ as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
   `jam::VulkanEngine::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
   `createContext()` dispatches to per paint, never whether the VulkanEngine, its Device, or
   the shared atlas exist. The atlas and every registered typeface survive GPU toggles.
-- VulkanEngine owns: the shared `jam::vulkan::Device` (one `vk::Instance`/`vk::Device`/
+- VulkanEngine owns: the shared `jam::VulkanDevice` (one `vk::Instance`/`vk::Device`/
   `vk::Queue`/VMA allocator per application), the shared `jam::Typeface`/`jam::Stamp`/
   `jam::Grapheme`/`jam::Link` interning tables, the shared `jam::GlyphAtlas`, and per-window
-  `jam::vulkan::Graphics` instances keyed by native window handle.
+  `jam::VulkanGraphics` instances keyed by native window handle.
 
 ### Vulkan Vocabulary — vulkan-hpp (plain vk::)
 
@@ -484,7 +484,7 @@ jam_vulkan speaks vulkan-hpp exclusively — no raw C Vulkan API anywhere in mod
 VulkanEngine::createContext (peer)
   gpuEnabled and GpuProbe available and device valid
     → lazily create per-window Graphics; resize swapchain on extent mismatch
-    → beginFrame() + beginRenderPass() → jam::vulkan::LowLevelGraphicsContext
+    → beginFrame() + beginRenderPass() → jam::VulkanLowLevelGraphicsContext
   otherwise (categorically unavailable, disabled, or transient begin failure)
     → jam::LowLevelGraphicsGlyphRenderer (CPU fallback)
 ```
@@ -507,7 +507,7 @@ the GPU path by construction.
 - **Bindless images** — set 1 is a `texture2D[]` sampled-image array (UPDATE_AFTER_BIND,
   partially bound) + one shared linear sampler. Each texture gets a stable array slot at
   upload; no per-draw descriptor allocation. Slot bookkeeping is per-window (per Graphics)
-  — the atlas's `vk::Image`s are shared, their array slots are not. `jam::vulkan::BindlessTexture`
+  — the atlas's `vk::Image`s are shared, their array slots are not. `jam::VulkanBindlessTexture`
   (below) formalizes this shared-image/per-window-slot split as a reusable type — the glyph
   atlas and every external-texture (LUT) producer are both its consumers.
 - **Push constants** — one shared 40-byte block: `colour` (opacity pre-multiplied into
@@ -577,17 +577,17 @@ its state tree; hot reload = init path):
 file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing event
   → View funnel — full recompile (setBackground / setPostProcess) or cheap
     param-only path (setBackgroundParams / setPostProcessParams)
-  → jam::vulkan::ShaderCompiler (shaderc, vendored + isolated in jam_vulkan) → jam::vulkan::Shader → consumer
+  → jam::VulkanShaderCompiler (shaderc, vendored + isolated in jam_vulkan) → jam::VulkanShader → consumer
 ```
 
-- **`jam::vulkan::Shader`** — POD descriptor, pure data: `jam::Owner<ShaderPass>`
+- **`jam::VulkanShader`** — POD descriptor, pure data: `jam::Owner<ShaderPass>`
   (`ShaderPass{name, spirv}`, name-hashed for O(1) lookup) + `contentHash` (wyhash over all pass
   names+bytes — content-derived identity, no counter; identical recompile = cache hit).
   Public const fields, zero getters. Presentation params (opacity, resolution, frame rate)
   are NOT in the descriptor — they travel explicitly (`render (g, shader, opacity,
   resolution)`, `setShader`/`setParams`, `setPostProcess`/`setPostProcessParams`), so
   param-only config changes never recompile.
-- **`jam::vulkan::ShaderCompiler`** (`jam_vulkan/shader/jam_VulkanShaderCompiler.{h,cpp}`) wraps
+- **`jam::VulkanShaderCompiler`** (`jam_vulkan/shader/jam_VulkanShaderCompiler.{h,cpp}`) wraps
   each pass with the engine-owned prelude (set-0 bindless declarations, `ShaderUniforms`
   push-constant block — byte-exact mirror of `jam_VulkanShaderUniforms.h`, `channels[21]`
   array —, one named sampler macro per buffer pass (`texture (BufferA, uv)`) + `iChannel0-3`
@@ -610,17 +610,17 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
   background prelude omits the `iScene` macro — using it there is a compile error.
   `iScene` on the post-process path resolves to the engine's `straightAlphaImage`
   (see below), never the premultiplied scene directly.
-- **`jam::vulkan::ShaderComponent`** — generic JUCE component in jam_vulkan (knows nothing
+- **`jam::VulkanShaderComponent`** — generic JUCE component in jam_vulkan (knows nothing
   of config/gpu), bottom-most View child: owns its `Shader` + repaint timer (`frame_rate`
   Hz, running only while a shader is installed). `paint()` = `render (g, *shader, opacity,
   resolution)`. View tells (`setShader`/`setParams`), never pokes `repaint()`/timer.
   GPU off or empty project → View installs nullptr; the shader never exists.
-- **`jam::vulkan::render (g, shader, opacity, resolution)`** — the injection seam
+- **`jam::render (g, shader, opacity, resolution)`** — the injection seam
   (`paint` = geometry/image/text, `render` = shader): downcasts `g.getInternalContext()`
   to the Vulkan LLGC; buffer passes record offscreen mid-paint (scene pass suspended via
   `endRenderPass()`/`resumeRenderPass()`, the TransparencyStack technique), then the Image
   pass draws at the current clip bounds in paint order, full resolution, stencil untouched.
-- **`jam::vulkan::ShaderInstance`** — per-window GPU realization of a Shader, cached by
+- **`jam::VulkanShaderInstance`** — per-window GPU realization of a Shader, cached by
   `contentHash` + scaled extent (pipelines from runtime SPIR-V, one ping-pong image pair
   per buffer pass — every buffer pass ping-pongs, Image-pass pipeline lazily built per
   target render pass + sample count). Stale entries move to `previousShaderInstances`
@@ -650,20 +650,20 @@ file change (lua/GLSL) → CONFIG state → ID::background / ID::postProcessing 
   selects the sampler baked into the prelude — bindless set binding 2 carries the nearest
   sampler alongside binding 1's linear.
 
-### External Textures — `jam::vulkan::BindlessTexture` + Resource Manifest
+### External Textures — `jam::VulkanBindlessTexture` + Resource Manifest
 
-**`jam::vulkan::BindlessTexture`** (`jam_vulkan/resource/`) — the shared GPU-resident-texture
-type: owns one `jam::vulkan::Image` + a per-window bindless-slot registry
+**`jam::VulkanBindlessTexture`** (`jam_vulkan/resource/`) — the shared GPU-resident-texture
+type: owns one `jam::VulkanImage` + a per-window bindless-slot registry
 (`jam::HashMap<void*, int>`, keyed by native window handle — the atlas's own shared-image/
 per-window-slot split, formalized) + the caller-staged upload/re-upload (`upload()`:
 memcpy into the caller's already-reserved staging-arena region, barrier → buffer-to-image
 copy → barrier; re-upload re-copies into the existing image, never reallocates — VMA has
 no in-place image update). It assigns no slot and writes no descriptor itself —
-`jam::vulkan::Graphics` remains the orchestrator (`assignBindlessIndex()` +
+`jam::VulkanGraphics` remains the orchestrator (`assignBindlessIndex()` +
 `writeBindlessTextureDescriptor()`), recording the result back via
 `registerBindlessIndex()`. One SSOT upload path, two producers:
 - **The glyph atlas** — `jam::GlyphAtlas::gpuImages` is a `jam::HashMap<Type,
-  jam::vulkan::BindlessTexture>` (one per atlas GPU slot type); the atlas no longer owns its
+  jam::VulkanBindlessTexture>` (one per atlas GPU slot type); the atlas no longer owns its
   own upload/slot-bookkeeping copy, it is a `BindlessTexture` consumer.
 - **The file-decoder path** — `juce::ImageFileFormat::loadFrom` → `BitmapData` →
   `BindlessTexture::upload()`, DEVICE_LOCAL + DEDICATED for static LUTs — the second producer
@@ -679,7 +679,7 @@ resource-manifest-only `.slangp` — `textures=` (`a=path`, `a_linear`, `a_wrap_
 
 Format itself is content-derived (`config::Shader::loadFromPath()`, `Source/config/
 Config.cpp`): the directory's own `.slangp` (when one exists) is parsed via
-`jam::vulkan::ShaderPreset::parse()` — the ONE lex every reader shares — and a parsed result
+`jam::VulkanShaderPreset::parse()` — the ONE lex every reader shares — and a parsed result
 with one or more passes is `slang`; an absent `.slangp`, or a zero-pass one, is `shadertoy`.
 
 Channel binding is name-based: an entry literally named `iChannel2` binds that reference
@@ -692,8 +692,8 @@ a field.
 
 `mesh=` is an END-extension key (not RetroArch vocabulary) carried in the same manifest for
 both formats — its value (an OBJ path, relative to the project directory, the same
-absolutization as every `textures=` path) becomes `jam::vulkan::ShaderPreset::meshPath`, read
-by `ShaderCompiler::compile()` into `jam::vulkan::Shader::meshPath`.
+absolutization as every `textures=` path) becomes `jam::VulkanShaderPreset::meshPath`, read
+by `ShaderCompiler::compile()` into `jam::VulkanShader::meshPath`.
 
 **External-texture (LUT) pipeline** — name resolution differs per format, same manifest data:
 - **Shadertoy** — `ShaderCompiler::channelMacros()` emits one `#define` per named texture,
@@ -703,7 +703,7 @@ by `ShaderCompiler::compile()` into `jam::vulkan::Shader::meshPath`.
   against `execution.getExternalTextures()` **first**, before the engine's own
   `PassOutputN`/`Original`/`Source` vocabulary — a manifest LUT name is first-class, the same
   standing as an author's own pass alias.
-- **`jam::vulkan::ShaderInstance`** owns each execution's LUT `BindlessTexture`s
+- **`jam::VulkanShaderInstance`** owns each execution's LUT `BindlessTexture`s
   (`externalTextures`, keyed by name) and their resolved channel slots
   (`externalTextureChannels`) — but builds neither itself; `Graphics::ensureShaderInstance()`'s
   post-build orchestration calls `Graphics::buildExternalTexture()` (needs the staging
@@ -735,8 +735,8 @@ fatal condition is an unreadable `mtllib` file, surfaced as a `juce::Result` fai
 triangulation, since `jam_vulkan` already depends on `jam_graphics` (one dependency direction
 only — the reverse is forbidden).
 
-**GPU upload** — `jam::vulkan::Vertex` POD (`position[3]` + `normal[3]` + `uv[2]`) +
-`jam::vulkan::Mesh` (`jam_vulkan/resource/`) interleave every `WavefrontObj::Shape`'s SoA
+**GPU upload** — `jam::VulkanVertex` POD (`position[3]` + `normal[3]` + `uv[2]`) +
+`jam::VulkanMesh` (`jam_vulkan/resource/`) interleave every `WavefrontObj::Shape`'s SoA
 geometry into ONE device-local vertex-pulling SSBO (`eStorageBuffer | eTransferDst` — **not**
 `eVertexBuffer`; the mesh-backed pass reads `{position, normal, uv}` out of this SSBO manually,
 indexed by `gl_VertexIndex`, no `vkCmdBindVertexBuffers` call anywhere in the consumption path)
@@ -750,7 +750,7 @@ the object's AABB (the auto-fit camera's consumer, below) and one `MaterialRange
 shape — the mesh-backed draw loop iterates these to bind/stamp each shape's material for its
 own index sub-range.
 
-**`jam::vulkan::OrbitCamera`** (`jam_vulkan/resource/`) — pure glm math + interaction, no
+**`jam::VulkanOrbitCamera`** (`jam_vulkan/resource/`) — pure glm math + interaction, no
 `vk::` handles:
 - `computeAutoFitModelMatrix()` — static, called exactly once by `ShaderInstance::build()`
   from the built `Mesh`'s own AABB: recenters the box onto the origin and uniformly scales it
@@ -759,7 +759,7 @@ own index sub-range.
   comfortable unit-ish cube by the time any camera sees it; the interactive camera below needs
   no AABB backchannel of its own.
 - The interactive orbit (`addOrbitDelta()`) is `OrbitCamera`'s own method, driven by
-  `jam::vulkan::ShaderComponent`'s own gesture state machine (`mouseDrag()` — the SAME
+  `jam::VulkanShaderComponent`'s own gesture state machine (`mouseDrag()` — the SAME
   `juce::Component` override this component's own direct-hit path already used, invoked
   as a `juce::MouseListener` callback once `end::View` registers it via
   `addMouseListener (&background, true)`, mirroring the SAME event stream its iMouse
@@ -821,7 +821,7 @@ submits + presents only when the count reaches zero.
 | `Graphics::endFrame()` (submit + present) / CPU fallback native presentation | MESSAGE (LLGC destructor) |
 | `LookAndFeel` font-config handlers (atlas rebuild) | MESSAGE (VT listener) |
 | View shader funnels (`setBackground`/`setPostProcess`, shaderc compile) | MESSAGE (VT listener) |
-| `jam::vulkan::ShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
+| `jam::VulkanShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
 
 ---
 

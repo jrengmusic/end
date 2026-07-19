@@ -58,7 +58,7 @@ private:
     SessionView* getActiveSessionView() noexcept;
 
     //==============================================================================
-    jam::vulkan::ShaderComponent background;
+    jam::VulkanShaderComponent background;
 
     jam::HashMap<jam::UUID, std::unique_ptr<SessionView>> sessions;
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
@@ -70,7 +70,7 @@ private:
 
 //==============================================================================
 #if JUCE_DEBUG
-    // jam::debug::Widget widget { this, model.state, false };
+    // jam::DebugWidget widget { this, model.state, false };
 #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDView)

@@ -227,17 +227,17 @@ TEST_CASE ("keycap sequence folds VS16 + combining enclosing keycap into the dig
 // Mode 2027 (GRAPHEME_CLUSTERING) — DECSET / DECRST / DECRQM + gate behavior
 // ============================================================================
 //
-// CONFORMANCE FINDING RESOLVED: the DFA (jam_Transition.h buildCSIEntry/buildCSIParam/
+// CONFORMANCE FINDING RESOLVED: the DFA (jam_TerminalTransition.h buildCSIEntry/buildCSIParam/
 // buildCSIIntermediate) collects '$' (0x24) as an intermediate byte and
 // delivers 'p'/'q' (0x70/0x71) as `finalByte` for `CSI ? Pm $ p` (DECRQM) /
-// `CSI Pd $ q` (DECRQSS). `signalCSI()` (jam_VideoCSI.cpp) now carries
-// `case Sequence::requestMode:` (`'p'`, guarded by `inter[0] == Sequence::privateMarker`)
+// `CSI Pd $ q` (DECRQSS). `signalCSI()` (jam_TerminalVideoCSI.cpp) now carries
+// `case TerminalSequence::requestMode:` (`'p'`, guarded by `inter[0] == TerminalSequence::privateMarker`)
 // routing to `sendModeReport()`, and the DECSCUSR case (`finalByte == 'q'`)
-// gained an `inter[0] == Sequence::dollar` branch routing to
+// gained an `inter[0] == TerminalSequence::dollar` branch routing to
 // `sendStatusString()` (DECRQSS shares 'q' with DECSCUSR, disambiguated by
 // the '$' intermediate) — the dead `STATUS` constant (`'$'`,
 // unreachable as a final byte per the same DFA) was deleted and replaced
-// with `Sequence::requestMode`. The REQUIRE assertions below encode the
+// with `TerminalSequence::requestMode`. The REQUIRE assertions below encode the
 // CORRECT/expected DECRQM response per the module's own doc table and xterm
 // ctlseqs and now exercise the live, reachable dispatch path.
 
@@ -271,7 +271,7 @@ TEST_CASE ("DECSET 2027 after DECRST re-enables clustering", "[video][mode2027][
 
 TEST_CASE ("mode 2027 off — no fold: every codepoint takes the single-codepoint path", "[video][mode2027][v1][gate]")
 {
-    // Documented gate behavior (jam_CursorState.cpp printCodepoint doc, Mode
+    // Documented gate behavior (jam_TerminalVideo.cpp printCodepoint doc, Mode
     // 2027 gate): segmentation is skipped entirely; combining marks take the
     // width-clamped single-codepoint path (rawWidth < 1 -> 1) instead of
     // folding — two SEPARATE cells are written.

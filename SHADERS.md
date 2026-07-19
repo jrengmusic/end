@@ -432,7 +432,7 @@ When importing from RetroArch:
 
 ## Real-World Example: CRT Scanlines (Slang Format)
 
-Minimal working CRT shader — ready to copy-paste, real RetroArch slang vocabulary this engine actually reflects (`jam::vulkan::ShaderReflection::reflect()`/`populateMemberBuffer()`, `jam_vulkan/shader/jam_VulkanShaderReflection.cpp:16-25,143-163`; texture-name resolution `jam::vulkan::Graphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). The manifest filename below (`shader.slangp`) is just one valid choice — any `*.slangp` name works.
+Minimal working CRT shader — ready to copy-paste, real RetroArch slang vocabulary this engine actually reflects (`jam::VulkanShaderReflection::reflect()`/`populateMemberBuffer()`, `jam_vulkan/shader/jam_VulkanShaderReflection.cpp:16-25,143-163`; texture-name resolution `jam::VulkanGraphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). The manifest filename below (`shader.slangp`) is just one valid choice — any `*.slangp` name works.
 
 A single-pass slang shader (`shaders = 1`) IS the mandatory Image pass — there is no separate Image slot to declare. `Source` at this pass's own ordinal 0, in a post-process chain, resolves to the resolved (straight-alpha) scene — the exact same input the fabricated Shadertoy-style `iScene` uniform used to stand in for.
 
@@ -536,7 +536,7 @@ Press `Cmd+R` → retro CRT scanlines effect over your terminal.
 
 ## Practical Multi-Pass Example: Feedback Accumulator (Slang)
 
-Real slang chaining vocabulary this engine actually reflects: `PassFeedback0` (a buffer pass's own explicit self-feedback read — every buffer pass is unconditionally feedback-capable, `jam::vulkan::ShaderPass`'s own doc comment) and `Source` (RetroArch's own "the stage immediately preceding this one in the chain" semantic — resolves to the PREVIOUS buffer pass's own current output whenever this pass's own ordinal is > 0, `Graphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). There is no `common=` manifest directive for a slang chain (that key is Shadertoy-only vocabulary, `jam_vulkan/bimap/jam_VulkanShaderFormat.cpp:95` — never registered for the slang canon-slot map) — shared code is pulled in purely via a plain `#include`, exactly like any other file dependency.
+Real slang chaining vocabulary this engine actually reflects: `PassFeedback0` (a buffer pass's own explicit self-feedback read — every buffer pass is unconditionally feedback-capable, `jam::VulkanShaderPass`'s own doc comment) and `Source` (RetroArch's own "the stage immediately preceding this one in the chain" semantic — resolves to the PREVIOUS buffer pass's own current output whenever this pass's own ordinal is > 0, `Graphics::resolveSlangTextureBindings()`, `jam_vulkan/context/jam_VulkanGraphicsSlangPass.cpp:403-423`). There is no `common=` manifest directive for a slang chain (that key is Shadertoy-only vocabulary, `jam_vulkan/bimap/jam_VulkanShaderFormat.cpp:95` — never registered for the slang canon-slot map) — shared code is pulled in purely via a plain `#include`, exactly like any other file dependency.
 
 ### Setup
 ```bash
@@ -922,12 +922,12 @@ graphics = {
 // presence/absence:
 const juce::File dir { file::Shaders::getPath (path.toString()) };
 const auto presetFiles { dir.findChildFiles (juce::File::findFiles, false,
-    jam::vulkan::ShaderFormat::getExtension().at (jam::vulkan::ShaderFormat::slang)) };
+    jam::VulkanShaderFormat::getExtension().at (jam::VulkanShaderFormat::slang)) };
 const auto presetFile { not presetFiles.isEmpty() ? presetFiles.getReference (0) : juce::File() };
-const auto preset { jam::vulkan::ShaderPreset::parse (presetFile.loadFileAsString()) };
+const auto preset { jam::VulkanShaderPreset::parse (presetFile.loadFileAsString()) };
 
-const int format { preset.passes.empty() ? jam::vulkan::ShaderFormat::shadertoy
-                                          : jam::vulkan::ShaderFormat::slang };
+const int format { preset.passes.empty() ? jam::VulkanShaderFormat::shadertoy
+                                          : jam::VulkanShaderFormat::slang };
 ```
 
 ### Shader Compilation
@@ -936,7 +936,7 @@ const int format { preset.passes.empty() ? jam::vulkan::ShaderFormat::shadertoy
 // canon pass-name vocabulary (Common/Image/BufferX/Preset), compiles to
 // SPIR-V via shaderc (vendored), caches pipelines at
 // ~/.config/end/cache/END.cache.
-static std::unique_ptr<jam::vulkan::Shader> compile (
+static std::unique_ptr<jam::VulkanShader> compile (
     const juce::ValueTree& shaderState,          // Common/BufferX/Image/Preset properties + root-level path
     bool isBackground,                           // true = background, false = post-process
     int format,                                  // ShaderFormat::shadertoy or ::slang

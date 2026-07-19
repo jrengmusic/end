@@ -3,15 +3,15 @@
  * @brief V2 conformance — DEC mode 2026 (SYNC_OUTPUT) auto-reset.
  *
  * Coverage: the ratified SYNC_OUTPUT auto-reset design (loop-top guard, no
- * timer). `Video::clearSyncOutputIfExpired()` is
+ * timer). `TerminalVideo::clearSyncOutputIfExpired()` is
  * public — this suite exercises it directly (no friendship, no member
  * manipulation).
  *
  * The expiry test drives `Test::SyncOutputDeadlineTerm` (`TestTerm.h`) — a
  * fixture built on `SyncOutputDeadlineVideo`, which writes the protected
- * `Video::syncOutputDeadlineMs` field directly — forcing an already-elapsed
+ * `TerminalVideo::syncOutputDeadlineMs` field directly — forcing an already-elapsed
  * SYNC_OUTPUT deadline deterministically instead of a real-time sleep past
- * `Video::syncResetMs`.
+ * `TerminalVideo::syncResetMs`.
  */
 
 #include "catch2/catch.hpp"
@@ -19,8 +19,8 @@
 
 TEST_CASE ("mode 2026 defaults to reset", "[video][mode2026][v2]")
 {
-    // Video::syncOutputActive is deliberately NOT a jam::terminal::map::DecMode
-    // bimap entry / jam::terminal::Model MODES parameter (jam_CursorState.h
+    // TerminalVideo::syncOutputActive is deliberately NOT a jam::TerminalDecMode
+    // bimap entry / jam::TerminalModel MODES parameter (jam_TerminalVideo.h
     // syncOutputActive doc: "kept outside the bimap because that branch also
     // fires the syncOutput event") — Test::Term::mode() cannot observe it.
     // Query via DECRQM instead, the surface Video itself exposes for this mode.

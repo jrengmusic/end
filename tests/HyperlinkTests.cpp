@@ -11,7 +11,7 @@
  * CONFORMANCE FINDING RESOLVED: `Owner<T>::addIfNotAlreadyThere`
  * (jam_core/utilities/jam_IsHashable.h)
  * returns a 0-BASED index — the FIRST interned entry gets index 0.
- * `Video::setLink()` (jam_VideoOSCExt.cpp) stores that index **+1** into
+ * `TerminalVideo::setLink()` (jam_TerminalVideoOSCExt.cpp) stores that index **+1** into
  * `activeLinkId`, exactly matching `jam::Char::linkId()`'s documented
  * contract ("0 = no link — zero-initialized Chars are linkless by
  * construction", jam_Char.h, jam_Link.h class doc) — the FIRST hyperlink
@@ -81,10 +81,10 @@ TEST_CASE ("OSC 8 ';;' (empty URI) resets the pen's linkId to 0", "[video][osc8]
 
 TEST_CASE ("malformed OSC 8 (no params/uri separator) clears the pen's linkId", "[video][osc8][v5]")
 {
-    // signalOSC() (jam_VideoOSC.cpp) strips one leading "8;" (the OSC command
+    // signalOSC() (jam_TerminalVideoOSC.cpp) strips one leading "8;" (the OSC command
     // header separator) before calling setLink() — the payload it hands
     // setLink() must itself contain zero further ';' to hit its own
-    // "Malformed — no separator found" branch (jam_VideoOSCExt.cpp:81-85).
+    // "Malformed — no separator found" branch (jam_TerminalVideoOSCExt.cpp:81-85).
     Test::Term t { 20, 2 };
     t.feed ("\x1b]8;;https://example.com\x07");
     t.feed ("\x1b]8;justauri\x07");   // header ';' present, no second ';' inside setLink's data
@@ -95,7 +95,7 @@ TEST_CASE ("malformed OSC 8 (no params/uri separator) clears the pen's linkId", 
 
 TEST_CASE ("flexGap merge preserves the merge target's own linkId, not the current pen", "[video][osc8][v5][flexgap]")
 {
-    // jam_CursorState.cpp printCodepoint() doc: "prev, the merge target
+    // jam_TerminalVideo.cpp printCodepoint() doc: "prev, the merge target
     // rewritten by the flexGap branch, keeps its own already-stamped
     // linkId() rather than being re-stamped with the current pen state".
     Test::Term t { 20, 2 };

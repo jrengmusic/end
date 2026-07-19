@@ -77,7 +77,7 @@ void ENDView::registerEvents()
                                   {
                                       // filter is shared by both slots (display.lua: applies to both the
                                       // background and post-processing upscale) — baked into the
-                                      // compiled prelude (jam::vulkan::ShaderCompiler::channelMacros()/sceneMacro()),
+                                      // compiled prelude (jam::VulkanShaderCompiler::channelMacros()/sceneMacro()),
                                       // so a filter change requires a full recompile on both funnels,
                                       // never the cheaper *Params() path.
                                       setBackground();
@@ -175,14 +175,14 @@ void ENDView::setBackground()
         const auto filter { static_cast<Id::ImageResample::value> (Id::ImageResample::get (filterName)) };
 
         // ConfigShader::loadFromPath() always stamps Id::shaderFormat with a
-        // definite format ordinal (jam::vulkan::ShaderFormat::shadertoy or
+        // definite format ordinal (jam::VulkanShaderFormat::shadertoy or
         // ::slang) before this state is ever readable here — ConfigModel's
         // constructor runs loadFromPath() to completion, and
         // jam::Instance<ConfigModel>::getInstance() (which View::config
         // resolves through) cannot return before that constructor finishes.
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
 
-        auto compiled { jam::vulkan::ShaderCompiler::compile (
+        auto compiled { jam::VulkanShaderCompiler::compile (
             shaderState, true, shaderFormat, filter) };
 
         // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
@@ -230,7 +230,7 @@ void ENDView::setPostProcess()
         // readable here.
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
 
-        auto compiled { jam::vulkan::ShaderCompiler::compile (
+        auto compiled { jam::VulkanShaderCompiler::compile (
             shaderState, false, shaderFormat, filter) };
 
         // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)

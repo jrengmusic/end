@@ -16,9 +16,9 @@ struct Nexus : jam::Instance<Nexus>
 
         model.getOrCreateChildWithName (Id::toType (Id::overlay));
 
-        extensions.try_emplace (juce::String { jam::clap::Services::extensionId }, &services);
+        extensions.try_emplace (juce::String { jam::ClapServices::extensionId }, &services);
         juce::addDefaultFormatsToManager (formatManager);
-        formatManager.addFormat (std::make_unique<jam::clap::PluginFormat> (
+        formatManager.addFormat (std::make_unique<jam::ClapPluginFormat> (
             extensions,
             juce::String { ProjectInfo::projectName },
             juce::String { ProjectInfo::companyName },
@@ -88,7 +88,7 @@ struct Nexus : jam::Instance<Nexus>
         {
             for (auto* format : formatManager.getFormats())
             {
-                if (auto* clapFormat { dynamic_cast<jam::clap::PluginFormat*> (format) })
+                if (auto* clapFormat { dynamic_cast<jam::ClapPluginFormat*> (format) })
                 {
                     juce::OwnedArray<juce::PluginDescription> descriptions;
 
@@ -144,7 +144,7 @@ struct Nexus : jam::Instance<Nexus>
         clock->device.start (&clock->player);
         clock->blockSize = virtualBlockSize;
 
-        if (auto* plugin { dynamic_cast<jam::clap::PluginInstance*> (&processor) })
+        if (auto* plugin { dynamic_cast<jam::ClapPluginInstance*> (&processor) })
             clock->onThreadExit = [plugin] { plugin->stopProcessing(); };
 
         clock->startThread();
@@ -212,7 +212,7 @@ private:
     jam::HashMap<jam::UUID, std::unique_ptr<VirtualClock>> virtualClocks;
     jam::HashMap<juce::String, const void*> extensions;
 
-    jam::clap::Services services;
+    jam::ClapServices services;
     juce::AudioPluginFormatManager formatManager;
     juce::AudioProcessorGraph graph;
     juce::AudioProcessorPlayer player;

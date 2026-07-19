@@ -5,10 +5,10 @@
  *
  * Coverage: the ratified semantic-mark design (ghostty 4-state vocabulary).
  * Two independent surfaces:
- *   1. Video::setShellIntegration() stamping `Row::flags` mark bits (Row::markShift
+ *   1. TerminalVideo::setShellIntegration() stamping `Row::flags` mark bits (Row::markShift
  *      == 3, since Row::flags also carries flexWrap/collapsed/justify at
  *      bits 0-2) — via `Test::Line::mark()`.
- *   2. `jam::terminal::CellFifo` header flags mark bits (CellFifo::markShift
+ *   2. `jam::TerminalCellFifo` header flags mark bits (TerminalCellFifo::markShift
  *      == 2 — CellFifo's OWN packing, independent of Row's) — exercised
  *      directly against a standalone CellFifo instance, since Video does not
  *      populate CellFifo yet (that wiring is a later consumer's scope).
@@ -55,7 +55,7 @@ TEST_CASE ("OSC 133;C stamps output, 133;D closes the block without re-stamping"
     t.feed ("next prompt line");   // printed on row2 — proves activeMark was actually cleared
 
     // 133;D does not re-stamp the row it closes — row1 still carries `output`
-    // from C (jam_VideoOSCExt.cpp setShellIntegration() doc: "no re-stamp here by
+    // from C (jam_TerminalVideoOSCExt.cpp setShellIntegration() doc: "no re-stamp here by
     // design"); the NEXT written row picks up the cleared (none) state.
     REQUIRE (t.line (1).mark() == jam::TextLine::Mark::output);
     REQUIRE (t.line (2).mark() == jam::TextLine::Mark::none);
@@ -63,7 +63,7 @@ TEST_CASE ("OSC 133;C stamps output, 133;D closes the block without re-stamping"
 
 TEST_CASE ("prompt continues as promptContinuation across a line feed", "[video][osc133][v3][promptcontinuation]")
 {
-    // jam_VideoOps.cpp cursorGoToNextLine(): "a multi-line prompt's
+    // jam_TerminalVideoOps.cpp cursorGoToNextLine(): "a multi-line prompt's
     // continuation rows carry promptContinuation until the next 133;B".
     Test::Term t { 20, 4 };
     t.feed ("\x1b]133;A\x07");
@@ -76,7 +76,7 @@ TEST_CASE ("prompt continues as promptContinuation across a line feed", "[video]
 
 TEST_CASE ("prompt continues as promptContinuation across a wide-at-margin wrap", "[video][osc133][v3][promptcontinuation]")
 {
-    // jam_CursorState.cpp printCodepoint() wide-pair right-margin wrap branch
+    // jam_TerminalVideo.cpp printCodepoint() wide-pair right-margin wrap branch
     // performs the same prompt -> promptContinuation transition as
     // resolveWrapPending() / cursorGoToNextLine().
     Test::Term t { 4, 2 };
@@ -93,7 +93,7 @@ TEST_CASE ("prompt continues as promptContinuation across a wide-at-margin wrap"
 
 TEST_CASE ("CellFifo pushActive/drainActive round-trips isContinued/isJustified/mark", "[cellfifo][transport][v3]")
 {
-    jam::terminal::CellFifo fifo (256, 256);
+    jam::TerminalCellFifo fifo (256, 256);
 
     jam::Char row[3]
     {
@@ -104,9 +104,9 @@ TEST_CASE ("CellFifo pushActive/drainActive round-trips isContinued/isJustified/
 
     const uint8_t flags
     {
-        static_cast<uint8_t> (jam::terminal::CellFifo::isContinuedFlag
-                             | jam::terminal::CellFifo::isJustifiedFlag
-                             | (static_cast<uint8_t> (jam::TextLine::Mark::input) << jam::terminal::CellFifo::markShift))
+        static_cast<uint8_t> (jam::TerminalCellFifo::isContinuedFlag
+                             | jam::TerminalCellFifo::isJustifiedFlag
+                             | (static_cast<uint8_t> (jam::TextLine::Mark::input) << jam::TerminalCellFifo::markShift))
     };
 
     fifo.pushActive (row, 3, flags);
@@ -123,7 +123,7 @@ TEST_CASE ("CellFifo pushActive/drainActive round-trips isContinued/isJustified/
 
 TEST_CASE ("CellFifo drainHistory joins isContinued runs into one TextLine", "[cellfifo][transport][v3]")
 {
-    jam::terminal::CellFifo fifo (256, 256);
+    jam::TerminalCellFifo fifo (256, 256);
 
     jam::Char rowA[2]
     {
@@ -135,9 +135,9 @@ TEST_CASE ("CellFifo drainHistory joins isContinued runs into one TextLine", "[c
         jam::Char::make (uint32_t ('c'), jam::Char::contentCodepoint, jam::Char::narrow, 0),
     };
 
-    const uint8_t markBits { static_cast<uint8_t> (jam::TextLine::Mark::output) << jam::terminal::CellFifo::markShift };
+    const uint8_t markBits { static_cast<uint8_t> (jam::TextLine::Mark::output) << jam::TerminalCellFifo::markShift };
 
-    fifo.pushHistory (rowA, 2, static_cast<uint8_t> (jam::terminal::CellFifo::isContinuedFlag | markBits));
+    fifo.pushHistory (rowA, 2, static_cast<uint8_t> (jam::TerminalCellFifo::isContinuedFlag | markBits));
     fifo.pushHistory (rowB, 1, 0);   // terminal (non-continued) row closes the logical line
 
     jam::TextLine line;
@@ -152,10 +152,10 @@ TEST_CASE ("CellFifo drainHistory joins isContinued runs into one TextLine", "[c
 
 TEST_CASE ("CellFifo drainHistory returns a partial run with isContinued set at drain-end", "[cellfifo][transport][v3]")
 {
-    jam::terminal::CellFifo fifo (256, 256);
+    jam::TerminalCellFifo fifo (256, 256);
 
     jam::Char rowA[1] { jam::Char::make (uint32_t ('x'), jam::Char::contentCodepoint, jam::Char::narrow, 0) };
-    fifo.pushHistory (rowA, 1, jam::terminal::CellFifo::isContinuedFlag);   // continued, no terminal row follows
+    fifo.pushHistory (rowA, 1, jam::TerminalCellFifo::isContinuedFlag);   // continued, no terminal row follows
 
     jam::TextLine line;
     REQUIRE (fifo.drainHistory (line));

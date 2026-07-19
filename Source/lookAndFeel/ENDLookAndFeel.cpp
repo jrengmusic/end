@@ -25,7 +25,7 @@ void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
 void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
     auto bounds { bar.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::button::Bar*> (bar.getParentComponent()) };
+    auto* parentBar { dynamic_cast<jam::ButtonBar*> (bar.getParentComponent()) };
 
     if (parentBar != nullptr and parentBar->isVertical())
     {
@@ -49,7 +49,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
 {
     auto bounds { highlight.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::button::Bar*> (highlight.getParentComponent()) };
+    auto* parentBar { dynamic_cast<jam::ButtonBar*> (highlight.getParentComponent()) };
 
     if (parentBar != nullptr and parentBar->isVertical())
     {
@@ -76,7 +76,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
                                     bool isMouseDown)
 {
     auto bounds { button.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::button::Bar*> (button.getParentComponent()) };
+    auto* parentBar { dynamic_cast<jam::ButtonBar*> (button.getParentComponent()) };
     const bool vertical { parentBar != nullptr and parentBar->isVertical() };
 
     if (vertical)
@@ -94,7 +94,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         bounds = { 0.0f, 0.0f, height, width };
     }
 
-    const auto state { jam::SVG::Button::getState (
+    const auto state { jam::ButtonSVG::getState (
         button, isMouseOver, isMouseDown, Id::ButtonState::get().size()) };
     const juce::Identifier stateId { Id::ButtonState::get (state) };
 

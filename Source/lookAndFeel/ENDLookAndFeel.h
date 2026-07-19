@@ -12,7 +12,7 @@
  * @class ENDLookAndFeel
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
- * Inherits jam::style::Methods for tab bar background, highlight, button,
+ * Inherits jam::StyleMethods for tab bar background, highlight, button,
  * and pane edge rendering. Listens to both the config root ValueTree and the theme
  * subtree for live theme changes.
  *
@@ -23,7 +23,7 @@
  * through one code path.
  */
 class ENDLookAndFeel
-    : public jam::style::Methods<ENDLookAndFeel>
+    : public jam::StyleMethods<ENDLookAndFeel>
     , public jam::Instance<ENDLookAndFeel>
     , public juce::ValueTree::Listener
 {
@@ -130,7 +130,7 @@ public:
     /**
      * @brief Renders a tab button using the per-state SVG from the sparse graphics bank.
      *
-     * State is resolved via jam::SVG::Button::getState and mapped to a
+     * State is resolved via jam::ButtonSVG::getState and mapped to a
      * Id::ButtonState identifier. Paint occurs only when that state slot
      * was authored in the theme.lua graphics section (sparse bank — missing states
      * are silently skipped). Applies rotation transform for vertical bars.
@@ -146,7 +146,7 @@ public:
                         bool isMouseDown) override;
 
     /** @brief Tab label rendering — uses getTabFont() and getTabText() from theme config.
-     *  No border, centred, colour from Label::textColourId (synced by Tab::buttonStateChanged).
+     *  No border, centred, colour from Label::textColourId (synced by ButtonTab::buttonStateChanged).
      */
     void drawTabLabel (juce::Graphics& g, juce::Label& label) override;
 
@@ -171,7 +171,7 @@ public:
 
     /** @brief Display transform applied to a tab label before measuring and painting.
      *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
-     *  identity otherwise. Consumed by both Bar::getBestTabLength (measurement) and
+     *  identity otherwise. Consumed by both ButtonBar::getBestTabLength (measurement) and
      *  drawTabButton (render) so measured width and painted string never diverge.
      */
     juce::String getTabText (const juce::String& tabName) const override;

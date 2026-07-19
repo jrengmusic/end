@@ -17,14 +17,14 @@ void ConfigShader::loadFromPath (const juce::var& path, juce::String& errors)
     const auto presetFiles { dir.findChildFiles (
         juce::File::findFiles,
         false,
-        jam::vulkan::ShaderFormat::getExtension().at (jam::vulkan::ShaderFormat::slang)) };
+        jam::VulkanShaderFormat::getExtension().at (jam::VulkanShaderFormat::slang)) };
     const auto presetFile { not presetFiles.isEmpty() ? presetFiles.getReference (0)
                                                       : juce::File() };
-    const auto preset { jam::vulkan::ShaderPreset::parse (presetFile.loadFileAsString()) };
-    const int format { preset.passes.isEmpty() ? jam::vulkan::ShaderFormat::shadertoy
-                                               : jam::vulkan::ShaderFormat::slang };
+    const auto preset { jam::VulkanShaderPreset::parse (presetFile.loadFileAsString()) };
+    const int format { preset.passes.isEmpty() ? jam::VulkanShaderFormat::shadertoy
+                                               : jam::VulkanShaderFormat::slang };
 
-    setValuesFrom (jam::vulkan::ShaderFormat::load (format, state.getType(), dir));
+    setValuesFrom (jam::VulkanShaderFormat::load (format, state.getType(), dir));
     state.setProperty (Id::shaderFormat, format, nullptr);
     state.setProperty (Id::path, dir.getFullPathName(), nullptr);
 

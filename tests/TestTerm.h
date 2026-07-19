@@ -5,10 +5,10 @@
  *
  * Revives the `b3f0fea` fixture SHAPE (raw bytes in, Parser drives Video,
  * assertions read grid cells / cursor / mode state back out) against today's
- * jam_terminal API: `Video::printCodepoint` (not `print`), grid access via
- * `Video::getBlock()` / `jam::Block::getRowPointer()` /
+ * jam_terminal API: `TerminalVideo::printCodepoint` (not `print`), grid access via
+ * `TerminalVideo::getBlock()` / `jam::Block::getRowPointer()` /
  * `jam::Row::chars[col]`, cursor via `getCursorRow()`/`getCursorCol()`, modes
- * via `jam::terminal::Model` (`Video` is stateless on plain VT modes;
+ * via `jam::TerminalModel` (`Video` is stateless on plain VT modes;
  * `Term::mode()` reads the fixture-owned `model` collaborator directly, the
  * same root mode-parameter surface Video's own working-copy members mirror
  * internally). See
@@ -37,37 +37,37 @@
  * starts a fresh interning table — indices are deterministic per test case.
  *
  * @par Model ownership — zero Model knowledge in Video (ARCHITECT ruling 2026-07-05)
- * `jam::terminal::map::DecMode` is Model-owned by composition (`jam_DecMode.h`)
+ * `jam::TerminalDecMode` is Model-owned by composition (`jam_TerminalDecMode.h`)
  * — `model` (below) holds its own `decMode` plain member and iterates it
  * directly in its constructor to register the mode parameters onto its own
  * root; no fixture-side `DecMode` instance is needed or permitted. `video` no longer
  * takes a Model reference — it fires `stateChanged`/`textChanged`/
- * `modeChanged` (`jam_VideoEvents.h`) instead; this fixture registers
+ * `modeChanged` (`jam_TerminalEvents.h`) instead; this fixture registers
  * `onStateChanged`/`onTextChanged`/`onModeChanged` trampolines that resolve
  * those channels straight onto `model`, so every conformance assertion on
  * Model parameters keeps passing.
  *
  * @par Deadline-injection seam (V2 expiry testing)
- * `Term` is `TermBase<jam::terminal::Video>` — templated on the owned Video
+ * `Term` is `TermBase<jam::TerminalVideo>` — templated on the owned Video
  * type so a test-only subclass can be substituted without duplicating the
- * fixture's wiring. `Video::syncOutputDeadlineMs` is protected (not private)
- * for exactly this reason (`jam_CursorState.h` field doc); `SyncOutputDeadlineVideo`
- * (derived from `jam::terminal::Video`) exposes `setSyncOutputDeadlineMs()`
+ * fixture's wiring. `TerminalVideo::syncOutputDeadlineMs` is protected (not private)
+ * for exactly this reason (`jam_TerminalVideo.h` field doc); `SyncOutputDeadlineVideo`
+ * (derived from `jam::TerminalVideo`) exposes `setSyncOutputDeadlineMs()`
  * to write it directly. `SyncOutputDeadlineTerm` (`TermBase<SyncOutputDeadlineVideo>`)
  * is the fixture expiry tests (`SyncOutputTests.cpp`) use to force an
  * already-elapsed SYNC_OUTPUT deadline deterministically instead of
- * sleeping past `Video::syncResetMs`.
+ * sleeping past `TerminalVideo::syncResetMs`.
  *
  * @par writeToHost capture / title readback
- * `jam::terminal::Video` fires events through a caller-owned
- * `jam::terminal::Events&` (one named `Events::Entry` member per event, no
- * runtime key, `jam_VideoEvents.h`) — no override surface. `TermBase` owns
+ * `jam::TerminalVideo` fires events through a caller-owned
+ * `jam::TerminalEvents&` (one named `TerminalEvents::Entry` member per event, no
+ * runtime key, `jam_TerminalEvents.h`) — no override surface. `TermBase` owns
  * the `Events` value and assigns one static trampoline (`onWriteToHost`,
  * context = `this`) to the `writeToHost` member, capturing the response
  * bytes `TermBase::feed()` / `lastResponse()` need directly into a
  * `TermBase`-owned string. `title` is not a data-plane Events member — OSC
  * 0/2 fires `events.textChanged`; this fixture's `onTextChanged` trampoline
- * writes `jam::terminal::Model`'s TEXT/title `jam::ParameterText` directly;
+ * writes `jam::TerminalModel`'s TEXT/title `jam::ParameterText` directly;
  * `lastTitle()` reads it straight off the fixture-owned `model`.
  */
 #pragma once
@@ -150,16 +150,16 @@ struct Line
  *
  * Lets deadline-crossing tests (DECSET 2026 / SYNC_OUTPUT auto-reset) force
  * an already-elapsed deadline deterministically instead of sleeping past
- * `Video::syncResetMs`. Derives from `jam::terminal::Video` directly — the
+ * `TerminalVideo::syncResetMs`. Derives from `jam::TerminalVideo` directly — the
  * response/title capture `TestVideo` used to provide is now `TermBase`-owned
- * `Events::Entry` member assignment (event capture no longer needs a subclass).
+ * `TerminalEvents::Entry` member assignment (event capture no longer needs a subclass).
  *
- * @see jam::terminal::Video::syncOutputDeadlineMs
+ * @see jam::TerminalVideo::syncOutputDeadlineMs
  */
-class SyncOutputDeadlineVideo : public jam::terminal::Video
+class SyncOutputDeadlineVideo : public jam::TerminalVideo
 {
 public:
-    using jam::terminal::Video::Video;
+    using jam::TerminalVideo::TerminalVideo;
 
     /** @brief Sets `syncOutputDeadlineMs` directly, bypassing the
      *  `setPrivateModes()` DECSET 2026 arm computation. */
@@ -171,16 +171,16 @@ public:
  * @brief Owns Events + Video + Parser + the SharedResources tables; feeds
  *        raw bytes, exposes grid/cursor/mode/response assertions.
  *
- * Owns the `jam::terminal::Events` value Video fires through, assigning the
+ * Owns the `jam::TerminalEvents` value Video fires through, assigning the
  * `onWriteToHost` trampoline (context = `this`) to the `writeToHost` member
  * so `lastResponse()` reads a fixture-owned capture string directly — no
  * Video subclass needed for event capture. `title` is no longer an Events
- * member (OSC 0/2 now writes `jam::terminal::Model`'s TEXT/title
+ * member (OSC 0/2 now writes `jam::TerminalModel`'s TEXT/title
  * `jam::ParameterText` directly, per the ARCHITECT-ratified "any value Video
  * emits is a parameter" ruling) — `lastTitle()` reads it straight off the
  * fixture-owned `model` collaborator.
  *
- * @tparam VideoT  The owned Video type — `jam::terminal::Video` (see `Term`)
+ * @tparam VideoT  The owned Video type — `jam::TerminalVideo` (see `Term`)
  *                  or a test subclass of it (see `SyncOutputDeadlineVideo` /
  *                  `SyncOutputDeadlineTerm`).
  */
@@ -193,7 +193,7 @@ public:
         , parser (video)
     {
         // Plain member assignment — safe any time before the reader thread
-        // starts (jam_VideoEvents.h "Registration is plain member assignment"
+        // starts (jam_TerminalEvents.h "Registration is plain member assignment"
         // doc). `events` is constructed (all members default all-fallback)
         // before this body runs, since it precedes `video` in declaration
         // order below.
@@ -204,7 +204,7 @@ public:
 
         // Video's ctor allocates the grid from `dims` but leaves cols/visibleRows
         // at their {80}/{24} defaults — setWinsize() is the mandatory sync step
-        // (jam_CursorState.h Video::setWinsize doc).
+        // (jam_TerminalVideo.h TerminalVideo::setWinsize doc).
         video.setWinsize (jam::Cell::Rectangle (jam::Cell (cols), jam::Cell (rows)));
     }
 
@@ -241,7 +241,7 @@ public:
     int cursorCol() const noexcept { return video.getCursorCol().value; }
 
     /** @brief Reads a named root mode parameter (`Id::xxx`) directly from
-     *  the fixture-owned `jam::terminal::Model` — kept in sync with Video's
+     *  the fixture-owned `jam::TerminalModel` — kept in sync with Video's
      *  own working-copy member via `events.modeChanged`'s trampoline (Video
      *  holds zero Model knowledge). */
     bool mode (juce::Identifier id) const noexcept
@@ -258,8 +258,8 @@ public:
     void clearResponse() noexcept { responseCapture.clear(); }
 
     // ---- OSC 0/2 title -------------------------------------------------------
-    // OSC 0/2 fires events.textChanged (jam_VideoOSC.cpp setTitle()); this
-    // fixture's onTextChanged trampoline writes jam::terminal::Model's
+    // OSC 0/2 fires events.textChanged (jam_TerminalVideoOSC.cpp setTitle()); this
+    // fixture's onTextChanged trampoline writes jam::TerminalModel's
     // TEXT/title jam::ParameterText — read it straight off the fixture-owned
     // model collaborator, the same TEXT group the trampoline resolves onto.
 
@@ -275,7 +275,7 @@ public:
     VideoT& videoRef() noexcept { return video; }
 
 private:
-    /** @brief `Events::Entry` trampoline for the `writeToHost` member — appends
+    /** @brief `TerminalEvents::Entry` trampoline for the `writeToHost` member — appends
      *  the response bytes to the owning fixture's `responseCapture`.
      *  @param context  The owning `TermBase*`, opaque to Video. */
     static void onWriteToHost (void* context, const char* data, int length) noexcept
@@ -283,7 +283,7 @@ private:
         static_cast<TermBase*> (context)->responseCapture.append (data, static_cast<size_t> (length));
     }
 
-    /** @brief `Events::Entry` trampoline for the `stateChanged` member —
+    /** @brief `TerminalEvents::Entry` trampoline for the `stateChanged` member —
      *  resolves `(tag, id)` onto `model`'s `jam::Parameter<int>` and stores
      *  `value`. A null `tag` (the former VIDEO group's four scalars) resolves
      *  to `model.getType()`.
@@ -297,7 +297,7 @@ private:
         parameter->setValue (value);
     }
 
-    /** @brief `Events::Entry` trampoline for the `textChanged` member —
+    /** @brief `TerminalEvents::Entry` trampoline for the `textChanged` member —
      *  resolves `(tag, id)` onto `model`'s `jam::ParameterText` and stores
      *  `(chars, length)`. Backs `lastTitle()`.
      *  @param context  The owning `TermBase*`, opaque to Video. */
@@ -309,7 +309,7 @@ private:
         parameter->setValue (chars, length);
     }
 
-    /** @brief `Events::Entry` trampoline for the `modeChanged` member —
+    /** @brief `TerminalEvents::Entry` trampoline for the `modeChanged` member —
      *  forwards the decoded DEC private / ANSI mode change to
      *  `model.setMode()`. Backs `mode()`.
      *  @param context  The owning `TermBase*`, opaque to Video. */
@@ -334,14 +334,14 @@ private:
 
     std::string responseCapture;
 
-    jam::terminal::Model  model;
-    jam::terminal::Events events;
+    jam::TerminalModel  model;
+    jam::TerminalEvents events;
     VideoT                video;
-    jam::terminal::Parser parser;
+    jam::TerminalParser parser;
 };
 
-/** @brief Production fixture — owns a plain `jam::terminal::Video`. */
-using Term = TermBase<jam::terminal::Video>;
+/** @brief Production fixture — owns a plain `jam::TerminalVideo`. */
+using Term = TermBase<jam::TerminalVideo>;
 
 /** @brief Deadline-injection fixture — owns a `SyncOutputDeadlineVideo` for
  *  deterministic V2 expiry tests. */

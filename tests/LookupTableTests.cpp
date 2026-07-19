@@ -21,8 +21,8 @@
  * by the pre-existing "OSC 133 A/B/C..." test — same `setShellIntegration()` call
  * path, re-used rather than duplicated), the C0 action LUT (BEL/BS/HT), and
  * a read-after-DECSET assertion exercising Video's own working-copy mode
- * members (jam_CursorState.h/.cpp, read/written directly) via the fixture's
- * `stateChanged`/`modeChanged` trampolines onto `jam::terminal::Model`.
+ * members (jam_TerminalVideo.h/.cpp, read/written directly) via the fixture's
+ * `stateChanged`/`modeChanged` trampolines onto `jam::TerminalModel`.
  */
 
 #include "catch2/catch.hpp"
@@ -57,7 +57,7 @@ TEST_CASE ("LookupTable returns fallback for an out-of-range key without throwin
 }
 
 // ============================================================================
-// SGR attribute set/clear — canon LookupTable (jam_VideoSGR.cpp)
+// SGR attribute set/clear — canon LookupTable (jam_TerminalVideoSGR.cpp)
 // ============================================================================
 
 TEST_CASE ("SGR attribute-set codes 1-3,5-9,53,73,74 map to their Stamp flag bit (4 has its own singleUnderline arm)", "[video][sgr][lookuptable]")
@@ -201,7 +201,7 @@ TEST_CASE ("CSI 4:3 m sets curly underline without dispatching the ':' sub-param
 TEST_CASE ("CSI 4:5 m sets dashed underline without dispatching the ':' sub-parameter as standalone SGR 5 (no spurious blink)", "[video][sgr][lookuptable]")
 {
     // Same regression as the 4:3/italic case above, with the 4:5/blink pair
-    // (Sequence::blink == 5, the same ordinal as Sequence::dashed).
+    // (TerminalSequence::blink == 5, the same ordinal as TerminalSequence::dashed).
     Test::Term t { 10, 2 };
     t.feed ("\x1b[4:5m");
     t.feed ("x");
@@ -226,7 +226,7 @@ TEST_CASE ("CSI 38:2:R:G:B m (colon sub-separator RGB form) sets the foreground 
 }
 
 // ============================================================================
-// OSC 133 subcmd -> jam::TextLine::Mark — canon LookupTable (jam_VideoOSCExt.cpp)
+// OSC 133 subcmd -> jam::TextLine::Mark — canon LookupTable (jam_TerminalVideoOSCExt.cpp)
 // ============================================================================
 
 TEST_CASE ("OSC 133 A/B/C map through the LookupTable to prompt/input/output", "[video][osc133][lookuptable]")
@@ -244,7 +244,7 @@ TEST_CASE ("OSC 133 A/B/C map through the LookupTable to prompt/input/output", "
 }
 
 // ============================================================================
-// UTF-8 lead-byte length classes — canon LookupTable (jam_ParserAction.cpp)
+// UTF-8 lead-byte length classes — canon LookupTable (jam_TerminalParserAction.cpp)
 // ============================================================================
 
 TEST_CASE ("2-byte UTF-8 lead byte (0xC0-0xDF class) decodes to the source codepoint", "[parser][utf8][lookuptable]")
@@ -285,12 +285,12 @@ TEST_CASE ("invalid lead byte (0xF8-0xFF class) never completes a decode — fal
 }
 
 // ============================================================================
-// Sixel VT340 default palette — canon LookupTable (jam_SixelDecoder.h)
+// Sixel VT340 default palette — canon LookupTable (jam_TerminalSixelDecoder.h)
 // ============================================================================
 
 TEST_CASE ("Sixel default palette register 0 decodes to opaque black", "[sixel][lookuptable]")
 {
-    jam::terminal::SixelDecoder decoder;
+    jam::TerminalSixelDecoder decoder;
     const std::string payload { "#0~" };   // select register 0, draw one full sixel column
     const auto image { decoder.decode (reinterpret_cast<const uint8_t*> (payload.data()), payload.size()) };
 
@@ -303,7 +303,7 @@ TEST_CASE ("Sixel default palette register 0 decodes to opaque black", "[sixel][
 
 TEST_CASE ("Sixel default palette register 15 (last explicit VT340 row) decodes to opaque white", "[sixel][lookuptable]")
 {
-    jam::terminal::SixelDecoder decoder;
+    jam::TerminalSixelDecoder decoder;
     const std::string payload { "#15~" };
     const auto image { decoder.decode (reinterpret_cast<const uint8_t*> (payload.data()), payload.size()) };
 
@@ -316,7 +316,7 @@ TEST_CASE ("Sixel default palette register 15 (last explicit VT340 row) decodes 
 
 TEST_CASE ("Sixel default palette register 255 (last slot, fallback row) decodes to opaque black", "[sixel][lookuptable]")
 {
-    jam::terminal::SixelDecoder decoder;
+    jam::TerminalSixelDecoder decoder;
     const std::string payload { "#255~" };
     const auto image { decoder.decode (reinterpret_cast<const uint8_t*> (payload.data()), payload.size()) };
 
@@ -328,7 +328,7 @@ TEST_CASE ("Sixel default palette register 255 (last slot, fallback row) decodes
 }
 
 // ============================================================================
-// CSI composite-key dispatch — canon DispatchTable (jam_VideoCSI.cpp)
+// CSI composite-key dispatch — canon DispatchTable (jam_TerminalVideoCSI.cpp)
 // ============================================================================
 
 TEST_CASE ("DECRQM (CSI ? Pd $ p) reports the queried mode's state via the composite-key CSI dispatch", "[video][csi][lookuptable][step8d]")
@@ -345,7 +345,7 @@ TEST_CASE ("DECRQM requires the full wire form CSI ? Pd $ p — bare CSI ? Pd p 
     // ARCHITECT ruling: the composite key alone only verifies inter[0] ==
     // '?' (csiInterCode::PRIVATE); the DECRQM executor additionally
     // requires inter[1] == '$' before calling sendModeReport() — see
-    // jam_VideoCSI.cpp `Video::sendModeReport()`.
+    // jam_TerminalVideoCSI.cpp `TerminalVideo::sendModeReport()`.
     Test::Term t { 10, 5 };
 
     // Full wire form — mode 2026 (SYNC_OUTPUT) defaults reset.
@@ -389,7 +389,7 @@ TEST_CASE ("Primary DA (CSI c) and secondary DA (CSI > c) resolve to distinct co
 }
 
 // ============================================================================
-// ESC no-intermediate action LUT (jam_VideoESC.cpp)
+// ESC no-intermediate action LUT (jam_TerminalVideoESC.cpp)
 // ============================================================================
 
 TEST_CASE ("ESC M (RI) scrolls the region down through the ESC action LUT when the cursor is at the scroll-region top", "[video][esc][lookuptable][step8d]")
@@ -418,7 +418,7 @@ TEST_CASE ("ESC 7 / ESC 8 (DECSC/DECRC) save and restore cursor position through
 }
 
 // ============================================================================
-// OSC command-number action LUT (jam_VideoOSC.cpp)
+// OSC command-number action LUT (jam_TerminalVideoOSC.cpp)
 // ============================================================================
 
 TEST_CASE ("OSC 0 fires the title event with the raw payload bytes through the OSC action LUT", "[video][osc][lookuptable][step8d]")
@@ -440,7 +440,7 @@ TEST_CASE ("OSC 8 opens a hyperlink through the OSC action LUT's hyperlink row (
 }
 
 // ============================================================================
-// C0 action LUT (jam_CursorState.cpp)
+// C0 action LUT (jam_TerminalVideo.cpp)
 // ============================================================================
 
 TEST_CASE ("C0 HT (0x09) advances the cursor to the next tab stop through the C0 action LUT", "[video][c0][lookuptable][step8d]")
@@ -473,9 +473,9 @@ TEST_CASE ("C0 BEL (0x07) fires the bell action without moving the cursor or wri
 }
 
 // ============================================================================
-// Working-copy mode-flag read-after-DECSET (jam_CursorState.h/.cpp)
-// t.mode() reads jam::terminal::Model, kept in sync via the fixture's
-// modeChanged trampoline onto Model::setMode().
+// Working-copy mode-flag read-after-DECSET (jam_TerminalVideo.h/.cpp)
+// t.mode() reads jam::TerminalModel, kept in sync via the fixture's
+// modeChanged trampoline onto TerminalModel::setMode().
 // ============================================================================
 
 TEST_CASE ("Video's own working-copy member reads correctly after DECRST 2027 disables grapheme clustering", "[video][mode][lookuptable][step8d]")

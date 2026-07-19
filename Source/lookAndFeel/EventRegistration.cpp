@@ -95,9 +95,9 @@ void ENDLookAndFeel::initialiseColours()
     setColourId (Id::toType (Id::code), Id::editorOutline, juce::TextEditor::outlineColourId);
     setColourId (Id::toType (Id::scrollbar), Id::thumb, juce::ScrollBar::thumbColourId);
     setColourId (Id::toType (Id::scrollbar), Id::track, juce::ScrollBar::trackColourId);
-    setColourId (Id::toType (Id::tab), Id::background, jam::button::Bar::backgroundColourId);
-    setColourId (Id::toType (Id::tab), Id::highlight, jam::button::Bar::highlightColourId);
-    setColourId (Id::toType (Id::tab), Id::outline, jam::button::Bar::outlineColourId);
+    setColourId (Id::toType (Id::tab), Id::background, jam::ButtonBar::backgroundColourId);
+    setColourId (Id::toType (Id::tab), Id::highlight, jam::ButtonBar::highlightColourId);
+    setColourId (Id::toType (Id::tab), Id::outline, jam::ButtonBar::outlineColourId);
     setColourId (Id::toType (Id::button), Id::button, juce::TextButton::buttonColourId);
     setColourId (Id::toType (Id::button), Id::buttonOn, juce::TextButton::buttonOnColourId);
     setColourId (Id::toType (Id::button), Id::textOff, juce::TextButton::textColourOffId);
