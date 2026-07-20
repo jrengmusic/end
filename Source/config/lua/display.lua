@@ -119,10 +119,10 @@ return {
 		-- this only scales the shader's own offscreen buffers.
 		post_processing_resolution = 0.5,
 
-		-- Glyph atlas mono rasterization backend: "edge_table", "freetype", or "native".
-		-- "edge_table" - unhinted juce::Typeface coverage rasterization (default).
-		-- "freetype"   - autofit-hinted, stem-darkened FreeType rasterization.
-		-- "native"     - OS-native font-smoothing (CoreText on macOS, DirectWrite on Windows).
+		-- Glyph atlas mono rasterization backend: "edgeTable", "freetype", or "native".
+		-- "edgeTable" - unhinted juce::Typeface coverage rasterization.
+		-- "freetype"  - unhinted FreeType rasterization (default), no autofitter, no stem darkening.
+		-- "native"    - OS-native font-smoothing (CoreText on macOS, DirectWrite on Windows).
 		font_rasterizer = "freetype",
 
 		-- Coverage LUT gamma exponent applied to every rasterized mono glyph byte.

@@ -765,7 +765,7 @@ graphics = {
     filter = "linear",                     -- "linear" (smooth) or "nearest" (sharp)
 
     -- Font rasterization
-    font_rasterizer = "freetype",          -- "edge_table", "freetype", or "native"
+    font_rasterizer = "freetype",          -- "edgeTable", "freetype", or "native"
     font_gamma = 2.2,                      -- sRGB gamma correction
     font_contrast = 0.0,                   -- Synthetic darkening boost
 }

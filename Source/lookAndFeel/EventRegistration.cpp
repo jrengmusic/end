@@ -39,7 +39,7 @@ void ENDLookAndFeel::setFontRasterization()
     jassert (atlas != nullptr);
 
     const auto backendName { config.getValue (Id::toType (Id::graphics), Id::fontRasterizer).toString() };
-    const auto backend { static_cast<jam::GlyphAtlas::Backend> (Id::FontRasterizerBackend::get (backendName)) };
+    const auto backend { static_cast<Id::FontRasterizerBackend::value> (Id::FontRasterizerBackend::get (backendName)) };
     const float gamma { config.getValue (Id::toType (Id::graphics), Id::fontGamma) };
     const float contrast { config.getValue (Id::toType (Id::graphics), Id::fontContrast) };
 

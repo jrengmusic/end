@@ -4,6 +4,8 @@
  */
 #pragma once
 #include <JuceHeader.h>
+#include <jam_gui/keyboard/jam_CaretComponent.h>
+#include <jam_gui/code_view/jam_CodeView.h>
 #include <JamFontsBinaryData.h>
 #include "generated/Lexicon.h"
 #include "config/ConfigModel.h"

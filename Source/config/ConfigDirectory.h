@@ -6,7 +6,7 @@
 
     ConfigDirectory is the ValueTree-adopting base for config sub-models. Each
     subclass builds its own subtree in its constructor init-list (via
-    @c jam::Model::fromLua or @c jam::Model::fromFiles) and adopts it through
+    @c jam::lua::fromLua or @c jam::Model::fromFiles) and adopts it through
     this constructor. The owner (@c ConfigModel) composes the resulting
     subtrees after member construction.
 

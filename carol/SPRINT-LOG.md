@@ -2,6 +2,36 @@
 
 ---
 
+## Sprint 83: Contract Conformance Fallout — Lexicon Regen + LookAndFeel Includes ✅
+
+**Date:** 2026-07-21
+**Duration:** incidental (JAM contract conformance cascade)
+
+### Agents Participated
+- Engineer: ENDLookAndFeel includes for CodeView visibility
+
+### Files Modified (14 total)
+- `Source/lookAndFeel/ENDLookAndFeel.h:6-9` — added jam_gui CodeView includes
+- `Source/lookAndFeel/ENDLookAndFeel.cpp`, `EventRegistration.cpp` — updated for namespace flatten
+- `Source/generated/Lexicon.h/.cpp` — regenerated (framework lexicon changes)
+- `Source/config/ConfigModel.h/.cpp`, `ConfigDirectory.h`, `display.lua` — config updates
+- `Source/lexicon.md` — updated
+- `CMakeLists.txt`, `ARCHITECTURE.md`, `SHADERS.md`, `END.ode` — doc/build updates
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- jam::CodeView not found after namespace flatten — added missing includes
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 82: WHELMED Vulkan Standalone + Hosted Rendering ✅
 
 **Date:** 2026-07-15

@@ -21,9 +21,11 @@
  *   jam/lexicon/jam_debug.md
  *   jam/lexicon/jam_graphics.md
  *   jam/lexicon/jam_gui.md
+ *   jam/lexicon/jam_lua.md
  *   jam/lexicon/jam_markdown.md
  *   jam/lexicon/jam_mermaid.md
  *   jam/lexicon/jam_plugin_bootstrap.md
+ *   jam/lexicon/jam_style.md
  *   jam/lexicon/jam_terminal.md
  *   jam/lexicon/jam_vulkan.md
  *   end/Source/lexicon.md
@@ -93,7 +95,6 @@ extern const juce::Identifier cursorChar { "char" };
 extern const juce::Identifier depth { "depth" };
 extern const juce::Identifier editorBackground { "editor_background" };
 extern const juce::Identifier editorOutline { "editor_outline" };
-extern const juce::Identifier embolden { "embolden" };
 extern const juce::Identifier flex { "flex" };
 extern const juce::Identifier fontFamily { "font_family" };
 extern const juce::Identifier force { "force" };
@@ -211,7 +212,6 @@ extern const juce::Identifier zoom { "zoom" };
 // Generic ValueTree property keys and a terminal-session type-name token that jam:: modules previously declared globally; END is now their sole consumer across LookAndFeel colour/geometry lookups, mouse-enable state, visibility toggling, and terminal Session state.
 // =========================================================================
 
-extern const juce::Identifier button { "button" };
 extern const juce::Identifier enabled { "enabled" };
 extern const juce::Identifier outline { "outline" };
 extern const juce::Identifier session { "session" };
@@ -223,15 +223,6 @@ extern const juce::Identifier visible { "visible" };
 // =========================================================================
 
 extern const juce::Identifier newline { "newline" };
-
-// =========================================================================
-// end/Source/lexicon.md :: rasterizer
-// Glyph atlas mono-rasterization backend names backing the FontRasterizerBackend bimap.
-// =========================================================================
-
-extern const juce::Identifier edgeTable { "edge_table" };
-extern const juce::Identifier freetype { "freetype" };
-extern const juce::Identifier native { "native" };
 
 // =========================================================================
 // end/Source/lexicon.md :: cursorShape

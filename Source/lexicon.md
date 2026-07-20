@@ -57,7 +57,6 @@ theme.lua visual property keys — tab/pane/window chrome, font metrics, cursor/
 | depth | depth |
 | editorBackground | editor_background |
 | editorOutline | editor_outline |
-| embolden | embolden |
 | flex | flex |
 | fontFamily | font_family |
 | force | force |
@@ -181,7 +180,6 @@ Generic ValueTree property keys and a terminal-session type-name token that jam:
 
 | word | string |
 |---|---|
-| button | button |
 | enabled | enabled |
 | outline | outline |
 | session | session |
@@ -194,16 +192,6 @@ Multi-file drop separator token backing the DropMode bimap's newline key (its sp
 | word | string |
 |---|---|
 | newline | newline |
-
-## rasterizer
-
-Glyph atlas mono-rasterization backend names backing the FontRasterizerBackend bimap.
-
-| word | string |
-|---|---|
-| edgeTable | edge_table |
-| freetype | freetype |
-| native | native |
 
 ## cursorShape
 
@@ -231,16 +219,6 @@ Multi-file drop separator mode bimap consumed by init.terminal.drop_multifiles.
 |---|---|---|---|
 | space | 0 |  | yes |
 | newline | 1 |  |  |
-
-## bimap FontRasterizerBackend
-
-Glyph atlas mono-rasterization backend bimap consumed by graphics.font_rasterizer; integer keys mirror jam::GlyphAtlas::Backend's enumerator order.
-
-| key | value | views | default |
-|---|---|---|---|
-| edgeTable | 0 |  | yes |
-| freetype | 1 |  |  |
-| native | 2 |  |  |
 
 ## bimap CursorShape
 

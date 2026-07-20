@@ -21,9 +21,11 @@
  *   jam/lexicon/jam_debug.md
  *   jam/lexicon/jam_graphics.md
  *   jam/lexicon/jam_gui.md
+ *   jam/lexicon/jam_lua.md
  *   jam/lexicon/jam_markdown.md
  *   jam/lexicon/jam_mermaid.md
  *   jam/lexicon/jam_plugin_bootstrap.md
+ *   jam/lexicon/jam_style.md
  *   jam/lexicon/jam_terminal.md
  *   jam/lexicon/jam_vulkan.md
  *   end/Source/lexicon.md
@@ -92,7 +94,6 @@ extern const juce::Identifier cursorChar;
 extern const juce::Identifier depth;
 extern const juce::Identifier editorBackground;
 extern const juce::Identifier editorOutline;
-extern const juce::Identifier embolden;
 extern const juce::Identifier flex;
 extern const juce::Identifier fontFamily;
 extern const juce::Identifier force;
@@ -210,7 +211,6 @@ extern const juce::Identifier zoom;
 // Generic ValueTree property keys and a terminal-session type-name token that jam:: modules previously declared globally; END is now their sole consumer across LookAndFeel colour/geometry lookups, mouse-enable state, visibility toggling, and terminal Session state.
 // =========================================================================
 
-extern const juce::Identifier button;
 extern const juce::Identifier enabled;
 extern const juce::Identifier outline;
 extern const juce::Identifier session;
@@ -222,15 +222,6 @@ extern const juce::Identifier visible;
 // =========================================================================
 
 extern const juce::Identifier newline;
-
-// =========================================================================
-// end/Source/lexicon.md :: rasterizer
-// Glyph atlas mono-rasterization backend names backing the FontRasterizerBackend bimap.
-// =========================================================================
-
-extern const juce::Identifier edgeTable;
-extern const juce::Identifier freetype;
-extern const juce::Identifier native;
 
 // =========================================================================
 // end/Source/lexicon.md :: cursorShape
@@ -273,52 +264,6 @@ struct DropMode : public jam::Bimap<DropMode>
     const juce::String& getDefault() const noexcept override
     {
         return map.at (space);
-    }
-
-    static const auto& get() noexcept
-    {
-        return getInstance()->map;
-    }
-
-    static int get (const juce::String& value) noexcept
-    {
-        return jam::Map::getKey (get()).at (value);
-    }
-
-    static juce::String get (int key) noexcept
-    {
-        return get().at (key);
-    }
-};
-
-/**
- * @brief Glyph atlas mono-rasterization backend bimap consumed by graphics.font_rasterizer; integer keys mirror jam::GlyphAtlas::Backend's enumerator order.
- *
- * edgeTable=0→"edge_table" (default)
- * freetype=1→"freetype"
- * native=2→"native"
- */
-struct FontRasterizerBackend : public jam::Bimap<FontRasterizerBackend>
-{
-    FontRasterizerBackend()
-    {
-        map = {
-            { edgeTable, "edge_table" },
-            { freetype, "freetype" },
-            { native, "native" }
-        };
-    }
-
-    enum value
-    {
-        edgeTable = 0,
-        freetype = 1,
-        native = 2,
-    };
-
-    const juce::String& getDefault() const noexcept override
-    {
-        return map.at (edgeTable);
     }
 
     static const auto& get() noexcept
@@ -572,11 +517,13 @@ struct FileFlex : public jam::Bimap<FileFlex>
  */
 struct Lexicon
 {
+    TaperMap taperMap;
     Segment segment;
     ButtonState buttonState;
     Position position;
     Orientation orientation;
     WindowFX windowFX;
+    AnalyzerMode analyzerMode;
     BlockType blockType;
     HtmlType1Tag htmlType1Tag;
     HtmlBlockTag htmlBlockTag;
@@ -600,15 +547,16 @@ struct Lexicon
     AudioParameter audioParameter;
     ViewOrientation viewOrientation;
     UiScale uiScale;
-    Action action;
+    Oversampling oversampling;
+    VariDisplayMode variDisplayMode;
     Display display;
     Screen screen;
     MouseTracking mouseTracking;
     ImageResample imageResample;
     MouseButton mouseButton;
     Renderer renderer;
-    DropMode dropMode;
     FontRasterizerBackend fontRasterizerBackend;
+    DropMode dropMode;
     CursorShape cursorShape;
     OverlayAxisLine overlayAxisLine;
     FileConfig fileConfig;

@@ -66,14 +66,6 @@ set(END_BINARY_FILES
     ${_end_lua} ${_end_shell} ${_end_shaders} ${_end_js} ${_end_html}
 )
 
-# JAM SVG assets for popup menu icons
-list(APPEND END_BINARY_FILES
-    "${JAM_ROOT}/jam_gui/assets/split_vertical_normal.svg"
-    "${JAM_ROOT}/jam_gui/assets/split_horizontal_normal.svg"
-    "${JAM_ROOT}/jam_gui/assets/join_cells_vertical_normal.svg"
-    "${JAM_ROOT}/jam_gui/assets/join_cells_horizontal_normal.svg"
-)
-
 # Windows ConPTY sideload binaries
 if(WIN32)
     list(APPEND END_BINARY_FILES

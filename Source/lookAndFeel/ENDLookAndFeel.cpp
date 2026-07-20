@@ -341,17 +341,12 @@ void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
 #endif
 }
 
-static constexpr const char* const splitVerticalNormalSVG { "split_vertical_normal.svg" };
-static constexpr const char* const splitHorizontalNormalSVG { "split_horizontal_normal.svg" };
-static constexpr const char* const joinCellsVerticalNormalSVG { "join_cells_vertical_normal.svg" };
-static constexpr const char* const joinCellsHorizontalNormalSVG { "join_cells_horizontal_normal.svg" };
-
 static const char* getMenuItemSVG (int itemID)
 {
-    static const juce::String splitVertical { BinaryData::getString (splitVerticalNormalSVG) };
-    static const juce::String splitHorizontal { BinaryData::getString (splitHorizontalNormalSVG) };
-    static const juce::String joinCellsVertical { BinaryData::getString (joinCellsVerticalNormalSVG) };
-    static const juce::String joinCellsHorizontal { BinaryData::getString (joinCellsHorizontalNormalSVG) };
+    static const juce::String splitVertical { BinaryData::getString (Resource::splitVerticalNormal) };
+    static const juce::String splitHorizontal { BinaryData::getString (Resource::splitHorizontalNormal) };
+    static const juce::String joinCellsVertical { BinaryData::getString (Resource::joinCellsVerticalNormal) };
+    static const juce::String joinCellsHorizontal { BinaryData::getString (Resource::joinCellsHorizontalNormal) };
 
     switch (itemID)
     {

@@ -92,7 +92,7 @@ private:
            on-disk @c themes/ directory as a THEMES subtree.
 
     The constructor init-list builds a THEMES-rooted tree via
-    @c jam::Model::fromLua from @c Id::FileThemes BinaryData lua (THEME and
+    @c jam::lua::fromLua from @c Id::FileThemes BinaryData lua (THEME and
     WHELMED children) and adopts it through @c ConfigDirectory's ValueTree ctor. The
     body appends a FLEX child (from @c Id::FileFlex SVGs) as a sibling of THEME
     and WHELMED. @c ConfigModel attaches the whole @c theme.state THEMES
@@ -107,7 +107,7 @@ class ConfigTheme : public ConfigDirectory
 {
 public:
     /** @brief Constructs with the THEMES-rooted tree (THEME, WHELMED) built in
-     *         the init-list via @c jam::Model::fromLua and adopted through
+     *         the init-list via @c jam::lua::fromLua and adopted through
      *         @c ConfigDirectory. A FLEX sibling is appended in the constructor body.
      */
     ConfigTheme();
@@ -151,9 +151,9 @@ private:
     @par Build-in-ctor composition
     @c theme, @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) are
     member objects whose constructors build their own subtrees via
-    @c jam::Model::fromLua / @c jam::Model::fromFiles and adopt the result
+    @c jam::lua::fromLua / @c jam::Model::fromFiles and adopt the result
     directly. @c ConfigModel's init-list builds the CONFIG tree from @c Id::FileConfig
-    BinaryData via @c jam::Model::fromLua and adopts it through @c jam::Model's
+    BinaryData via @c jam::lua::fromLua and adopts it through @c jam::Model's
     ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
     @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
     the CONFIG tree. Both shader instances are first-class GRAPHICS children —
@@ -172,7 +172,7 @@ private:
     3. @c startWatcher()   — installs @c jam::File::Watcher on @c Id::Files::Config::path.
 
     @par Composition via jam::Model aggregators
-    @c jam::Model::fromLua and @c jam::Model::fromFiles are the SSOT builders.
+    @c jam::lua::fromLua and @c jam::Model::fromFiles are the SSOT builders.
     @c fromLua iterates any @c jam::HashMap\<int, juce::String\> bimap, calls
     @c read(key) for lua content, parses via the single-source @c fromLua overload,
     and returns a @p rootTag-typed tree. @c fromFiles sets one property per bimap
@@ -183,7 +183,7 @@ private:
     @see ConfigTheme
     @see ConfigShader
     @see jam::Model
-    @see jam::LuaValidators
+    @see jam::lua::Validators
     @see ENDApplication
 */
 class ConfigModel
@@ -204,9 +204,9 @@ private:
     // resolves inside the stored lambda, at check-time, not at this function's
     // own call time — Id::Lexicon does not exist yet that early.
     template<typename Bimap>
-    static jam::LuaValidator getValidator()
+    static jam::lua::Validator getValidator()
     {
-        return jam::LuaValidator { [] (const juce::var& value)
+        return jam::lua::Validator { [] (const juce::var& value)
                                      {
                                          return value.isString()
                                                 and Bimap::getInstance()->contains (value.toString());
@@ -228,17 +228,17 @@ public:
         Outer key = tree type. Inner key = property name. Bimap validators
         (Position, DropMode) are pre-populated via IIFE on first call.
         Type-based predicates for all other properties are appended by
-        @c jam::Model::fromLua during the init-list build walk.
+        @c jam::lua::fromLua during the init-list build walk.
     */
-    static jam::LuaValidators& getValidators()
+    static jam::lua::Validators& getValidators()
     {
-        static jam::LuaValidators validators = []
+        static jam::lua::Validators validators = []
         {
-            jam::LuaValidators v;
+            jam::lua::Validators v;
 
             const auto& add = [&v] (juce::Identifier treeType,
                                     juce::Identifier propertyName,
-                                    jam::LuaValidator validator)
+                                    jam::lua::Validator validator)
             {
                 auto [treeEntry, inserted] = v.try_emplace (treeType);
                 auto& [treeKey, treeValidators] = *treeEntry;
@@ -258,12 +258,12 @@ public:
             // graphics.mouse (nested under graphics — Id::toType (Id::mouse), found by the
             // same recursive getChildWithName() as every other tree type here).
             // enabled/zoom carry no entry — plain bool/string, auto type-validated
-            // by jam::Model::fromLua (ConfigModel.h's own validators doc comment).
+            // by jam::lua::fromLua (ConfigModel.h's own validators doc comment).
             add (Id::toType (Id::mouse), Id::imouse, getValidator<Id::MouseButton>());
             add (Id::toType (Id::mouse), Id::orbit, getValidator<Id::MouseButton>());
             add (Id::toType (Id::mouse), Id::reset, getValidator<Id::MouseButton>());
 
-            jam::LuaValidator sizeFormat;
+            jam::lua::Validator sizeFormat;
             sizeFormat.format = [] (const juce::var& v)
             {
                 const auto [width, height] = jam::Size<int16_t> { v };
@@ -271,7 +271,7 @@ public:
             };
             add (Id::toType (Id::window), Id::size, sizeFormat);
 
-            jam::LuaValidator boundsFormat;
+            jam::lua::Validator boundsFormat;
             boundsFormat.format = jam::Format::fromBounds;
             add (Id::toType (Id::pane), Id::bounds, boundsFormat);
 
@@ -295,7 +295,7 @@ public:
     /**
         @brief Reads each root lua config file from disk and overlays @c state.
 
-        Builds a CONFIG-rooted disk mirror via @c jam::Model::fromLua with
+        Builds a CONFIG-rooted disk mirror via @c jam::lua::fromLua with
         @c validators, overlays valid properties via @c setValuesFrom, then
         drives @c theme.loadFromPath(errors) and @c shader.loadFromPath(errors)
         in sequence. Writes the final result to @c ENDModel's message overlay:

@@ -36,7 +36,7 @@ void ConfigShader::loadFromPath (const juce::var& path, juce::String& errors)
 //==============================================================================
 
 ConfigTheme::ConfigTheme()
-    : ConfigDirectory (jam::Model::fromLua (
+    : ConfigDirectory (jam::lua::fromLua (
           Id::toType (Id::themes),
           Id::FileThemes::get(),
           [] (int key)
@@ -92,7 +92,7 @@ void ConfigTheme::loadFromPath (const juce::var& path, juce::String& errors)
 
     if (dir.isDirectory())
     {
-        auto disk { jam::Model::fromLua (
+        auto disk { jam::lua::fromLua (
             Id::toType (Id::themes),
             Id::FileThemes::get(),
             [dir] (int key)
@@ -124,7 +124,7 @@ void ConfigTheme::loadFromPath (const juce::var& path, juce::String& errors)
 //==============================================================================
 
 ConfigModel::ConfigModel()
-    : jam::Model (jam::Model::fromLua (
+    : jam::Model (jam::lua::fromLua (
           Id::toType (Id::config),
           Id::FileConfig::get(),
           [] (int key)
@@ -222,7 +222,7 @@ void ConfigModel::loadFromPath()
 {
     juce::String errors;
 
-    auto disk { jam::Model::fromLua (
+    auto disk { jam::lua::fromLua (
         Id::toType (Id::config),
         Id::FileConfig::get(),
         [] (int key)

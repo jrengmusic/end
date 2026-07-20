@@ -536,8 +536,8 @@ dispatched through a branchless member-function-pointer table:
 
 | Backend | Rasterizer | Character |
 |---|---|---|
-| `edge_table` | JUCE EdgeTable coverage | unhinted, platform-identical |
-| `freetype` | vendored FreeType (autofit + stem darkening) | hinted, platform-identical |
+| `edgeTable` | JUCE EdgeTable coverage | unhinted, platform-identical |
+| `freetype` | vendored FreeType (unhinted, no stem darkening) | unhinted, platform-identical |
 | `native` | CoreText (mac) / DirectWrite (Windows) | OS-native smoothing, per-OS look |
 
 - Coverage conditioning: a gamma+contrast LUT (config: `font_gamma` — sRGB-derived 2.2
