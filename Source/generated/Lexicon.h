@@ -543,6 +543,7 @@ struct Lexicon
     KanbanPriority kanbanPriority;
     ArchitectureSide architectureSide;
     C4Type c4Type;
+    ParameterPage parameterPage;
     Appearance appearance;
     AudioParameter audioParameter;
     ViewOrientation viewOrientation;
