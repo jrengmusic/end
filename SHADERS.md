@@ -12,13 +12,13 @@ mkdir -p ~/.config/end/shaders/my_shader
 # Create: Image (required — no file extension)
 ```
 
-Edit `~/.config/end/display.lua`:
-```lua
-graphics = {
-    background = "my_shader",
-    background_opacity = 0.5,
-    frame_rate = 30,
-}
+Edit `~/.config/end/display.md`'s `## graphics` table:
+```
+| key                 | value     |
+|---------------------|-----------|
+| background          | my_shader |
+| background_opacity  | 0.5       |
+| frame_rate          | 30        |
 ```
 
 Press `Cmd+R`. Done.
@@ -91,7 +91,7 @@ uniform sampler2D iChannel3; // Last frame of BufferD
 uniform sampler2D BufferE;   // 5th buffer pass and beyond — name only, no alias
 ```
 
-**iMouse note:** real, sign-encoded Shadertoy mouse state is only stamped for BACKGROUND shaders, gated by `display.lua`'s `graphics.mouse.enabled` (false zeroes it unconditionally) and driven by whichever button `graphics.mouse.imouse` names ("left", "middle", "right", or "none" — see `display.lua`'s own `mouse` block for every field). A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
+**iMouse note:** real, sign-encoded Shadertoy mouse state is only stamped for BACKGROUND shaders, gated by `display.md`'s `## mouse` table's `enabled` row (false zeroes it unconditionally) and driven by whichever button the `imouse` row names ("left", "middle", "right", or "none" — see `display.md`'s own `## mouse` table for every field). A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
 
 ### Example: Feedback Trail
 ```glsl
@@ -299,12 +299,12 @@ shader0 = crt-lottes.slang
 ✅ Does it match the source filename you copied? If yes, you're good. (The engine is extension-agnostic for `shaderN=` paths — `.slang` is the corpus convention, but a preset referencing `.glsl` sources works identically.)
 
 **4. Enable in config:**
-```lua
-graphics = {
-    post_processing = "crt-lottes",    -- Must match directory name
-    post_processing_opacity = 0.8,
-    frame_rate = 60,
-}
+```
+| key                        | value      | comment                    |
+|-----------------------------|------------|----------------------------|
+| post_processing             | crt-lottes | Must match directory name  |
+| post_processing_opacity     | 0.8        |                            |
+| frame_rate                  | 60         |                            |
 ```
 
 **5. Reload:**
@@ -519,14 +519,14 @@ void main()
 }
 ```
 
-### Config: `~/.config/end/display.lua`
-```lua
-graphics = {
-    post_processing = "crt_simple",    -- Post-process (runs after text)
-    post_processing_opacity = 0.8,     -- 80% effect intensity
-    frame_rate = 60,                   -- Smooth CRT look
-    filter = "linear",
-}
+### Config: `~/.config/end/display.md`
+```
+| key                        | value      | comment                        |
+|-----------------------------|------------|---------------------------------|
+| post_processing             | crt_simple | Post-process (runs after text) |
+| post_processing_opacity     | 0.8        | 80% effect intensity           |
+| frame_rate                  | 60         | Smooth CRT look                |
+| filter                      | linear     |                                 |
 ```
 
 ### Result
@@ -595,8 +595,8 @@ vec3 delinearize(vec3 col) {
 // Accumulation pass — self-feeds via PassFeedback0, its own previous
 // frame's output. There is no seconds-based iTime uniform for a slang
 // pass — elapsed seconds are reconstructed from FrameCount at this
-// project's own configured frame_rate (display.lua: background =
-// "feedback_trail", frame_rate = 30), same technique as
+// project's own configured frame_rate (display.md: background =
+// feedback_trail, frame_rate = 30), same technique as
 // ~/.config/end/shaders/j3d/j3d.slang.
 #include "common.glsl"
 
@@ -728,47 +728,43 @@ void main()
 ```
 
 ### Config
-```lua
-graphics = {
-    background = "feedback_trail",
-    background_opacity = 0.6,
-    background_resolution = 0.5,
-    frame_rate = 30,
-}
+```
+| key                    | value          |
+|-------------------------|----------------|
+| background              | feedback_trail |
+| background_opacity      | 0.6            |
+| background_resolution   | 0.5            |
+| frame_rate              | 30             |
 ```
 
 ---
 
 ## Configuration Reference
 
-### `~/.config/end/display.lua`
+### `~/.config/end/display.md`
 
-`gpu` is a top-level key, separate from `graphics` — it toggles GPU rendering for the whole application, not just shaders:
-```lua
-gpu = true,   -- Enable GPU rendering (top-level, sibling of graphics, not inside it)
+`gpu` is a row in the `## display` table, separate from `## graphics` — it toggles GPU rendering for the whole application, not just shaders:
+```
+| key | value | comment                                            |
+|-----|-------|-----------------------------------------------------|
+| gpu | true  | Enable GPU-accelerated rendering (## display table) |
 ```
 
-```lua
-graphics = {
-    -- Background shader
-    background = "my_shader",              -- Directory name or empty
-    background_opacity = 0.5,              -- 0.0 = transparent, 1.0 = opaque
-    frame_rate = 30,                       -- 1-120 Hz, controls GPU load
-    background_resolution = 0.5,           -- 0.0-1.0, intermediate passes only
-
-    -- Post-processing shader (runs after text)
-    post_processing = "",                  -- Directory name or empty
-    post_processing_opacity = 1.0,         -- 0.0 = original, 1.0 = fully processed
-    post_processing_resolution = 0.5,      -- Same as background
-
-    -- Shared settings
-    filter = "linear",                     -- "linear" (smooth) or "nearest" (sharp)
-
-    -- Font rasterization
-    font_rasterizer = "freetype",          -- "edgeTable", "freetype", or "native"
-    font_gamma = 2.2,                      -- sRGB gamma correction
-    font_contrast = 0.0,                   -- Synthetic darkening boost
-}
+`## graphics` table:
+```
+| key                        | value    | comment                                     |
+|------------------------------|----------|----------------------------------------------|
+| background                   | (empty)  | Directory name or empty — disables           |
+| background_opacity           | 0.5      | 0.0 = transparent, 1.0 = opaque               |
+| frame_rate                   | 30       | 1-120 Hz, controls GPU load                   |
+| background_resolution        | 0.5      | 0.0-1.0, intermediate passes only              |
+| post_processing               | (empty)  | Directory name or empty — disables           |
+| post_processing_opacity       | 1.0      | 0.0 = original, 1.0 = fully processed         |
+| post_processing_resolution    | 0.5      | Same as background                            |
+| filter                        | linear   | "linear" (smooth) or "nearest" (sharp)        |
+| font_rasterizer                | freetype | "edgeTable", "freetype", or "native"          |
+| font_gamma                     | 2.2      | sRGB gamma correction                         |
+| font_contrast                  | 0.0      | Synthetic darkening boost                     |
 ```
 
 ### Hot Reload
@@ -787,7 +783,7 @@ uniform vec3 iResolution;   // (width, height, aspect_ratio)
 uniform vec4 iMouse;        // (x, y, clickX, clickY) in pixels; sign-encoded per Shadertoy convention
 ```
 
-Real, sign-encoded mouse state is only stamped for BACKGROUND shaders (their own click/drag events feed it), gated by `display.lua`'s `graphics.mouse.enabled` and driven by whichever button `graphics.mouse.imouse` names — see `display.lua`'s own `mouse` block. A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
+Real, sign-encoded mouse state is only stamped for BACKGROUND shaders (their own click/drag events feed it), gated by `display.md`'s `## mouse` table's `enabled` row and driven by whichever button the `imouse` row names — see `display.md`'s own `## mouse` table. A post-processing shader always receives `iMouse = (0, 0, 0, 0)` — mouse capture into the post-process chain is not yet wired.
 
 ### Buffer Feedback (Shadertoy)
 ```glsl
@@ -849,7 +845,7 @@ Texture inputs are named samplers, resolved by reflection: `Source` (previous pa
 | Item | Path |
 |------|------|
 | Shader projects | `~/.config/end/shaders/` |
-| Config | `~/.config/end/display.lua` |
+| Config | `~/.config/end/display.md` |
 | Debug log | `~/.config/end/END.ode` |
 | Vulkan pipeline cache | `~/.config/end/cache/END.cache` |
 
@@ -872,13 +868,15 @@ tail -f ~/.config/end/END.ode
 - Referenced file doesn't exist or path is wrong in manifest
 
 **Shader doesn't render**
-- GPU disabled: set `gpu = true` in config (top-level key, not inside `graphics`)
-- Project directory name mismatch: verify `background = "exact_dir_name"`
-- Check that `Cmd+R` was pressed (or `auto_reload = true`)
+- GPU disabled: set `gpu`'s value to `true` in `display.md`'s `## display` table (not `## graphics`)
+- Project directory name mismatch: verify the `## graphics` table's `background` value matches the directory name exactly
+- Check that `Cmd+R` was pressed (or the `## display` table's `auto_reload` value is `true`)
 
 ### GPU Disabled / CPU Fallback
-```lua
-gpu = false  -- Forces software rendering (slower, no effects)
+```
+| key | value | comment                                      |
+|-----|-------|-----------------------------------------------|
+| gpu | false | Forces software rendering (slower, no effects) |
 ```
 
 ---
@@ -894,12 +892,13 @@ gpu = false  -- Forces software rendering (slower, no effects)
 | 0.25 | 6% | Fast |
 
 ### Frame Rate
-```lua
-graphics = {
-    frame_rate = 10,  -- 90% GPU savings (vs 120 Hz)
-    frame_rate = 30,  -- Standard (typical)
-    frame_rate = 120, -- Smooth (high GPU load)
-}
+`## graphics` table's `frame_rate` value:
+```
+| value | comment                        |
+|-------|---------------------------------|
+| 10    | 90% GPU savings (vs 120 Hz)     |
+| 30    | Standard (typical)              |
+| 120   | Smooth (high GPU load)          |
 ```
 
 ### Optimization Strategies
@@ -964,12 +963,12 @@ void main()
 ```
 
 Config:
-```lua
-graphics = {
-    background = "plasma",
-    background_opacity = 0.7,
-    frame_rate = 30,
-}
+```
+| key                 | value  |
+|-----------------------|--------|
+| background            | plasma |
+| background_opacity    | 0.7    |
+| frame_rate            | 30     |
 ```
 
 ---

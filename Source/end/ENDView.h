@@ -5,7 +5,7 @@
 #include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 #include "Nexus.h"
 
 class ENDView
@@ -37,11 +37,25 @@ private:
 
     void createAndAttachParameters();
 
-    void createDockPane (int positionKey);
-
     void registerActions();
 
+    void registerSessionActions();
+
+    void registerTabActions();
+
+    void registerZoomActions();
+
+    void registerPaneActions();
+
+    void registerWindowActions();
+
     void registerEvents();
+
+    void registerGraphicsEvents();
+
+    void registerWindowEvents();
+
+    void registerMouseEvents();
 
     void setBackground();
 

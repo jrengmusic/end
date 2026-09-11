@@ -1,5 +1,6 @@
 CompileFlags:
-  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end
+  Remove: [--target=*]
   Add:
     - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
@@ -7,8 +8,7 @@ CompileFlags:
     - -DHAVE_FREETYPE
     - -DHAVE_UNISTD_H
     - -DJAM_VULKAN_RUNTIME_SHADER_COMPILER=1
-    - -DJUCE_APPLICATION_NAME_STRING=\"END\"
-    - -DJUCE_APPLICATION_VERSION_STRING=\"0.0.1\"
+    - -DJUCE_DONT_DECLARE_PROJECTINFO=1
     - -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
     - -DJUCE_IN_APP_PURCHASES=0
     - -DJUCE_MODULE_AVAILABLE_jam_animation=1
@@ -18,16 +18,12 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_data_structures=1
     - -DJUCE_MODULE_AVAILABLE_jam_debug=1
     - -DJUCE_MODULE_AVAILABLE_jam_freetype=1
-    - -DJUCE_MODULE_AVAILABLE_jam_fuzzy=1
     - -DJUCE_MODULE_AVAILABLE_jam_graphics=1
     - -DJUCE_MODULE_AVAILABLE_jam_gui=1
-    - -DJUCE_MODULE_AVAILABLE_jam_lexicon=1
-    - -DJUCE_MODULE_AVAILABLE_jam_lua=1
     - -DJUCE_MODULE_AVAILABLE_jam_markdown=1
-    - -DJUCE_MODULE_AVAILABLE_jam_mermaid=1
     - -DJUCE_MODULE_AVAILABLE_jam_style=1
-    - -DJUCE_MODULE_AVAILABLE_jam_terminal=1
     - -DJUCE_MODULE_AVAILABLE_jam_vulkan=1
+    - -DJUCE_MODULE_AVAILABLE_jam_web=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_devices=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_formats=1
@@ -43,17 +39,19 @@ CompileFlags:
     - -DJUCE_PLUGINHOST_AU=1
     - -DJUCE_PLUGINHOST_VST3=1
     - -DJUCE_STANDALONE_APPLICATION=1
+    - -DJUCE_STRICT_REFCOUNTEDPOINTER=1
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
     - -DJUCE_USE_CURL=0
-    - -DJUCE_WEB_BROWSER=1
+    - -DJUCE_WEB_BROWSER=0
     - -DVMA_VULKAN_VERSION=1002000
     - -D_DEBUG=1
-    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/END_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_graphics/fonts/harfbuzz
+    - -I/Users/jreng/Documents/Poems/dev/end/Source/generated
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
+    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_graphics/fonts/harfbuzz
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/generated
     - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules
     - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/VST3_SDK
     - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK
@@ -65,23 +63,27 @@ CompileFlags:
     - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_web/.
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_END_BinaryData/JuceLibraryCode
     - -isystem
-    - /Users/jreng/Documents/Poems/dev/end/../jam/../../Vulkan/macOS/include
+    - /Users/jreng/Documents/Poems/dev/end/../../Vulkan/macOS/include
     - -g
     - -std=c++17
     - -arch
+    - x86_64
+    - -arch
     - arm64
-    - -mmacosx-version-min=12.0
-    - -Wno-float-equal
-    - -Wno-sign-conversion
-    - -Wno-implicit-float-conversion
-    - -Wno-switch-enum
+    - -mmacosx-version-min=11.0
     - -Wno-shadow
     - -Wno-unused-parameter
-    - -Wno-deprecated-declarations
+    - -Wno-float-equal
+    - -Wno-sign-conversion
+    - -Wno-switch-enum
+    - -Wno-implicit-float-conversion
+    - -O0
 Diagnostics:
   MissingIncludes: None
   UnusedIncludes: None

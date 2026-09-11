@@ -1,7 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "generated/Lexicon.h"
-#include "LexiconFiles.h"
+#include "generated/Generated.h"
 #include "end/ENDModel.h"
 #include "ConfigDirectory.h"
 
@@ -39,7 +38,7 @@ public:
 
     /** @brief Reads GLSL source from the shader project directory into @c state.
      *
-     *  Locates the shader directory via @c Id::Files::Shaders::getPath, then reads
+     *  Locates the shader directory via @c ConfigDirectory::Shaders::getPath, then reads
      *  that directory's own @c .slangp manifest (any filename, extension-only
      *  discovery via @c jam::VulkanShaderFormat::getExtension() — only
      *  @c slang carries a manifest-extension entry, the SAME wildcard both
@@ -72,14 +71,11 @@ public:
      *  listeners (jam::VulkanShaderCompiler, via ENDView's funnels) pick up the
      *  new source.
      *
-     *  @param path    Active shader project name from ConfigModel.
-     *  @param errors  Accumulation channel — unused by this method (the
-     *                 @c .slangp parse this method drives cannot itself fail);
-     *                 kept for signature parity with @c ConfigDirectory's own
-     *                 @c loadFromPath override and @c ConfigTheme::loadFromPath's
-     *                 own lua-parse error channel.
+     *  @param path  Active shader project name from ConfigModel.
+     *  @return      Always empty — the @c .slangp parse this method drives
+     *               cannot itself fail.
      */
-    void loadFromPath (const juce::var& path, juce::String& errors) override;
+    juce::String loadFromPath (const juce::var& path) override;
 
 private:
     //==========================================================================
@@ -92,10 +88,10 @@ private:
            on-disk @c themes/ directory as a THEMES subtree.
 
     The constructor init-list builds a THEMES-rooted tree via
-    @c jam::lua::fromLua from @c Id::FileThemes BinaryData lua (THEME and
-    WHELMED children) and adopts it through @c ConfigDirectory's ValueTree ctor. The
-    body appends a FLEX child (from @c Id::FileFlex SVGs) as a sibling of THEME
-    and WHELMED. @c ConfigModel attaches the whole @c theme.state THEMES
+    @c jam::ConfigDocument from @c map::FileThemes BinaryData markdown (THEME
+    child) and adopts it through @c ConfigDirectory's ValueTree ctor. The
+    body appends a FLEX child (from @c map::FileFlex SVGs) as a sibling of THEME.
+    @c ConfigModel attaches the whole @c theme.state THEMES
     subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
     @c theme.state remains the live THEMES tree, so @c loadFromPath() and
     @c saveToPath() operate on it directly.
@@ -106,32 +102,31 @@ private:
 class ConfigTheme : public ConfigDirectory
 {
 public:
-    /** @brief Constructs with the THEMES-rooted tree (THEME, WHELMED) built in
-     *         the init-list via @c jam::lua::fromLua and adopted through
+    /** @brief Constructs with the THEMES-rooted tree (THEME) built in
+     *         the init-list via @c jam::ConfigDocument and adopted through
      *         @c ConfigDirectory. A FLEX sibling is appended in the constructor body.
      */
     ConfigTheme();
 
     ~ConfigTheme() override = default;
 
-    /** @brief Reads each theme lua from disk and overlays valid properties onto @c state
-     *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
-     *         @c state.sendPropertyChangeMessage(Id::theme). Accumulates errors in @c errors.
+    /** @brief Reads each theme markdown file from disk and overlays valid properties onto
+     *         @c state via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory.
+     *         Fires @c state.sendPropertyChangeMessage(Id::theme). Accumulates errors in @c errors.
      *
-     *  Locates the theme directory via @c Id::Files::Themes::getPath and performs a
+     *  Locates the theme directory via @c ConfigDirectory::Themes::getPath and performs a
      *  single @c setValuesFrom pass after assembling a disk-mirror THEMES tree
-     *  (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
+     *  (THEME via @c jam::ConfigDocument + FLEX via @c fromFiles).
      *
-     *  @param path    Active theme name from ConfigModel.
-     *  @param errors  Accumulation channel; lua parse errors are appended here
-     *                 and also passed up to the @c ConfigModel caller.
+     *  @param path  Active theme name from ConfigModel.
+     *  @return      Accumulated markdown validation errors; empty when successful.
      */
-    void loadFromPath (const juce::var& path, juce::String& errors) override;
+    juce::String loadFromPath (const juce::var& path) override;
 
-    /** @brief Writes missing theme lua and SVG files to the active theme directory.
+    /** @brief Writes missing theme markdown and SVG files to the active theme directory.
      *
      *  Creates the theme directory and its @c flex/ subdirectory if absent, then
-     *  seeds any missing lua and SVG assets from BinaryData. No-op when the
+     *  seeds any missing markdown and SVG assets from BinaryData. No-op when the
      *  directory already contains all expected files.
      *
      *  @param path  Active theme name from ConfigModel.
@@ -151,9 +146,9 @@ private:
     @par Build-in-ctor composition
     @c theme, @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) are
     member objects whose constructors build their own subtrees via
-    @c jam::lua::fromLua / @c jam::Model::fromFiles and adopt the result
-    directly. @c ConfigModel's init-list builds the CONFIG tree from @c Id::FileConfig
-    BinaryData via @c jam::lua::fromLua and adopts it through @c jam::Model's
+    @c jam::ConfigDocument / @c jam::Model::fromFiles and adopt the result
+    directly. @c ConfigModel's init-list builds the CONFIG tree from @c map::FileConfig
+    BinaryData via @c jam::ConfigDocument and adopts it through @c jam::Model's
     ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
     @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
     the CONFIG tree. Both shader instances are first-class GRAPHICS children —
@@ -167,23 +162,22 @@ private:
     @c appendChild — all are single-rooted subtrees, so no unwrapping is needed.
 
     @par Three-phase init (in constructor body)
-    1. @c saveToPath()     — writes missing root lua files to @c Id::Files::Config::path.
-    2. @c loadFromPath()   — reads lua from disk and overlays via @c setValuesFrom.
-    3. @c startWatcher()   — installs @c jam::File::Watcher on @c Id::Files::Config::path.
+    1. @c saveToPath()     — writes missing root markdown files to @c ConfigDirectory::Config::path.
+    2. @c loadFromPath()   — reads markdown from disk and overlays via @c setValuesFrom.
+    3. @c startWatcher()   — installs @c jam::File::Watcher on @c ConfigDirectory::Config::path.
 
-    @par Composition via jam::Model aggregators
-    @c jam::lua::fromLua and @c jam::Model::fromFiles are the SSOT builders.
-    @c fromLua iterates any @c jam::HashMap\<int, juce::String\> bimap, calls
-    @c read(key) for lua content, parses via the single-source @c fromLua overload,
-    and returns a @p rootTag-typed tree. @c fromFiles sets one property per bimap
+    @par Composition via jam::ConfigDocument and jam::Model::fromFiles
+    @c jam::ConfigDocument::parse and @c jam::Model::fromFiles are the SSOT builders.
+    Each bimap key resolves to one markdown file; its parsed document is validated via
+    @c jam::ConfigValidator::isValid, and its @c getValueTree(rootTag) children are
+    appended into one @p rootTag-typed tree. @c fromFiles sets one property per bimap
     entry on a fresh @p rootTag tree — key = stem, value = @c read(key).
-    No validation when @p validators and @p errors are nullptr.
 
     @see ConfigDirectory
     @see ConfigTheme
     @see ConfigShader
     @see jam::Model
-    @see jam::lua::Validators
+    @see jam::ConfigValidator
     @see ENDApplication
 */
 class ConfigModel
@@ -192,95 +186,6 @@ class ConfigModel
     , public jam::File::Watcher::Listener
 {
 public:
-    //==========================================================================
-    /** @brief Buffer capacity for GLSL source ParameterText parameters.
-     *         64 KiB covers the largest practical shader pass source file.
-     */
-    static constexpr int glslBufferSize { 65536 };
-
-private:
-    // Bimap membership Validator (check + ParameterText create) — generated
-    // bimaps carry no behavioral getValidator() of their own. Bimap::getInstance()
-    // resolves inside the stored lambda, at check-time, not at this function's
-    // own call time — Id::Lexicon does not exist yet that early.
-    template<typename Bimap>
-    static jam::lua::Validator getValidator()
-    {
-        return jam::lua::Validator { [] (const juce::var& value)
-                                     {
-                                         return value.isString()
-                                                and Bimap::getInstance()->contains (value.toString());
-                                     },
-                                     [] (jam::Model& model,
-                                         juce::ValueTree& tree,
-                                         const juce::Identifier& propertyId,
-                                         const juce::var& value)
-                                     {
-                                         model.createAndAddParameter<jam::ParameterText> (
-                                             tree, propertyId, value.toString());
-                                     } };
-    }
-
-public:
-    /**
-        @brief Bimap and type-based validators consumed during @c loadFromPath().
-
-        Outer key = tree type. Inner key = property name. Bimap validators
-        (Position, DropMode) are pre-populated via IIFE on first call.
-        Type-based predicates for all other properties are appended by
-        @c jam::lua::fromLua during the init-list build walk.
-    */
-    static jam::lua::Validators& getValidators()
-    {
-        static jam::lua::Validators validators = []
-        {
-            jam::lua::Validators v;
-
-            const auto& add = [&v] (juce::Identifier treeType,
-                                    juce::Identifier propertyName,
-                                    jam::lua::Validator validator)
-            {
-                auto [treeEntry, inserted] = v.try_emplace (treeType);
-                auto& [treeKey, treeValidators] = *treeEntry;
-                treeValidators.addOrReplace (propertyName, std::move (validator));
-            };
-
-            add (Id::toType (Id::statusBar), Id::position, getValidator<Id::Position>());
-            add (Id::toType (Id::actionList), Id::position, getValidator<Id::Position>());
-            add (Id::toType (Id::tab), Id::position, getValidator<Id::Position>());
-            add (Id::toType (Id::popup), Id::position, getValidator<Id::Position>());
-            add (Id::toType (Id::terminal), Id::dropMultifiles, getValidator<Id::DropMode>());
-            add (Id::toType (Id::graphics), Id::filter, getValidator<Id::ImageResample>());
-            add (Id::toType (Id::graphics), Id::fontRasterizer, getValidator<Id::FontRasterizerBackend>());
-            add (Id::toType (Id::cursor), Id::style, getValidator<Id::CursorShape>());
-            add (Id::toType (Id::pane), Id::splitLine, getValidator<Id::OverlayAxisLine>());
-
-            // graphics.mouse (nested under graphics — Id::toType (Id::mouse), found by the
-            // same recursive getChildWithName() as every other tree type here).
-            // enabled/zoom carry no entry — plain bool/string, auto type-validated
-            // by jam::lua::fromLua (ConfigModel.h's own validators doc comment).
-            add (Id::toType (Id::mouse), Id::imouse, getValidator<Id::MouseButton>());
-            add (Id::toType (Id::mouse), Id::orbit, getValidator<Id::MouseButton>());
-            add (Id::toType (Id::mouse), Id::reset, getValidator<Id::MouseButton>());
-
-            jam::lua::Validator sizeFormat;
-            sizeFormat.format = [] (const juce::var& v)
-            {
-                const auto [width, height] = jam::Size<int16_t> { v };
-                return juce::String (width) + "|" + juce::String (height);
-            };
-            add (Id::toType (Id::window), Id::size, sizeFormat);
-
-            jam::lua::Validator boundsFormat;
-            boundsFormat.format = jam::Format::fromBounds;
-            add (Id::toType (Id::pane), Id::bounds, boundsFormat);
-
-            return v;
-        }();
-
-        return validators;
-    }
-
     //==========================================================================
     /**
         @brief Construct the model — adopts CONFIG tree built in the init-list,
@@ -293,14 +198,13 @@ public:
     ~ConfigModel() override = default;
 
     /**
-        @brief Reads each root lua config file from disk and overlays @c state.
+        @brief Reads each root markdown config file from disk and overlays @c state.
 
-        Builds a CONFIG-rooted disk mirror via @c jam::lua::fromLua with
-        @c validators, overlays valid properties via @c setValuesFrom, then
-        drives @c theme.loadFromPath(errors) and @c shader.loadFromPath(errors)
-        in sequence. Writes the final result to @c ENDModel's message overlay:
-        @c Id::successMessage on success, or the accumulated error string on
-        failure.
+        Builds a CONFIG-rooted disk mirror via @c jam::ConfigDocument, overlays
+        valid properties via @c setValuesFrom, then drives @c theme.loadFromPath()
+        and @c shader.loadFromPath(), accumulating each returned error string.
+        Writes the final result to @c ENDModel's message overlay:
+        @c Id::successMessage on success, or the accumulated error string on failure.
     */
     void loadFromPath();
 
@@ -308,29 +212,20 @@ private:
     ENDModel& appModel { *ENDModel::getInstance() };
 
     /**
-        @brief Writes missing root lua files from BinaryData to @c Id::Files::Config::path.
+        @brief Writes missing root markdown files from BinaryData to @c ConfigDirectory::Config::path.
     */
     void saveToPath();
 
     /**
-        @brief Installs @c watcher on @c Id::Files::Config::path with @c coalesceMs
+        @brief Installs @c watcher on @c ConfigDirectory::Config::path with @c coalesceMs
                event coalescing and registers this ConfigModel as a listener.
     */
     void startWatcher();
 
-    /** @brief Walks the state tree and registers atomic parameters from Validator::create.
-     *
-     *  For each property on each node, if the static validators map has an entry with
-     *  a non-empty create function, calls it to register a jam::Parameter via
-     *  createAndAddParameter. Shader properties (no validator — loaded via fromFiles)
-     *  are registered explicitly as ParameterText with glslBufferSize.
-     */
-    void registerParameters();
-
     /**
-        @brief Reloads root lua config on @c .lua @c fileUpdated events.
+        @brief Reloads root markdown config on @c fileUpdated events.
 
-        Only @c fileUpdated for a @c Id::lua file triggers
+        Only @c fileUpdated for a @c Extensions::md file triggers
         @c loadFromPath(). All other events and extensions are ignored.
 
         @param file   The file that changed.
@@ -339,8 +234,8 @@ private:
     void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
 
     /**
-        @brief Watches @c Id::Files::Config::path (root lua directory only) for
-               @c .lua changes.
+        @brief Watches @c ConfigDirectory::Config::path (root markdown directory only) for
+               @c Extensions::md changes.
     */
     jam::File::Watcher watcher;
 

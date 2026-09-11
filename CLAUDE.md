@@ -6,21 +6,19 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 82 — WHELMED Vulkan Standalone + Hosted Rendering ✅ (2026-07-15)
-- **Active ODE:** `END.ode` (opened 2026-06-29)
+- **Last sprint:** cast-migration (`PLAN-cast-migration.md`) — END converged onto the CAST toolchain and `jam::ConfigDocument`/`jam::ConfigValidator` markdown config; jam's own terminal-pipeline vocabulary (`jam_terminal`, CellFifo, `jam::CodeView`) moved out of this repository
 - **Active debt:** `DEBT-20260713T230500` — hosted plugin editor steals keyboard focus from END's keybindings (Step 19 focus-loop scope)
 - **Open PLANs:**
-  - `PLAN-jam-clap-wrapper.md` — Steps 1–6 executed; Sprint 77 wrapper clean sweep landed; Step 7 (acceptance + docs sync) open
-  - `PLAN-END-plugin-host.md` — Step 1 superseded by jam_clap wrapper; host format layer (Sprint 78), Steps 2Δ/11/12/13-min (Sprint 79), Steps 6/7/8/13 + verbatim-JUCE hosting, WHELMED live in a pane (Sprint 80), WHELMED Vulkan standalone + hosted rendering (Sprint 82); remaining steps pending incl. Step 19 (focus loop — see active debt)
-  - `PLAN-terminal-editor.md` — stale root doc, deletion pending ARCHITECT's word (with `PLAN-session-layer.md`, `RFC-terminal-editor.md`)
+  - `PLAN-cast-migration.md` — Steps 1-8 landed; Step 9 (docs sync + doxygen) in progress
+  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop — see active debt)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)`  
 Hosting: jam_clap (in-house wrapper + host format); `Nexus::VirtualClock` per-plugin demand clock; plugins live in `~/.config/end/plugins/`  
 Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
-Config: `Source/config/` — Directory, Model (four-phase lifecycle)  
+Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
-Constants: `Source/lexicon.md` → `Source/generated/Lexicon.h/.cpp` (global `Id::`) · `Source/LexiconFiles.h` (`Id::Files`)
+Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast/CAST.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` (global `Id::`, `map::`, `files::`)
 
 ## Key Docs
 | File | Purpose |
@@ -30,7 +28,7 @@ Constants: `Source/lexicon.md` → `Source/generated/Lexicon.h/.cpp` (global `Id
 | `DEBT.md` | Active debt ledger |
 | `SHADERS.md` | Shader system guide — Shadertoy, RetroArch Slang, OBJ mesh + iMouse |
 | `carol/SPRINT-LOG.md` | Cross-session memory (last 5 sprints) |
-| `END.ode` | Active ODE investigation |
+| `PLAN-cast-migration.md` | Cast-toolchain + markdown-config migration plan |
 
 ## Doxygen (mandatory before any code task)
 - Project: `docs/xml/index.xml`
@@ -39,4 +37,4 @@ Constants: `Source/lexicon.md` → `Source/generated/Lexicon.h/.cpp` (global `Id
 - KANJUT / CIUM: not used in this project
 
 ## Build (ARCHITECT only — agents never run)
-`ninja` via `Builds/` · `ninja doxygen` to regenerate docs
+`cast cast/CAST.md` regenerates `CMakeLists.txt` + `Source/generated/*` · `ninja` via `Builds/` · `ninja doxygen` to regenerate docs

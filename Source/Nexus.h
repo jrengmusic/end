@@ -62,14 +62,13 @@ struct Nexus : jam::Instance<Nexus>
      *  constructed — resolves stale/null Services otherwise. */
     void initialiseServices()
     {
-        services.vulkanEngine       = jam::VulkanEngine::getInstance();
-        services.glyphAtlas         = jam::GlyphAtlas::getInstance();
-        services.typeface           = jam::Typeface::getInstance();
-        services.stamp              = jam::Stamp::getInstance();
-        services.grapheme           = jam::Grapheme::getInstance();
-        services.link               = jam::Link::getInstance();
-        services.contextFactory     = juce::ComponentPeer::externalContextFactory;
-        services.cachedImageFactory = juce::Component::externalCachedImageFactory;
+        services.vulkanEngine   = jam::VulkanEngine::getInstance();
+        services.glyphAtlas     = jam::GlyphAtlas::getInstance();
+        services.typeface       = jam::Typeface::getInstance();
+        services.stamp          = jam::Stamp::getInstance();
+        services.grapheme       = jam::Grapheme::getInstance();
+        services.hyperlink      = jam::Hyperlink::getInstance();
+        services.contextFactory = juce::ComponentPeer::externalContextFactory;
     }
 
     Session& getSession (jam::UUID sessionUuid) { return *sessions.at (sessionUuid); }
@@ -86,34 +85,17 @@ struct Nexus : jam::Instance<Nexus>
     {
         if (pluginId.isNotEmpty())
         {
-            for (auto* format : formatManager.getFormats())
+            if (auto description { getPluginDescription (pluginId) })
             {
-                if (auto* clapFormat { dynamic_cast<jam::ClapPluginFormat*> (format) })
-                {
-                    juce::OwnedArray<juce::PluginDescription> descriptions;
-
-                    const auto searchPaths { clapFormat->getDefaultLocationsToSearch() };
-                    const auto files { clapFormat->searchPathsForPlugins (searchPaths, true) };
-
-                    for (const auto& file : files)
-                        clapFormat->findAllTypesForFile (descriptions, file);
-
-                    for (auto* description : descriptions)
+                formatManager.createPluginInstanceAsync (
+                    *description, virtualSampleRate, virtualBlockSize,
+                    [cb = std::move (callback)] (std::unique_ptr<juce::AudioPluginInstance> instance,
+                                                  const juce::String&)
                     {
-                        if (description->uniqueId == pluginId.hashCode())
-                        {
-                            formatManager.createPluginInstanceAsync (
-                                *description, virtualSampleRate, virtualBlockSize,
-                                [cb = std::move (callback)] (std::unique_ptr<juce::AudioPluginInstance> instance,
-                                                              const juce::String&)
-                                {
-                                    cb (std::move (instance));
-                                });
+                        cb (std::move (instance));
+                    });
 
-                            return;
-                        }
-                    }
-                }
+                return;
             }
         }
 
@@ -165,10 +147,33 @@ struct Nexus : jam::Instance<Nexus>
     }
 
 private:
+    std::optional<juce::PluginDescription> getPluginDescription (const juce::String& pluginId)
+    {
+        for (auto* format : formatManager.getFormats())
+        {
+            if (auto* clapFormat { dynamic_cast<jam::ClapPluginFormat*> (format) })
+            {
+                juce::OwnedArray<juce::PluginDescription> descriptions;
+
+                const auto searchPaths { clapFormat->getDefaultLocationsToSearch() };
+                const auto files { clapFormat->searchPathsForPlugins (searchPaths, true) };
+
+                for (const auto& file : files)
+                    clapFormat->findAllTypesForFile (descriptions, file);
+
+                for (auto* description : descriptions)
+                    if (description->uniqueId == pluginId.hashCode())
+                        return *description;
+            }
+        }
+
+        return std::nullopt;
+    }
+
     static constexpr double virtualSampleRate { 48000.0 };
     static constexpr int virtualBlockSize { 512 };
     static constexpr int blockPeriodMilliseconds { static_cast<int> (1000.0 * virtualBlockSize / virtualSampleRate) };
-    static constexpr const char* hostUrl { "https://jrengmusic.com" };
+    static constexpr const char* hostUrl { ProjectInfo::productWebsite };
 
     struct VirtualClock : juce::Thread
     {

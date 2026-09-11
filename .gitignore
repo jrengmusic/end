@@ -7,6 +7,9 @@ Builds/
 .end/
 .opencode/
 .cache/
+.clangd
+.nvim-dap-config
+compile_commands.json
 
 # Font project
 ___display___/__pycache__/
@@ -21,7 +24,7 @@ _build_env.sh
 _build_log.bat
 _build_output.txt
 _preprocess.bat
-nul
+
 
 # Diagnostic logs
 *.log

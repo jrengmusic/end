@@ -1,24 +1,7 @@
 #include "ENDView.h"
 
-void ENDView::registerEvents()
+void ENDView::registerGraphicsEvents()
 {
-    events.add<juce::ValueTree&> (
-        Id::focusedPane,
-        [this] (juce::ValueTree& tree)
-        {
-            // Re-points the conduit to whichever TAB row last wrote its own
-            // focusedPane — valueChanged() below then mirrors that value
-            // onto the SESSIONS-level parameter, last change wins.
-            if (tree.getType() == Id::toType (Id::tab))
-                focusedPane.referTo (tree.getPropertyAsValue (Id::focusedPane, nullptr));
-        });
-
-    events.add<juce::ValueTree&> (Id::theme,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      getTopLevelComponent()->sendLookAndFeelChange();
-                                  });
-
     events.add<juce::ValueTree&> (
         Id::useGpu,
         [this] (juce::ValueTree&)
@@ -28,14 +11,6 @@ void ENDView::registerEvents()
             // availability/preference only selects which rendering engine
             // createContext() dispatches to per paint (see ENDApplication's
             // vulkanEngine doc comment, Main.h).
-            const bool canUseGpu { config.getValue (Id::toType (Id::display), Id::useGpu)
-                                   and jam::GpuProbe::probe().isAvailable };
-
-            jam::BackgroundBlur::setEnabled (canUseGpu);
-
-            auto* engine { jam::VulkanEngine::getInstance() };
-            jassert (engine != nullptr);
-            engine->setGpuEnabled (canUseGpu);
 
             // Background/post-process shaders never exist independent of the
             // effective GPU state (Locked Decision 4) — both funnels re-derive
@@ -75,7 +50,7 @@ void ENDView::registerEvents()
     events.add<juce::ValueTree&> (Id::filter,
                                   [this] (juce::ValueTree&)
                                   {
-                                      // filter is shared by both slots (display.lua: applies to both the
+                                      // filter is shared by both slots (display.md: applies to both the
                                       // background and post-processing upscale) — baked into the
                                       // compiled prelude (jam::VulkanShaderCompiler::channelMacros()/sceneMacro()),
                                       // so a filter change requires a full recompile on both funnels,
@@ -101,7 +76,10 @@ void ENDView::registerEvents()
                                   {
                                       setPostProcessParams();
                                   });
+}
 
+void ENDView::registerWindowEvents()
+{
     events.add<juce::ValueTree&> (
         Id::alwaysOnTop,
         [this] (juce::ValueTree& tree)
@@ -117,7 +95,10 @@ void ENDView::registerEvents()
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
                 window->setWindowButtons (tree.getProperty (Id::titleBarButtons));
         });
+}
 
+void ENDView::registerMouseEvents()
+{
     events.add<juce::ValueTree&> (Id::enabled,
                                   [this] (juce::ValueTree&)
                                   {
@@ -141,6 +122,30 @@ void ENDView::registerEvents()
                                   {
                                       setMouseConfig();
                                   });
+}
+
+void ENDView::registerEvents()
+{
+    events.add<juce::ValueTree&> (
+        Id::focusedPane,
+        [this] (juce::ValueTree& tree)
+        {
+            // Re-points the conduit to whichever TAB row last wrote its own
+            // focusedPane — valueChanged() below then mirrors that value
+            // onto the SESSIONS-level parameter, last change wins.
+            if (tree.getType() == Id::toType (Id::tab))
+                focusedPane.referTo (tree.getPropertyAsValue (Id::focusedPane, nullptr));
+        });
+
+    events.add<juce::ValueTree&> (Id::theme,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      getTopLevelComponent()->sendLookAndFeelChange();
+                                  });
+
+    registerGraphicsEvents();
+    registerWindowEvents();
+    registerMouseEvents();
 
     // WINDOW leaf visibility toggles (ENDActions.cpp's own
     // Position-bimap loop) relayout the dormant dock-pane machinery — one
@@ -157,11 +162,8 @@ void ENDView::registerEvents()
 
 void ENDView::setBackground()
 {
-    // Same effective-gpu truth ENDApplication resolves for the VulkanEngine
-    // ctor and the gpu event handler resolves for setGpuEnabled() — never
-    // raw config alone.
-    const bool gpuEnabled { config.getValue (Id::toType (Id::display), Id::useGpu)
-                            and jam::GpuProbe::probe().isAvailable };
+    auto* engine { jam::VulkanEngine::getInstance() };
+    const bool gpuEnabled { engine != nullptr and engine->isGpuAvailable() };
 
     const auto projectName { config.getValue (Id::toType (Id::graphics), Id::background).toString() };
     const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
@@ -172,7 +174,7 @@ void ENDView::setBackground()
     {
         const auto shaderState { jam::Model::getChildWithName (config.state, Id::toType (Id::background)) };
         const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
-        const auto filter { static_cast<Id::ImageResample::value> (Id::ImageResample::get (filterName)) };
+        const auto filter { static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName)) };
 
         // ConfigShader::loadFromPath() always stamps Id::shaderFormat with a
         // definite format ordinal (jam::VulkanShaderFormat::shadertoy or
@@ -207,23 +209,21 @@ void ENDView::setBackgroundParams()
 
 void ENDView::setPostProcess()
 {
-    const bool gpuEnabled { config.getValue (Id::toType (Id::display), Id::useGpu)
-                            and jam::GpuProbe::probe().isAvailable };
+    auto* engine { jam::VulkanEngine::getInstance() };
+    jassert (engine != nullptr);
+    const bool gpuEnabled { engine->isGpuAvailable() };
 
     const auto projectName { config.getValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
     const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
     const float resolutionScale { config.getValue (
         Id::toType (Id::graphics), Id::postProcessingResolution) };
 
-    auto* engine { jam::VulkanEngine::getInstance() };
-    jassert (engine != nullptr);
-
     if (gpuEnabled and projectName.isNotEmpty())
     {
         const auto shaderState { jam::Model::getChildWithName (
             config.state, Id::toType (Id::postProcessing)) };
         const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
-        const auto filter { static_cast<Id::ImageResample::value> (Id::ImageResample::get (filterName)) };
+        const auto filter { static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName)) };
 
         // See setBackground()'s matching comment — Id::shaderFormat is
         // always a definite format ordinal by the time this state is
@@ -258,11 +258,11 @@ void ENDView::setPostProcessParams()
 void ENDView::setMouseConfig()
 {
     const bool enabled { config.getValue (Id::toType (Id::mouse), Id::enabled) };
-    const auto imouseButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+    const auto imouseButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
         config.getValue (Id::toType (Id::mouse), Id::imouse).toString())) };
-    const auto orbitButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+    const auto orbitButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
         config.getValue (Id::toType (Id::mouse), Id::orbit).toString())) };
-    const auto resetButton { static_cast<Id::MouseButton::value> (Id::MouseButton::get (
+    const auto resetButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
         config.getValue (Id::toType (Id::mouse), Id::reset).toString())) };
 
     background.setMouseConfig (enabled, imouseButton, orbitButton, resetButton);

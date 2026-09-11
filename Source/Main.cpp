@@ -1,5 +1,5 @@
 #include "Main.h"
-#include "LexiconFiles.h"
+#include "config/ConfigDirectory.h"
 
 #if JUCE_MAC
 #include <CoreGraphics/CGDirectDisplay.h>
@@ -39,7 +39,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
     nexus.initialiseServices();
 
     auto* view { new ENDView (*ENDModel::getInstance()) };
-    window.reset (new ENDWindow { view, ProjectInfo::projectName });
+    window = std::make_unique<ENDWindow> (view, ProjectInfo::projectName);
     window->setVisible (true);
 }
 
@@ -103,17 +103,19 @@ void ENDApplication::initialiseVulkan()
                                          : standardRefreshFrameBudgetMs };
 
     // Vulkan pipeline cache — resolved under END's own config directory
-    // (Id::Files::Config::path, ~/.config/end/), never decided by JAM. Explicit
+    // (ConfigDirectory::Config::path, ~/.config/end/), never decided by JAM. Explicit
     // per VulkanEngine's contract, mirroring targetFrameBudgetMs above.
-    const auto cacheDir { jam::File::getOrCreateDirectory (Id::Files::Config::path, Id::cache) };
+    const auto cacheDir { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, Id::cache)) };
-    const bool canUseGpu { config.getValue (Id::toType (Id::display), Id::useGpu)
-                           and jam::GpuProbe::probe().isAvailable };
+    const bool canUseGpu { static_cast<bool> (config.getValue (Id::toType (Id::display), Id::useGpu)) };
 
-    jam::BackgroundBlur::setEnabled (canUseGpu);
+    const auto* primaryDisplay { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
+    jassert (primaryDisplay != nullptr);
+    const vk::Extent2D maxImageExtent { static_cast<uint32_t> (primaryDisplay->physicalBounds.getWidth()),
+                                        static_cast<uint32_t> (primaryDisplay->physicalBounds.getHeight()) };
 
-    vulkanEngine = std::make_unique<jam::VulkanEngine> (ProjectInfo::projectName, targetFrameBudgetMs, cacheFile, canUseGpu);
+    vulkanEngine = std::make_unique<jam::VulkanEngine> (maxImageExtent, ProjectInfo::projectName, targetFrameBudgetMs, cacheFile, canUseGpu);
 
     // LookAndFeel owns font knowledge but not the atlas — the atlas (owned by
     // the VulkanEngine just constructed above) does not exist at LookAndFeel

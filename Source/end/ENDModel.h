@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 
 class ENDModel
     : public jam::Model

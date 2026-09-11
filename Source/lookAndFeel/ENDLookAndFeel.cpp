@@ -32,7 +32,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == Id::Position::left)
+        if (parentBar->getPosition() == map::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -43,7 +43,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
     }
 
     if (graphics.contains (Id::tabBar))
-        jam::SVG::Flex::paint (g, *this, graphics.at (Id::tabBar), bounds);
+        jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabBar), bounds);
 }
 
 void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
@@ -56,7 +56,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == Id::Position::left)
+        if (parentBar->getPosition() == map::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -67,7 +67,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
     }
 
     if (graphics.contains (Id::tabHighlight))
-        jam::SVG::Flex::paint (g, *this, graphics.at (Id::tabHighlight), bounds);
+        jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabHighlight), bounds);
 }
 
 void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
@@ -84,7 +84,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == Id::Position::left)
+        if (parentBar->getPosition() == map::Position::left)
             g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
                                 .translated (0.0f, height));
         else
@@ -95,12 +95,12 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
     }
 
     const auto state { jam::ButtonSVG::getState (
-        button, isMouseOver, isMouseDown, Id::ButtonState::get().size()) };
-    const juce::Identifier stateId { Id::ButtonState::get (state) };
+        button, isMouseOver, isMouseDown, map::ButtonState::getInstance()->get().size()) };
+    const juce::Identifier stateId { map::ButtonState::getInstance()->get (state) };
 
-    // Sparse bank — paint only when the state slot was authored in theme.lua graphics section.
+    // Sparse bank — paint only when the state slot was authored in theme.md graphics section.
     if (graphics.contains (stateId))
-        jam::SVG::Flex::paint (g, *this, graphics.at (stateId), bounds);
+        jam::Svg::Flex::paint (g, *this, graphics.at (stateId), bounds);
 }
 
 void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
@@ -152,7 +152,7 @@ int ENDLookAndFeel::getTabPadding() const { return config.getValue (Id::toType (
 int ENDLookAndFeel::getTabPosition() const noexcept
 {
     const juce::String position { config.getValue (Id::toType (Id::tab), Id::position) };
-    return Id::Position::get (position);
+    return map::Position::getInstance()->get (position);
 }
 
 juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
@@ -222,17 +222,6 @@ int ENDLookAndFeel::getGutterWidth() const noexcept
     return config.getValue (Id::toType (Id::scrollbar), Id::width);
 }
 
-ENDLookAndFeel::CursorStyle ENDLookAndFeel::getCursorStyle() const
-{
-    juce::String style { config.getValue (Id::toType (Id::cursor), Id::style).toString() };
-    bool blink { config.getValue (Id::toType (Id::cursor), Id::blink) };
-    int blinkInterval { config.getValue (Id::toType (Id::cursor), Id::blinkInterval) };
-    juce::String cursorChar { config.getValue (Id::toType (Id::cursor), Id::cursorChar).toString() };
-    bool force { config.getValue (Id::toType (Id::cursor), Id::force) };
-
-    return CursorStyle { style, blink, blinkInterval, cursorChar, force };
-}
-
 bool ENDLookAndFeel::getCodeLigatures() const noexcept
 {
     return config.getValue (Id::toType (Id::code), Id::ligatures);
@@ -278,10 +267,8 @@ juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
-ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
+int16_t ENDLookAndFeel::getWindowFX() const
 {
-    auto colour { jam::Model::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
-    int blur { config.getValue (Id::toType (Id::window), Id::blurRadius) };
     int16_t fx { 0 };
 
 #if JUCE_MAC
@@ -290,12 +277,32 @@ ENDLookAndFeel::Style ENDLookAndFeel::getWindowStyle() const
     auto name { config.getValue (Id::toType (Id::style), Id::win).toString() };
 #endif
 
-    if (Id::WindowFX::getInstance()->contains (name))
-        fx = static_cast<int16_t> (Id::WindowFX::get (name));
+    if (map::WindowFX::getInstance()->contains (name))
+        fx = static_cast<int16_t> (map::WindowFX::getInstance()->get (name));
 
+    return fx;
+}
+
+float ENDLookAndFeel::getWindowBlur() const noexcept
+{
+    return config.getValue (Id::toType (Id::window), Id::blurRadius);
+}
+
+void ENDLookAndFeel::prepareWindow (juce::Component& window)
+{
+    const auto colour { jam::ColourScheme::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
+    const auto blur { getWindowBlur() };
+    const auto fx { getWindowFX() };
     const bool windowButtons { config.getValue (Id::toType (Id::display), Id::titleBarButtons) };
 
-    return Style { colour, static_cast<int16_t> (blur), fx, windowButtons };
+    jam::StyleWindow::apply (&window, colour);
+    jam::BackgroundBlur::enable (&window,
+                                 static_cast<jam::BackgroundBlur::WindowFX> (fx),
+                                 blur,
+                                 colour);
+
+    if (auto* peer { window.getPeer() })
+        jam::StyleWindow::setButtons (*peer, windowButtons);
 }
 
 void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
@@ -309,19 +316,17 @@ void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
         {
             if (safeComponent != nullptr)
             {
-                const auto windowStyle { getWindowStyle() };
+                const auto fx { getWindowFX() };
                 const float menuOpacity { config.getValue (Id::toType (Id::menu), Id::opacity) };
                 const auto opacity { jam::BackgroundBlur::isEnabled() ? menuOpacity : 1.0f };
                 const auto baseColour {
                     safeComponent->findColour (juce::PopupMenu::backgroundColourId).withAlpha (opacity)
                 };
-                const auto blur { jam::BackgroundBlur::isEnabled()
-                                      ? static_cast<float> (windowStyle.blur)
-                                      : 0.0f };
+                const auto blur { jam::BackgroundBlur::isEnabled() ? getWindowBlur() : 0.0f };
 
                 jam::StyleWindow::setMenu (safeComponent.getComponent(), baseColour);
                 jam::BackgroundBlur::enable (safeComponent.getComponent(),
-                                             static_cast<jam::BackgroundBlur::WindowFX> (windowStyle.fx),
+                                             static_cast<jam::BackgroundBlur::WindowFX> (fx),
                                              blur,
                                              baseColour);
             }
@@ -343,10 +348,10 @@ void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
 
 static const char* getMenuItemSVG (int itemID)
 {
-    static const juce::String splitVertical { BinaryData::getString (Resource::splitVerticalNormal) };
-    static const juce::String splitHorizontal { BinaryData::getString (Resource::splitHorizontalNormal) };
-    static const juce::String joinCellsVertical { BinaryData::getString (Resource::joinCellsVerticalNormal) };
-    static const juce::String joinCellsHorizontal { BinaryData::getString (Resource::joinCellsHorizontalNormal) };
+    static const juce::String splitVertical { BinaryData::getString (files::splitVerticalNormal) };
+    static const juce::String splitHorizontal { BinaryData::getString (files::splitHorizontalNormal) };
+    static const juce::String joinCellsVertical { BinaryData::getString (files::joinCellsVerticalNormal) };
+    static const juce::String joinCellsHorizontal { BinaryData::getString (files::joinCellsHorizontalNormal) };
 
     switch (itemID)
     {
@@ -357,6 +362,93 @@ static const char* getMenuItemSVG (int itemID)
         case 5:
         case 6: return joinCellsHorizontal.toRawUTF8();
         default: return nullptr;
+    }
+}
+
+static void drawMenuItemBackground (ENDLookAndFeel& laf,
+                                    juce::Graphics& g,
+                                    const juce::Rectangle<int>& area,
+                                    juce::Rectangle<int>& r,
+                                    bool isHighlighted,
+                                    const juce::PopupMenu::Item& item)
+{
+    const auto* textColourToUse { item.colour != juce::Colour() ? &item.colour : nullptr };
+    auto textColour { textColourToUse == nullptr ? laf.findColour (juce::PopupMenu::textColourId) : *textColourToUse };
+
+    if (isHighlighted and item.isEnabled)
+    {
+        g.setColour (laf.findColour (juce::PopupMenu::highlightedBackgroundColourId));
+        g.fillRect (r);
+
+        g.setColour (laf.findColour (juce::PopupMenu::highlightedTextColourId));
+    }
+    else
+    {
+        g.setColour (textColour.withMultipliedAlpha (item.isEnabled ? 1.0f : 0.5f));
+
+        if (item.isTicked)
+        {
+            g.setColour (laf.findColour (juce::PopupMenu::headerTextColourId));
+        }
+    }
+
+    r.reduce (juce::jmin (5, area.getWidth() / 12), 0);
+}
+
+static void drawMenuItemIcon (ENDLookAndFeel& laf, juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item)
+{
+    auto maxFontHeight { static_cast<float> (r.getHeight()) };
+    auto iconArea { r.removeFromLeft (juce::roundToInt (maxFontHeight)).toFloat() };
+
+    const auto* svg { getMenuItemSVG (item.itemID) };
+
+    if (svg != nullptr)
+    {
+        auto path { jam::Svg::getPath (svg, iconArea) };
+        g.fillPath (path);
+        r.removeFromLeft (juce::roundToInt (maxFontHeight * 0.5f));
+    }
+    else if (item.isTicked)
+    {
+        auto tick { laf.getTickShape (1.0f) };
+        auto stroke { juce::PathStrokeType (2.0f) };
+        auto delta { iconArea.getWidth() / 3 };
+        g.strokePath (tick, stroke, tick.getTransformToScaleToFit (iconArea.reduced (delta).toFloat(), true));
+    }
+}
+
+static void drawMenuItemArrow (ENDLookAndFeel& laf, juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item)
+{
+    const bool hasSubMenu { item.subMenu != nullptr and item.subMenu->getNumItems() > 0 };
+
+    if (hasSubMenu)
+    {
+        auto arrowH { 0.6f * laf.getPopupMenuFont().getAscent() };
+
+        auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowH)).getX()) };
+        auto halfH { static_cast<float> (r.getCentreY()) };
+
+        juce::Path path;
+        path.startNewSubPath (x, halfH - arrowH * 0.5f);
+        path.lineTo (x + arrowH * 0.6f, halfH);
+        path.lineTo (x, halfH + arrowH * 0.5f);
+
+        g.strokePath (path, juce::PathStrokeType (2.0f));
+    }
+}
+
+static void drawMenuItemText (juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item, const juce::Font& font)
+{
+    r.removeFromRight (3);
+    g.drawFittedText (item.text, r, juce::Justification::centredLeft, 1);
+
+    if (item.shortcutKeyDescription.isNotEmpty())
+    {
+        auto f2 { font.withPointHeight (font.getHeightInPoints() * 0.75f) };
+        f2.setHorizontalScale (0.95f);
+        g.setFont (f2);
+
+        g.drawText (item.shortcutKeyDescription, r, juce::Justification::centredRight, true);
     }
 }
 
@@ -376,82 +468,16 @@ void ENDLookAndFeel::drawPopupMenuItemWithOptions (juce::Graphics& g,
     }
     else
     {
-        const auto* textColourToUse { item.colour != juce::Colour() ? &item.colour : nullptr };
-        auto textColour { textColourToUse == nullptr ? findColour (juce::PopupMenu::textColourId) : *textColourToUse };
-
         auto r { area.reduced (1) };
 
-        if (isHighlighted and item.isEnabled)
-        {
-            g.setColour (findColour (juce::PopupMenu::highlightedBackgroundColourId));
-            g.fillRect (r);
-
-            g.setColour (findColour (juce::PopupMenu::highlightedTextColourId));
-        }
-        else
-        {
-            g.setColour (textColour.withMultipliedAlpha (item.isEnabled ? 1.0f : 0.5f));
-
-            if (item.isTicked)
-            {
-                g.setColour (findColour (juce::PopupMenu::headerTextColourId));
-            }
-        }
-
-        r.reduce (juce::jmin (5, area.getWidth() / 12), 0);
+        drawMenuItemBackground (*this, g, area, r, isHighlighted, item);
 
         auto font { getPopupMenuFont() };
-
-        auto maxFontHeight { static_cast<float> (r.getHeight()) };
-
         g.setFont (font);
 
-        auto iconArea { r.removeFromLeft (juce::roundToInt (maxFontHeight)).toFloat() };
-
-        const auto* svg { getMenuItemSVG (item.itemID) };
-
-        if (svg != nullptr)
-        {
-            auto path { jam::SVG::getPath (svg, iconArea) };
-            g.fillPath (path);
-            r.removeFromLeft (juce::roundToInt (maxFontHeight * 0.5f));
-        }
-        else if (item.isTicked)
-        {
-            auto tick { getTickShape (1.0f) };
-            auto stroke { juce::PathStrokeType (2.0f) };
-            auto delta { iconArea.getWidth() / 3 };
-            g.strokePath (tick, stroke, tick.getTransformToScaleToFit (iconArea.reduced (delta).toFloat(), true));
-        }
-
-        const bool hasSubMenu { item.subMenu != nullptr and item.subMenu->getNumItems() > 0 };
-
-        if (hasSubMenu)
-        {
-            auto arrowH { 0.6f * getPopupMenuFont().getAscent() };
-
-            auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowH)).getX()) };
-            auto halfH { static_cast<float> (r.getCentreY()) };
-
-            juce::Path path;
-            path.startNewSubPath (x, halfH - arrowH * 0.5f);
-            path.lineTo (x + arrowH * 0.6f, halfH);
-            path.lineTo (x, halfH + arrowH * 0.5f);
-
-            g.strokePath (path, juce::PathStrokeType (2.0f));
-        }
-
-        r.removeFromRight (3);
-        g.drawFittedText (item.text, r, juce::Justification::centredLeft, 1);
-
-        if (item.shortcutKeyDescription.isNotEmpty())
-        {
-            auto f2 { font.withPointHeight (font.getHeightInPoints() * 0.75f) };
-            f2.setHorizontalScale (0.95f);
-            g.setFont (f2);
-
-            g.drawText (item.shortcutKeyDescription, r, juce::Justification::centredRight, true);
-        }
+        drawMenuItemIcon (*this, g, r, item);
+        drawMenuItemArrow (*this, g, r, item);
+        drawMenuItemText (g, r, item, font);
     }
 }
 
@@ -481,7 +507,7 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
         setColour (paneBarColourId, findColour (paneBarHighlightColourId));
 
     if (graphics.contains (Id::resizerBar))
-        jam::SVG::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
+        jam::Svg::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
 
     if (hover)
         setColour (paneBarColourId, savedColour);

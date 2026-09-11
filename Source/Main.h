@@ -6,7 +6,7 @@
 #include "end/ENDView.h"
 #include "end/ENDWindow.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 #include "Nexus.h"
 
 class ENDApplication : public juce::JUCEApplication
@@ -24,14 +24,14 @@ private:
 #if JUCE_DEBUG
     static inline const char* const debugLogFileExtension { ".ode" };
 
-    /** @brief Diagnostic log sink — canonical location: Id::Files::Config::path
+    /** @brief Diagnostic log sink — canonical location: ConfigDirectory::Config::path
      *  (\~/.config/end/end.ode, jam::Format::toFileName), never the launch
      *  cwd — the same deterministic path regardless of how the app was
      *  started (IDE, Finder, terminal), so runtime diagnostics always land
      *  in one known, readable file. */
 
     jam::debug::Log::Scope logScope {
-        juce::File ("~/Documents/Poems/dev/end")
+        ConfigDirectory::Config::path
             .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, debugLogFileExtension))
     };
 #endif
@@ -39,7 +39,7 @@ private:
     //==============================================================================
     // Owned global registry aggregate — jam::Bimap<T> owner. Declared before any consumer so the
     // single-global-pointer Instance<T> slot is populated before first use.
-    Id::Lexicon lexicon;
+    Generated generated;
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member
@@ -61,8 +61,7 @@ private:
      *  getInstance() singleton on construction), the shared glyph atlas, and
      *  per-window Graphics instances — member-declaration order inside
      *  jam::VulkanEngine governs teardown (reverse-order destruction). GPU
-     *  availability/preference only selects, via
-     *  jam::VulkanEngine::getInstance()->setGpuEnabled(), which rendering
+     *  availability/preference only selects which rendering
      *  engine createContext() dispatches to per paint (native Vulkan vs the
      *  CPU-fallback jam::LowLevelGraphicsGlyphRenderer) — never whether this
      *  VulkanEngine, its Device, or its shared glyph atlas exist. The atlas and

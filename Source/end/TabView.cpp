@@ -119,7 +119,7 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
             const juce::Identifier edge { horizontal ? (corner.getX() == 0 ? Id::left : Id::right)
                                                      : (corner.getY() == 0 ? Id::top : Id::bottom) };
 
-            const bool inward { isLow (Id::Position::get (edge.toString()))
+            const bool inward { isLow (map::Position::getInstance()->get (edge.toString()))
                                 == ((horizontal ? delta.getX() : delta.getY()) > 0) };
 
             state.setProperty (Id::edge, edge.toString(), nullptr);
@@ -177,8 +177,8 @@ void TabView::paintOverChildren (juce::Graphics& g)
 
             if (position >= 0.0f)
             {
-                const auto edgeKey { Id::Position::get (edge) };
-                const bool splitVertical { edgeKey == Id::Position::right or edgeKey == Id::Position::left };
+                const auto edgeKey { map::Position::getInstance()->get (edge) };
+                const bool splitVertical { edgeKey == map::Position::right or edgeKey == map::Position::left };
                 const int splitLine { splitVertical
                                           ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
                                           : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };

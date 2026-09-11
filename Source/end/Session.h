@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/ENDModel.h"
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 
 class Session : public jam::Model::Listener
 {

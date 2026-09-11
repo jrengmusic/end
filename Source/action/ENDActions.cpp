@@ -2,11 +2,7 @@
 
 static constexpr const char* whelmedPluginId { "com.jreng.whelmed" };
 
-void ENDView::createDockPane (int positionKey)
-{
-}
-
-void ENDView::registerActions()
+void ENDView::registerSessionActions()
 {
     actions.actions.add (Id::newSession,
                           [this]
@@ -28,7 +24,10 @@ void ENDView::registerActions()
 
                               actions.run (Id::newTab);
                           });
+}
 
+void ENDView::registerTabActions()
+{
     actions.actions.add (Id::newTab,
                           [this]
                           {
@@ -146,7 +145,10 @@ void ENDView::registerActions()
                                   }
                               }
                           });
+}
 
+void ENDView::registerZoomActions()
+{
     actions.actions.add (
         Id::zoomIn,
         [this]
@@ -198,7 +200,10 @@ void ENDView::registerActions()
                                   zoomParameter->setValue (juce::jlimit (EditorView::zoomMin, EditorView::zoomMax, EditorView::defaultZoom));
                               }
                           });
+}
 
+void ENDView::registerPaneActions()
+{
     actions.actions.add (Id::paneLeft,
                           [this]
                           {
@@ -374,35 +379,40 @@ void ENDView::registerActions()
                     tabView->expandPane (tabView->getFocusedChild(), Id::height, step);
                 }
         });
+}
 
-    // `id` (structured binding, lowercase) does not shadow `Id::` (the
-    // vocabulary namespace, case-sensitive) — ::Id::position and
-    // ::Id::visible below are globally qualified for consistency only.
-    for (const auto& [key, id] : Id::Position::get())
+void ENDView::registerWindowActions()
+{
+    for (const auto& [key, id] : map::Position::getInstance()->get())
     {
         const int positionKey { key };
 
         actions.actions.add (
-            juce::Identifier { Id::Position::get (key) },
+            juce::Identifier { map::Position::getInstance()->get (key) },
             [this, positionKey]
             {
-                if (positionKey != Id::Position::center)
+                if (positionKey != map::Position::center)
                 {
                     auto leaf { state.getChildWithProperty (
-                        ::Id::position, Id::Position::get (positionKey)) };
+                        Id::position, map::Position::getInstance()->get (positionKey)) };
 
                     if (leaf.isValid())
                     {
-                        const bool visible { jam::toBool (leaf.getProperty (::Id::visible)) };
+                        const bool visible { jam::toBool (leaf.getProperty (Id::visible)) };
 
                         leaf.setProperty (
-                            ::Id::visible, static_cast<int> (not visible), nullptr);
-                    }
-                    else
-                    {
-                        createDockPane (positionKey);
+                            Id::visible, static_cast<int> (not visible), nullptr);
                     }
                 }
             });
     }
+}
+
+void ENDView::registerActions()
+{
+    registerSessionActions();
+    registerTabActions();
+    registerZoomActions();
+    registerPaneActions();
+    registerWindowActions();
 }

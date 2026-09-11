@@ -8,7 +8,13 @@
 
 ---
 
-## DEBT-20260713T230500
+## DEBT-20260912T080000
+
+**Observation:** Debug launch asserts during `ENDApplication` construction: `addTables` (ConfigModel.cpp:56) appends `fileTree.getChild (0)` into the target tree while that child is still parented to `fileTree` — `juce::ValueTree::SharedObject::addChild` fires `jassert (child->parent == nullptr)` (juce_ValueTree.cpp:263, "make sure a child is removed from its previous parent before adding it somewhere else"). Stack: addTables → ConfigModel ctor IIFE (ConfigModel.cpp:165-178) → ENDApplication (Main.cpp:9).
+
+**Divergence:** The Sprint 84 drain loop (`while (fileTree.getNumChildren() > 0) target.appendChild (fileTree.getChild (0), nullptr);`) violates JUCE's reparenting contract — every drained child hits the assert; release builds only proceed because addChild self-heals via removeChild (juce_ValueTree.cpp:265-268).
+
+**Expectation:** Startup runs assert-clean: each child leaves `fileTree` before it enters the target (removeChild-then-append, or an unparented build), on all four `addTables` call paths — constructor seeds and loadFromPath alike.
 
 **Observation:** With a hosted plugin editor embedded in a pane, keyboard input lands on the plugin's native view; END's own key handling (ENDActions via ENDView::keyPressed) no longer receives keystrokes while the plugin holds focus.
 

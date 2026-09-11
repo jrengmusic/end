@@ -6,7 +6,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/EditorView.h"
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 #include "end/MessageOverlay.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 

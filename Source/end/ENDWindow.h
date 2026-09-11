@@ -3,10 +3,11 @@
  * @brief Pure jam::Window with LAF-driven style for END.
  *
  * ENDWindow extends jam::Window with no config listener and no styleParameters.
- * Visual properties (tint colour, blur radius, WindowFX) are applied via
- * lookAndFeelChanged(), which inlines the three primitives from ENDLookAndFeel
- * at theme-change time. Operational properties (always_on_top, title_bar_buttons)
- * are dispatched by ENDView in a separate step.
+ * Visual properties (tint colour, blur radius, WindowFX, title-bar-button
+ * visibility) are applied by ENDLookAndFeel::prepareWindow(), told to style
+ * this window from lookAndFeelChanged() at theme-change time. Operational
+ * properties (always_on_top, title_bar_buttons) are dispatched by ENDView in
+ * a separate step.
  *
  * Constructor calls lookAndFeelChanged() to apply the initial style state.
  * Destructor is default.
@@ -19,9 +20,8 @@
  *  @brief Pure jam::Window with LAF-driven style.
  *
  *  Inherits jam::Window. Style (tint colour, blur radius, WindowFX, traffic-light
- *  visibility) is applied in lookAndFeelChanged(), which reads the four values
- *  from ENDLookAndFeel and inlines the primitives (jam::StyleWindow::apply,
- *  jam::BackgroundBlur::enable, jam::StyleWindow::setButtons). No config listener.
+ *  visibility) is applied by ENDLookAndFeel::prepareWindow(), told to style this
+ *  window from lookAndFeelChanged(). No config listener.
  *
  *  Ownership: constructed and owned by ENDApplication.
  */
@@ -40,10 +40,8 @@ public:
      */
     ENDWindow (juce::Component* mainComponent, const juce::String& name);
 
-    /** @brief Applies window style from the LAF when theme properties change.
-     *  Reads colour, blur, FX, and windowButtons from ENDLookAndFeel::getWindowStyle()
-     *  and inlines jam::StyleWindow::apply, jam::BackgroundBlur::enable, and
-     *  jam::StyleWindow::setButtons.
+    /** @brief Tells the LAF to style this window when theme properties change.
+     *  Delegates to ENDLookAndFeel::prepareWindow().
      */
     void lookAndFeelChanged() override;
 

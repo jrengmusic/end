@@ -34,7 +34,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "generated/Lexicon.h"
+#include "generated/Generated.h"
 #include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 
@@ -50,99 +50,18 @@ static constexpr int maxLines { 20 };
 /** @brief Length in pixels of a bracket-style endcap, centred on the axis line. */
 static constexpr float bracketEndcapLength { 8.0f };
 
-static void drawMessageOverlay (juce::Graphics& g,
-                                juce::Component& overlay,
-                                juce::Rectangle<int> bounds,
-                                const juce::String& message,
-                                int splitLine = -1,
-                                bool splitVertical = false)
-{
-    const auto family { ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString() };
-    const auto size { static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize)) };
-    const juce::Font font { juce::FontOptions (family, size, juce::Font::plain) };
+/** @brief Dash/gap lengths in pixels for the dash-style split axis line. */
+static constexpr float dashLengths[] { 6.0f, 4.0f };
 
-    const auto background { overlay.findColour (juce::Label::backgroundColourId).withAlpha (backgroundAlpha) };
-    const auto foreground { overlay.findColour (juce::Label::textColourId) };
+/** @brief Split token dividing a two-region overlay message. */
+static const juce::String separator { " | " };
 
-    const auto lineStyle { Id::OverlayAxisLine::get (
-        ConfigModel::getInstance()->getValue (Id::toType (Id::pane), Id::splitLine).toString()) };
-
-    g.setColour (background);
-    g.fillRect (bounds);
-    g.setFont (font);
-    g.setColour (foreground);
-
-    if (splitLine >= 0)
-    {
-        float dashLengths[] { 6.0f, 4.0f };
-        const auto numDashes { static_cast<int> (std::size (dashLengths)) };
-
-        if (splitVertical)
-        {
-            const auto x { static_cast<float> (splitLine) };
-            const auto top { static_cast<float> (bounds.getY()) };
-            const auto bottom { static_cast<float> (bounds.getBottom()) };
-
-            if (lineStyle == Id::OverlayAxisLine::dash)
-            {
-                g.drawDashedLine ({ x, top, x, bottom }, dashLengths, numDashes);
-            }
-            else if (lineStyle == Id::OverlayAxisLine::bracket)
-            {
-                const auto capTop { top + static_cast<float> (textPadding) };
-                const auto capBottom { bottom - static_cast<float> (textPadding) };
-
-                g.drawLine ({ x, capTop, x, capBottom });
-                g.drawLine ({ x - bracketEndcapLength * 0.5f, capTop, x + bracketEndcapLength * 0.5f, capTop });
-                g.drawLine ({ x - bracketEndcapLength * 0.5f, capBottom, x + bracketEndcapLength * 0.5f, capBottom });
-            }
-            else
-            {
-                g.drawLine ({ x, top, x, bottom });
-            }
-        }
-        else
-        {
-            const auto y { static_cast<float> (splitLine) };
-            const auto left { static_cast<float> (bounds.getX()) };
-            const auto right { static_cast<float> (bounds.getRight()) };
-
-            if (lineStyle == Id::OverlayAxisLine::dash)
-            {
-                g.drawDashedLine ({ left, y, right, y }, dashLengths, numDashes);
-            }
-            else if (lineStyle == Id::OverlayAxisLine::bracket)
-            {
-                const auto capLeft { left + static_cast<float> (textPadding) };
-                const auto capRight { right - static_cast<float> (textPadding) };
-
-                g.drawLine ({ capLeft, y, capRight, y });
-                g.drawLine ({ capLeft, y - bracketEndcapLength * 0.5f, capLeft, y + bracketEndcapLength * 0.5f });
-                g.drawLine ({ capRight, y - bracketEndcapLength * 0.5f, capRight, y + bracketEndcapLength * 0.5f });
-            }
-            else
-            {
-                g.drawLine ({ left, y, right, y });
-            }
-        }
-    }
-
-    if (splitLine >= 0 and message.contains (" | "))
-    {
-        const auto first { message.upToFirstOccurrenceOf (" | ", false, false) };
-        const auto second { message.fromFirstOccurrenceOf (" | ", false, false) };
-
-        const auto region1 { splitVertical ? bounds.withRight (splitLine) : bounds.withBottom (splitLine) };
-        const auto region2 { splitVertical ? bounds.withLeft (splitLine) : bounds.withTop (splitLine) };
-
-        g.drawFittedText (first, region1.reduced (textPadding), juce::Justification::centred, maxLines);
-        g.drawFittedText (second, region2.reduced (textPadding), juce::Justification::centred, maxLines);
-    }
-    else
-    {
-        g.drawFittedText (message, bounds.reduced (textPadding), juce::Justification::centred, maxLines);
-    }
-}
+void drawMessageOverlay (juce::Graphics& g,
+                         juce::Component& overlay,
+                         juce::Rectangle<int> bounds,
+                         const juce::String& message,
+                         int splitLine = -1,
+                         bool splitVertical = false);
 
 /**
  * @class MessageOverlay
@@ -150,8 +69,9 @@ static void drawMessageOverlay (juce::Graphics& g,
  *
  * Inherits `juce::Component` (rendering) and `jam::Model::Component`
  * (owned ValueTree state, adopting Nexus's own OVERLAY node) — and
- * `juce::Timer` (private) for the auto-hide delay. All display logic is
- * inline; there is no separate .cpp.
+ * `juce::Timer` (private) for the auto-hide delay. The class itself is
+ * header-only; its paint() delegates to the free function
+ * drawMessageOverlay(), defined in MessageOverlay.cpp.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.

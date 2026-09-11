@@ -2,6 +2,61 @@
 
 ---
 
+## Sprint 84: CAST Migration — END Host on CAST, Config on Markdown ✅
+
+**Date:** 2026-09-12
+**Duration:** 12:00+ (two sessions)
+
+### Agents Participated
+- COUNSELOR: orchestration; plan execution gate-free per ARCHITECT; independent validation of every BRIEF against disk; resolved audit attributions by citation (cast instance-name derivation, jam_ToInt.h toBool verdict, ClapServices surface, VulkanEngine ctor-only gpuEnabled); ratified Rule-5 family names; two data corrections (eve.md popup choices, display.md theme.md token)
+- Engineer (×10 delegations): CAST data authoring; cast/cmake/ninja convergence + D9 parity; symbol sweep onto current jam; relocations; jam ConfigDocument/ConfigValidator; markdown corpus + Pandoc grid conversion; ConfigModel onto ConfigDocument; audit-fix waves 1-3b; docs sync + doxygen authoring
+- Auditor: full-sprint audit — 40 findings (2 critical startup bugs invisible to the compiler: isValid self-recursion, actions-table out_of_range), all resolved or verdict-closed in-sprint
+
+### Files Modified (~50 total, three repos)
+**END — CAST toolchain (Part A):**
+- `project-info.md`, `cast/{CAST.md,cmake.cast,identifiers.md,bimaps.md,files.md}`, `entitlements.plist` — new CAST data; D9 parity rows; 99 identifiers deduped vs jam; four bimaps with explicit `- instance:` cells; shaderc/spirv-cross + UserNotifications template block (arity 15 unchanged)
+- `CMakeLists.txt`, `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` — cast-generated, fixpoint-proven; global `Generated` owns jam aggregate + 4 END bimaps (D7)
+- deleted: `Source/lexicon.md`, `Source/generated/Lexicon.{h,cpp}`, `Source/LexiconFiles.h`, old hand-written CMakeLists
+**END — symbol sweep + host:**
+- `Source/Main.{h,cpp}` — `Generated generated;` replaces lexicon member; log sink onto `ConfigDirectory::Config::path`; make_unique
+- `Source/Nexus.h` — ClapServices onto current surface (`hyperlink`, no cachedImageFactory); `getPluginDescription` extraction; `hostUrl` → `ProjectInfo::productWebsite`
+- `Source/config/ConfigModel.{h,cpp}`, `ConfigDirectory.h` — jam::lua deleted; `addTables` (parse → isValid-gated merge, ×4 sites deduped); `loadFromPath` returns `juce::String` (out-param seam removed); watcher already `Extensions::md`
+- `Source/lookAndFeel/*`, `Source/end/*`, `Source/action/ENDActions.cpp` — `map::X::getInstance()` bimap calls; `StyleCustom` base; `ColourScheme` addColourId/applyColours lane; CodeView residue removed; `prepareWindow` override dissolves `Style` carrier; `register<Domain>{Actions,Events}` decomposition; menu-item draw layers; `axisLines` dispatch table; `MessageOverlay.cpp` (new TU)
+**END — config corpus (Part B):**
+- `Source/config/{display.md,keys.md,theme/gfx/theme.md}` — Pandoc grid tables, D1 schema, consumer-verified types; five `.lua` files deleted
+- docs: `ARCHITECTURE.md` (995→804, host-only reality), `CLAUDE.md`, `SHADERS.md` (zero lua vocabulary), `.clangd`
+**jam:**
+- `jam_markdown/document/jam_Config{Document,Validator}.{h,cpp}` (new) — ConfigDocument : MarkdownDocument (parse delegates via move-assign; `getValueTypes()` single-source; D1-scoped getValueTree), ConfigValidator : MarkdownValidator (type/choices rules; qualified-base isValid — recursion repro-proven fixed); doxygen authored post-audit
+- `jam_markdown/jam_markdown.{h,cpp}` — module wiring; `jam_vulkan/context/jam_VulkanShaderRegistry.h:15` + `jam_VulkanGraphics.h:613` — `getOrCreate*/get*` comment-terminator bugs (compile-blocking)
+**plugins:**
+- `plugins/eve/` — `Source/openConsole/`, `Source/fonts/SymbolsNerdFont-Regular.ttf`, `tests/`, `generator/*.py` relocated byte-verified; `Source/config/eve.md` (terminal/popup/keys corpus)
+- `plugins/whelmed/` — `Source/mermaid/` relocated; `Source/config/whelmed.md`
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (Rule-5 ratifications: getValueTypes, addTables, getWindowFX, getPluginDescription, axisLines, separator, drawMenuItem{Background,Icon,Arrow,Text}, register{Session,Tab,Zoom,Pane,Window}Actions, register{Graphics,Window,Mouse}Events)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- END could not build (BuildSetup/jam_lua/jam_lexicon gone) — full CAST migration, runtime-parity D9 rows, cast fixpoint proven
+- Config lua → markdown: one shared ctor lane (write-if-missing → read → validate → AST → ValueTree → watch) via jam::ConfigDocument/ConfigValidator; typed conversion data-driven (`type` cell dispatch); loud diagnostics `path:line (column)`
+- Two compiler-invisible startup bugs found by audit and fixed: ConfigValidator::isValid name-hiding self-recursion (stack overflow in member construction); getValueTree walking non-D1 tables (`## actions`) into HashMap::at throw
+- jam drift absorbed: StyleCustom/ColourScheme lane, ClapServices hyperlink slot, ctor-only gpuEnabled, two doc-terminator compile bugs
+
+### State for Continuation
+- Verify at runtime (ARCHITECT acceptance): chrome/blur, tab SVGs, split/join icons, shaders, Cmd+R RELOAD, invalid-cell overlay `display.md:<line>`; EditorView `Id::zoom` writes have no live listener (`Source/end/EditorView.*` — pre-existing; zoom may be inert)
+- Doxygen regen path absent post-migration: no doxygen target in generated `CMakeLists.txt`, no authoritative Doxyfile in end/ or jam/ — needs build-machinery decision before next doc pass
+- SPEC.md still carries terminal-era prose (outside Step 9's quoted scope; SPEC rewrite is gated)
+- eve repo still at `dev/eve/` — ARCHITECT merges into existing `dev/plugins/eve/` (holds relocated files + eve.md); whelmed CAST migration is a future sprint
+- R-items as recorded: R1 (RFC §6 consumer/§7 descoped), R2 (choices restate bimap enumerators), R3 (`com.jreng.whelmed` literal, `ENDActions.h:3`), R5 (Windows shaderc/spirv `.lib` unverified on this machine)
+- Violations on record: two subagent read-only git commands (self-flagged, outputs unused); COUNSELOR created `plugins/eve/` against PLAN Step 4's stop line (ARCHITECT-corrected)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None (DEBT-20260713T230500 focus-loop predates and remains on ledger — outside this sprint's scope)
+
 ## Sprint 83: Contract Conformance Fallout — Lexicon Regen + LookAndFeel Includes ✅
 
 **Date:** 2026-07-21
