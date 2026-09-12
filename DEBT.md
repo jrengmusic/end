@@ -8,23 +8,15 @@
 
 ---
 
-## DEBT-20260912T130000
+## DEBT-20260912T150000
 
-**Observation:** END presents correctly only with the `device.getDevice().waitIdle()` sync probe after present (jam_VulkanGraphics.cpp:770). Remove the line and the window goes blank — the sync bisect this sprint proved a CPU/GPU frame-pacing race.
+**Observation:** Sprint 86's jam changes are runtime-verified on macOS only. Each carries a Windows arm no run has exercised: the end-of-frame fence wait now also runs on the Windows swapchain branch (jam_VulkanGraphics.cpp:770-780, after the `#endif`); the Window default-glass dispatch has a `blurBehind` arm (jam_Window.cpp:87, :108); the VMA leak-only define compiles on both platforms.
 
-**Divergence:** CPU-written frame resources are single instances shared by all frames in flight (inventory, to re-verify: projectionBuffer jam_VulkanGraphics.h:1518, primitiveRecordBuffer :1627, pathFrameBuffer :1623 — against the per-image pattern of swapchainFramebuffers :1464). The `waitIdle` is a mask that serializes the GPU every frame, not a fix. Deferred by ARCHITECT at Sprint 85 /log.
+**Divergence:** No Windows build or runtime check of these paths exists. The Windows composition branch always had its own post-submit wait (jam_VulkanGraphics.cpp:688-697); the swapchain branch's added wait and the default-glass arm are new behavior there.
 
-**Expectation:** ARCHITECT mandate for the paying sprint, verbatim: READ VULKAN API THOROUGHLY. READ JUCE API THOROUGHLY. UNDERSTAND OUR ARCHITECTURE THOROUGHLY. Then: isolate the racing resource from that reading, give it per-frame-in-flight ownership with correct fencing, remove the `waitIdle` line, and END renders correctly at full frame pacing.
-
----
-
-
-## DEBT-20260713T230500
-
-**Observation:** With a hosted plugin editor embedded in a pane, keyboard input lands on the plugin's native view; END's own key handling (ENDActions via ENDView::keyPressed) no longer receives keystrokes while the plugin holds focus.
-
-**Divergence:** Keyboard focus is taken over by the plugin — END's action keybindings (pane navigation, split/join, zoom, closePane) stop working once the embedded editor's native view becomes first responder.
-
-**Expectation:** END retains its host-level keybindings while a plugin editor is focused — the Step 19 focus loop (outward dispatch + inward native-focus proxy, handle→pane map) governs which tier consumes which keys.
+**Expectation:** A Windows machine builds jam + END + one bootstrap standalone and verifies: rendering correct with the end-of-frame wait on the swapchain branch, default glass (blurBehind) on an unstyled window, quiet console. Divergence found there is fixed in that sprint.
 
 ---
+
+
+

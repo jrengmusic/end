@@ -2,6 +2,43 @@
 
 ---
 
+## Sprint 86: Frame-Pacing Race Paid — Read-First Mandate, Bisect-Proven Fix, Rendering Features Verified ✅
+
+**Date:** 2026-09-12
+**Duration:** one session (evening; jam twin logged at jam Sprint 111)
+
+### Agents Participated
+- COUNSELOR: fable-5 — /pay intake; the read-first mandate (Vulkan spec, JUCE paint pipeline, MoltenVK, full jam frame-lifecycle) executed before any fix; bisect orchestration; post-process feature verification wiring
+- Librarian ×3, Pathfinder, Engineer ×10, Auditor — see jam Sprint 111 for the full jam-side record
+
+### Files Modified (END repo: 2; jam changes logged at jam Sprint 111; deployed config/shader assets out-of-repo)
+- `DEBT.md` — `DEBT-20260912T130000` receipt-corrected then paid; `DEBT-20260713T230500` cleared by ARCHITECT ruling ("no such thing" — invalid entry); `DEBT-20260912T150000` added (Windows conformance, ARCHITECT-worded); entry terminators restored to the `carol debt clear` parser's canonical format (~/.carol/bin/carol:913-926)
+- `CLAUDE.md` — Current State updated per sprint
+- Deployed (out-of-repo, noted): `~/.config/end/display.md` graphics table value column reflowed (background `singularity`, post_processing `chroma`); `~/.config/end/shaders/chroma/` (slang-format chromatic-aberration post filter: chroma.slangp + chroma.slang sampling `Original`); `~/.config/end/shaders/scanline/Image` (Shadertoy-format `iScene` filter)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] COUNSELOR failures, disclosed (full list at jam Sprint 111): corpus-sourced claims presented as findings before reading, corrected under ARCHITECT pushback; a name-based kill suggestion that endangered ARCHITECT's terminal (END is the terminal — only path-matched process operations are permitted); mishandled the prior session's still-running background task
+
+### Problems Solved
+- DEBT-20260912T130000 root cause: NOT the ledgered "shared buffers across frames in flight" (refuted by reading — one frame in flight by construction, buffers spec-safe after the fence wait); the proven mechanism is wait placement — the frame's fence wait must complete inside the paint cycle that recorded it; endFrame now waits after present and the waitIdle mask is deleted
+- Rendering features verified intact end-to-end: mesh background, singularity/weird backgrounds, post-processing in BOTH formats (Shadertoy `iScene`, slang `Original` by-name reflection), chromatic aberration visibly fringing components and shader alike (soft gradients hide it optically — verified, not a lane split)
+- Post-shader authoring facts pinned: `iChannelN` exists only for declared buffer passes/manifest textures; a passless post shader samples `iScene` (Shadertoy) or `Original` (slang); formats never mix in one project
+- end.obj mtl warnings: expected — the obj references a missing `end-icon.mtl`; loader defaults; asset-side fix is ARCHITECT's
+
+### State for Continuation
+- `DEBT-20260912T150000` is next sprint's scope (JRENG law): Windows build + runtime of the sprint's jam changes
+- ARCHITECT pre-commit: `ninja` + runtime sanity (glass, tabs, post chain) + `ninja doxygen` zero-warning gate
+- Deployed display.md now carries a widened graphics value column — regenerated defaults (fresh install) still produce the narrow template from Source/config/display.md; the two shapes are both parse-valid
+
+### Debts Paid
+- `DEBT-20260912T130000` — end-of-frame fence wait replaces the waitIdle mask (jam_VulkanGraphics.cpp:768); mechanism bisect-proven; ledgered Divergence superseded by the reading (recorded in this receipt)
+
+### Debts Deferred
+- `DEBT-20260912T150000` — Windows conformance of Sprint 111's jam changes (ARCHITECT-worded at capture)
+
 ## Sprint 85: Post-CAST Runtime Recovery — Window Style, Event-Driven Focus, Corner Bimap, Mesh Restore ✅
 
 **Date:** 2026-09-12
