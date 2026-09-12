@@ -241,8 +241,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     Source/end/ENDModel.h
     Source/end/ENDView.cpp
     Source/end/ENDView.h
-    Source/end/ENDWindow.cpp
-    Source/end/ENDWindow.h
     Source/end/EditorView.cpp
     Source/end/EditorView.h
     Source/end/EventRegistration.cpp
@@ -257,8 +255,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     Source/lookAndFeel/ENDLookAndFeel.cpp
     Source/lookAndFeel/ENDLookAndFeel.h
     Source/lookAndFeel/EventRegistration.cpp
-    Source/sidebar/SidebarComponent.cpp
-    Source/sidebar/SidebarComponent.h
 )
 
 # ==============================================================================

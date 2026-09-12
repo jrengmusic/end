@@ -38,15 +38,18 @@ void ENDApplication::initialise (const juce::String& commandLine)
     initialiseVulkan();
     nexus.initialiseServices();
 
-    auto* view { new ENDView (*ENDModel::getInstance()) };
-    window = std::make_unique<ENDWindow> (view, ProjectInfo::projectName);
+    window = std::make_unique<jam::Window> (std::make_unique<ENDView> (*ENDModel::getInstance()),
+                                            ProjectInfo::projectName,
+                                            static_cast<bool> (config.getValue (Id::toType (Id::display), Id::alwaysOnTop)),
+                                            static_cast<bool> (config.getValue (Id::toType (Id::display), Id::titleBarButtons)));
+    window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
     window->setVisible (true);
 }
 
-// SPEC.md:938 — 120fps GPU target, frame time < 5.8ms (70% of 8.33ms budget).
+// 120fps GPU target, frame time under 5.8ms (70% of the 8.33ms budget).
 static constexpr double highRefreshFrameBudgetMs { 5.8 };
 
-// SPEC.md:939 — 60fps CPU-safe fallback, frame time < 11.1ms (67% of 16.6ms
+// 60fps CPU-safe fallback, frame time under 11.1ms (67% of the 16.6ms
 // budget). Also the budget an indeterminate refresh-rate reading resolves to
 // (see indeterminateRefreshRateHz below), so "rate unknown" and "rate is 60Hz"
 // are deliberately the same, deterministic outcome.

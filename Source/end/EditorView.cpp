@@ -49,24 +49,34 @@ void EditorView::createProcessorEditor()
     const auto pluginId { state.getProperty (Id::pluginId).toString() };
     const jam::UUID uuid { state.getProperty (Id::id) };
 
-    auto sessionState { state.getParent() };
+    const auto sessionState { findAncestorRow (state, Id::toType (Id::session)) };
+    jassert (sessionState.isValid());
 
-    while (sessionState.isValid() and sessionState.getType() != Id::toType (Id::session))
-        sessionState = sessionState.getParent();
-
-    const jam::UUID sessionUuid { sessionState.getProperty (Id::id) };
-    auto& session { Nexus::getInstance()->getSession (sessionUuid) };
-
-    if (editor == nullptr and pluginId.isNotEmpty() and session.contains (uuid))
+    if (sessionState.isValid())
     {
-        auto& instance { session.get (uuid) };
+        const jam::UUID sessionUuid { sessionState.getProperty (Id::id) };
+        auto& session { Nexus::getInstance()->getSession (sessionUuid) };
 
-        editor.reset (instance.createEditorAndMakeActive());
-
-        if (editor != nullptr)
+        if (pluginId.isNotEmpty() and session.contains (uuid))
         {
-            addAndMakeVisible (*editor);
-            resized();
+            if (editor != nullptr)
+                editor->processor.editorBeingDeleted (editor.get());
+
+            editor.reset (session.getPlugin (uuid).createEditorAndMakeActive());
+
+            if (editor != nullptr)
+            {
+                addAndMakeVisible (*editor);
+                resized();
+            }
         }
     }
+}
+
+juce::ValueTree EditorView::findAncestorRow (juce::ValueTree tree, const juce::Identifier& type)
+{
+    while (tree.isValid() and tree.getType() != type)
+        tree = tree.getParent();
+
+    return tree;
 }

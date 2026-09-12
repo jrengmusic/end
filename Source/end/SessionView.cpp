@@ -21,7 +21,7 @@ TabView& SessionView::add (jam::UUID uuid)
         };
     }
 
-    setName (uuid);
+    applyTabName (uuid);
     lookAndFeelChanged();
 
     return *tabView;
@@ -55,17 +55,17 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == Id::name or property == Id::pluginId)
     {
-        const auto tabState { findAncestorTab (tree) };
+        const auto tabState { EditorView::findAncestorRow (tree, Id::toType (Id::tab)) };
 
         if (tabState.isValid())
         {
             const jam::UUID uuid { static_cast<int64_t> (tabState.getProperty (Id::id)) };
-            setName (uuid);
+            applyTabName (uuid);
         }
     }
 }
 
-juce::String SessionView::getName (const juce::ValueTree& tabState)
+juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 {
     const juce::String rename { tabState.getProperty (Id::name).toString() };
 
@@ -81,19 +81,11 @@ juce::String SessionView::getName (const juce::ValueTree& tabState)
     return sourcePane.isValid() ? sourcePane.getProperty (Id::name).toString() : juce::String {};
 }
 
-juce::ValueTree SessionView::findAncestorTab (juce::ValueTree tree)
-{
-    while (tree.isValid() and tree.getType() != Id::toType (Id::tab))
-        tree = tree.getParent();
-
-    return tree;
-}
-
-void SessionView::setName (jam::UUID uuid)
+void SessionView::applyTabName (jam::UUID uuid)
 {
     if (getChildren().contains (uuid))
     {
-        const auto name { getName (get (uuid).getValueTree()) };
+        const auto name { getTabName (get (uuid).getValueTree()) };
         setTabName (uuid, name);
 
         if (auto* tab { getBar().getTabButton (uuid) })

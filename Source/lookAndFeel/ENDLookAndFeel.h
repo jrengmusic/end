@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <JuceHeader.h>
-#include <jam_gui/keyboard/jam_CaretComponent.h>
+#include <jam_gui/jam_gui.h>
 #include <JamFontsBinaryData.h>
 #include "generated/Generated.h"
 #include "config/ConfigModel.h"
@@ -20,7 +20,7 @@
  * Event dispatch uses a single-key lookup: property key takes priority; when no
  * event is registered for the property, the lookup falls back to tree.getType().
  * This routes theme rebuild (Id::theme) and per-component colour refresh
- * (Id::toType (Id::code), scrollbar, tab, button, overlay, pane, statusBar, hint)
+ * (Id::toType (Id::code), scrollbar, tab, button, overlay, pane)
  * through one code path.
  */
 class ENDLookAndFeel
@@ -42,17 +42,11 @@ public:
         cursorColourId = 0x2000001,
         paneBarColourId = 0x2000009,
         paneBarHighlightColourId = 0x200000A,
-        statusBarBackgroundColourId = 0x2000100,
-        statusBarLabelBackgroundColourId = 0x2000101,
-        statusBarLabelTextColourId = 0x2000102,
-        statusBarSpinnerColourId = 0x2000103,
-        hintLabelBgColourId = 0x2000200,
-        hintLabelFgColourId = 0x2000201,
         selectionCursorColourId = 0x2000301,
     };
 
     /**
-     * @brief Initialises colours from config, loads SVG graphics from GRAPHICS
+     * @brief Initialises colours from config, loads SVG graphics from FLEX
      *        child properties, registers events, and adds a listener to config.
      *        Typeface registration happens later — see registerTypeface()'s
      *        doc comment for why it cannot run here.
@@ -96,7 +90,7 @@ public:
     /**
      * @brief Single-key event dispatch through the events map.
      *
-     * Checks whether @p property has a registered handler; if not, falls back to
+     * Checks whether @p property has a registered callback; if not, falls back to
      * @p tree.getType(). Routes theme rebuild (Id::theme) and per-component
      * colour refresh to their respective callbacks.
      *
@@ -133,8 +127,8 @@ public:
      *
      * State is resolved via jam::ButtonSVG::getState and mapped to a
      * map::ButtonState identifier. Paint occurs only when that state slot
-     * was authored in the theme.md graphics section (sparse bank — missing states
-     * are silently skipped). Applies rotation transform for vertical bars.
+     * was authored in the FLEX child (loadGraphics(), sparse bank — missing
+     * states are silently skipped). Applies rotation transform for vertical bars.
      *
      * @param g           Graphics context.
      * @param button      The tab button component.
@@ -154,7 +148,7 @@ public:
     /**
      * @brief Returns tab font constructed from theme config (family, size, kerning).
      *
-     * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::fontSize, Id::kerningFactor.
+     * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
      */
     juce::Font getTabFont() const override;
 
@@ -265,10 +259,12 @@ public:
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
-    /** @brief Pane outline indicator — focused pane strokes with the focused
-     *  outline colour, unfocused panes with the plain outline colour.
+    /** @brief Pane outline indicator — plain outline colour; the focused
+     *  state is drawn by createFocusOutlineForComponent()'s FocusOutline.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
+
+    std::unique_ptr<juce::FocusOutline> createFocusOutlineForComponent (juce::Component&) override;
 
     /** @brief Pane EDGE seam thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
@@ -276,19 +272,23 @@ public:
      */
     int getPaneEdgeSize() const noexcept override;
 
-    /** @brief Sidebar dock seed ratio from pane config (pane.sidebar_size). */
-    float getPaneSidebarSize() const noexcept;
-
     /**
      * @brief Returns the terminal code font constructed from theme config
      *        (family, size).
      *
-     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::fontSize. Unlike
+     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::textFontSize. Unlike
      * getTabFont(), carries no kerning factor (code.font_family/font_size
      * has no kerning_factor property) and no zoom — zoom is applied by
      * getCodeMetrics() below.
      */
     juce::Font getCodeFont() const;
+
+    /** @brief Terminal cell size in pixels, in the code font's zoomed metrics. */
+    struct CodeMetrics
+    {
+        int cellWidth;
+        int cellHeight;
+    };
 
     /**
      * @brief Computed terminal cell metrics at @p zoom — LnF is the font
@@ -298,46 +298,18 @@ public:
      * (size × zoom), resolves the zoomed font's typeface, and calls
      * jam::GlyphAtlas::getInstance()->calcMetrics() at the exact FT size the
      * glyphs will rasterize at. The raw FT cell width/height are then scaled
-     * by the theme's own cell ratios (code.cell_width / code.line_height)
-     * to produce the final pixel cell size. Returns the zoomed font itself
-     * alongside the computed metrics — TabView's own split/join preview
+     * by the theme's own cell ratios (code.cell_width / code.lineHeight)
+     * to produce the final pixel cell size — TabView's own split/join preview
      * consumes cellWidth/cellHeight directly, with no ratio-only getter
      * anywhere in the chain.
      *
      * @param zoom  Caller-supplied zoom factor (EditorView::defaultZoom).
-     * @return Populated CodeMetrics — font, cellWidth, cellHeight, baseline,
-     *         all in pixels except font (points).
+     * @return Populated CodeMetrics — cellWidth, cellHeight, in pixels.
      */
-    struct CodeMetrics
-    {
-        juce::Font font;
-        int cellWidth;
-        int cellHeight;
-        int baseline;
-    };
-
     CodeMetrics getCodeMetrics (float zoom) const;
 
-    /** @brief Component-level padding for the terminal code area from
-     *  display config. Reads code.padding { top, right, bottom, left }
-     *  (CSS convention) — mirrors getTabBarPadding().
-     */
-    juce::BorderSize<int> getCodePadding() const;
-
-    /** @brief Terminal gutter width in pixels from scrollbar config.
-     *  Reads scrollbar.width (user-configurable).
-     */
-    int getGutterWidth() const noexcept;
-
-    /** @brief Terminal ligature toggle from the active theme (code.ligatures)
-     *  — the 5th getCode* visual getter. Routes through LnF like every
-     *  other code-family value; EditorView no longer reads config
-     *  directly for ligatures.
-     */
-    bool getCodeLigatures() const noexcept;
-
 private:
-    // /** @brief Singleton config model reference — source for theme path and top-level config values. */
+    /** @brief Singleton config model reference — source for theme path and top-level config values. */
     ConfigModel& config { *ConfigModel::getInstance() };
 
     //==============================================================================
@@ -353,12 +325,12 @@ private:
      */
     jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
 
-    /** @brief Parsed SVG assets keyed by their GRAPHICS child property name or
+    /** @brief Parsed SVG assets keyed by their FLEX child property name or
      *  button state identifier.
      *
      *  Each entry is a Svg::Flex::Segments set (9-slice layout, paint-ready)
      *  produced by Svg::Flex::getSegments from the SVG content stored as a
-     *  property of the GRAPHICS child of config.state. Rebuilt by loadGraphics()
+     *  property of the FLEX child of config.state. Rebuilt by loadGraphics()
      *  on construction and on every Id::theme rebuild event.
      *
      *  Keys are resolved from the property name: the suffix after the last '_'
@@ -373,7 +345,7 @@ private:
      * Populated by registerEvents(). Handles:
      * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
-     *   Id::toType (Id::overlay), Id::toType (Id::pane), Id::toType (Id::statusBar), Id::toType (Id::hint)
+     *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     — per-component colour refresh via colourScheme.applyColours()
      * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     — re-applies setFontRasterization() on config hot-reload,
@@ -397,8 +369,20 @@ private:
      */
     static juce::String typefaceKey (const juce::String& name, const juce::String& style);
 
+    /** @brief Rotation transform for a vertical ButtonBar side (left/right) —
+     *  shared by drawBarBackground(), drawBarHighlight(), drawTabButton(), and
+     *  drawPaneEdge(), which each append further translation of their own.
+     *
+     *  @param position Vertical bar side (map::Position::left or the right-side case),
+     *                  as returned by jam::ButtonBar::getPosition().
+     *  @param width    Bar width before rotation.
+     *  @param height   Bar height before rotation.
+     */
+    juce::AffineTransform
+    getVerticalTextTransform (int position, float width, float height) const noexcept;
+
     /** @brief Display font constructed from theme config (family, size), no kerning.
-     *  Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::fontSize — same source
+     *  Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize — same source
      *  as getTabFont() minus the kerning factor.
      */
     juce::Font getCommonFont() const;
@@ -421,11 +405,11 @@ private:
      * owner, but the atlas itself stays owned by jam::VulkanEngine). Asserts
      * the instance is non-null rather than silently no-op-ing: by the time any
      * of this method's three callers (registerTypeface()'s tail, and the
-     * fontRasterizer/fontGamma/fontContrast event handlers below) can run,
+     * fontRasterizer/fontGamma/fontContrast event callbacks below) can run,
      * VulkanEngine construction has already happened. Called once from
      * registerTypeface() right after registration (before this atlas ever
      * paints a glyph), and again by the
-     * fontRasterizer/fontGamma/fontContrast event handlers on config hot-reload.
+     * fontRasterizer/fontGamma/fontContrast event callbacks on config hot-reload.
      *
      * Only these three properties warrant this call: they change the
      * rasterized bitmap for an otherwise-unchanged jam::GlyphAtlas::Key (same
@@ -443,7 +427,7 @@ private:
      * GlyphAtlas::Key, and EditorView's own lookAndFeelChanged() is the
      * sole path that recomputes cell metrics against the now-current atlas
      * state and repaints. A no-op at startup (registerTypeface()'s own tail
-     * call runs before ENDWindow exists). Defined in EventRegistration.cpp.
+     * call runs before jam::Window exists). Defined in EventRegistration.cpp.
      */
     void setFontRasterization();
 
@@ -455,7 +439,7 @@ private:
      * Reaches the atlas via jam::GlyphAtlas::getInstance() directly, same
      * precedent as setFontRasterization() (font events live with the font
      * owner). Called once from registerTypeface()'s tail — the same place
-     * setFontRasterization() runs — and again by the embolden event handler
+     * setFontRasterization() runs — and again by the embolden event callback
      * on config hot-reload. Tail-calls the same juce::Desktop-reached
      * Component::sendLookAndFeelChange() cascade as setFontRasterization()'s
      * own tail comment — embolden changes the rasterized bitmap for an
@@ -464,10 +448,10 @@ private:
     void setEmbolden();
 
     /**
-     * @brief Reads SVG content from the GRAPHICS child of config.state and
+     * @brief Reads SVG content from the FLEX child of config.state and
      *        parses each property into Svg::Flex::Segments.
      *
-     * Iterates properties of the GRAPHICS child via jam::Model::forEachProperty.
+     * Iterates properties of the FLEX child via jam::Model::forEachProperty.
      * For each string property: the key is the suffix after the last '_' when it
      * matches a map::ButtonState entry, or the full property name otherwise.
      * All SVGs are coloured with the full colourScheme. No disk I/O.
@@ -480,7 +464,7 @@ private:
      *
      * Calls jam::ColourScheme::fromValueTree on config.state, then maps every
      * component-tree colour property to its corresponding JUCE or END ColourId via
-     * addColourId (code, scrollbar, tab, button, overlay, pane, statusBar, hint).
+     * addColourId (code, scrollbar, tab, button, overlay, pane).
      * Finalises by calling colourScheme.applyColours on config.state.
      * Defined in EventRegistration.cpp.
      */
@@ -500,10 +484,10 @@ private:
     /**
      * @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
-     * Registers handlers for:
+     * Registers callbacks for:
      * - Id::theme         → initialiseColours() + loadGraphics()
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
-     *   Id::toType (Id::overlay), Id::toType (Id::pane), Id::toType (Id::statusBar), Id::toType (Id::hint)
+     *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     → colourScheme.applyColours(config.state)
      * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     → setFontRasterization() (font events live with the
@@ -519,7 +503,7 @@ private:
      * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/
      * fontContrast/embolden route to the atlas. tab.font_family/font_size/
      * kerning_factor and jam::overlay's font_family/font_size do NOT need a
-     * dedicated handler: jam::GlyphAtlas::Key (jam_GlyphAtlas.h) identifies a
+     * dedicated callback: jam::GlyphAtlas::Key (jam_GlyphAtlas.h) identifies a
      * cached glyph by {typeface pointer, glyphIndex, fontSize} — a new family
      * resolves to a new typeface pointer and a new size is a new Key member, so
      * both cache-miss and re-rasterize correctly on the very next paint with no
@@ -527,13 +511,10 @@ private:
      * glyph pen positions, never glyph identity). getTabFont() and
      * MessageOverlay::paint() already re-read config on every paint, and any
      * theme.md edit unconditionally fires Id::theme (ConfigTheme::loadFromPath)
-     * into the theme handler above, which repaints the whole component tree
+     * into the theme callback above, which repaints the whole component tree
      * (juce::Component::sendLookAndFeelChange descends to every child) — so the
-     * new family/size is picked up immediately. status_bar/action_list
-     * font_family/font_size need no dedicated handler here either —
-     * StatusBar/ActionList components do not exist in Source yet, nothing to
-     * route to until they do. The code font (code.font_family/font_size)
-     * needs no dedicated handler here either: TabView reads this class's
+     * new family/size is picked up immediately. The code font (code.font_family/font_size)
+     * needs no dedicated callback here either: TabView reads this class's
      * getCodeMetrics (zoom) directly, on demand, for its split/join preview
      * sizing, entirely independent of this class's own event map. Only fontRasterizer/fontGamma/fontContrast/embolden
      * change the rasterized bitmap for an UNCHANGED Key (same typeface/

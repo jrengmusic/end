@@ -4,7 +4,6 @@
 #include "config/ConfigModel.h"
 #include "end/ENDModel.h"
 #include "end/ENDView.h"
-#include "end/ENDWindow.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 #include "generated/Generated.h"
 #include "Nexus.h"
@@ -41,6 +40,8 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Generated generated;
 
+    jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
+
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member
     // initializer, evaluated at ConfigModel construction time — ENDModel
@@ -55,7 +56,7 @@ private:
 
     /** @brief Unified Vulkan resource-ownership tree — constructed unconditionally
      *  in initialiseVulkan(), after lookAndFeel exists, and never reset/
-     *  reconstructed thereafter (see EventRegistration.cpp's Id::useGpu handler).
+     *  reconstructed thereafter (see EventRegistration.cpp's Id::useGpu event callback).
      *  Owns the shared Device, every SharedResources<T> interning table
      *  (Typeface, Stamp, Grapheme, Link — each self-registers as its own
      *  getInstance() singleton on construction), the shared glyph atlas, and
@@ -72,7 +73,7 @@ private:
      *  first) never outlives it. */
     std::unique_ptr<jam::VulkanEngine> vulkanEngine;
 
-    std::unique_ptr<ENDWindow> window;
+    std::unique_ptr<jam::Window> window;
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;

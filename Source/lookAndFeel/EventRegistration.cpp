@@ -1,5 +1,13 @@
 #include "ENDLookAndFeel.h"
 
+static void cascadeLookAndFeelChange()
+{
+    auto& desktop { juce::Desktop::getInstance() };
+
+    for (int i = 0; i < desktop.getNumComponents(); ++i)
+        desktop.getComponent (i)->sendLookAndFeelChange();
+}
+
 void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
 {
     // One pass, one parse per font (SSOT font list) — creates the Ptr, stores
@@ -7,9 +15,14 @@ void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
     // name+style lookup (getTypefaceForFont()), and registers the SAME Ptr
     // identity with the atlas, all in a single lambda call per font instead of
     // two separate passes re-parsing the same bytes.
-    auto add = [this, &atlas] (const void* data, int size)
+    auto getTypeface = [] (const void* data, int size)
     {
-        auto ptr { juce::Typeface::createSystemTypefaceFor (data, size) };
+        return juce::Typeface::createSystemTypefaceFor (data, size);
+    };
+
+    auto registerFont = [this, &atlas, &getTypeface] (const void* data, int size)
+    {
+        auto ptr { getTypeface (data, size) };
         auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
         typefaces.addOrReplace (key, ptr);
         atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
@@ -20,12 +33,12 @@ void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
         jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
     };
 
-    add (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
-    add (jam::fonts::DisplayBook_ttf, jam::fonts::DisplayBook_ttfSize);
-    add (jam::fonts::DisplayMedium_ttf, jam::fonts::DisplayMedium_ttfSize);
-    add (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
-    add (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
-    add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
+    registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
+    registerFont (jam::fonts::DisplayBook_ttf, jam::fonts::DisplayBook_ttfSize);
+    registerFont (jam::fonts::DisplayMedium_ttf, jam::fonts::DisplayMedium_ttfSize);
+    registerFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
+    registerFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+    registerFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
 
     // Applies the shipped/user-configured rasterization backend and coverage
     // LUT gamma/contrast before this atlas ever paints a glyph.
@@ -51,17 +64,14 @@ void ENDLookAndFeel::setFontRasterization()
     // lookAndFeelChanged() (via ENDLookAndFeel::getCodeMetrics()) is the
     // sole path that recomputes cell metrics against the now-current atlas
     // state and repaints every pane. ENDLookAndFeel owns no Component of
-    // its own (unlike ENDView's own theme handler, which fires
+    // its own (unlike ENDView's own theme callback, which fires
     // Component::sendLookAndFeelChange() directly — EventRegistration.cpp,
     // end/), so the SAME call is reached here through juce::Desktop's
     // top-level window registry instead. A no-op at startup
-    // (registerTypeface()'s own tail call runs before ENDWindow exists —
-    // ENDApplication::initialiseVulkan() precedes the window.reset() call,
+    // (registerTypeface()'s own tail call runs before jam::Window exists —
+    // ENDApplication::initialiseVulkan() precedes jam::Window construction,
     // Main.cpp — so juce::Desktop holds zero top-level components then).
-    auto& desktop { juce::Desktop::getInstance() };
-
-    for (int i = 0; i < desktop.getNumComponents(); ++i)
-        desktop.getComponent (i)->sendLookAndFeelChange();
+    cascadeLookAndFeelChange();
 }
 
 void ENDLookAndFeel::setEmbolden()
@@ -76,10 +86,7 @@ void ENDLookAndFeel::setEmbolden()
     // Same atlas-invalidation cascade as setFontRasterization()'s own tail
     // comment — embolden changes the rasterized bitmap for an
     // otherwise-unchanged GlyphAtlas::Key too.
-    auto& desktop { juce::Desktop::getInstance() };
-
-    for (int i = 0; i < desktop.getNumComponents(); ++i)
-        desktop.getComponent (i)->sendLookAndFeelChange();
+    cascadeLookAndFeelChange();
 }
 
 void ENDLookAndFeel::initialiseColours()
@@ -105,12 +112,6 @@ void ENDLookAndFeel::initialiseColours()
     colourScheme.addColourId (Id::toType (Id::pane), Id::resizeBarHighlight, paneBarHighlightColourId);
     colourScheme.addColourId (Id::toType (Id::pane), Id::outline, jam::PaneComponent::outlineColourId);
     colourScheme.addColourId (Id::toType (Id::pane), Id::focusedOutline, jam::PaneComponent::focusedOutlineColourId);
-    colourScheme.addColourId (Id::toType (Id::statusBar), Id::background, statusBarBackgroundColourId);
-    colourScheme.addColourId (Id::toType (Id::statusBar), Id::labelBackground, statusBarLabelBackgroundColourId);
-    colourScheme.addColourId (Id::toType (Id::statusBar), Id::labelText, statusBarLabelTextColourId);
-    colourScheme.addColourId (Id::toType (Id::statusBar), Id::spinner, statusBarSpinnerColourId);
-    colourScheme.addColourId (Id::toType (Id::hint), Id::background, hintLabelBgColourId);
-    colourScheme.addColourId (Id::toType (Id::hint), Id::text, hintLabelFgColourId);
 
     colourScheme.applyColours (*this, config.state);
 
@@ -177,8 +178,6 @@ void ENDLookAndFeel::registerEvents()
     events.add<juce::ValueTree&> (Id::toType (Id::button), applyColours);
     events.add<juce::ValueTree&> (Id::toType (Id::overlay), applyColours);
     events.add<juce::ValueTree&> (Id::toType (Id::pane), applyColours);
-    events.add<juce::ValueTree&> (Id::toType (Id::statusBar), applyColours);
-    events.add<juce::ValueTree&> (Id::toType (Id::hint), applyColours);
 
     events.add<juce::ValueTree&> (Id::toType (Id::menu),
                                   [this] (juce::ValueTree&)

@@ -23,6 +23,17 @@
 class TabView : public jam::MatrixComponent
 {
 public:
+    enum class AreaOption
+    {
+        splitVertical = 1,
+        splitHorizontal,
+        joinLeft,
+        joinRight,
+        joinUp,
+        joinDown,
+        swapPick
+    };
+
     /**
      * @brief Constructs the tab's pane graph, registering the tab's own
      *        name/edge/position parameters on state.
@@ -133,6 +144,14 @@ protected:
      * @brief Removes the departing pane's PANE state row, then delegates to
      *        jam::MatrixComponent::childRemoved() for graph collapse.
      *
+     * The explicit state.removeChild() call only removes the row when the
+     * departing pane is the graph root — a direct child of the TAB row.
+     * For a nested pane, the row's removal is left to
+     * jam::MatrixComponent::childRemoved(), which collapses the pane's
+     * parent EDGE subtree; juce::ValueTree::removeChild() is a no-op when
+     * the row is not a direct child of state, so the explicit call above
+     * never double-removes a nested pane's row.
+     *
      * @param uuid Identity of the pane being removed.
      */
     void childRemoved (jam::UUID uuid) override;
@@ -151,6 +170,10 @@ private:
      * @param result The chosen item ID from buildAreaOptionsMenu().
      */
     void handleAreaOptionsResult (int result);
+
+    void paintSplitPreview (juce::Graphics& g, const juce::String& edge, float position);
+
+    void paintJoinPreview (juce::Graphics& g, const juce::String& edge);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabView)

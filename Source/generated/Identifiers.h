@@ -92,8 +92,10 @@ inline const juce::Identifier postProcessingResolution { juce::String::fromUTF8 
 inline const juce::Identifier prefix                   { juce::String::fromUTF8 ("prefix")                     };
 inline const juce::Identifier prefixTimeout            { juce::String::fromUTF8 ("prefix_timeout")             };
 inline const juce::Identifier prevTab                  { juce::String::fromUTF8 ("prev_tab")                   };
+inline const juce::Identifier quit                     { juce::String::fromUTF8 ("quit")                       };
 inline const juce::Identifier reducePaneHeight         { juce::String::fromUTF8 ("reduce_pane_height")         };
 inline const juce::Identifier reducePaneWidth          { juce::String::fromUTF8 ("reduce_pane_width")          };
+inline const juce::Identifier reload                   { juce::String::fromUTF8 ("reload")                     };
 inline const juce::Identifier resizeBar                { juce::String::fromUTF8 ("resize_bar")                 };
 inline const juce::Identifier resizeBarHighlight       { juce::String::fromUTF8 ("resize_bar_highlight")       };
 inline const juce::Identifier resizeBarThickness       { juce::String::fromUTF8 ("resize_bar_thickness")       };

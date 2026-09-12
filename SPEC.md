@@ -1,810 +1,219 @@
 # SPEC.md — END: Ephemeral Nexus Display
 
-**Version:** 0.0.1 — Implementation in Progress
-**Date:** 2026-06-04 (original), updated 2026-07-04
-**Current Phase:** 14 (Final Polish — Advanced Shaders) | Phases 3-13 COMPLETE
+**Version:** 0.0.1
+**Date:** 2026-06-04 (original), updated 2026-09-12
+**Identity revision:** END is a CLAP plugin host. The terminal emulator moved out of
+this repository into a hosted plugin.
 
 ---
 
 ## 0. Identity
 
-END is a **JUCE GUI application** that renders terminal output.
+END is a **JUCE GUI application** that hosts CLAP plugins in a tabbed, splittable
+pane workspace, rendered by the JAM Vulkan engine.
 
-It is not a terminal emulator wrapped in JUCE. It is not a custom OpenGL renderer with a JUCE shell. The JUCE component lifecycle, threading model, and event system are the foundation — not obstacles to work around. JAM extends where JUCE cannot reach; it never replaces what JUCE already provides.
+It is not a terminal emulator. The VT engine, the document model, and the terminal
+widgets that earlier versions of this SPEC described now live outside this
+repository. They return as hosted plugins:
+
+- **eve** — the terminal plugin.
+- **whelmed** — the markdown editor/viewer plugin.
+
+END supplies the window, the workspace (tabs, panes, splits, focus), the config
+system, the rendering engine, and the plugin lifecycle. Plugins supply content.
 
 ### Priority Order
 
-1. **JUCE GUI application.** Component hierarchy, ValueTree state, timer-driven rendering, native windowing. Every architectural decision starts here.
-2. **Faithful full-spec VT terminal emulator.** VT100/VT520 parser, xterm-compatible input encoding, modern protocol extensions (CSI u, OSC 133, OSC 8). The VT engine is a subsystem within the application, not the application itself.
-3. **Modern development environment.** Built-in markdown renderer with mermaid graphics (Whelmed), Lua scripting with hot reload, configurable shader pipeline (Shadertoy-compatible background and post-process passes), SVG-driven tab styling, native fuzzy finder, inline image preview.
+1. **JUCE GUI application.** Component hierarchy, ValueTree state, native
+   windowing. Every architectural decision starts here.
+2. **CLAP plugin host.** jam_clap is the in-house wrapper and host format. One
+   plugin instance per pane. The host stays content-ignorant.
+3. **GPU-first rendering.** The JAM Vulkan engine renders every window. Shader
+   pipeline (Shadertoy background, Slang post-process, OBJ mesh) is host-level
+   decoration.
 
 ### Why This Order Is Non-Negotiable
 
-The previous iteration started as priority 2 with priority 1 as an afterthought. Every agent, every sprint, every refactor fought JUCE because the mental model was "terminal emulator" — not "JUCE application." The rendering pipeline, the state management, the component ownership — all were designed terminal-first and bent to fit JUCE after the fact. Each feature added revealed another seam where the terminal model and the JUCE model collided. A month of refactoring could not converge because the foundation encoded the wrong priority.
+The previous iteration fought JUCE because its mental model was "terminal
+emulator", not "JUCE application". That lesson stands for the host: END is a JUCE
+application first. The host never absorbs plugin responsibilities. When a feature
+belongs to content, it belongs to a plugin.
 
 ---
 
-## 1. Architectural Foundation — APVTS-Analogous Lock-Free Architecture
+## 1. Architecture
 
-### 1.0 What This Is NOT — Anti-Mental-Model (MANDATORY READ)
-
-**END is NOT a terminal emulator with a scanline grid model.** Every agent's training data is dominated by terminal emulators that use the scanline model. That model is fundamentally wrong for END. Reading the SPEC through the scanline lens will produce wrong implementations. This section exists to destroy that lens.
-
-**The scanline model (WRONG for END):**
-- The screen is a volatile grid of cells sized to the viewport, replaced on every frame.
-- Scrollback is an afterthought bolted onto the same grid.
-- The grid IS the document — resize mutates it, corrupts or loses content.
-- SIGWINCH reflows the grid, destroying content that doesn't fit.
-- The reader thread writes directly to the display surface.
-
-**END's model (CORRECT):**
-- The screen is a JUCE `Component` that renders from a persistent document (`CodeModel`).
-- Scrollback is first-class — the same document, same storage, same projection.
-- `Buffer<Row>` (owned by Video) is a **scratch surface** — destroyed and rebuilt on resize. It is NOT the document. It is NOT the SSOT for content. It is the VT engine's working memory, analogous to an audio processor's sample buffer.
-- `CodeModel` (`ParagraphsModel`) is the document SSOT — a dimensionless bounded deque of `jam::String` lines. Width enters exactly once, at projection time, when `CodeView` calls `getWrappedLines(viewWidth)`. Storage knows nothing about width, pixel dimensions, or viewport geometry.
-- SIGWINCH changes the projection width only — `CodeModel` is untouched. History lines survive resize unchanged. `Processor::prepare()` resizes `Buffer<Row>` (the scratch); `CodeModel` content is unaffected.
-- The reader thread NEVER touches `CodeModel`. The boundary is `CellFifo` — a lock-free SPSC ring that data passes through. `Video` writes to `Buffer<Row>` and pushes rows into `CellFifo` on the reader thread. The message thread drains `CellFifo` into `CodeModel`. Two threads, one bridge, unidirectional.
-
-**This is the same design used by both Neovim and JUCE:**
-- External sources (VT parser, markdown renderer, user keyboard) commit text INTO the editor.
-- The editor IS the SSOT for all content it renders.
-- Width enters exactly once, at projection time.
-- Storage knows nothing about width, pixel dimensions, or viewport geometry.
-
-### 1.1 Data Ownership — What Lives Where
-
-| Object | Owner | What it is | What it is NOT |
-|--------|-------|-----------|----------------|
-| `Buffer<Row>` | `Video` (reader thread) | VT engine scratch surface. Dual channel (normal/alternate). Destroyed on resize. | NOT the document. NOT the SSOT. NOT persistent. |
-| `CellFifo` | `Processor` (reader thread) | Lock-free SPSC transport. Two rings (history + active). Drop-oldest under flood. Data passes through and is consumed. | NOT storage. NOT scrollback. NOT persistent. Under flood, oldest entries are dropped — this is correct. |
-| document (`jam::TextModel`) | `Processor` (message-thread access) | The document SSOT. Bounded line store, drained from CellFifo by the Processor itself. History lines survive resize. FIFO eviction drops oldest when over `scrollbackLines` capacity. | NOT written by the reader thread. NOT touched by resize. |
-| `jam::CodeView` | `terminal::View` (message thread) | Dumb rendering widget. Renders the Processor's document. | NOT the document. NOT a state owner. NOT a ValueTree::Component. |
-| `terminal::Model` | `Processor` | APVTS bridge. Atomics (reader writes), ValueTree (message reads). Timer flushes dirty atomics to ValueTree. Tree attached into end::Model under its Session's pane subtree. | NOT a config store. NOT a document store. Only scalar state (cursor, modes, flags, text params). |
-
-### 1.2 APVTS Analogy
-
-END's cross-thread architecture is modeled after JUCE's `AudioProcessorValueTreeState` (APVTS). The audio plugin world solved the same problem: a real-time thread producing data consumed by a UI thread, with zero locks on the hot path.
-
-The closest analogy is a **spectrum analyzer plugin**, not a synthesizer. In a synthesizer, the audio thread is the hot path. In an analyzer, the audio thread just pushes raw data — the **display thread is the hot path**, reading processed results and painting at 60/120fps. END is the same: the reader thread pushes raw cells, the message thread paints.
-
-### Plugin Architecture Mapping
-
-| JUCE Audio Plugin | END |
-|-------------------|-----|
-| Host (DAW) | `Nexus` — owns `end::Model` (app SSOT) + all Sessions, manages lifecycle, routes IPC |
-| Project / session state | `end::Session` — gui-less container: uuid-keyed `jam::HashMap<int64_t, std::unique_ptr<terminal::Processor>>` + the tabs/panes state of one `end::View` |
-| `PluginProcessor` | `terminal::Processor` — owns `terminal::Model`, document, `CellFifo`, `Resizer`, TTY; self-drains |
-| `APVTS` | `terminal::Model` — state bridge, owned by Processor, attached into `end::Model` |
-| `PluginEditor` | `end::View` / `terminal::View` — ephemeral projection, attaches to one Session |
-| `SpectrumFIFO` | `CellFifo` — lock-free SPSC transport, reader pushes, Processor drains |
-| `SpectrumProcessor::outputDB` | document (`jam::TextModel`) — processed output ready for display |
-
-Key property: the Editor (View) is detachable. In daemon mode, the Session keeps running without a View — identical to a DAW running a plugin headless. The View is created when a GUI client connects, destroyed when it disconnects. The Session and its state survive, and its subtree in `end::Model` is complete with zero Views — restoration rebuilds View-Tabs-Panes purely from that persistent state.
-
-### 1.3 Thread Contract
-
-| Thread | Writes | Reads | Never |
-|--------|--------|-------|-------|
-| **Reader** (TTY) | Atomics on terminal::Model, Buffer\<Row\> cells, CellFifo push | Raw PTY bytes | ValueTree, mutex, allocation, block, **CodeModel** |
-| **Message** (main) | ValueTree, CodeModel mutations (drain) | ValueTree (via listener/referTo), CellFifo drain | Atomics (except flush) |
-| **Timer** (JUCE) | ValueTree properties (flush dirty atomics) | `needsFlush` atomic | Buffer\<Row\>, CodeModel |
-| **GL** (OpenGL) | Shader uniforms, FBO | Shader source | Buffer\<Row\>, ValueTree, CodeModel |
-
-**HARD INVARIANT:** The reader thread NEVER touches `CodeModel`. The message thread NEVER writes atomics (except during flush). The GL thread NEVER writes ValueTree or CodeModel. Violation of any of these is a **B violation** (thread binding) — not a bug to fix, an architecture to reject.
-
-**Drain runs on the message thread ONLY — and the Processor triggers it itself.** The Processor observes its own `screenDirty` (message-thread listener, fires after timer flush), pulls from `CellFifo` (message-thread read side of the SPSC ring), and mutates its document. Self-drain keeps the document current with or without an attached View — `CellFifo`'s history ring is finite, so an undrained detached Session would lose scrollback once the ring wraps. An agent must never call drain from the reader thread.
-
-### 1.4 Data Flow — Unidirectional, Always
+### 1.0 Layer Order (top → bottom)
 
 ```
-Scalar state:
-  READER → atomics on terminal::Model → Timer flush → ValueTree → Listeners → View repaint
-
-Bulk cell data:
-  READER → Video writes Buffer<Row> → CellFifo push (drop-oldest SPSC)
-  MESSAGE → Processor self-drain (screenDirty) → CellFifo drain → document mutations → CodeView repaint
+Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)
 ```
 
-No thread pushes to another. All communication is pull-based. No mutex on any hot path. No wait, no stall, no yield.
+- **ENDApplication** (Main.cpp) — orchestrator. Constructs `jam::Window` directly
+  (there is no ENDWindow class). Owns config and the Nexus lane.
+- **Config** (`Source/config/`) — ConfigDirectory, ConfigModel and its per-domain
+  subclasses (theme, shader). Four-phase lifecycle. Data source is markdown.
+- **Nexus** (`Source/Nexus.h`) — host singleton. Owns the sessions Model state
+  (`Id::sessions` tree: `focused_session`, `focused_pane` parameters), the
+  per-session plugin instances, and the per-plugin `Nexus::VirtualClock` demand
+  clocks. Creates plugins via jam_clap from `~/.config/end/plugins/`.
+- **Session** — uuid-keyed container of hosted plugin instances for one window's
+  session. `newPlugin (uuid, pluginId, instance)` / `removePlugin (uuid)`.
+- **EditorView panes** — each pane hosts one plugin editor
+  (`juce::AudioProcessorEditor` from the CLAP instance). A pane with no loaded
+  plugin renders bare (outline only).
 
-### 1.5 CONFIG Contract — Binary Defaults Are Foundation, Disk Files Are Override
+### 1.1 View Composition
 
-Default lua files are compiled into the binary as BinaryData. The `config::Model` ValueTree is **built from these compiled defaults first** — the tree is guaranteed valid before any disk I/O. Disk lua files are user overrides applied onto the already-valid tree. No XML. No serialized ValueTree. No `referTo`.
+```
+ENDView                                  ← app surface; key dispatch; owns actions
+  ├── background (VulkanShaderComponent) ← config-driven background shader
+  ├── SessionView : jam::TabbedComponent ← one-visible tab owner, adopts SESSION row
+  │     └── TabView[N] : jam::MatrixComponent  ← binary-space pane graph per tab
+  │           ├── EditorView[N] : jam::PaneComponent  ← one hosted plugin per pane
+  │           └── jam::PaneEdge[N]       ← EDGE rows, draggable seams
+  └── MessageOverlay                     ← status/preview overlay painting
+```
 
-**Init chain (app start):**
-1. Build `config::Model` ValueTree from compiled binary default lua files (BinaryData). Parse via sol2, walk tables, `setProperty` per value. **Tree is valid and complete at this point.**
-2. Check `~/.config/end/` for each lua module file (display.lua, keys.lua, nexus.lua, popups.lua, actions.lua, whelmed.lua).
-3. **Virgin machine?** Any missing file → write the compiled default to disk immediately.
-4. Read lua files from disk → parse via sol2 → overlay onto the already-built tree: `setProperty` only for values that parse successfully.
-5. Any invalid/unreadable value → the compiled default stays (tree was built with it in step 1). **No value is ever missing or corrupt.**
-6. Parse failures are tracked with file path and line number. Errors are reported to the user (MessageOverlay) — the application never fails to start, but the user sees exactly what went wrong and where.
+The Owner/Owned composite is jam's layout law:
 
-**Hot-reload chain (file change):**
-7. ENDApplication (the `jam::File::Watcher::Listener`) fires on any `.lua` change.
-8. Reset tree to compiled binary defaults (step 1), then overlay from disk (step 4). Init and reload are the same code path — one function, two call sites.
-9. config::Model `valueTreePropertyChanged` fires on all its listeners.
-10. Each listener reacts accordingly — LookAndFeel re-styles, terminal::View re-applies font/colours, etc.
+- `jam::OwnedComponent` self-reports keyboard focus onto its own row's
+  `Id::focus`; it publishes its own bounds. The child stays dumb.
+- `jam::OwnerComponent` aggregates: a direct child row's `Id::focus` becoming 1
+  writes that child's identity into the owner's focused-child parameter. Focus is
+  event-driven; there is no manual focus bookkeeping anywhere above the owner.
+- `jam::MatrixComponent` (TabView base) mutates the binary-space graph: `split`
+  targets the focused child, EDGE rows name head/tail spaces by uuid.
 
-**Config delivery — config::Model listeners react:**
-- **No `referTo`.** No manual distribution cascade from end::View.
-- config::Model is an **independent tree** (`jam::Model` + `Instance<config::Model>`), NOT grafted to end::Model. Two separate trees, two separate listener registrations.
-- Each consumer that needs config values registers as `ValueTree::Listener` on config::Model directly.
-- Main's only job is: own the watcher, trigger the reload on `config::Model`, let the listener chain propagate naturally through config::Model.
-- This is the standard JUCE ValueTree listener pattern. No magic. No manual push.
+### 1.2 State — jam::Model Contract
 
-**Design constraint:** The build-and-overlay function must be clean and reentrant. Each invocation resets to compiled defaults and re-applies disk overrides. It never caches intermediate lua state between calls. Disk corruption, parse failure, or partial write cannot produce an invalid tree — the compiled defaults are the floor.
+`jam::Model` is the APVTS-analog state owner (owned ValueTree by value, atomic
+`Parameter<T>` store, adaptive-rate flush timer, `createAndAddParameter<T>`).
+Contract points that bind END:
 
-### 1.6 jam::Model Contract
+- Parameter-backed properties accept raw `setProperty` writes on the message
+  thread; the adapter reverse-syncs VT→atomic, and the flush timer is CAS-gated —
+  it never reverts a raw ValueTree write.
+- Two independent trees: the runtime Model (Nexus-owned sessions state) and the
+  config Model. No config values on the runtime tree, no runtime state on the
+  config tree.
+- Focus lane (verified end to end): click → pane takes keyboard focus →
+  `Id::focus = 1` on the pane row → owner aggregates into `focused_pane` →
+  actions and splits read `focused_pane`. Creation (`OwnerComponent::add`) stamps
+  the new child as focused — a state update at creation, not a manual override of
+  the event lane.
 
-`jam::Model` is the APVTS-analog state owner used by `end::Model`, `terminal::Model`, and `config::Model`. It is not a plain ValueTree wrapper. Its contract:
+### 1.3 Config — Markdown Tables, Cast Toolchain
 
-- **Owns a `juce::ValueTree` by value** (not `unique_ptr` — mirrors `juce::AudioProcessorValueTreeState` which holds `ValueTree state;` by value).
-- **`get()` returns the ValueTree by value** — cheap ref-counted handle. Callers bind via `auto x = model.get()`, never `juce::ValueTree& x = model.get()`.
-- **Atomic parameter map** (`jam::AnyMap`) — `Parameter<int>`, `ParameterText` adapters for cross-thread scalar transport. Reader thread writes via `storeValue` (atomic store). Timer flushes dirty atomics to ValueTree properties.
-- **Timer flush** — inherits `juce::Timer`. `timerCallback()` copies dirty atomics to ValueTree. ValueTree fires `valueTreePropertyChanged` on listeners.
-- **`addParameter<T>(id, ...)`** — registers a parameter in the AnyMap, creates the PARAM child node.
+Config data lives in markdown grid tables, parsed by jam_markdown
+(`jam::ConfigDocument::parse` → `getValueTree`, validated by
+`jam::ConfigValidator`).
 
-### 1.7 action::Registry — Parameterized Dispatch
+- **Sources (deployed, live):** `~/.config/end/display.md`, `keys.md`,
+  `themes/<name>/theme.md`. Shipped defaults live at `Source/config/`.
+- **Value typing** is per-row (`integer`, `float`, `bool`, `string`, `colour`,
+  `numbers`) via `ConfigDocument::getValueTypes`.
+- **Authoring rules:** table key cells are property names verbatim. A property
+  consumed through a jam lexicon identifier uses jam's spelling (single owner —
+  e.g. `lineHeight`). A value cell whose text collides with markdown block syntax
+  is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser resolves the escape to
+  the literal.
+- **Constants pipeline:** `cast/*.md` (project-info, identifiers, bimaps, files)
+  → `cast cast/CAST.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,
+  Files,Generated}.h` (global `Id::`, `map::`, `files::`). The generated lexicon
+  defines only what jam's lexicon does not — shared identifiers have exactly one
+  owner: jam.
+- **Key bindings** (`keys.md`): direct bindings (cmd/ctrl) fire immediately;
+  modal bindings require the prefix key first. `ENDActions::buildKeyMap` reads
+  the KEYS tree via `juce::KeyPress::createFromDescription`; rebuilt on any
+  config change.
 
-`action::Registry` dispatches actions by string name. In the previous iteration, all actions had `void()` signatures. The rewrite requires **parameterized actions** because:
+### 1.4 Rendering — First-Class Vulkan Architecture
 
-- `splitWithRatio` needs `(direction, isVertical, ratio)`
-- `launchPopup` needs `(name, command, args, cwd, cols, rows)`
+`jam::VulkanEngine` (Application-owned) is the rendering authority and the
+unified resource-ownership tree: shared `jam::VulkanDevice`, the
+Typeface/Stamp/Grapheme/Link interning tables, shared `jam::GlyphAtlas`, plus the
+per-window `jam::VulkanGraphics` collection. Member-declaration order governs
+teardown.
 
-The old pattern used `DisplayCallbacks` — a struct of `std::function` closures stored in `lua::Engine`, capturing Tabs/Panes pointers. This is eliminated (§2 — config::Model holds no UI closures). All actions dispatch through `Registry::perform()`.
+- **Dual-engine dispatch (never-null factory):** Vulkan LLGC on GPU;
+  `jam::LowLevelGraphicsGlyphRenderer` CPU fallback. JUCE's default renderers are
+  structurally unreachable.
+- **macOS:** MoltenVK (vendored SDK under `Poems/Vulkan/macOS/`), CAMetalLayer
+  surface attached once at swapchain creation.
+- **Shader pipeline:** background and post-process shader projects under
+  `~/.config/end/shaders/<name>/` (Shadertoy convention; optional `.slangp`
+  resource manifest for OBJ mesh + textures). Runtime compilation via shaderc;
+  engine templates splice with `@token@` placeholders through
+  `jam::Format::replaceholder` with an explicit at-sign delimiter.
+- Paint dispatch is message-thread-synchronous; no dedicated GPU thread.
 
-**The Registry must support a payload mechanism** — either typed action variants (handler receives `juce::var` or a typed payload struct), or per-entry registered closures that capture their parameters at registration time (each popup entry registers its own `void()` that already knows its command/args/cwd). The exact design is Phase 3 execution work, but the requirement is captured here: `void()` is insufficient.
+### 1.5 Plugin Hosting — jam_clap
 
-### 1.8 Rendering Engine — First-Class Vulkan Architecture (RESOLVED in Phase 4)
+- Format and wrapper are in-house (`jam_clap`, JAM repository).
+- Plugins live in `~/.config/end/plugins/`. `Nexus::createPlugin (pluginId,
+  callback)` resolves and instantiates asynchronously; a missing plugin yields a
+  bare pane (`newPlugin (uuid, {}, nullptr)`).
+- Each plugin gets a `Nexus::VirtualClock` — a per-plugin demand clock, created
+  and removed with the pane.
+- `EditorView::createProcessorEditor` hosts the instance's
+  `AudioProcessorEditor`; resizable editors track pane bounds.
 
-`jam::VulkanEngine` (Application-owned, via `end::Application::vulkanEngine`) is the application's rendering authority — not a bolt-on, but first-class architecture, and the unified resource-ownership tree for the Vulkan rendering backend. It owns six singular/interning members — the shared `jam::VulkanDevice` (one per application), the `jam::Typeface`/`jam::Stamp`/`jam::Grapheme`/`jam::Link` `SharedResources<T>` interning tables, and the shared `jam::GlyphAtlas` (one per application) — plus the per-window `jam::VulkanGraphics` collection. Member-declaration order inside `jam::VulkanEngine` governs teardown (reverse-order destruction): Device first (destructs last, since every GPU resource depends on it), then Typeface/Stamp/Grapheme/Link, then GlyphAtlas, then the per-window Graphics collection.
+### 1.6 Main Goal — Shared Vulkan Engine Across Host and Plugins
 
-**Dual-engine dispatch (never-null factory pattern):**
-- GPU path: `jam::VulkanLowLevelGraphicsContext` (Vulkan LLGC) on available hardware
-- CPU fallback: `jam::LowLevelGraphicsGlyphRenderer` (software rasterizer with shared atlas) when GPU unavailable/disabled
-
-`VulkanEngine::createContext()` (installed as `juce::ComponentPeer::externalContextFactory`) **never returns nullptr** — JUCE's default renderers are structurally unreachable.
-
-**Font/Atlas lifecycle (GL-thread binding resolved):**
-- Typeface singleton (`jam::Typeface::getInstance()`) is a `jam::VulkanEngine` member, self-registers on construction
-- GlyphAtlas is a `jam::VulkanEngine` member, self-registers on construction (`jam::GlyphAtlas::getInstance()`), reachable directly without going through VulkanEngine
-- Font rasterization config (gamma, contrast, backend) applied at VulkanEngine init; hot-reload updates via config listeners, no mid-frame mutation
-- Thread contract: message thread owns config/font changes, Vulkan paint dispatch is message-thread-synchronous (no dedicated GPU thread), atomicity by design — no guards needed
+The central challenge of END-as-host: hosted plugin instances must share the
+host's Vulkan engine — one `jam::VulkanDevice`, one atlas/interning family, one
+resource-ownership tree serving host chrome and plugin content alike. This is the
+next architecture phase; it is unimplemented and undesigned as of this revision.
+Design work happens plugin-side and host-side together (see §3 Roadmap).
 
 ---
 
-## 2. Architectural Foundation — META-MVC
+## 2. Actions and Input
 
-BLESSED is the technical northstar. Its architectural expression is **META-MVC**: Model-View-Controller is not three god objects — it is a recursive pattern where each layer is itself an MVC triad.
-
-### The Pattern
-
-Every component in END occupies one or more roles:
-
-- **Model** — a `jam::Model` instance or a `juce::ValueTree` node. Owns state. Accessed by its Controller.
-- **View** — a `juce::Component`. Renders state. Receives input only to forward or translate — never to author Model state directly.
-- **Controller** — orchestrates its own Model and child Views. A Controller IS a View to its parent.
-
-A View at one level is a Controller at the level below. Each layer carries its own Model node. All Model nodes attach to the single application state tree — the SSOT.
-
-### The Hierarchy — Ownership
-
-```
-ENDApplication                                        ← THE ORCHESTRATOR (Main.cpp, not namespaced)
-  ├── config::Model                                    ← CONFIG tree + sol2 VM
-  │     composed from: config::Display, config::Nexus, config::Keys, config::Popups, config::Actions, config::Whelmed
-  │     (consumers read config::Model only, never individual parsers)
-  │
-  ├── Nexus (Instance<Nexus>)                          ← HOST — gui-less, daemon-capable
-  │     ├── end::Model (jam::Model + Instance<end::Model>)   ← THE app SSOT — all runtime state, UI state included
-  │     └── end::Session[N] (uuid)                     ← gui-less state of one end::View
-  │           ├── tabs/panes subtree in end::Model + the RAII attachments placing each
-  │           │   Processor's terminal::Model tree under its pane
-  │           └── terminal::Processor[N]               ← PluginProcessor-exact
-  │                 ├── terminal::Model (= APVTS) — attached into the Session's pane subtree
-  │                 ├── document (jam::TextModel) — drained render document
-  │                 ├── Parser → Video (jam::terminal)
-  │                 ├── CellFifo — SPSC transport; Processor self-drains on screenDirty
-  │                 ├── Resizer — coalesced live resize
-  │                 └── TTY
-  │
-  └── end::View (ephemeral)                            ← PluginEditor of ONE end::Session (ID::activeSession)
-        ├── SessionView : jam::TabbedComponent (adopts the SESSION row)
-        │     └── TabView[N] : jam::MatrixComponent
-        │           └── terminal::View (jam::PaneComponent subclass)
-        │                 ├── owns jam::CodeView — renders the Processor's document
-        │                 ├── terminal::Input / terminal::Mouse — encode-path owners
-        │                 └── stateless — zero cached visual state
-        │
-        ├── action::Registry (Instance<Registry>)
-        ├── LookAndFeel (Instance, listener on config::Model)
-        └── GL Pipeline
-              ├── Background shader slot (user GLSL)
-              └── Post-process shader slot (user GLSL)
-```
-
-**terminal::View is the Controller of CodeView.** CodeView is a generic, dumb widget (see §2.1). It owns no authoritative state, listens to no tree. The View listens on `terminal::Model` (`valueTreePropertyChanged`) and translates each property change into a CodeView setter call. The View also owns the input handlers (key/mouse) that author selection.
-
-**ENDApplication is the orchestrator.** It owns `config::Model` and `Nexus` (which owns `end::Model`) — config and runtime state are two independent trees, never mixed. It IS the `jam::File::Watcher::Listener` — on lua file change, it tells `config::Model` to re-read files from disk (same code path as init). config::Model updates its CONFIG tree, ValueTree listeners fire, consumers react.
-
-**config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** `jam::Model` + `Instance<config::Model>`. It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. Config is message-thread only — the reader never reads config::Model directly. Config-derived values the reader needs cross through `terminal::Model` atomics (see §2.0 Config → reader thread bridge). Main owns it as a value member.
-
-**config::Model is composed from adjacent parsers** — `config::Display`, `config::Nexus`, `config::Keys`, `config::Popups`, `config::Actions`, `config::Whelmed`. Each parser handles one lua file/table and writes into config::Model's tree. **Consumers ONLY read config::Model** — they never access individual parsers. The parsers are internal to the config namespace.
-
-**Two Instance models, clean separation:**
-- `config::Model` — config constants. Changes on reload only. Listeners fire only on config changes.
-- `end::Model` (`jam::Model` + `Instance<end::Model>`) — runtime state. Changes during app lifetime. Listeners fire only on runtime changes.
-
-No config values on end::Model. No runtime state on config::Model. Consumers that need both (e.g. terminal::View) register as listener on both trees — two explicit registrations, two distinct concerns.
-
-**Config → reader thread bridge:** Config is message-thread only — the reader never reads config::Model. Config-derived values the reader needs (cellWidth, cellHeight, scrollbackLines) are computed by `terminal::View` (listener on config::Model), then written as atomics to `terminal::Model` (the per-session APVTS bridge) where the reader can read them. View is the bridge between config and the reader thread.
-
-The lua subsystem is its own MVC triad: `config::Model` (state + VM), Main (Controller — watcher, triggers re-read), consumers (Views that listen on config::Model's tree).
-
-**Nexus is the Host.** Gui-less, daemon-capable. It owns `end::Model` — THE app SSOT — and all `end::Session` instances (uuid-keyed `HashMap<end::Session>`). Nexus + Sessions + end::Model run with zero Views (Phase 15 daemon). In standalone mode the same ownership model holds, no IPC.
-
-**end::Session is the state of one end::View.** Gui-less container. It owns a uuid-keyed `HashMap<terminal::Processor>` and its own SESSION/TABS subtree — the mirror root `end::Tabs` adopts. The RAII attachment placing each Processor's `terminal::Model` tree under its own PANE leaf is held by Session, uuid-keyed beside the Processor (Attachment Contract, ARCHITECTURE.md — a view-held placement token would amputate session state on view death). The session subtree (tabs/panes topology + terminal trees) is therefore complete with zero Views: session restoration and the session manager rebuild View-Tabs-Panes purely from this persistent state.
-
-**terminal::Processor is the PluginProcessor.** It owns its `terminal::Model` (APVTS), document (`jam::TextModel`), `CellFifo`, `Resizer`, TTY, and drain. It self-drains on its own `screenDirty` (message thread) — the document is always current, View or no View. The host-owned-buffer isomorphism lives in `CellFifo` (the transport), not the document (accumulated state — APVTS territory).
-
-**Views are ephemeral projections.** `end::View` attaches to exactly one Session subtree (`ID::activeSession` selects it); `terminal::View` owns `jam::CodeView` to render a Processor's document, plus the encode path (`terminal::Input` / `terminal::Mouse`). Creation flows state-first: GUI actions invoke Nexus/Session verbs that mutate the tree, Views react to tree events — never the reverse. Session switching = View detach/rebuild against another SESSION subtree, cheap because terminal::View is stateless.
-
-**Keyboard dispatch is centralized.** end::View is a `juce::KeyListener` — catches all key events first, dispatches to the active PaneView. Global actions (prefix key, command palette, tab/pane navigation) handled at end::View. Terminal-specific input (CSI u encoding, selection, scroll) handled by the active PaneView.
-
-**Mouse dispatch is per-component.** JUCE delivers mouse events to the component under the cursor. Each PaneView handles its own mouse events. No centralized interception.
-
-### Model Attachment
-
-Two independent trees. State attaches to `end::Model` via `jam::ValueTree::Attachment` (RAII). Config lives in `config::Model`'s own tree — never attached to end::Model.
-
-**end::Model tree** (runtime state — owned by Nexus; properties are phase-gated, see §4):
-
-```
-END (end::Model root)
-  WINDOW                   ← runtime app-level state
-    ID::activeSession      ← which SESSION end::View projects
-  SESSIONS                 ← IDtype::sessions — all session subtrees
-    SESSION (uuid)[N]      ← one end::Session — complete with zero Views
-      TAB[N]               ← TabView row (jam::MatrixComponent)
-        PANE (uuid)        ← TerminalView row; EDGE rows (split geometry)
-          ⤷ terminal::Model tree attached here — Processor-owned state,
-            placed under the PANE row
-  OVERLAY
-```
-
-**config::Model tree** (config state — separate tree, NOT grafted to end::Model):
-
-```
-CONFIG (config::Model root)
-  DISPLAY                  ← colours, font, tab SVG, cursor, shader paths
-  KEYS                     ← prefix, prefixTimeout, bindings
-  NEXUS                    ← shell, terminal, hyperlinks, daemon, gpu, autoReload
-  POPUPS                   ← popup entries
-  ACTIONS                  ← custom action entries
-  WHELMED                  ← typography, colours, navigation
-```
-
-`jam::CodeView` is NOT a `jam::ValueTree::Component` (§2.1) — it has no node in either tree.
-
-Consumers that need runtime state listen on end::Model. Consumers that need config listen on config::Model. Consumers that need both (e.g. terminal::View) register on both — two explicit listener registrations, two distinct concerns. No shadow state. No side channels. No `referTo`.
-
-**Properties are phase-gated.** No property enters either tree before the feature that authors/consumes it is implemented. See each phase in §4 for exact Model additions.
-
-### Resize Path
-
-Same proven pattern from the previous iteration:
-- `terminal::View::resized()` → writes new winsize (Direction B) — a detached Session keeps its last winsize; fresh headless terminals fall back to config defaults
-- `terminal::Processor` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
-- Resizer start trigger → `Processor::suspendProcessing(true)` → `Processor::prepare()` (resizes Video grid only) → `Processor::suspendProcessing(false)`
-- CodeView re-wraps at new width on next paint via `getWrappedLines(viewWidth)` — no content mutation on resize
-- History is untouched. CellFifo is untouched. Only Video grid resizes.
-
-### Naming
-
-| Role | Name | Rationale |
-|------|------|-----------|
-| App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, Nexus, Window/end::View. File watcher. Not namespaced. |
-| Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
-| App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Owned by Nexus. THE runtime SSOT — all sessions' state included. |
-| Host | `Nexus` | Gui-less, daemon-capable. Owns end::Model + `HashMap<end::Session>` (uuid-keyed). Routes IPC in daemon mode. |
-| Session | `end::Session` (Source/end/Session.h) | Gui-less state of one end::View: uuid-keyed `HashMap<terminal::Processor>` + its own SESSION row (which `SessionView` adopts). |
-| Per-terminal engine | `terminal::Processor` | = PluginProcessor. Owns terminal::Model, document, CellFifo, Resizer, TTY, drain (self-drains on screenDirty). |
-| Per-terminal state | `terminal::Model` | = APVTS. Atomics (reader), ValueTree (message). Owned by Processor, attached into the Session's pane subtree. |
-| App surface | `end::View` | Ephemeral PluginEditor of one Session (`ID::activeSession`). `juce::KeyListener`. Owns the SessionViews. Centralizes keyboard dispatch. |
-| Terminal GUI | `terminal::View` | Stateless projection. Owns jam::CodeView + terminal::Input/Mouse (encode path). Listens on terminal::Model + config-derived LookAndFeel. |
-| Document renderer | `jam::CodeView` | Dumb jam_gui widget. Cell-space API. No state, no tree, no listener. |
-| Pane base | `jam::PaneComponent` | OwnedComponent leaf — base for terminal::View, whelmed::View. |
+- `ENDActions` — key-to-action dispatch. Direct map (cmd/ctrl bindings) and modal
+  map (prefix + key), timer-gated modal window. Actions registry
+  (`jam::Function::Map`) keyed by generated identifiers.
+- Workspace verbs: `new_tab`, `new_pane` (split by edge or append), `close_pane`
+  (pane → tab → window cascade), `split_vertical`/`split_horizontal`,
+  pane navigation/join/swap, pane resize by `pane_step`, zoom per-pane
+  (`zoom` parameter on the pane group), tab rename/next/prev.
+- Splits and pane verbs act on the Model's `focused_pane` — never on positional
+  or last-created assumptions.
 
 ---
 
-## 2.1 CodeView — Dumb Widget Contract (TETRIS E-Contract)
+## 3. Roadmap
 
-`jam::CodeView` lives in **jam_gui**. It is a generic library widget, reused by terminal and WHELMED and every future editor. It must therefore be a dumb widget — the same contract a DSP core obeys (TETRIS): private state, validated setters, every setter calls `calc()`, no reaching out. It is **not** a `jam::ValueTree::Component`. It grafts no node. It listens to no tree.
+Iteration proceeds both ways between host and plugins:
 
-### Why CodeView authors nothing
+1. **Freeze current host state** — workspace, config, rendering, focus contract
+   verified (this revision).
+2. **eve** — terminal as a CLAP plugin. Carries the VT engine, document model,
+   CodeView rendering, PTY transport formerly specified here. The terminal-era
+   SPEC is preserved verbatim as eve's baseline: `dev/plugins/eve/SPEC.md`.
+3. **whelmed** — markdown editor/viewer as a CLAP plugin.
+4. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
+   live editors (DEBT-20260713T230500 lane), session persistence.
+5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
+   through the host's engine.
 
-Every value CodeView renders is born elsewhere and pushed in via a setter:
-
-| What CodeView renders | Genuine author | Reaches CodeView via |
-|---|---|---|
-| Document content | `Controller::drain()` from CellFifo (reader→message) | CodeModel mutation |
-| Cursor / caret | **Video** (VT engine, reader thread) | terminal::Model atomic → flush → View `vtpc` → `setCaret()` |
-| Font metrics | config (`config::Model`) | end::Model → terminal::Model → View → `setFont()` |
-| Viewport width | `terminal::View::resized()` | `setViewportWidth()` |
-| Selection coordinates | input handlers (in the View) | `setSelection()` |
-
-No row has CodeView as author. The cursor's true author is Video on the reader thread; CodeView authoring it would be a lie. This is why CodeView holds only transient, derived render state (the wrapped-projection cache) — analogous to a DSP core's runtime delay lines, never authoritative parameters.
-
-### Selection split
-
-- **Selection TYPE** (none/visual/visualLine/visualBlock) → genuine app-level state. Lives on `TABS` (end::Model). Observed by StatusBarOverlay, gates input dispatch. Cross-component → stays in the SSOT tree.
-- **Selection COORDINATES** (anchor/end cells) → transient, message-only, consumed only by CodeView rendering and Controller copy. Never crosses threads, never persists. Owned by CodeView as a pure cell-space value (`CodeView::Selection`). Not in the SSOT tree. `pack()`/`unpack()` provided as the uniform value-type escape hatch if a coordinate ever must enter Model.
-
-### CodeView public API (cell-space only)
-
-```
-setCaret (jam::Cell::Point)            — Controller translates from Video-grid first
-setSelection (Selection)               — cell-space anchor/end
-getSelection () -> Selection           — Controller pulls for copy
-setViewportWidth (cell)                — drives the wrapped projection
-// every mutator calls calc()
-```
-
-CodeView owns the wrapped projection (document line → screen rows via `getWrappedLines`) internally. It exposes **no pixel methods**.
-
-## 2.2 Coordinate Spaces — Three, Never Conflated
-
-This is where the previous iteration bled (the D15 caret bug). Three spaces; conversions are owned, never improvised.
-
-| Space | Coordinates | Owner |
-|---|---|---|
-| **Video-grid** | `(gridRow, gridCol)`, viewport-bounded, no wrapping (autowrap already split rows) | Video (reader thread), packed into terminal::Model |
-| **Document** | `(lineIndex, col)` over CodeModel logical lines (history + live tail), `col` may exceed viewport width | CodeModel (owned by Controller) |
-| **Screen/pixel** | wrapped projection; one document line → N screen rows via `getWrappedLines(viewWidth)` | CodeView (owns the projection) |
-
-### Conversion authority — HARD RULE
-
-**`jam::Cell::Point::fromPixel(pixel, cellWidth, cellHeight)` / `toPixel(...)` is the ONLY sanctioned pixel↔cell conversion.** Hand-rolled arithmetic (`pixelX / cellWidth`) is **forbidden**. `cellWidth`/`cellHeight` come from the DISPLAY node.
-
-| Translation | Owner | Mechanism |
-|---|---|---|
-| pixel ↔ cell | `jam::Cell` | `Cell::Point::fromPixel` / `toPixel` — the only converter |
-| Video-grid → content cell-row | **Controller** | cell-space row arithmetic via `liveTailExtent` (logical addressing, not pixel conversion) |
-| document → screen/pixel | **CodeView** | the wrapped projection (`getWrappedLines`) |
-
-The mouse handler converts a pixel point to a cell coordinate with `jam::Cell::Point::fromPixel` and nothing else. CodeView never sees a Video-grid coordinate; the Controller translates at the boundary. WHELMED reuses CodeView with the identical cell-space API and never touches Video-grid space at all.
+Grand-scheme step tracking: `PLAN-END-plugin-host.md` (plugin-host phases),
+`PLAN-terminal-editor.md` (eve, gated), `PLAN-cast-migration.md` (landed; Step 9
+doxygen regen open).
 
 ---
 
-## 3. Module Foundation — JAM
+## 4. Platform
 
-END depends on JAM framework modules. These exist independently and are consumed by all JAM-based projects (END, TIT, CAKE, WHATDBG).
-
-### jam_core
-Shared utilities: `Instance<T>`, `Owner<T>`, `BufferSPSC`, `Resizer`, `AnyMap`, `Function::Map`.
-
-**Identifier system:** X-macro convention (`IDENTIFIER_*(X)`) expanded via `MAKE_VIEW` into `jam::ID` (Identifier), `jam::IDref` (StringRef), `jam::IDtag` (uppercase), `jam::IDtype` (uppercase Identifier). All identifiers across all jam modules share the same `jam::ID` struct — no per-module namespaces. Domain-specific identifier blocks are defined in their owning module and expanded alongside the rest. See §3.1.
-
-### jam_graphics
-Foundation types and rendering:
-- `jam::Char` — 8-byte packed attributed character atom. Absorbs CharProps/Charset as static methods (single codepoint→cell authority).
-- `jam::Row` — FAM struct: `Char chars[]` + metadata.
-- `jam::Stamp` / `jam::Grapheme` — `SharedResource<T>` interning tables (style, cluster).
-- `jam::Cell` — coordinate unit (Point, Rectangle). Not character content.
-- `jam::String` — attributed string line (`HeapBlock<Char>` + cellCount + wrap metadata).
-- `jam::CodeLine` — legacy alias, equivalent to String.
-- Font pipeline: `Typeface`, `Font`, `Atlas`, `FontCollection`, `GlyphConstraint`, `BoxDrawing`.
-- Glyph rendering: `glyph::Arrangement` (shaping), `glyph::Graphics` (compositing).
-
-### jam_gui
-- `jam::Model` — APVTS-analog state owner (ValueTree by value, atomic parameter map, timer flush).
-- `jam::Model::Component<Derived>` — CRTP state binding (build-or-adopt / adopt-existing); `jam::Model::Attachment` — pure connector (bind + initial update; never places or removes rows).
-- `jam::CodeView` — dumb monospace document widget. Cell-space setter/getter API (`setCaret`, `setSelection`/`getSelection`, `setViewportWidth`), every mutator calls `calc()`. Owns the wrapped projection internally. NOT a `jam::ValueTree::Component`; no tree, no listener, no pixel methods. Reused by terminal and WHELMED. See §2.1/§2.2.
-- `jam::CodeModel` — multi-screen dimensionless document model. `ParagraphsModel` per screen.
-- `jam::ParagraphsModel` — bounded deque of `ParagraphStorage`. Neovim-style line-indexed API: `insert`, `remove`, `set`.
-- `OwnedComponent` — state-bound ownable child; self-reports focus onto its own row.
-- `OwnerComponent` — abstract composite owner: UUID-keyed children + Attachment per child, focused-child aggregation, strategy hooks.
-- `MatrixComponent` — binary-space-graph owner strategy: EDGE head/tail name a SPACE (PANE or EDGE uuid), recursive-descent layout from the derived root.
-- `PaneComponent` — OwnedComponent leaf for pane content.
-- `PaneEdge` — EDGE row component; draggable seam, writes only its own proportions.
-- `button::Bar` — tab bar with drag-reorder, overflow collapse, sliding indicator.
-- `button::Tab` — tab button with inline rename.
-- `TabbedComponent` — one-visible owner strategy backed by `button::Bar`.
-- `Window` — glass overlay window.
-
-### jam_terminal (NEW — per RFC-jam-terminal-extraction)
-The VT engine extracted as a reusable module. Foundation for END and all future JAM TUI applications (TIT, CAKE).
-
-- `parser/` — `Parser` (DFA byte decoder), `DispatchTable` (O(1) state machine), `CSI` (parameter accumulator)
-- `video/` — `Video` (base VT command processor, no app coupling, caller-owned `Events` LookupTable dispatch), `CursorState`, `Winsize`
-- `transport/` — `CellFifo` (two-ring SPSC: history + active)
-- `cell/` — `Palette` (256-slot mutable colour table)
-- `tty/` — `TTY` (abstract base + reader thread), `UnixTTY` (forkpty), `WindowsTTY` (ConPTY, sideloaded, NtCreateNamedPipeFile). Constructor takes config path for conpty extraction dir — no app coupling. Event identifiers (`data`, `drainComplete`, `shellExited`) in `jam::terminal::`.
-- `ui/core/` — `Writer`, `Graphics`, `Screen`, `Component`, `escapes`, `Metrics`, `Input`, `KeyPress` (absorbed from jam_tui)
-- `ui/widgets/` — `Label`, `Menu`, `ListPane`, `SplitPane`, `Dialog`, `Console`, `TextPane`, `Spinner`, `ThemeResolver`, `Braille`, `MarkdownRenderer`, `LookAndFeel` (absorbed from jam_tui)
-
-Video fires through a caller-owned `jam::terminal::Events` aggregate — enum-keyed (`Events::Id`), signature-grouped `jam::LookupTable`s of trivially-copyable `Slot` trampolines, ctor-bound by reference; consumers register construction-time entries (END's Processor routes them into `terminal::Model`). The base carries zero knowledge of ValueTree or END's application namespace. (Amended 2026-07-05: ARCHITECT overruled the earlier protected-virtual-hooks ruling — manual hook methods are the god-object override surface; composition via LookupTable dispatch keeps Video consumers registered, O(1), compiler-checked per signature group, with an explicit no-op fallback slot.)
-
-### 3.1 Identifier Architecture — Single Namespace, Module-Owned Definitions
-
-All jam identifiers live in `jam::ID`. There is no `terminal::id::` namespace, no `app::id::` namespace in the rewrite. The X-macro system defines identifiers in domain-specific blocks, each owned by its declaring module, all expanded into the same `jam::ID` struct.
-
-**Convention:**
-```
-// jam_terminal/identifier/jam_identifier_terminal.h
-#define IDENTIFIER_TERMINAL(X) \
-    X(activeScreen,     "activeScreen") \
-    X(cursor,           "cursor") \
-    X(cursorShape,      "cursorShape") \
-    X(keyboardFlags,    "keyboardFlags") \
-    X(originMode,       "originMode") \
-    ...
-```
-
-The module header (`jam_terminal.h`) includes `jam_identifier_terminal.h`. The `MAKE_VIEW` expansion in `jam_core/identifier/jam_identifier.h` includes `IDENTIFIER_TERMINAL(EXPANDER)` alongside all other domain blocks. Result: `jam::ID::activeScreen`, `jam::ID::cursor`, etc. — uniform access, no namespace prefix at call sites.
-
-**Identifier ownership by module:**
-
-| Module | Block | Covers |
-|--------|-------|--------|
-| `jam_core` | `IDENTIFIER_CORE`, `IDENTIFIER_DATA`, `IDENTIFIER_PARAMETERS`, ... | Framework-wide: `id`, `value`, `type`, `name`, `data`, ... |
-| `jam_terminal` | `IDENTIFIER_TERMINAL` | VT state machine: screen state, DEC modes, cursor, OSC params, transport events (`data`, `drainComplete`, `shellExited`), transient atomics |
-| `jam_gui` | `IDENTIFIER_LAYOUT`, `IDENTIFIER_UI_COMPONENTS`, ... | Layout, components, editor |
-
-**END application identifiers** (VIEW node type, hint/preview state, IPC events) live in END's own `AppIdentifier.h` as plain `static const juce::Identifier` — they are not part of the jam X-macro system because they are application-specific, not framework-reusable.
-
-**Why this matters for Model building:** Every `jam::Model` (end::Model, terminal::Model, config::Model) stores its ValueTree properties keyed by `juce::Identifier`. The identifier set IS the state schema. By placing terminal state identifiers in `jam::ID` via `IDENTIFIER_TERMINAL`, the schema is:
-- Defined once (X-macro, SSOT)
-- Reusable across all jam_terminal consumers (END, TIT, CAKE)
-- Deduplicated with jam_core identifiers (no shadow `id`, `value`, `type` in terminal)
-- Accessible at every call site without namespace qualification beyond `jam::ID::`
-
-**What moved vs what was eliminated:**
-
-In the old END, `terminal::id::` held ~100 identifiers mixing three concerns:
-1. **VT state properties** (activeScreen, cursor, DEC modes, OSC params) → moved to `IDENTIFIER_TERMINAL` in jam_terminal
-2. **Event-map keys** (pushLine, screenDirty, bell, writeToHost, ...) → **eliminated from the identifier table**. Video's events dispatch through `jam::terminal::Events` — enum keys (`Events::Id`, verbatim old key names) indexing signature-grouped `jam::LookupTable`s. No `juce::Identifier`s needed — enum keys replace string-keyed dispatch. (Amended 2026-07-05 — supersedes the protected-virtual-hooks wording.)
-3. **END-specific state** (DISPLAY node type, hintPage, preview, splitCol, bytesReceived) → stays in END's `AppIdentifier.h`
+| Platform | Compiler | Graphics |
+|----------|----------|----------|
+| macOS (Intel + ARM) | Xcode clang | Vulkan via MoltenVK (vendored) |
+| Windows 10/11 | MSVC + clang-cl (MSYS2) | Vulkan (D3D11 composition lane for the swapchain-less window path) |
+| Linux | GCC/clang | Vulkan (Xlib surface) |
 
 ---
 
-## 4. Build Sequence
-
-The rewrite is skeleton-first. Phases 1–3 produce a compiling, running JUCE application with every class declared, every ownership edge real, every lifecycle proven by the compiler. Subsequent phases fill implementations into known shapes.
-
-| Phase | Name | Layer |
-|-------|------|-------|
-| 1 | jam_terminal Extraction | JAM |
-| 2 | jam_gui Tab System Rewrite | JAM |
-| 3 | END Skeleton | END |
-| 4 | VT Pipeline + Rendering + Resize + Scrollback | END |
-| 5 | Input + Selection | END |
-| 6 | Hyperlinks and URI | END |
-| 7 | SKiT Image Preview | END |
-| 8 | Whelmed (Edit) | JAM + END |
-| 9 | Whelmed (Read) | JAM + END |
-| 10 | Whelmed (Mermaid) | END |
-| 11 | Popup Terminals | END |
-| 12 | Command Palette | END |
-| 13 | Native Finder | JAM + END |
-| 14 | Shadertoy Shaders | END |
-| 15 | Daemon and Session Persistence | END |
-
-### Phase 1 — jam_terminal Extraction
-Extract END's VT engine into `jam_terminal` module. Foundation for END and all future JAM TUI applications (TIT, CAKE).
-
-**jam_graphics foundation (prerequisite, compiles first):**
-- `jam::Char` absorption — `CharProps`, `Charset`, `CharPropsData` free functions become `jam::Char` static methods. Lookup tables become TU-static data in `jam_char.cpp`. `jam::Char::fromCodepoint(codepoint, styleId, lineDrawing)` is the single cell producer. Width lookup, charset translation, all absorbed. `jam::Char` stays 8 bytes, trivially copyable — `static_assert` unchanged. Charset translation state (lineDrawing flag) passed by caller (Video), never stored in Char.
-- `jam::StampEntry` widening — `uint8_t flags` → `uint16_t flags`. New fields: `juce::Colour underline` (SGR 58/59, alpha==0 → follow fg), 3-bit underline style field (none/single/double/curly/dotted/dashed), `OVERLINE`, `SUPERSCRIPT`, `SUBSCRIPT` flag bits. Old `UNDERLINE` single bit removed — replaced by style field. `Hash` updated. `jam::Char` unaffected (8-byte invariant, `styleId` indirection).
-- `jam::Row::chars[]` rename (from `cells[]`). `FlexType = Char`.
-- `IDENTIFIER_TERMINAL` X-macro block — all VT state machine identifiers defined here, expanded into `jam::ID` (§3.1).
-
-**jam_terminal module creation (depends on jam_graphics):**
-- `parser/` — `Parser` (DFA byte decoder), `DispatchTable` (O(1) `(ParserState, byte) → (nextState, ParserAction)` table, immutable after construction), `CSI` (trivially copyable parameter accumulator, `static_assert`). Namespace → `jam::terminal`.
-- `video/` — `Video` base class: VT command processor, owns `jam::Buffer<jam::Row>` (dual channel normal/alternate), pen state, cursor, modes, scroll region, tab stops, grapheme segmentation state. **No app coupling.** Where the old Video fired events via `jam::Function::Map<juce::Identifier, void>` (string-keyed hash + type-erased variadic), Video fires through a ctor-bound, caller-owned `jam::terminal::Events` — `Events::Id` enum keys (verbatim old event-key names: pushLine, screenDirty, bell, writeToHost, ...) indexing **signature-grouped `jam::LookupTable`s** of trivially-copyable `Slot` trampolines (fn-pointer + context), explicit no-op fallback slot, construction-time registration. END's Processor registers entries routing into `terminal::Model`. The base carries zero knowledge of ValueTree, `juce::Identifier`, or END's application namespace. (Amended 2026-07-05 — supersedes protected-virtual-hooks wording; ARCHITECT ruling: manual hook methods are the wrong design, composition retained, hot path solved by LookupTable.) Also: `CursorState` (packed int32), `Winsize` (packed int64). RFC-missing-video-dispatch implemented here: full SGR sub-parameter disambiguation via `CSI::isSubSeparator()`, OSC 4/10/11 set/query, DECRQSS (`sendStatusString` via existing `sendResponse` path).
-- `transport/` — `CellFifo` (two independent `jam::BufferSPSC` rings: history + active. Producer-side drop-oldest. Seqlock per slot. `pushHistory`/`pushActive` on reader, `drainHistory`/`drainActive` on message).
-- `cell/` — `Palette` (256-slot `std::array<juce::Colour, 256>`, seeded from ANSI_16 + cube + gray formulas, mutable via `setPaletteColour` for OSC 4).
-- `tty/` — `TTY` abstract base (owns reader thread, `jam::Function::Map` event dispatch: `jam::ID::data`, `jam::ID::drainComplete`, `jam::ID::shellExited`). `UnixTTY` (forkpty, macOS/Linux). `WindowsTTY` (ConPTY via sideloaded `conpty.dll` + `OpenConsole.exe` from BinaryData, `NtCreateNamedPipeFile` full-duplex pipe, overlapped I/O, `PSEUDOCONSOLE_WIN32_INPUT_MODE`). Constructor takes config path for conpty extraction dir — no app coupling.
-- `ui/` — jam_tui fully absorbed into `jam_terminal/ui/`. `Writer`, `Graphics` (grid backed by `jam::Buffer<jam::Row>`, style sidecar deleted, intern via `jam::Stamp`), `Screen`, `Component`, `escapes` (`namespace ANSI` → `jam::terminal`, `CURSOR_MARKER` `caroline` literal removed), `Metrics`, `Input`, `KeyPress`, widgets (Label, Menu, ListPane, SplitPane, Dialog, Console, TextPane, Spinner, ThemeResolver, Braille, MarkdownRenderer, LookAndFeel). `jam_tui` module header deleted.
-
-**Exit state:** `jam_terminal` compiles. `jam_graphics` foundation changes compile. END does not yet consume either.
-
-### Phase 2 — jam_gui Tab System + PaneManager Fix
-Rewrite TabbedComponent. Fix PaneManager resizer bar lifecycle. Required for Phase 3 animated tabs and correct split panes.
-
-**button::Group (sync from kuassa + extend):**
-- `addButton(unique_ptr<Button>, bool isFreeButton = false)` — isFreeButton buttons are not part of the radio group (used for overflow Options button).
-- `ID::groupButton` property guards in `valueChanged`, `snapIndicator`, `animateIndicator` — only group buttons (not free buttons) participate in selection.
-- `removeButton(int index)`, `moveButton(int from, int to)` — new, needed for dynamic tabs.
-- `onButtonMoved`, `onButtonRightClicked` callbacks.
-- Index-based selection — `juce::Value` stores int index (not string). `setCurrentIndex` / `getCurrentIndex`.
-- `SlidingIndicator` — animates to active button bounds, z-ordered behind buttons (`indicator.toBack()`), 120ms default.
-
-**button::Options (fork from kuassa):**
-- Popup-menu-on-click component. `std::map<int, String>` menu model. Owned trigger button. `wireButton()` → `onClick` shows `PopupMenu` async. `juce::Value selectedItem`.
-- Added to Group as free button (`isFreeButton = true`). When total tab-button width exceeds Group bounds, Options appears with hidden tabs as popup menu items.
-
-**button::TabButton:**
-- `juce::Button` subclass. Drag-reorder (mouseDown/Drag/Up, `dragThreshold = 5`, calls `owner.moveButton`). Inline rename (`showRenameEditor`, `juce::Label`, `onRenameCommit` callback). `paintButton` delegates to LookAndFeel.
-
-**TabbedComponent rewrite:**
-- Backed by `button::Group` (replaces TabbedButtonBar entirely). Content area geometry via `getContentArea()`. `createTabButton` virtual override point. `addTab`, `removeTab`, `moveTab`, `setTabName`, `setCurrentTabIndex`. `currentTabChanged` virtual callback.
-
-**LookAndFeel surface:**
-- `drawButtonGroupSlidingIndicator` — renders indicator 3-slice SVG (active highlight, moves).
-- `drawButtonGroupTrack` — renders bar background.
-- `drawTabButton` — renders static tab shape (button 3-slice SVG). Hover: filled. Not hover: stroked.
-- SVG element layout: single SVG file, 6 elements (`button-left/center/right` + `indicator-left/center/right`). 3-slice stretch algorithm: `scaleFactor = drawArea.height / svgRowHeight`, left cap + right cap fixed, center stretches.
-- Default: embedded binary SVG from `BinaryData::default_tab_button_svg`. User override via `display.tab.button_svg` config path.
-
-**Deletion:** `jam::TabbedButtonBar`, `jam::TabBarButton` — replaced entirely.
-
-**PaneManager resizer bar lifecycle fix:**
-- Root cause: `PaneManager::remove()` restructures the tree (promotes sibling, collapses nodes). Resizer bars hold a reference to the old split node which becomes detached. The orphan-scan cleanup (checking `splitNode.getParent().isValid()`) misses the case where the node was *replaced* by sibling promotion.
-- Fix: resizer bar lifetime is **RAII-bound to the split node**. `PaneManager::remove()` creates/rebinds resizer bars as part of the restructure. No post-hoc orphan scan. Bar creation paired with split node creation. Bar destruction paired with split node removal. (DEBT-20260602T204214 resolved.)
-- Split asymmetry (DEBT-20260501T193217) investigated and resolved alongside — same `remove()` path.
-
-**Exit state:** `jam::TabbedComponent` works with animated `button::Group` sliding indicator, SVG 3-slice tab rendering, drag-reorder, overflow menu. PaneManager `remove()` correctly maintains resizer bars. END does not yet consume either.
-
-### Phase 3 — END Skeleton
-Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse input works, config drives visual appearance. Every terminal class exists as a compiled stub with correct ownership.
-
-**Functional (working, testable by ARCHITECT):**
-- `ENDApplication` (Main.cpp) — orchestrator. Owns `config::Model`, `end::Model`, `end::View`, `Nexus`. Owns `jam::Stamp`, `jam::Grapheme` contexts. IS the `jam::File::Watcher::Listener`. Two independent trees: config::Model (config) and end::Model (runtime).
-- `config::Model` — `jam::Model`. Parses **display.lua** (colours, font family/size, tab SVG, pane bar) and **keys.lua** (prefix key, bindings for pane/tab actions). Other modules (nexus, popups, actions, whelmed) not yet parsed.
-- `end::Model` — `jam::Model` + `Instance<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
-- `end::View` — `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns `Tabs`, `LookAndFeel`, GL context. Centralizes keyboard dispatch to active PaneView. Writes `activePaneID` on focus change.
-- `SessionView` — `jam::TabbedComponent` (button::Bar, SVG 3-slice, sliding indicator); adopts the SESSION row.
-- `TabView` — per-tab container, `jam::MatrixComponent`; build-or-adopts its TAB row. Split horizontal/vertical, pane navigation (h/j/k/l), join (ctrl+h/j/k/l, absorbs neighbor), swap (prefix+shift+h/j/k/l, exchanges content) via the binary space graph (`PaneEdge` machinery). Corner drag gesture: inward = split preview, outward = join preview. Gesture state held as model parameters (`jam::ID::edge`, `jam::ID::position`).
-- `jam::PaneComponent` base — OwnedComponent leaf for pane content.
-- `Nexus` — `Instance<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
-- `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, join_left/right/up/down, swap_left/right/up/down, next_tab, prev_tab, reduce/expand_pane_width/height). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).
-- `LookAndFeel` — style-driven from CONFIG/DISPLAY (colours, tab SVG, pane bar). Hot-reload: lua file change → Main re-parses → CONFIG in place → LookAndFeel reacts.
-- GL pipeline — `renderOpenGL()` with background shader slot and post-process FBO capture slot (empty, compiling). JUCE GL compositing via `setComponentPaintingEnabled(true)`.
-
-**Stubs (compiled, owned, empty — filled in Phase 4+):**
-- `terminal::Session` — owns Model, Processor, CodeModel, CodeView. Empty internals.
-- `terminal::Model` — `jam::Model`, empty (no parameters yet).
-- `terminal::Processor` — references Model, empty.
-- `terminal::Video` — `jam::terminal::Video` subclass, empty overrides.
-- `terminal::View` — `PaneView` subclass. `jam::ValueTree::Component` — VIEW node grafted into SESSION via Attachment. Handles mouse events (per JUCE delivery). Empty terminal logic.
-- `LinkManager` — empty.
-- `CodeModel` — wired to CodeView, empty content.
-- `jam::CodeView` — dumb widget, cell-space API (§2.1), no tree, parented by View.
-
-**Model additions (Phase 3):**
-```
-config::Model tree:
-  CONFIG
-    DISPLAY       ← colours, font family/size, tab SVG, pane bar (display.lua)
-    KEYS          ← prefix, prefixTimeout, bindings (keys.lua)
-
-end::Model tree:
-  WINDOW
-    width, height ← authored by end::View::resized()
-    zoom          ← authored by zoom actions
-    renderer      ← authored by config (gpu/cpu, read from config::Model at init)
-  TABS
-    activeTab     ← authored by Tabs (tab switch)
-    activePaneID  ← authored by end::View (FocusChangeListener)
-```
-
-**Trees at Phase 3 exit:**
-```
-end::Model (root)                         config::Model (root)
-  WINDOW   ← width, height, zoom, renderer    CONFIG
-  TABS     ← activeTab, activePaneID            DISPLAY ← colours, font, tab SVG, pane bar
-    TAB[N]                                       KEYS    ← prefix, prefixTimeout, bindings
-      PANES ← PaneManager tree
-        PANE(uuid)
-          SESSION ← terminal::Model (empty)
-            VIEW  ← terminal::View (empty)
-```
-
-**Exit state:** Application launches. Window with animated tabs (add, close, reorder, SVG-styled). Panes split and navigate via keyboard (prefix key + h/j/k/l). Config hot-reloads visual appearance. Mouse input reaches the active PaneView. Focus tracking writes activePaneID. Every terminal stub compiled and correctly owned. No terminal content, no VT processing.
-
-### Phase 4 — VT Pipeline + Rendering + Resize + Scrollback ✅ COMPLETE
-
-The full terminal rendering pipeline end-to-end, Vulkan rendering as first-class architecture, and content preservation across resize.
-
-**Completed scope:**
-- `terminal::Video` — Processor registers `jam::terminal::Events` entries routing into `terminal::Model` (amended 2026-07-05, see §3.1). Full SGR (underline styles/color, overline, super/subscript), OSC 4/10/11, DECRQSS.
-- `terminal::Processor` — owns Parser, Video, CellFifo, TTY (from jam_terminal). References Model. Reader thread pipeline. `prepare()` resize. `suspendProcessing()`.
-- `terminal::Session` — owns Processor (unique_ptr), Model, CodeModel, CodeView, Resizer. Factory methods. `start()` deferred init. `drain()` facade (pulls CellFifo into CodeModel).
-- `terminal::View` — parents CodeView, listens on Model, calls `Session::drain()` on screenDirty, resize path.
-- `terminal::Model` — full APVTS atomic parameter set, timer flush, ParameterText.
-- **Vulkan Rendering (first-class architecture)** — `jam::VulkanEngine` owns Device, Typeface, Stamp, Grapheme, Link, GlyphAtlas, per-window Graphics. Dual-engine dispatch: GPU (Vulkan LLGC) or CPU fallback (software + shared atlas). Never-null factory. Font/atlas GL-thread binding resolved via message-thread-synchronous paint dispatch (no dedicated GPU thread).
-- Typeface system wired — full glyph pipeline: Atlas, HarfBuzz shaping, FontCollection, BoxDrawing, GlyphConstraint, embolden, platform font dispatch (CoreText/FreeType).
-- CodeModel/CodeView — ParagraphsModel, wrap-aware projection, SIGWINCH-safe resize.
-- CellFifo drain — history ring (committed lines) + active ring (live viewport), liveTailExtent tracking.
-- Resize preservation — Resizer suspends Processor, prepare() resizes Video grid only, CodeView re-wraps lazily. History untouched.
-- Scrollback — history lines survive in CodeModel, scroll via CodeView's juce::Viewport.
-- Shell integration — OSC 133 auto-inject (zsh/bash/fish/pwsh), working directory tracking.
-- OSC suite — 0/2, 7, 8, 9/777, 12, 52, 133.
-- Notifications — native desktop (macOS UNUserNotificationCenter, Windows/Linux fallback).
-- **Conformance suite:** All VT correctness tests passing (relocated to tests/conformance/).
-
-**Phase 4 architecture artifact:** Conformance suite + proven APVTS-analog threading model + Vulkan rendering foundation.
-
-### Phases 5-13 ✅ COMPLETE
-
-**Phase 5 — Input + Selection** ✅
-- Keyboard: CSI u encoding (full flag stack per screen), selection keys, scroll navigation
-- Mouse: SGR forwarding, drag selection, click dispatch, wheel scroll
-- Selection: visual/line/block modes, keyboard selection in scrollback, copy to clipboard
-
-**Phase 6 — Hyperlinks and URI** ✅
-- Link scanning: heuristic + OSC 8 (cell-native)
-- LinkDetector, LinkManager, hint mode, directory navigation
-- File dispatch: OS default, editor, Whelmed, image preview
-
-**Phase 7 — SKiT Image Preview** ✅
-- Sixel, Kitty, iTerm2 decoder/renderer
-- Inline rendering, LRU texture eviction
-
-**Phase 8 — Whelmed (Edit)** ✅
-- Markdown editing in monospace CodeView
-- Style-resolution pass (ParsedDocument → styled CodeModel)
-- Config-driven theme
-
-**Phase 9 — Whelmed (Read)** ✅
-- `jam::TextView` widget for proportional rendering
-- Styled markdown display (headings, lists, tables, inline code)
-- Edit↔read toggle
-
-**Phase 10 — Whelmed (Mermaid)** ✅
-- Mermaid parser and renderer
-- Inline diagram composition (text + code + diagrams, single scroll)
-
-**Phase 11 — Popup Terminals** ✅
-- ModalWindow + PTY, Lua-configurable
-- Accessible via prefix key or command palette
-
-**Phase 12 — Command Palette** ✅
-- Fuzzy-searchable action launcher
-- Lists: built-in + popup + custom Lua
-- Inline shortcut remapping
-
-**Phase 13 — Native Finder** ✅
-- `jam::Fuzzy` integration
-- Sources: files, scrollback, history, actions
-- Match highlighting, preview pane, status bar
-
-### Phase 14 — Advanced Shader Pipeline ✅
-
-User-configurable multi-format shader pipeline (background + post-process) with advanced resource loading.
-
-**Completed scope:**
-- **Shadertoy compatibility** ✅ — fullscreen quad rendering with standard uniforms (`iTime`, `iResolution`, `iMouse`, `iFrame`, `iTimeDelta`)
-- **RetroArch Slang-P format** ✅ — multi-pass shader chains with buffer feedback, scaling modes (integer/viewport/custom), filter modes
-- **Background + post-process pipeline** — background renders before JUCE composition; post-process captures composited scene via FBO, applies shader, composites result
-- **Hot-reload** — shader source files watched, recompilation on change with error reporting
-- **Vulkan SPIR-V compilation** — `shaderc` (vendored) compiles GLSL/SPIRV sources; pipeline cache persisted, driver/OS updates silently invalidate
-- **Resource loader** ✅ — extra resources (OBJ geometry, external image LUTs) loadable within shaders via a per-project `.slangp` resource manifest (`textures=`/`mesh=`, content-based format detection, name-based Shadertoy channel binding)
-  - OBJ loader (`jam::WavefrontObj`) — triangulated meshes, vertex-pulling SSBO upload, auto-fit orbit camera, offscreen depth-tested gather target composited back into the existing combine pipeline
-  - Image sampler binding — external LUT textures (`jam::VulkanBindlessTexture`) resolved by name into the bindless set (Shadertoy channel macros or slang reflected texture names)
-  - Per-pass resource lifecycle — LUTs and mesh GPU resources owned per `ShaderInstance`, released with it
-
-**Shader framework features:**
-- Multi-pass chains with history buffers
-- Feedback loops (buffer-to-buffer)
-- Custom resolution scaling per pass
-- Linear vs nearest filter selection
-- GLSL `#include` support via prelude injection
-- Vendor-specific extensions (macOS extensions, Windows DX/VK feature sets)
-
-**Model additions (Phase 14):**
-```
-config::Model tree:
-  CONFIG
-    DISPLAY
-      background        ← shader project path (display.lua)
-      postProcessing    ← shader project path (display.lua)
-      backgroundParams  ← opacity, resolution, frameRate (runtime)
-      postProcessParams ← opacity, resolution, frameRate (runtime)
-```
-
-**Exit state:** User can drop in Shadertoy-compatible GLSL, RetroArch Slang-P multi-pass chains, or custom shader projects with resource assets. Advanced passes with geometry and texture loading. Hot-reloadable.
-
-### Phase 15 — Daemon and Session Persistence ⏳ PENDING
-
-Detachable GUI, session persistence, multi-window.
-
-**Topology pre-ratified (§2):** `Nexus { end::Model, Owner<end::Session> } → end::Session { Owner<terminal::Processor> } →` ephemeral Views. The daemon plugs in above this unchanged — a remote-backed Processor variant is the client seam; the deleted snapshot serialization (`getStateInformation`/`setStateInformation`, git `bbef9ad`) is the recoverable reference.
-
-**Planned scope:**
-- Session manager — arbitrary number of Sessions, realtime switching (`ID::activeSession` re-attaches end::View; rebuild is cheap because Views are stateless)
-- Session restoration — View-Tabs-Panes rebuilt purely from the persistent SESSIONS subtree
-- `Nexus` — full implementation: `Mode::daemon`, `Mode::client`, events ValueTree lifecycle listeners
-- `nexus::Daemon` — TCP server, per-client Channel, session callback wiring, broadcast
-- `nexus::Link` — client connector, retry timer, PDU dispatch
-- Wire protocol — binary PDU (hello, create, output, input, resize, detach, kill, stateUpdate, sessions)
-- State serialization — `getStateInformation` / `setStateInformation` (Grid+State snapshot)
-- Session restore on launch
-- Platform — macOS dock icon hiding, Windows Job Object cascade-kill, daemon port file
-- Multi-window — `Cmd+N` spawns new instance
-
-**Model additions (Phase 15):**
-```
-config::Model tree:
-  CONFIG
-    NEXUS
-      daemon        ← daemon mode flag (nexus.lua — full parse, extends Phase 3 partial)
-    shell         ← program, args, integration
-    terminal      ← scrollbackLines, scrollStep, padding*
-    gpu, autoReload
-
-end::Model tree:
-  WINDOW
-    daemonMode    ← authored by Main (resolved from config)
-    port          ← authored by Daemon (TCP port written to nexus file)
-```
-
-**CONFIG additions (Phase 15):** nexus.lua fully parsed — daemon, gpu, autoReload sections added (Phase 4 parsed SHELL + TERMINAL, Phase 6 added HYPERLINKS). All six lua modules fully parsed: display, keys, nexus, popups, actions, whelmed.
-
-**Exit state:** END is feature-complete.
-
----
-
-## 5. Performance Targets
-
-### Core Guarantee — Lock-Free Under Full Throttle
-
-The architecture guarantees that **no thread ever locks, waits, stalls, or yields** — even under extreme byte flood. This is not a target to optimize toward; it is a structural invariant enforced by the APVTS-analog design (§1).
-
-**Extreme stream test:** `seq 1000000`, `seq 10000000`, `seq 100000000` — side-by-side with Kitty, Ghostty, and WezTerm. Success criteria:
-
-- **Zero blocking on either thread.** Reader thread pushes CellFifo (drop-oldest SPSC). Message thread drains into CodeModel (bounded by scrollbackLines). Neither thread waits on the other. CellFifo overflow drops oldest — reader never stalls. CodeModel FIFO eviction drops oldest — message thread never grows unbounded.
-- **No torn, no orphaned lines.** The viewport is derived from counts: `liveTailExtent` (drained active rows) and `totalRows` (CodeModel document size). No manual index tracking. Last `scrollbackLines` entries always survive — eviction is FIFO from the front.
-- **Comparably on par or faster** than Kitty/Ghostty/WezTerm wall-clock time on the extreme seq tests. The architectural advantage: zero lock contention + drop-oldest under flood means the display thread never starves waiting for the reader.
-
-### Throughput Budget
-
-| Path | Constraint | Mechanism |
-|------|-----------|-----------|
-| Reader → CellFifo | Never blocks | `jam::BufferSPSC` drop-oldest CAS on full. Zero allocation. Zero lock. |
-| CellFifo → CodeModel | Bounded by scrollbackLines | FIFO eviction (`ParagraphsModel::insert` pops front when over capacity). |
-| CodeModel → CodeView paint | Bounded by visible lines | Wrap-aware projection walks only the visible sub-range. Off-screen paragraphs have shaped caches freed. |
-| Font/atlas mutation | Suspend-coordinated | GL-thread binding resolution (§1 Open Seam) — mutation never races the render thread. |
-
-### Latency Targets
-
-| Metric | Target |
-|--------|--------|
-| Launch to shell prompt | < 100ms |
-| Input to PTY | < 5ms (keystroke → TTY write, no intermediate queue) |
-| Frame time (GPU, 120fps) | < 5.8ms (70% of 8.33ms budget) |
-| Frame time (CPU, 60fps) | < 11.1ms (67% of 16.6ms budget) |
-
-### Memory Budget
-
-| Resource | Budget |
-|----------|--------|
-| Base (no terminal) | < 30MB |
-| Per terminal (10k scrollback) | < 50MB |
-| VRAM mono atlas | < 5MB (4096×4096 SingleChannel) |
-| VRAM emoji atlas | < 5MB (4096×4096 ARGB) |
-| Glyph cache hit rate | > 99% for ASCII |
-
-### Render Budget
-
-| Metric | Target |
-|--------|--------|
-| Draw calls per frame | 3–4 (background + mono + emoji + shader) |
-| Render loop allocations | 0 (pre-allocated buffers) |
-| 5K fullscreen (25k cells) | 120fps locked |
-| Glyph shaping | Visible lines only (lazy per-paragraph, cached between frames) |
-
----
-
-## 6. Platform
-
-| Platform | Compiler | PTY | Font Backend |
-|----------|----------|-----|-------------|
-| macOS (Intel + ARM) | Xcode clang | forkpty | CoreText + HarfBuzz |
-| Windows 10/11 | MSVC + clang-cl (MSYS2) | ConPTY (sideloaded) | FreeType + HarfBuzz |
-| Linux | GCC/clang | forkpty | FreeType + HarfBuzz |
-
----
-
-*SPEC v0.0.1 is the complete specification. Each phase section is the RFC for that phase's PLAN. No further elaboration is deferred — what is written here is the ground of truth for execution.*
+*This SPEC is the ground of truth for END the host. Content specifications
+(terminal semantics, markdown rendering) belong to the plugins that implement
+them.*

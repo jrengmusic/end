@@ -6,6 +6,30 @@
 **BLESSED Compliance:** verified (see Alignment)
 **Language Constraints:** C++17 / JUCE / JAM (LANGUAGE.md C++/JUCE — header-preferred, 300-LOC smell not portability constraint; 30/3 unchanged)
 
+## Position (updated 2026-09-12 — current state is ground of truth)
+
+**Amendment (ARCHITECT, 2026-09-12):** the terminal plugin is named **eve** (was
+TERMINAL). Path/product/id follow the established family: `dev/plugins/eve/`, product
+EVE, `com.jreng.eve`. Phase 4 headings below read TERMINAL; eve supersedes the name,
+the scope is unchanged. whelmed's role is confirmed: markdown editor/viewer.
+
+**Main goal (ARCHITECT, 2026-09-12):** sharing the host's Vulkan engine with hosted
+plugin instances — the Steps 3/9/18 services lane — is THE goal of END as host. It is
+unimplemented; design iterates host-side and plugin-side together.
+
+| Phase | Status (verified against code, 2026-09-12) |
+|---|---|
+| 0 (Steps 1–9, jam_clap + clocks) | Step 1 superseded/landed via PLAN-jam-clap-wrapper (in-house wrapper). jam_clap is live in JAM and hosting works end to end. Clocking landed as per-plugin `Nexus::VirtualClock` demand clocks (`Nexus::createVirtualClock`/`removeVirtualClock`) — supersedes the single-VirtualDevice wording pending ARCHITECT re-ratification of the audio-graph scope. |
+| 1 (Steps 10–14, host skeleton + VANILLA) | Steps 12–13 landed: `Source/terminal/` deleted; `Session` holds `HashMap<UUID, unique_ptr<AudioPluginInstance>>`; verbs `newPlugin`/`removePlugin` live (ENDActions.cpp); `EditorView : jam::PaneComponent` hosts editors; `TabView::createChild` returns EditorView. VANILLA fixture (Step 14) not built. `~/.config/end/plugins/` exists but is empty — no plugin binary yet. |
+| 2 (Steps 15–17, whelmed viewer) | Pending. |
+| 3 (Steps 18–19, services + focus loop) | Pending. Baseline for Step 19 verified 2026-09-12: the event-driven focus contract (click → `Id::focus` self-report → `focused_pane` aggregation → verbs read it) is proven correct end to end with bare panes; DEBT-20260713T230500 covers the hosted-editor case. |
+| 4 (Steps 20–23, eve terminal) | Pending (gated per PLAN-terminal-editor.md sequencing). |
+
+Interleaved with this plan, Sprint 84–85 landed host-side: CAST toolchain + markdown
+config migration (PLAN-cast-migration.md Steps 1–8; Step 9 doxygen regen open),
+ENDWindow deletion (jam::Window direct construction), and the runtime shader-compile
+delimiter fix (jam_VulkanShaderCompiler explicit at-sign delimiters).
+
 ## Context
 
 END is formalized as an actual plugin host; in-house modules are actual CLAP plugins

@@ -1,16 +1,18 @@
 # END — Ephemeral Nexus Display
 
-**Type:** GPU-accelerated terminal emulator  
+**Type:** GPU-accelerated CLAP plugin host (terminal lives in the hosted `eve` plugin)  
 **Stack:** C++17 · JUCE · JAM  
 **Root:** `~/Documents/Poems/dev/end/`  
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** cast-migration (`PLAN-cast-migration.md`) — END converged onto the CAST toolchain and `jam::ConfigDocument`/`jam::ConfigValidator` markdown config; jam's own terminal-pipeline vocabulary (`jam_terminal`, CellFifo, `jam::CodeView`) moved out of this repository
-- **Active debt:** `DEBT-20260713T230500` — hosted plugin editor steals keyboard focus from END's keybindings (Step 19 focus-loop scope)
+- **Last sprint:** Sprint 85: Post-CAST Runtime Recovery — Window Style, Event-Driven Focus, Corner Bimap, Mesh Restore ✅ (2026-09-12) — runtime verified (tabs, splits, outlines, corner menus, mesh background); doxygen regen machinery not yet wired into generated CMakeLists (pre-Step 9 open item)
+- **Active debts:** 
+  - `DEBT-20260912T130000` — Frame-pacing race behind the waitIdle mask (jam_VulkanGraphics.cpp:770); paying sprint opens with ARCHITECT's read-first mandate (Vulkan API, JUCE API, architecture)
+  - `DEBT-20260713T230500` — Hosted plugin editor steals keyboard focus from END's keybindings (Step 19 focus-loop scope)
 - **Open PLANs:**
-  - `PLAN-cast-migration.md` — Steps 1-8 landed; Step 9 (docs sync + doxygen) in progress
-  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop — see active debt)
+  - `PLAN-cast-migration.md` — Steps 1-8 landed; Step 9 (doxygen regen + docs final sync) carries forward
+  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop — DEBT-20260713T230500)
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)`  

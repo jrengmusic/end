@@ -22,6 +22,15 @@ void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
 }
 
 //==============================================================================
+juce::AffineTransform ENDLookAndFeel::getVerticalTextTransform (int position,
+                                                                 float width,
+                                                                 float height) const noexcept
+{
+    return position == map::Position::left
+        ? juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi).translated (0.0f, height)
+        : juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi).translated (width, 0.0f);
+}
+
 void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
     auto bounds { bar.getLocalBounds().toFloat() };
@@ -32,12 +41,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == map::Position::left)
-            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, height));
-        else
-            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (width, 0.0f));
+        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
 
         bounds = { 0.0f, 0.0f, height, width };
     }
@@ -56,12 +60,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == map::Position::left)
-            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, height));
-        else
-            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (width, 0.0f));
+        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
 
         bounds = { 0.0f, 0.0f, height, width };
     }
@@ -84,12 +83,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        if (parentBar->getPosition() == map::Position::left)
-            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                                .translated (0.0f, height));
-        else
-            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
-                                .translated (width, 0.0f));
+        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
 
         bounds = { 0.0f, 0.0f, height, width };
     }
@@ -98,7 +92,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         button, isMouseOver, isMouseDown, map::ButtonState::getInstance()->get().size()) };
     const juce::Identifier stateId { map::ButtonState::getInstance()->get (state) };
 
-    // Sparse bank — paint only when the state slot was authored in theme.md graphics section.
+    // Sparse bank — paint only when the state slot was authored in the FLEX child (loadGraphics()).
     if (graphics.contains (stateId))
         jam::Svg::Flex::paint (g, *this, graphics.at (stateId), bounds);
 }
@@ -169,11 +163,6 @@ int ENDLookAndFeel::getPaneEdgeSize() const noexcept
     return config.getValue (Id::toType (Id::pane), Id::resizeBarThickness);
 }
 
-float ENDLookAndFeel::getPaneSidebarSize() const noexcept
-{
-    return config.getValue (Id::toType (Id::pane), Id::sidebarSize);
-}
-
 //==============================================================================
 juce::Font ENDLookAndFeel::getCodeFont() const
 {
@@ -190,9 +179,8 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
 
     auto resolvedTypeface { font.getTypefacePtr() };
 
-    // endless conformance restoration (jam::GlyphAtlas::calcMetrics(), commit
-    // 2e37f6d) — cell metrics come from the FT face's own advance/ascender/
-    // height at the exact size rasterize() sizes it to, rather than JUCE's
+    // Cell metrics come from the FT face's own advance/ascender/height at the
+    // exact size rasterize() sizes it to, rather than JUCE's
     // juce::GlyphArrangement::getStringWidth()/getAscent() estimate.
     auto* atlas { jam::GlyphAtlas::getInstance() };
     jassert (atlas != nullptr);
@@ -206,25 +194,7 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
     const int cellHeight { juce::roundToInt (static_cast<float> (metrics.cellHeight)
                                              * lineHeightRatio) };
 
-    return CodeMetrics { font, cellWidth, cellHeight, metrics.baseline };
-}
-
-juce::BorderSize<int> ENDLookAndFeel::getCodePadding() const
-{
-    // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = config.getInt16 (Id::toType (Id::code), Id::padding);
-
-    return juce::BorderSize<int> { top, left, bottom, right };
-}
-
-int ENDLookAndFeel::getGutterWidth() const noexcept
-{
-    return config.getValue (Id::toType (Id::scrollbar), Id::width);
-}
-
-bool ENDLookAndFeel::getCodeLigatures() const noexcept
-{
-    return config.getValue (Id::toType (Id::code), Id::ligatures);
+    return CodeMetrics { cellWidth, cellHeight };
 }
 
 juce::String ENDLookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
@@ -239,10 +209,7 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
     auto key { typefaceKey (name, style) };
 
     if (typefaces.contains (key))
-    {
-        auto ptr { typefaces.at (key) };
-        return ptr;
-    }
+        return typefaces.at (key);
 
     // "Book" is the regular weight of both embedded families — juce::Font
     // requests style "Regular" by default, which none of the six embedded
@@ -250,13 +217,9 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
     auto bookKey { typefaceKey (name, "Book") };
 
     if (typefaces.contains (bookKey))
-    {
-        auto ptr { typefaces.at (bookKey) };
-        return ptr;
-    }
+        return typefaces.at (bookKey);
 
-    auto fallback { juce::LookAndFeel::getTypefaceForFont (font) };
-    return fallback;
+    return juce::LookAndFeel::getTypefaceForFont (font);
 }
 
 juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
@@ -275,6 +238,8 @@ int16_t ENDLookAndFeel::getWindowFX() const
     auto name { config.getValue (Id::toType (Id::style), Id::mac).toString() };
 #elif JUCE_WINDOWS
     auto name { config.getValue (Id::toType (Id::style), Id::win).toString() };
+#else
+    juce::String name;
 #endif
 
     if (map::WindowFX::getInstance()->contains (name))
@@ -293,16 +258,11 @@ void ENDLookAndFeel::prepareWindow (juce::Component& window)
     const auto colour { jam::ColourScheme::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
     const auto blur { getWindowBlur() };
     const auto fx { getWindowFX() };
-    const bool windowButtons { config.getValue (Id::toType (Id::display), Id::titleBarButtons) };
 
-    jam::StyleWindow::apply (&window, colour);
-    jam::BackgroundBlur::enable (&window,
-                                 static_cast<jam::BackgroundBlur::WindowFX> (fx),
-                                 blur,
-                                 colour);
+    auto* jamWindow { dynamic_cast<jam::Window*> (&window) };
+    jassert (jamWindow != nullptr);
 
-    if (auto* peer { window.getPeer() })
-        jam::StyleWindow::setButtons (*peer, windowButtons);
+    jamWindow->setStyle (colour, blur, static_cast<jam::BackgroundBlur::WindowFX> (fx));
 }
 
 void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
@@ -366,12 +326,16 @@ static const char* getMenuItemSVG (int itemID)
 }
 
 static void drawMenuItemBackground (ENDLookAndFeel& laf,
-                                    juce::Graphics& g,
-                                    const juce::Rectangle<int>& area,
-                                    juce::Rectangle<int>& r,
-                                    bool isHighlighted,
-                                    const juce::PopupMenu::Item& item)
+                                     juce::Graphics& g,
+                                     const juce::Rectangle<int>& area,
+                                     juce::Rectangle<int>& r,
+                                     bool isHighlighted,
+                                     const juce::PopupMenu::Item& item)
 {
+    constexpr float disabledTextAlpha { 0.5f };
+    constexpr int maxHorizontalReduce { 5 };
+    constexpr int areaWidthReduceDivisor { 12 };
+
     const auto* textColourToUse { item.colour != juce::Colour() ? &item.colour : nullptr };
     auto textColour { textColourToUse == nullptr ? laf.findColour (juce::PopupMenu::textColourId) : *textColourToUse };
 
@@ -384,7 +348,7 @@ static void drawMenuItemBackground (ENDLookAndFeel& laf,
     }
     else
     {
-        g.setColour (textColour.withMultipliedAlpha (item.isEnabled ? 1.0f : 0.5f));
+        g.setColour (textColour.withMultipliedAlpha (item.isEnabled ? 1.0f : disabledTextAlpha));
 
         if (item.isTicked)
         {
@@ -392,11 +356,18 @@ static void drawMenuItemBackground (ENDLookAndFeel& laf,
         }
     }
 
-    r.reduce (juce::jmin (5, area.getWidth() / 12), 0);
+    r.reduce (juce::jmin (maxHorizontalReduce, area.getWidth() / areaWidthReduceDivisor), 0);
 }
 
-static void drawMenuItemIcon (ENDLookAndFeel& laf, juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item)
+static void drawMenuItemIcon (ENDLookAndFeel& laf,
+                               juce::Graphics& g,
+                               juce::Rectangle<int>& r,
+                               const juce::PopupMenu::Item& item)
 {
+    constexpr float iconToTextSpacingRatio { 0.5f };
+    constexpr float tickStrokeWidth { 2.0f };
+    constexpr float tickInsetDivisor { 3.0f };
+
     auto maxFontHeight { static_cast<float> (r.getHeight()) };
     auto iconArea { r.removeFromLeft (juce::roundToInt (maxFontHeight)).toFloat() };
 
@@ -406,46 +377,61 @@ static void drawMenuItemIcon (ENDLookAndFeel& laf, juce::Graphics& g, juce::Rect
     {
         auto path { jam::Svg::getPath (svg, iconArea) };
         g.fillPath (path);
-        r.removeFromLeft (juce::roundToInt (maxFontHeight * 0.5f));
+        r.removeFromLeft (juce::roundToInt (maxFontHeight * iconToTextSpacingRatio));
     }
     else if (item.isTicked)
     {
         auto tick { laf.getTickShape (1.0f) };
-        auto stroke { juce::PathStrokeType (2.0f) };
-        auto delta { iconArea.getWidth() / 3 };
+        auto stroke { juce::PathStrokeType (tickStrokeWidth) };
+        auto delta { iconArea.getWidth() / tickInsetDivisor };
         g.strokePath (tick, stroke, tick.getTransformToScaleToFit (iconArea.reduced (delta).toFloat(), true));
     }
 }
 
-static void drawMenuItemArrow (ENDLookAndFeel& laf, juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item)
+static void drawMenuItemArrow (ENDLookAndFeel& laf,
+                                juce::Graphics& g,
+                                juce::Rectangle<int>& r,
+                                const juce::PopupMenu::Item& item)
 {
+    constexpr float arrowHeightRatio { 0.6f };
+    constexpr float arrowTipHorizontalRatio { 0.6f };
+    constexpr float arrowVerticalHalfRatio { 0.5f };
+    constexpr float arrowStrokeWidth { 2.0f };
+
     const bool hasSubMenu { item.subMenu != nullptr and item.subMenu->getNumItems() > 0 };
 
     if (hasSubMenu)
     {
-        auto arrowH { 0.6f * laf.getPopupMenuFont().getAscent() };
+        auto arrowH { arrowHeightRatio * laf.getPopupMenuFont().getAscent() };
 
         auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowH)).getX()) };
         auto halfH { static_cast<float> (r.getCentreY()) };
 
         juce::Path path;
-        path.startNewSubPath (x, halfH - arrowH * 0.5f);
-        path.lineTo (x + arrowH * 0.6f, halfH);
-        path.lineTo (x, halfH + arrowH * 0.5f);
+        path.startNewSubPath (x, halfH - arrowH * arrowVerticalHalfRatio);
+        path.lineTo (x + arrowH * arrowTipHorizontalRatio, halfH);
+        path.lineTo (x, halfH + arrowH * arrowVerticalHalfRatio);
 
-        g.strokePath (path, juce::PathStrokeType (2.0f));
+        g.strokePath (path, juce::PathStrokeType (arrowStrokeWidth));
     }
 }
 
-static void drawMenuItemText (juce::Graphics& g, juce::Rectangle<int>& r, const juce::PopupMenu::Item& item, const juce::Font& font)
+static void drawMenuItemText (juce::Graphics& g,
+                              juce::Rectangle<int>& r,
+                              const juce::PopupMenu::Item& item,
+                              const juce::Font& font)
 {
-    r.removeFromRight (3);
+    constexpr int textRightMargin { 3 };
+    constexpr float shortcutFontScale { 0.75f };
+    constexpr float shortcutHorizontalScale { 0.95f };
+
+    r.removeFromRight (textRightMargin);
     g.drawFittedText (item.text, r, juce::Justification::centredLeft, 1);
 
     if (item.shortcutKeyDescription.isNotEmpty())
     {
-        auto f2 { font.withPointHeight (font.getHeightInPoints() * 0.75f) };
-        f2.setHorizontalScale (0.95f);
+        auto f2 { font.withPointHeight (font.getHeightInPoints() * shortcutFontScale) };
+        f2.setHorizontalScale (shortcutHorizontalScale);
         g.setFont (f2);
 
         g.drawText (item.shortcutKeyDescription, r, juce::Justification::centredRight, true);
@@ -460,15 +446,24 @@ void ENDLookAndFeel::drawPopupMenuItemWithOptions (juce::Graphics& g,
 {
     if (item.isSeparator)
     {
-        auto r { area.reduced (5, 0) };
-        r.removeFromTop (juce::roundToInt ((static_cast<float> (r.getHeight()) * 0.5f) - 0.5f));
+        constexpr int separatorHorizontalReduce { 5 };
+        constexpr float separatorVerticalCenterRatio { 0.5f };
+        constexpr float separatorRoundingOffset { 0.5f };
+        constexpr int separatorThickness { 1 };
+        constexpr float separatorAlpha { 0.3f };
 
-        g.setColour (findColour (juce::PopupMenu::textColourId).withAlpha (0.3f));
-        g.fillRect (r.removeFromTop (1));
+        auto r { area.reduced (separatorHorizontalReduce, 0) };
+        r.removeFromTop (juce::roundToInt ((static_cast<float> (r.getHeight()) * separatorVerticalCenterRatio)
+                                           - separatorRoundingOffset));
+
+        g.setColour (findColour (juce::PopupMenu::textColourId).withAlpha (separatorAlpha));
+        g.fillRect (r.removeFromTop (separatorThickness));
     }
     else
     {
-        auto r { area.reduced (1) };
+        constexpr int itemAreaReduce { 1 };
+
+        auto r { area.reduced (itemAreaReduce) };
 
         drawMenuItemBackground (*this, g, area, r, isHighlighted, item);
 
@@ -492,8 +487,7 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
         const auto width { bounds.getWidth() };
         const auto height { bounds.getHeight() };
 
-        g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
-                            .translated (0.0f, height)
+        g.addTransform (getVerticalTextTransform (map::Position::left, width, height)
                             .translated (bounds.getX(), bounds.getY()));
 
         bounds = { 0.0f, 0.0f, height, width };
@@ -515,14 +509,40 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
 
 void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
 {
-    auto colour { findColour (pane.hasKeyboardFocus (true)
-                                  ? jam::PaneComponent::focusedOutlineColourId
-                                  : jam::PaneComponent::outlineColourId) };
-
-    g.setColour (colour);
+    g.setColour (findColour (jam::PaneComponent::outlineColourId));
     g.drawRoundedRectangle (
         pane.getLocalBounds().toFloat().reduced (jam::PaneComponent::edgePadding
                                                  + jam::PaneComponent::lineThickness),
         jam::PaneComponent::cornerSize,
         jam::PaneComponent::lineThickness);
+}
+
+struct WindowProperties final : public juce::FocusOutline::OutlineWindowProperties
+{
+    explicit WindowProperties (juce::Colour outlineColour)
+        : colour (outlineColour)
+    {
+    }
+
+    juce::Rectangle<int> getOutlineBounds (juce::Component& focusedComponent) override
+    {
+        return focusedComponent.getScreenBounds().reduced (
+            static_cast<int> (jam::PaneComponent::edgePadding + jam::PaneComponent::lineThickness));
+    }
+
+    void drawOutline (juce::Graphics& g, int width, int height) override
+    {
+        g.setColour (colour);
+        g.drawRoundedRectangle ({ 0.0f, 0.0f, static_cast<float> (width), static_cast<float> (height) },
+                                jam::PaneComponent::cornerSize,
+                                jam::PaneComponent::lineThickness);
+    }
+
+    juce::Colour colour;
+};
+
+std::unique_ptr<juce::FocusOutline> ENDLookAndFeel::createFocusOutlineForComponent (juce::Component&)
+{
+    return std::make_unique<juce::FocusOutline> (
+        std::make_unique<WindowProperties> (findColour (jam::PaneComponent::focusedOutlineColourId)));
 }

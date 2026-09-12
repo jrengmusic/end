@@ -5,7 +5,6 @@ ENDView::ENDView (jam::Model& m)
     , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)))
 {
     setOpaque (false);
-    addKeyListener (this);
     toFront (true);
 
     registerActions();
@@ -18,9 +17,6 @@ ENDView::ENDView (jam::Model& m)
 
     createAndAttachParameters();
 
-// #if JUCE_DEBUG
-// #endif
-//
     focusedPane.addListener (this);
     config.addListener (this);
     model.addListener (this);
@@ -45,7 +41,6 @@ ENDView::~ENDView()
     model.removeListener (this);
     config.removeListener (this);
     focusedPane.removeListener (this);
-    removeKeyListener (this);
 }
 
 void ENDView::resized()
@@ -55,7 +50,9 @@ void ENDView::resized()
     background.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
 
-    if (auto* sessionView { getActiveSessionView() })
+    auto* sessionView { getActiveSessionView() };
+
+    if (sessionView != nullptr)
         sessionView->setBounds (getLocalBounds());
 }
 
@@ -66,10 +63,14 @@ bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    auto key { events.contains (property) ? property : tree.getType() };
-
-    if (events.contains (key))
-        events.get (key, tree);
+    if (events.contains (property))
+    {
+        events.get (property, tree);
+    }
+    else if (events.contains (tree.getType()))
+    {
+        events.get (tree.getType(), tree);
+    }
 }
 
 void ENDView::valueChanged (juce::Value&)

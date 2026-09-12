@@ -1,5 +1,23 @@
 #include "end/MessageOverlay.h"
 
+// Background fill alpha [0, 1]; applied on top of the window content.
+static constexpr float backgroundAlpha { 0.8f };
+
+// Padding in pixels applied to the text bounds.
+static constexpr int textPadding { 20 };
+
+// Maximum number of text lines rendered by drawFittedText().
+static constexpr int maxLines { 20 };
+
+// Length in pixels of a bracket-style endcap, centred on the axis line.
+static constexpr float bracketEndcapLength { 8.0f };
+
+// Dash/gap lengths in pixels for the dash-style split axis line.
+static constexpr float dashLengths[] { 6.0f, 4.0f };
+
+// Split token dividing a two-region overlay message.
+static const juce::String separator { " | " };
+
 static void drawSolidAxisLine (juce::Graphics& g, juce::Line<float> axis, bool)
 {
     g.drawLine (axis);
@@ -34,16 +52,16 @@ void drawMessageOverlay (juce::Graphics& g,
                          juce::Rectangle<int> bounds,
                          const juce::String& message,
                          int splitLine,
-                         bool splitVertical)
+                         const bool splitVertical)
 {
     static const auto axisLines {
         []
         {
-            jam::Function::Map<int, void> axisLines;
-            axisLines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::solid, &drawSolidAxisLine);
-            axisLines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::dash, &drawDashAxisLine);
-            axisLines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::bracket, &drawBracketAxisLine);
-            return axisLines;
+            jam::Function::Map<int, void> lines;
+            lines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::solid, &drawSolidAxisLine);
+            lines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::dash, &drawDashAxisLine);
+            lines.add<juce::Graphics&, const juce::Line<float>&, const bool&> (map::OverlayAxisLine::bracket, &drawBracketAxisLine);
+            return lines;
         }()
     };
 
@@ -64,8 +82,6 @@ void drawMessageOverlay (juce::Graphics& g,
 
     if (splitLine >= 0)
     {
-        const bool vertical { splitVertical };
-
         if (splitVertical)
         {
             const auto x { static_cast<float> (splitLine) };
@@ -73,7 +89,7 @@ void drawMessageOverlay (juce::Graphics& g,
             const auto bottom { static_cast<float> (bounds.getBottom()) };
             const juce::Line<float> axis { x, top, x, bottom };
 
-            axisLines.get (lineStyle, g, axis, vertical);
+            axisLines.get (lineStyle, g, axis, splitVertical);
         }
         else
         {
@@ -82,7 +98,7 @@ void drawMessageOverlay (juce::Graphics& g,
             const auto right { static_cast<float> (bounds.getRight()) };
             const juce::Line<float> axis { left, y, right, y };
 
-            axisLines.get (lineStyle, g, axis, vertical);
+            axisLines.get (lineStyle, g, axis, splitVertical);
         }
     }
 

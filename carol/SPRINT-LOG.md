@@ -2,6 +2,67 @@
 
 ---
 
+## Sprint 85: Post-CAST Runtime Recovery — Window Style, Event-Driven Focus, Corner Bimap, Mesh Restore ✅
+
+**Date:** 2026-09-12
+**Duration:** three sessions (context-compacted)
+
+### Agents Participated
+- COUNSELOR: fable-5 — root-cause chains from runtime evidence (END.ode, crash stacks, sync bisect); plan authoring (window-style fix; corner-bimap + mesh restore); per-step validation against disk; deployed-config root cause for the missing mesh
+- Pathfinder (×several): haiku — window/style lane, focus lane, corner/bimap/ButtonMenu inventory, mesh-preset parse lane, frame-pacing resource inventory
+- Engineer (×many): sonnet-5 — prepareWindow delegation; ENDWindow deletion; MessageOverlay simplification; focus-lane corrections; corner containment; ODE instrument + drain; doc touch-ups
+- Auditor: opus-5 — full-sprint audit; findings resolved or verdict-closed in-sprint (line-count findings closed via the L relocation clause; CSS-keyword and framework-surface attributions corrected by citation)
+
+### Files Modified (END repo; jam twin logged at jam Sprint 110)
+- deleted: `Source/end/ENDWindow.{h,cpp}` — END constructs `jam::Window` directly; the ungated `lookAndFeelChanged` double-dispatch dies with it
+- deleted: `Source/sidebar/SidebarComponent.{h,cpp}` — dead for END-as-host; `project-info.md` rows removed
+- `Source/Main.{h,cpp}` — direct `jam::Window` construction from config values
+- `Source/lookAndFeel/ENDLookAndFeel.{h,cpp}` — `prepareWindow` reads config then delegates to `jam::Window::setStyle` (StyleTheme shape); `createFocusOutlineForComponent` override (bounds reduced by edgePadding+lineThickness, focusedOutlineColourId); `drawPaneOutline` plain outline only; orphaned statusBar colour registrations removed
+- `Source/end/MessageOverlay.{h,cpp}` — timer machinery deleted (`showMessage` = set text, repaint, toggleFade in/out); display-copy `message` member; `axisLines` dispatch const-param fix (`const bool splitVertical`, MessageOverlay.cpp:55) satisfying Function::Map's deduce-only contract (jam_Function.h:289-293)
+- `Source/end/ENDModel.{h,cpp}` — ctor creates OVERLAY row and registers `Id::message` ParameterText (owner-boundary invariant; startup assert fixed)
+- `Source/end/{ENDView,TabView,SessionView,Session,EditorView}.*`, `Source/end/EventRegistration.cpp`, `Source/action/ENDActions.*` — pane/tab lanes onto jam's nested MatrixComponent and focus self-report; `getNeighbour` rename routed; structured-binding captures; instrumentation drained
+- `Source/config/ConfigModel.cpp:74-79` — `addTables` drain loop removes each child before appending (DEBT-20260912T080000 paid)
+- `Source/config/{display.md,keys.md}`, `Source/config/theme/gfx/theme.md` (+ deployed twins) — `\-` escape restores the bare-dash binding; `lineHeight` (jam lexicon) replaces `line_height`
+- `cast/identifiers.md` (+quit, +reload), `project-info.md` (sidebar rows) — regen is ARCHITECT's `cast cast/CAST.md`
+- `SPEC.md` — rewritten for the CLAP-host reality; terminal-era SPEC preserved verbatim as eve `SPEC.md` (dev/plugins/eve/) with a provenance header
+- `PLAN-END-plugin-host.md` — Position block: eve naming, engine-sharing main goal
+- `CLAUDE.md`, `DEBT.md`, `.project`
+- deployed `~/.config/end/display.md` — `background` value restored to `end` (see Problems Solved)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (`cornerMenus`, `cornerJustifications` ratified via plan approval; everything else joins existing families)
+- [x] MANIFESTO.md principles applied
+- [ ] COUNSELOR failure, disclosed: I resolved the overlay delay doc-over-code (0→5000ms) — blank window; then defended the variable before deleting the timer machinery ARCHITECT ordered gone
+- [ ] COUNSELOR failure, disclosed: I removed statusBar colour data but left its consumers — startup assert, then a blank window
+- [ ] COUNSELOR failure, disclosed: manual `focusedChild` stamp + a listener-grab hack against the event-driven contract — stuck outline, then a crash; corrected to self-report-only writers per ARCHITECT
+- [ ] COUNSELOR failure, disclosed: I second-guessed ARCHITECT's observation with an uncited "masked" claim; the sync bisect then proved the race ARCHITECT observed
+- [ ] COUNSELOR failure, disclosed: I deferred the frame-pacing race to DEBT on my own framing (DCF §5 violation); ARCHITECT challenged, the deferral is now ARCHITECT-commanded at this /log
+- [ ] Subagent violation, disclosed: one Engineer ran a read-only git command (self-flagged, output unused)
+
+### Problems Solved
+- Window growth loop + blank window: END's `prepareWindow` re-implemented jam's apply half and `ENDWindow::lookAndFeelChanged` double-fired it ungated — the JUCE size contract never balanced. Fixed by delegation to `jam::Window::setStyle` and deleting ENDWindow
+- Blank window #3 (post-drain): the sync-bisect probe proved a CPU/GPU frame-pacing race; `waitIdle` (jam_VulkanGraphics.cpp:770) retained as the interim mask — DEBT-20260912T130000
+- Focus outline stuck on first pane: manual focus stamps removed; focus is event-driven self-report to the Model only (`focusGained` → `Id::focus`); outline via native `setHasFocusOutline` + LAF `createFocusOutlineForComponent`
+- Split/new-tab crashes: PaneEdge constructed before detaching rows (listener storm); tab selection through `ButtonBar::setCurrentTab` (the established verb); grabs only when showing
+- Corner drag assert: Function::Map deduce-only signature mismatch (`bool&` vs registered `const bool&`) — one-word const fix
+- Corner menus hand-rolled ×4 with magic strings: jam-side Segment-bimap containment (jam Sprint 110)
+- 3D obj background absent: ODE instrumentation of the whole mesh lane produced an EMPTY log — proof the shader lane never ran. Root cause: deployed `display.md` `background` value empty ("Empty string disables"), lost in the config migration; value restored, mesh renders. All static lanes (manifest trim, compile, instance, render gate) were verified intact
+- `-` keybinding dead: markdown bullet parser ate the bare dash — `\-` escape
+
+### State for Continuation
+- Frame-pacing race is next sprint's work — DEBT-20260912T130000 carries ARCHITECT's verbatim mandate: READ VULKAN API THOROUGHLY. READ JUCE API THOROUGHLY. UNDERSTAND OUR ARCHITECTURE THOROUGHLY. Unverified Pathfinder inventory to re-verify first: single shared `projectionBuffer` (jam_VulkanGraphics.h:1518), `primitiveRecordBuffer` (:1627), `pathFrameBuffer` (:1623) vs the per-image `swapchainFramebuffers` pattern (:1464); fence wait at beginFrame (jam_VulkanGraphics.cpp:360), submit (:710), CPU writes (:1503, :1507-1526)
+- ARCHITECT runs before commit if not yet run: `cast cast/CAST.md` (identifiers/sidebar rows), `ninja doxygen`
+- Doxygen regen machinery still absent from generated CMakeLists (Sprint 84 carry-over)
+- Deployed `~/.config/end/display.md` lost user values in the migration; only `background` was restored — other deployed values unverified
+- DEBT-20260713T230500 (Step 19 focus loop) remains on ledger
+
+### Debts Paid
+- `DEBT-20260912T080000` — addTables drain loop now removes each child from its file tree before appending to the target (ConfigModel.cpp:74-79); startup runs assert-clean
+
+### Debts Deferred
+- `DEBT-20260912T130000` — frame-pacing race behind the waitIdle mask; ARCHITECT-commanded deferral at this /log with the read-first mandate
+
 ## Sprint 84: CAST Migration — END Host on CAST, Config on Markdown ✅
 
 **Date:** 2026-09-12

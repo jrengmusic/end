@@ -14,8 +14,6 @@ struct Nexus : jam::Instance<Nexus>
         model.createAndAddParameter<jam::Parameter<int64_t>> (
             sessionsTree, Id::focusedPane, int64_t { 0 });
 
-        model.getOrCreateChildWithName (Id::toType (Id::overlay));
-
         extensions.try_emplace (juce::String { jam::ClapServices::extensionId }, &services);
         juce::addDefaultFormatsToManager (formatManager);
         formatManager.addFormat (std::make_unique<jam::ClapPluginFormat> (

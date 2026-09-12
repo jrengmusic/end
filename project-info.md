@@ -347,10 +347,6 @@ Every field is a complete literal; nothing downstream derives, concatenates, or 
 +------------------------------------+------------------------------------------+---------+
 | viewHeader                         | Source/end/ENDView.h                     |         |
 +------------------------------------+------------------------------------------+---------+
-| windowSource                       | Source/end/ENDWindow.cpp                 |         |
-+------------------------------------+------------------------------------------+---------+
-| windowHeader                       | Source/end/ENDWindow.h                   |         |
-+------------------------------------+------------------------------------------+---------+
 | editorViewSource                   | Source/end/EditorView.cpp                |         |
 +------------------------------------+------------------------------------------+---------+
 | editorViewHeader                   | Source/end/EditorView.h                  |         |
@@ -378,10 +374,6 @@ Every field is a complete literal; nothing downstream derives, concatenates, or 
 | lookAndFeelHeader                  | Source/lookAndFeel/ENDLookAndFeel.h      |         |
 +------------------------------------+------------------------------------------+---------+
 | lookAndFeelEventRegistrationSource | Source/lookAndFeel/EventRegistration.cpp |         |
-+------------------------------------+------------------------------------------+---------+
-| sidebarComponentSource             | Source/sidebar/SidebarComponent.cpp      |         |
-+------------------------------------+------------------------------------------+---------+
-| sidebarComponentHeader             | Source/sidebar/SidebarComponent.h        |         |
 +------------------------------------+------------------------------------------+---------+
 
 ## define

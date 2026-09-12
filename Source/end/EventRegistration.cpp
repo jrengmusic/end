@@ -1,4 +1,4 @@
-#include "ENDView.h"
+#include "end/ENDView.h"
 
 void ENDView::registerGraphicsEvents()
 {
@@ -18,7 +18,7 @@ void ENDView::registerGraphicsEvents()
             // recompile from current config on every toggle onto it. This is
             // also the SAME call this View makes at initial config load — see
             // this constructor's callAsync block, which fires this very
-            // handler once at startup.
+            // callback once at startup.
             setBackground();
             setPostProcess();
         });
@@ -152,7 +152,7 @@ void ENDView::registerEvents()
     // registration on the shared Id::visible property key serves all
     // five leaves, no per-leaf type fallback needed (every WINDOW leaf now
     // shares Id::toType (Id::pane), so a type-keyed fallback could no longer
-    // distinguish them the way the four old Position edge node TYPES did).
+    // distinguish them the way the four old Position-keyed ValueTree TYPES did).
     events.add<juce::ValueTree&> (Id::visible,
                                   [this] (juce::ValueTree&)
                                   {
@@ -160,21 +160,43 @@ void ENDView::registerEvents()
                                   });
 }
 
-void ENDView::setBackground()
+static std::tuple<float, float, int> getBackgroundRenderParams (ConfigModel& config)
 {
-    auto* engine { jam::VulkanEngine::getInstance() };
-    const bool gpuEnabled { engine != nullptr and engine->isGpuAvailable() };
-
-    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::background).toString() };
     const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
     const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::backgroundResolution) };
     const int frameRate { config.getValue (Id::toType (Id::graphics), Id::frameRate) };
 
+    return { opacity, resolutionScale, frameRate };
+}
+
+static std::tuple<float, float> getPostProcessRenderParams (ConfigModel& config)
+{
+    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
+    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
+
+    return { opacity, resolutionScale };
+}
+
+static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
+{
+    const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
+
+    return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
+}
+
+void ENDView::setBackground()
+{
+    auto* engine { jam::VulkanEngine::getInstance() };
+    jassert (engine != nullptr);
+    const bool gpuEnabled { engine->isGpuAvailable() };
+
+    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::background).toString() };
+    const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
+
     if (gpuEnabled and projectName.isNotEmpty())
     {
         const auto shaderState { jam::Model::getChildWithName (config.state, Id::toType (Id::background)) };
-        const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
-        const auto filter { static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName)) };
+        const auto filter { getImageResampleFilter (config) };
 
         // ConfigShader::loadFromPath() always stamps Id::shaderFormat with a
         // definite format ordinal (jam::VulkanShaderFormat::shadertoy or
@@ -200,9 +222,7 @@ void ENDView::setBackground()
 
 void ENDView::setBackgroundParams()
 {
-    const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
-    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::backgroundResolution) };
-    const int frameRate { config.getValue (Id::toType (Id::graphics), Id::frameRate) };
+    const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
 
     background.setParams (opacity, resolutionScale, frameRate);
 }
@@ -214,16 +234,13 @@ void ENDView::setPostProcess()
     const bool gpuEnabled { engine->isGpuAvailable() };
 
     const auto projectName { config.getValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
-    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getValue (
-        Id::toType (Id::graphics), Id::postProcessingResolution) };
+    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
         const auto shaderState { jam::Model::getChildWithName (
             config.state, Id::toType (Id::postProcessing)) };
-        const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
-        const auto filter { static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName)) };
+        const auto filter { getImageResampleFilter (config) };
 
         // See setBackground()'s matching comment — Id::shaderFormat is
         // always a definite format ordinal by the time this state is
@@ -246,9 +263,7 @@ void ENDView::setPostProcess()
 
 void ENDView::setPostProcessParams()
 {
-    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getValue (
-        Id::toType (Id::graphics), Id::postProcessingResolution) };
+    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
 
     auto* engine { jam::VulkanEngine::getInstance() };
     jassert (engine != nullptr);

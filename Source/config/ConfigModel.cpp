@@ -32,6 +32,25 @@ juce::String ConfigShader::loadFromPath (const juce::var& path)
 }
 
 //==============================================================================
+// getOrCreateDefaultFile — seeds a missing config/theme file from BinaryData
+//==============================================================================
+
+static juce::File getOrCreateDefaultFile (const juce::File& folder, const juce::String& fileName)
+{
+    const juce::File file { folder.getChildFile (fileName) };
+
+    if (not file.existsAsFile())
+    {
+        BinaryData::Raw raw (fileName);
+
+        if (raw.exists())
+            file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
+    }
+
+    return file;
+}
+
+//==============================================================================
 // addTables — shared parse/validate/gated-merge for a bimap-keyed markdown table set
 //==============================================================================
 
@@ -53,7 +72,11 @@ static juce::String addTables (juce::ValueTree target, juce::Identifier rootTag,
             auto fileTree { document.getValueTree (rootTag) };
 
             while (fileTree.getNumChildren() > 0)
-                target.appendChild (fileTree.getChild (0), nullptr);
+            {
+                auto child { fileTree.getChild (0) };
+                fileTree.removeChild (0, nullptr);
+                target.appendChild (child, nullptr);
+            }
         }
         else
         {
@@ -78,7 +101,9 @@ ConfigTheme::ConfigTheme()
               [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
 
           jassert (errors.isEmpty());
-          juce::ignoreUnused (errors);
+
+          if (errors.isNotEmpty())
+              ENDModel::getInstance()->setMessage (errors);
 
           return themes;
       }())
@@ -99,28 +124,15 @@ void ConfigTheme::saveToPath (const juce::var& path)
 
     if (dir.getFullPathName().isNotEmpty())
     {
-        auto writeWhenNeeded = [] (const juce::File& folder, const juce::String& fileName)
-        {
-            const juce::File file { folder.getChildFile (fileName) };
-
-            if (not file.existsAsFile())
-            {
-                BinaryData::Raw raw (fileName);
-
-                if (raw.exists())
-                    file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
-            }
-        };
-
         jam::File::getOrCreateDirectory (dir.getParentDirectory(), dir.getFileName());
 
         for (auto& [key, stem] : map::FileThemes::getInstance()->get())
-            writeWhenNeeded (dir, ConfigDirectory::Themes::getName (key));
+            getOrCreateDefaultFile (dir, ConfigDirectory::Themes::getName (key));
 
         auto flexDir { jam::File::getOrCreateDirectory (dir, Id::flex) };
 
         for (auto& [key, stem] : map::FileFlex::getInstance()->get())
-            writeWhenNeeded (flexDir, ConfigDirectory::Flex::getName (key));
+            getOrCreateDefaultFile (flexDir, ConfigDirectory::Flex::getName (key));
     }
 }
 
@@ -171,7 +183,9 @@ ConfigModel::ConfigModel()
               [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
 
           jassert (errors.isEmpty());
-          juce::ignoreUnused (errors);
+
+          if (errors.isNotEmpty())
+              ENDModel::getInstance()->setMessage (errors);
 
           return config;
       }())
@@ -194,18 +208,7 @@ void ConfigModel::saveToPath()
         ConfigDirectory::Config::path.getParentDirectory(), ConfigDirectory::Config::path.getFileName());
 
     for (auto& [key, stem] : map::FileConfig::getInstance()->get())
-    {
-        const auto name { ConfigDirectory::Config::getName (key) };
-        const juce::File file { ConfigDirectory::Config::path.getChildFile (name) };
-
-        if (not file.existsAsFile())
-        {
-            BinaryData::Raw raw (name);
-
-            if (raw.exists())
-                file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
-        }
-    }
+        getOrCreateDefaultFile (ConfigDirectory::Config::path, ConfigDirectory::Config::getName (key));
 
     theme.saveToPath (getValue (Id::toType (Id::display), Id::theme));
 }

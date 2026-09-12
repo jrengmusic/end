@@ -1,17 +1,14 @@
 #include "end/Session.h"
 
 Session::Session (jam::UUID newUuid, ENDModel& newModel)
-    : uuid (newUuid)
-    , model (newModel)
+    : model (newModel)
 {
-    model.createAndAddParameter<jam::Parameter<int64_t>> (state, Id::id, uuid.value);
-
-    model.addListener (this);
+    model.createAndAddParameter<jam::Parameter<int64_t>> (state, Id::id, newUuid.value);
 }
 
-Session::~Session() { model.removeListener (this); }
+Session::~Session() = default;
 
-juce::AudioPluginInstance& Session::get (jam::UUID uuid) { return *plugins.at (uuid); }
+juce::AudioPluginInstance& Session::getPlugin (jam::UUID uuid) { return *plugins.at (uuid); }
 
 bool Session::contains (jam::UUID uuid) const { return plugins.contains (uuid); }
 
@@ -34,10 +31,4 @@ void Session::newPlugin (jam::UUID uuid, const juce::String& pluginId, std::uniq
 void Session::removePlugin (jam::UUID uuid)
 {
     plugins.erase (uuid);
-}
-
-void Session::parameterChanged (const juce::Identifier& id, const juce::var& newValue)
-{
-    if (events.contains (id))
-        events.get (id, newValue);
 }
