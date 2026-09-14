@@ -119,7 +119,7 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser resolves the escape to
   the literal.
 - **Constants pipeline:** `cast/*.md` (project-info, identifiers, bimaps, files)
-  → `cast cast/CAST.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,
+  → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,
   Files,Generated}.h` (global `Id::`, `map::`, `files::`). The generated lexicon
   defines only what jam's lexicon does not — shared identifiers have exactly one
   owner: jam.

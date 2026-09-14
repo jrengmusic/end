@@ -19,7 +19,7 @@ Hosting: jam_clap (in-house wrapper + host format); `Nexus::VirtualClock` per-pl
 Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
-Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast/CAST.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` (global `Id::`, `map::`, `files::`)
+Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` (global `Id::`, `map::`, `files::`)
 
 ## Key Docs
 | File | Purpose |
@@ -38,4 +38,4 @@ Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast
 - KANJUT / CIUM: not used in this project
 
 ## Build (ARCHITECT only — agents never run)
-`cast cast/CAST.md` regenerates `CMakeLists.txt` + `Source/generated/*` · `ninja` via `Builds/` · `ninja doxygen` to regenerate docs
+`cast cast/spell.md` regenerates `CMakeLists.txt` + `Source/generated/*` · `ninja` via `Builds/` · `ninja doxygen` to regenerate docs

@@ -214,7 +214,7 @@ return {
     },
   },
   toolchain = {
-    manifest = "cast/CAST.md",
+    manifest = "cast/spell.md",
     name = "cast",
   },
 }
