@@ -7,7 +7,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/SessionView.h"
-#include "end/MessageOverlay.h"
 #include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
@@ -127,7 +126,7 @@ private:
 
     juce::Value focusedPane {};
 
-    MessageOverlay messageOverlay;
+    jam::MessageOverlay messageOverlay;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDView)

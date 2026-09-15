@@ -6,6 +6,13 @@ static constexpr const char* swapPickPrefix { "swap:" };
 
 static constexpr float joinPreviewSentinel { -1.0f };
 
+static juce::Font getOverlayFont()
+{
+    return juce::FontOptions()
+        .withName (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+        .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize)));
+}
+
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
     : jam::MatrixComponent (m, sessionState, Id::toType (Id::tab), uuid)
 {
@@ -171,7 +178,7 @@ void TabView::paintOverChildren (juce::Graphics& g)
     {
         if (edge.startsWith (swapPickPrefix))
         {
-            drawMessageOverlay (g, *this, getLocalBounds(), "Click a pane to swap");
+            jam::drawMessageOverlay (g, *this, getLocalBounds(), "Click a pane to swap", getOverlayFont());
         }
         else
         {
@@ -204,7 +211,8 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, fl
                                  + juce::String (static_cast<int> (tail.getWidth() / metrics.cellWidth)) + " x "
                                  + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
 
-    drawMessageOverlay (g, *this, preview, message, splitLine, splitVertical);
+    jam::drawMessageOverlay (g, *this, preview, message, getOverlayFont(), splitLine, splitVertical,
+                             ConfigModel::getInstance()->getValue (Id::toType (Id::pane), Id::splitLine).toString());
 }
 
 void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)
@@ -221,7 +229,7 @@ void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)
         const juce::String message { juce::String (static_cast<int> (merged.getWidth() / metrics.cellWidth)) + " x "
                                      + juce::String (static_cast<int> (merged.getHeight() / metrics.cellHeight)) };
 
-        drawMessageOverlay (g, *this, targetBounds, message);
+        jam::drawMessageOverlay (g, *this, targetBounds, message, getOverlayFont());
     }
 }
 

@@ -7,7 +7,6 @@
 #include <JuceHeader.h>
 #include "end/EditorView.h"
 #include "generated/Generated.h"
-#include "end/MessageOverlay.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 
 /**

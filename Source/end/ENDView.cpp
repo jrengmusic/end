@@ -2,7 +2,11 @@
 
 ENDView::ENDView (jam::Model& m)
     : jam::Model::Component<ENDView> (m, m.getChildWithName (Id::toType (Id::window)))
-    , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)))
+    , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)), [] {
+        return juce::Font { juce::FontOptions()
+                                .withName (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+                                .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize))) };
+    })
 {
     setOpaque (false);
     toFront (true);
