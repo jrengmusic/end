@@ -41,10 +41,8 @@ inline const juce::Identifier backgroundResolution     { juce::String::fromUTF8 
 inline const juce::Identifier blurRadius               { juce::String::fromUTF8 ("blur_radius")                };
 inline const juce::Identifier buttonOn                 { juce::String::fromUTF8 ("button_on")                  };
 inline const juce::Identifier caret                    { juce::String::fromUTF8 ("caret")                      };
-inline const juce::Identifier cellWidth                { juce::String::fromUTF8 ("cell_width")                 };
 inline const juce::Identifier closePane                { juce::String::fromUTF8 ("close_pane")                 };
 inline const juce::Identifier closeTab                 { juce::String::fromUTF8 ("close_tab")                  };
-inline const juce::Identifier config                   { juce::String::fromUTF8 ("config")                     };
 inline const juce::Identifier depth                    { juce::String::fromUTF8 ("depth")                      };
 inline const juce::Identifier editorBackground         { juce::String::fromUTF8 ("editor_background")          };
 inline const juce::Identifier editorOutline            { juce::String::fromUTF8 ("editor_outline")             };
@@ -69,7 +67,6 @@ inline const juce::Identifier keys                     { juce::String::fromUTF8 
 inline const juce::Identifier labelBackground          { juce::String::fromUTF8 ("label_background")           };
 inline const juce::Identifier labelText                { juce::String::fromUTF8 ("label_text")                 };
 inline const juce::Identifier ligatures                { juce::String::fromUTF8 ("ligatures")                  };
-inline const juce::Identifier message                  { juce::String::fromUTF8 ("message")                    };
 inline const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse")                      };
 inline const juce::Identifier newPane                  { juce::String::fromUTF8 ("new_pane")                   };
 inline const juce::Identifier newPlugin                { juce::String::fromUTF8 ("new_plugin")                 };
@@ -78,7 +75,6 @@ inline const juce::Identifier newTab                   { juce::String::fromUTF8 
 inline const juce::Identifier nextTab                  { juce::String::fromUTF8 ("next_tab")                   };
 inline const juce::Identifier orbit                    { juce::String::fromUTF8 ("orbit")                      };
 inline const juce::Identifier outline                  { juce::String::fromUTF8 ("outline")                    };
-inline const juce::Identifier overlay                  { juce::String::fromUTF8 ("overlay")                    };
 inline const juce::Identifier pane                     { juce::String::fromUTF8 ("pane")                       };
 inline const juce::Identifier paneDown                 { juce::String::fromUTF8 ("pane_down")                  };
 inline const juce::Identifier paneLeft                 { juce::String::fromUTF8 ("pane_left")                  };

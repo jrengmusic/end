@@ -1,21 +1,3 @@
-## OverlayAxisLine
-
-```
-@brief Split preview overlay axis line style names.
-
-Consumed by theme.md pane.split_line; the default row is solid.
-```
-
-+---------+-----+
-| name    | key |
-+=========+=====+
-| solid   | 0   |
-+---------+-----+
-| dash    | 1   |
-+---------+-----+
-| bracket | 2   |
-+---------+-----+
-
 ## FileConfig
 
 ```

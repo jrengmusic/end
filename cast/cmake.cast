@@ -189,9 +189,11 @@ message(STATUS "CAST: user modules added from ${CAST_USER_MODULE_PATH}")
 
 juce_generate_juce_header(${PROJECT_NAME})
 
-target_sources(${PROJECT_NAME} PRIVATE
+file(GLOB_RECURSE CAST_SOURCE_FILES CONFIGURE_DEPENDS
 :::[list]:::
 )
+
+target_sources(${PROJECT_NAME} PRIVATE ${CAST_SOURCE_FILES})
 
 # ==============================================================================
 # DEFINES — one call, platform and configuration routed by generator expression
@@ -453,6 +455,10 @@ message(STATUS "━━━━━━━━━━━━━━━━━━━━━�
 
 ```module
 juce_add_module(":::root:::/:::name:::"):::[comment]:::
+```
+
+```glob-pattern
+:::path:::/*.:::extension:::
 ```
 
 ```mac

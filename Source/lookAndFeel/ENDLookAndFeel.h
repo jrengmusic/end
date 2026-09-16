@@ -298,7 +298,7 @@ public:
      * (size × zoom), resolves the zoomed font's typeface, and calls
      * jam::GlyphAtlas::getInstance()->calcMetrics() at the exact FT size the
      * glyphs will rasterize at. The raw FT cell width/height are then scaled
-     * by the theme's own cell ratios (code.cell_width / code.lineHeight)
+     * by the theme's own cell ratios (code.cellWidth / code.lineHeight)
      * to produce the final pixel cell size — TabView's own split/join preview
      * consumes cellWidth/cellHeight directly, with no ratio-only getter
      * anywhere in the chain.

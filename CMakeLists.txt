@@ -228,34 +228,12 @@ juce_add_gui_app(${PROJECT_NAME}
 
 juce_generate_juce_header(${PROJECT_NAME})
 
-target_sources(${PROJECT_NAME} PRIVATE
-    Source/Main.cpp
-    Source/Main.h
-    Source/Nexus.h
-    Source/action/ENDActions.cpp
-    Source/action/ENDActions.h
-    Source/config/ConfigDirectory.h
-    Source/config/ConfigModel.cpp
-    Source/config/ConfigModel.h
-    Source/end/ENDModel.cpp
-    Source/end/ENDModel.h
-    Source/end/ENDView.cpp
-    Source/end/ENDView.h
-    Source/end/EditorView.cpp
-    Source/end/EditorView.h
-    Source/end/EventRegistration.cpp
-    Source/end/MessageOverlay.cpp
-    Source/end/MessageOverlay.h
-    Source/end/Session.cpp
-    Source/end/Session.h
-    Source/end/SessionView.cpp
-    Source/end/SessionView.h
-    Source/end/TabView.cpp
-    Source/end/TabView.h
-    Source/lookAndFeel/ENDLookAndFeel.cpp
-    Source/lookAndFeel/ENDLookAndFeel.h
-    Source/lookAndFeel/EventRegistration.cpp
+file(GLOB_RECURSE CAST_SOURCE_FILES CONFIGURE_DEPENDS
+${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h
 )
+
+target_sources(${PROJECT_NAME} PRIVATE ${CAST_SOURCE_FILES})
 
 # ==============================================================================
 # DEFINES — one call, platform and configuration routed by generator expression

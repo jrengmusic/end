@@ -21,34 +21,6 @@ namespace map
 /*_____________________________________________________________________________*/
 
 /**
- * @brief Split preview overlay axis line style names.
- *
- * Consumed by theme.md pane.split_line; the default row is solid.
- */
-struct OverlayAxisLine : public jam::Bimap<int>
-{
-    OverlayAxisLine() : jam::Bimap<int> { {
-            { solid,   juce::String::fromUTF8 ("solid") },
-            { dash,    juce::String::fromUTF8 ("dash") },
-            { bracket, juce::String::fromUTF8 ("bracket") },
-    } } {}
-
-    enum value : int
-    {
-        solid   = 0,
-        dash    = 1,
-        bracket = 2,
-    };
-
-    static OverlayAxisLine* getInstance() noexcept
-    {
-        return jam::SharedInstance<OverlayAxisLine>::getInstance();
-    }
-};
-
-//==============================================================================
-
-/**
  * @brief Config-file section registry.
  *
  * Resolves each key to its own Identifier stem naming an on-disk config

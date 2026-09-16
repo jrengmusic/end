@@ -29,9 +29,8 @@
 
 struct Generated
 {
-    jam::SharedInstance<map::OverlayAxisLine> overlayAxisLine { std::in_place };///< Split preview overlay axis line style.
-    jam::SharedInstance<map::FileConfig>      fileConfig      { std::in_place };///< Config-file section registry.
-    jam::SharedInstance<map::FileThemes>      fileThemes      { std::in_place };///< Theme-file registry.
-    jam::SharedInstance<map::FileFlex>        fileFlex        { std::in_place };///< Theme SVG graphics-asset registry.
-    jam::SharedInstance<map::Generated>       generated       { std::in_place };
+    jam::SharedInstance<map::FileConfig> fileConfig { std::in_place };///< Config-file section registry.
+    jam::SharedInstance<map::FileThemes> fileThemes { std::in_place };///< Theme-file registry.
+    jam::SharedInstance<map::FileFlex>   fileFlex   { std::in_place };///< Theme SVG graphics-asset registry.
+    jam::SharedInstance<map::Generated>  generated  { std::in_place };
 };

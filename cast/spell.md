@@ -80,124 +80,109 @@
 
 ## output
 
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| list                                         | separator                 | structure                                           | file         |
-+==============================================+===========================+=====================================================+==============+
-| > - [list]: @project-info:project info       |                           | @code:namespace                                     | @ProjectInfo |
-|                                              |                           | - macro: #pragma once                               |              |
-|                                              |                           | - name: ProjectInfo                                 |              |
-|                                              |                           | - [comment]: @headers:brief                         |              |
-|                                              |                           | > - [list]: @code:constant                          |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| - [list]: @identifiers                       |                           | @code:namespace                                     | @Identifiers |
-|                                              |                           | - macro: #pragma once                               |              |
-|                                              |                           | - name: Id                                          |              |
-|                                              |                           | - [comment]: @headers:brief                         |              |
-|                                              |                           | - [list]: @code:identifier                          |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| > - [list]: @files:files                     | - [list]: @code:linebreak | @code:line                                          | @Files       |
-|                                              |                           | - macro: #pragma once                               |              |
-|                                              |                           |                                                     |              |
-|                                              |                           | @code:namespace                                     |              |
-|                                              |                           | - name: files                                       |              |
-|                                              |                           | > - [list]: @code:identifier                        |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| > > > - [list]: @bimaps:OverlayAxisLine      | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps      |
-|                                              |                           | - macro: #pragma once                               |              |
-| > > - [list]: @bimaps:OverlayAxisLine        |                           | - name: map                                         |              |
-|                                              |                           |                                                     |              |
-|                                              |                           | @code:bimap                                         |              |
-|                                              |                           | - name: OverlayAxisLine                             |              |
-|                                              |                           | - type: map::OverlayAxisLine                        |              |
-|                                              |                           | - instance: overlayAxisLine                         |              |
-|                                              |                           | - [comment]: Split preview overlay axis line style. |              |
-|                                              |                           | - base: @bimap                                      |              |
-|                                              |                           | - keyType: int                                      |              |
-|                                              |                           | - valueType: juce::String                           |              |
-|                                              |                           | > > > - [list]: @code:name-entry                    |              |
-|                                              |                           | > > - [list]: @code:enum-entry                      |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| > > > - [list]: @bimaps:FileConfig           | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps      |
-|                                              |                           | - macro: #pragma once                               |              |
-| > > - [list]: @bimaps:FileConfig             |                           | - name: map                                         |              |
-|                                              |                           |                                                     |              |
-|                                              |                           | @code:bimap                                         |              |
-|                                              |                           | - name: FileConfig                                  |              |
-|                                              |                           | - type: map::FileConfig                             |              |
-|                                              |                           | - instance: fileConfig                              |              |
-|                                              |                           | - [comment]: Config-file section registry.          |              |
-|                                              |                           | - base: @bimap                                      |              |
-|                                              |                           | - keyType: int                                      |              |
-|                                              |                           | - valueType: juce::String                           |              |
-|                                              |                           | > > > - [list]: @code:name-entry                    |              |
-|                                              |                           | > > - [list]: @code:enum-entry                      |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| > > > - [list]: @bimaps:FileThemes           | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps      |
-|                                              |                           | - macro: #pragma once                               |              |
-| > > - [list]: @bimaps:FileThemes             |                           | - name: map                                         |              |
-|                                              |                           |                                                     |              |
-|                                              |                           | @code:bimap                                         |              |
-|                                              |                           | - name: FileThemes                                  |              |
-|                                              |                           | - type: map::FileThemes                             |              |
-|                                              |                           | - instance: fileThemes                              |              |
-|                                              |                           | - [comment]: Theme-file registry.                   |              |
-|                                              |                           | - base: @bimap                                      |              |
-|                                              |                           | - keyType: int                                      |              |
-|                                              |                           | - valueType: juce::String                           |              |
-|                                              |                           | > > > - [list]: @code:name-entry                    |              |
-|                                              |                           | > > - [list]: @code:enum-entry                      |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| > > > - [list]: @bimaps:FileFlex             | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps      |
-|                                              |                           | - macro: #pragma once                               |              |
-| > > - [list]: @bimaps:FileFlex               |                           | - name: map                                         |              |
-|                                              |                           |                                                     |              |
-|                                              |                           | @code:bimap                                         |              |
-|                                              |                           | - name: FileFlex                                    |              |
-|                                              |                           | - type: map::FileFlex                               |              |
-|                                              |                           | - instance: fileFlex                                |              |
-|                                              |                           | - [comment]: Theme SVG graphics-asset registry.     |              |
-|                                              |                           | - base: @bimap                                      |              |
-|                                              |                           | - keyType: int                                      |              |
-|                                              |                           | - valueType: juce::String                           |              |
-|                                              |                           | > > > - [list]: @code:bimap-entry                   |              |
-|                                              |                           | > > - [list]: @code:enum-entry                      |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| - [list]: @headers:type=header               |                           | @code:struct                                        | @Generated   |
-|                                              |                           | - macro: #pragma once                               |              |
-|                                              |                           | - name: Generated                                   |              |
-|                                              |                           | - type: map::Generated                              |              |
-|                                              |                           | - instance: generated                               |              |
-|                                              |                           | - [comment]: @headers:brief                         |              |
-|                                              |                           | - [list]: @code:include                             |              |
-| > - [list]: instance                         |                           | > - [list]: @code:shared-instance                   |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
-| - [list]: @project-info:project info         | - [list]:                 | @cmake:cmake                                        | @CMakeLists  |
-|                                              |                           | - [comment]: @headers:brief                         |              |
-| - [list]: @project-info:cmake                |                           |                                                     |              |
-| - [list]: @project-info:signing              |                           |                                                     |              |
-| - [list]: @project-info:architecture         | - [list]: @semicolon      | - [list]: @cmake:value                              |              |
-| - [list]: @project-info:release:stage=       | - [list]: @semicolon      | - [list]: @cmake:mac                                |              |
-| - [list]: @project-info:release:stage=linker | - [list]: @semicolon      | - [list]: @cmake:mac                                |              |
-| - [list]: @project-info:debug:stage=         | - [list]: @semicolon      | - [list]: @cmake:mac                                |              |
-| - [list]: @project-info:release:stage=       | - [list]: @semicolon      | - [list]: @cmake:win                                |              |
-| - [list]: @project-info:release:stage=linker | - [list]: @semicolon      | - [list]: @cmake:win                                |              |
-| - [list]: @project-info:debug:stage=         | - [list]: @semicolon      | - [list]: @cmake:win                                |              |
-| - [list]: @project-info:patch                |                           | - [list]: @cmake:patch                              |              |
-| - [list]: @project-info:user module          |                           | - [list]: @cmake:module                             |              |
-| > - [list]: @project-info:source             |                           | > - [list]: @cmake:entry                            |              |
-| > - [list]: @project-info:define             |                           | > - [list]: @cmake:entry                            |              |
-| > - [list]: @project-info:include            |                           | > - [list]: @cmake:entry                            |              |
-| > > - [list]: @project-info:juce module      |                           | > > - [list]: @cmake:value                          |              |
-| > > - [list]: @project-info:user module      |                           | > > - [list]: @cmake:link                           |              |
-| > - [list]: @project-info:layout glob        |                           | > - [list]: @cmake:entry                            |              |
-|                                              |                           | - xattr: @cmake:xattr                               |              |
-|                                              |                           | - codesign: @cmake:codesign                         |              |
-|                                              |                           | - verify: @cmake:verify                             |              |
-|                                              |                           | - zip: @cmake:zip                                   |              |
-|                                              |                           | - notarize: @cmake:notarize                         |              |
-|                                              |                           | - staple: @cmake:staple                             |              |
-|                                              |                           | - qa-directory: @cmake:qa-directory                 |              |
-|                                              |                           | - qa-copy: @cmake:qa-copy                           |              |
-|                                              |                           | - install-directory: @cmake:install-directory       |              |
-|                                              |                           | - install-copy: @cmake:install-copy                 |              |
-+----------------------------------------------+---------------------------+-----------------------------------------------------+--------------+
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| list                                         | separator                 | structure                                       | file         |
++==============================================+===========================+=================================================+==============+
+| > - [list]: @project-info:project info       |                           | @code:namespace                                 | @ProjectInfo |
+|                                              |                           | - macro: #pragma once                           |              |
+|                                              |                           | - name: ProjectInfo                             |              |
+|                                              |                           | - [comment]: @headers:brief                     |              |
+|                                              |                           | > - [list]: @code:constant                      |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| - [list]: @identifiers                       |                           | @code:namespace                                 | @Identifiers |
+|                                              |                           | - macro: #pragma once                           |              |
+|                                              |                           | - name: Id                                      |              |
+|                                              |                           | - [comment]: @headers:brief                     |              |
+|                                              |                           | - [list]: @code:identifier                      |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| > - [list]: @files:files                     | - [list]: @code:linebreak | @code:line                                      | @Files       |
+|                                              |                           | - macro: #pragma once                           |              |
+|                                              |                           |                                                 |              |
+|                                              |                           | @code:namespace                                 |              |
+|                                              |                           | - name: files                                   |              |
+|                                              |                           | > - [list]: @code:identifier                    |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| > > > - [list]: @bimaps:FileConfig           | - [list]: @code:linebreak | @code:namespace                                 | @Bimaps      |
+|                                              |                           | - macro: #pragma once                           |              |
+| > > - [list]: @bimaps:FileConfig             |                           | - name: map                                     |              |
+|                                              |                           |                                                 |              |
+|                                              |                           | @code:bimap                                     |              |
+|                                              |                           | - name: FileConfig                              |              |
+|                                              |                           | - type: map::FileConfig                         |              |
+|                                              |                           | - instance: fileConfig                          |              |
+|                                              |                           | - [comment]: Config-file section registry.      |              |
+|                                              |                           | - base: @bimap                                  |              |
+|                                              |                           | - keyType: int                                  |              |
+|                                              |                           | - valueType: juce::String                       |              |
+|                                              |                           | > > > - [list]: @code:name-entry                |              |
+|                                              |                           | > > - [list]: @code:enum-entry                  |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| > > > - [list]: @bimaps:FileThemes           | - [list]: @code:linebreak | @code:namespace                                 | @Bimaps      |
+|                                              |                           | - macro: #pragma once                           |              |
+| > > - [list]: @bimaps:FileThemes             |                           | - name: map                                     |              |
+|                                              |                           |                                                 |              |
+|                                              |                           | @code:bimap                                     |              |
+|                                              |                           | - name: FileThemes                              |              |
+|                                              |                           | - type: map::FileThemes                         |              |
+|                                              |                           | - instance: fileThemes                          |              |
+|                                              |                           | - [comment]: Theme-file registry.               |              |
+|                                              |                           | - base: @bimap                                  |              |
+|                                              |                           | - keyType: int                                  |              |
+|                                              |                           | - valueType: juce::String                       |              |
+|                                              |                           | > > > - [list]: @code:name-entry                |              |
+|                                              |                           | > > - [list]: @code:enum-entry                  |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| > > > - [list]: @bimaps:FileFlex             | - [list]: @code:linebreak | @code:namespace                                 | @Bimaps      |
+|                                              |                           | - macro: #pragma once                           |              |
+| > > - [list]: @bimaps:FileFlex               |                           | - name: map                                     |              |
+|                                              |                           |                                                 |              |
+|                                              |                           | @code:bimap                                     |              |
+|                                              |                           | - name: FileFlex                                |              |
+|                                              |                           | - type: map::FileFlex                           |              |
+|                                              |                           | - instance: fileFlex                            |              |
+|                                              |                           | - [comment]: Theme SVG graphics-asset registry. |              |
+|                                              |                           | - base: @bimap                                  |              |
+|                                              |                           | - keyType: int                                  |              |
+|                                              |                           | - valueType: juce::String                       |              |
+|                                              |                           | > > > - [list]: @code:bimap-entry               |              |
+|                                              |                           | > > - [list]: @code:enum-entry                  |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| - [list]: @headers:type=header               |                           | @code:struct                                    | @Generated   |
+|                                              |                           | - macro: #pragma once                           |              |
+|                                              |                           | - name: Generated                               |              |
+|                                              |                           | - type: map::Generated                          |              |
+|                                              |                           | - instance: generated                           |              |
+|                                              |                           | - [comment]: @headers:brief                     |              |
+|                                              |                           | - [list]: @code:include                         |              |
+| > - [list]: instance                         |                           | > - [list]: @code:shared-instance               |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+
+| - [list]: @project-info:project info         | - [list]:                 | @cmake:cmake                                    | @CMakeLists  |
+|                                              |                           | - [comment]: @headers:brief                     |              |
+| - [list]: @project-info:cmake                |                           |                                                 |              |
+| - [list]: @project-info:signing              |                           |                                                 |              |
+| - [list]: @project-info:architecture         | - [list]: @semicolon      | - [list]: @cmake:value                          |              |
+| - [list]: @project-info:release:stage=       | - [list]: @semicolon      | - [list]: @cmake:mac                            |              |
+| - [list]: @project-info:release:stage=linker | - [list]: @semicolon      | - [list]: @cmake:mac                            |              |
+| - [list]: @project-info:debug:stage=         | - [list]: @semicolon      | - [list]: @cmake:mac                            |              |
+| - [list]: @project-info:release:stage=       | - [list]: @semicolon      | - [list]: @cmake:win                            |              |
+| - [list]: @project-info:release:stage=linker | - [list]: @semicolon      | - [list]: @cmake:win                            |              |
+| - [list]: @project-info:debug:stage=         | - [list]: @semicolon      | - [list]: @cmake:win                            |              |
+| - [list]: @project-info:patch                |                           | - [list]: @cmake:patch                          |              |
+| - [list]: @project-info:user module          |                           | - [list]: @cmake:module                         |              |
+| - [list]: @project-info:source glob          |                           | - [list]: @cmake:glob-pattern                   |              |
+| > - [list]: @project-info:define             |                           | > - [list]: @cmake:entry                        |              |
+| > - [list]: @project-info:include            |                           | > - [list]: @cmake:entry                        |              |
+| > > - [list]: @project-info:juce module      |                           | > > - [list]: @cmake:value                      |              |
+| > > - [list]: @project-info:user module      |                           | > > - [list]: @cmake:link                       |              |
+| > - [list]: @project-info:layout glob        |                           | > - [list]: @cmake:entry                        |              |
+|                                              |                           | - xattr: @cmake:xattr                           |              |
+|                                              |                           | - codesign: @cmake:codesign                     |              |
+|                                              |                           | - verify: @cmake:verify                         |              |
+|                                              |                           | - zip: @cmake:zip                               |              |
+|                                              |                           | - notarize: @cmake:notarize                     |              |
+|                                              |                           | - staple: @cmake:staple                         |              |
+|                                              |                           | - qa-directory: @cmake:qa-directory             |              |
+|                                              |                           | - qa-copy: @cmake:qa-copy                       |              |
+|                                              |                           | - install-directory: @cmake:install-directory   |              |
+|                                              |                           | - install-copy: @cmake:install-copy             |              |
++----------------------------------------------+---------------------------+-------------------------------------------------+--------------+

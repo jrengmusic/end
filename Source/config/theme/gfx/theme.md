@@ -83,7 +83,7 @@ Terminal editing area.
 |                   |         |                |         | no adjustment. Values above 1.0         |
 |                   |         |                |         | increase spacing, below decrease it.    |
 +-------------------+---------+----------------+---------+-----------------------------------------+
-| cell_width        | float   | 1.0            |         | Cell width multiplier applied to        |
+| cellWidth         | float   | 1.0            |         | Cell width multiplier applied to        |
 |                   |         |                |         | terminal cell width (0.5 - 3.0). 1.0 =  |
 |                   |         |                |         | no adjustment. Values above 1.0 widen   |
 |                   |         |                |         | cells, below narrow them.               |
