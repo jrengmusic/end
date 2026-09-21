@@ -19,22 +19,22 @@ Active theme directory name and window chrome and lifecycle toggles.
 | size                 | numbers | 640, 480 |         | Initial window size in pixels {width,      |
 |                      |         |          |         | height}.                                   |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| zoom_step            | float   | 0.1      |         | Zoom step applied by the zoom_in/zoom_out  |
-|                      |         |          |         | actions (keys.md). Added to (zoom_in) or   |
-|                      |         |          |         | subtracted from (zoom_out) the focused     |
+| zoomStep             | float   | 0.1      |         | Zoom step applied by the zoomIn/zoomOut    |
+|                      |         |          |         | actions (keys.md). Added to (zoomIn) or    |
+|                      |         |          |         | subtracted from (zoomOut) the focused      |
 |                      |         |          |         | pane's current zoom factor, clamped to     |
-|                      |         |          |         | [0.25, 4.0]. zoom_reset always sets zoom   |
+|                      |         |          |         | [0.25, 4.0]. zoomReset always sets zoom    |
 |                      |         |          |         | to 1.0 directly, ignoring this step.       |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| pane_step            | float   | 0.05     |         | Proportion step applied by the             |
-|                      |         |          |         | reduce_pane_width/reduce_pane_height/      |
-|                      |         |          |         | expand_pane_width/expand_pane_height       |
+| paneStep             | float   | 0.05     |         | Proportion step applied by the             |
+|                      |         |          |         | reducePaneWidth/reducePaneHeight/          |
+|                      |         |          |         | expandPaneWidth/expandPaneHeight           |
 |                      |         |          |         | actions (keys.md) to the focused pane's    |
 |                      |         |          |         | width or height.                           |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| always_on_top        | bool    | true     |         | Keep window above all other windows.       |
+| alwaysOnTop          | bool    | true     |         | Keep window above all other windows.       |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| title_bar_buttons    | bool    | false    |         | Show native title bar buttons (close /     |
+| titleBarButtons      | bool    | false    |         | Show native title bar buttons (close /     |
 |                      |         |          |         | minimise / maximise). macOS: hides/shows   |
 |                      |         |          |         | traffic-light buttons and the title bar    |
 |                      |         |          |         | together. Windows: toggles the native      |
@@ -42,7 +42,7 @@ Active theme directory name and window chrome and lifecycle toggles.
 |                      |         |          |         | at construction and cannot be added/       |
 |                      |         |          |         | removed at runtime.                        |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| success_message      | string  | RELOAD   |         | Message shown briefly after a successful   |
+| successMessage       | string  | RELOAD   |         | Message shown briefly after a successful   |
 |                      |         |          |         | config reload (Cmd+R).                     |
 +----------------------+---------+----------+---------+--------------------------------------------+
 | gpu                  | bool    | true     |         | Enable GPU-accelerated rendering. When     |
@@ -63,15 +63,15 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | directory name. Empty string       |
 |                            |        |          |            | disables.                          |
 +----------------------------+--------+----------+------------+------------------------------------+
-| background_opacity         | float  | 0.5      |            | Background shader opacity (0.0 =   |
+| backgroundOpacity          | float  | 0.5      |            | Background shader opacity (0.0 =   |
 |                            |        |          |            | transparent, 1.0 = opaque).        |
 +----------------------------+--------+----------+------------+------------------------------------+
-| frame_rate                 | int    | 30       |            | Shader frame rate (1-120).         |
+| frameRate                  | int    | 30       |            | Shader frame rate (1-120).         |
 |                            |        |          |            | Controls how many times per second |
 |                            |        |          |            | shader passes execute. Lower       |
 |                            |        |          |            | values reduce GPU load.            |
 +----------------------------+--------+----------+------------+------------------------------------+
-| background_resolution      | float  | 0.5      |            | Background shader resolution       |
+| backgroundResolution       | float  | 0.5      |            | Background shader resolution       |
 |                            |        |          |            | (0.0-1.0). Fraction of screen      |
 |                            |        |          |            | resolution at which the background |
 |                            |        |          |            | shader's intermediate passes       |
@@ -87,15 +87,15 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | to both the background and         |
 |                            |        |          |            | post-processing upscale.           |
 +----------------------------+--------+----------+------------+------------------------------------+
-| post_processing            | string |          |            | Post-processing shader project     |
+| postProcessing             | string |          |            | Post-processing shader project     |
 |                            |        |          |            | directory name. Empty string       |
 |                            |        |          |            | disables.                          |
 +----------------------------+--------+----------+------------+------------------------------------+
-| post_processing_opacity    | float  | 1.0      |            | Post-processing effect intensity   |
+| postProcessingOpacity      | float  | 1.0      |            | Post-processing effect intensity   |
 |                            |        |          |            | (0.0 = original scene, 1.0 = fully |
 |                            |        |          |            | processed).                        |
 +----------------------------+--------+----------+------------+------------------------------------+
-| post_processing_resolution | float  | 0.5      |            | Post-processing shader resolution  |
+| postProcessingResolution   | float  | 0.5      |            | Post-processing shader resolution  |
 |                            |        |          |            | (0.0-1.0). Fraction of screen      |
 |                            |        |          |            | resolution at which the            |
 |                            |        |          |            | post-processing shader's           |
@@ -106,7 +106,7 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | the shader's own offscreen         |
 |                            |        |          |            | buffers.                           |
 +----------------------------+--------+----------+------------+------------------------------------+
-| font_rasterizer            | string | freetype | edgeTable, | Glyph atlas mono rasterization     |
+| fontRasterizer             | string | freetype | edgeTable, | Glyph atlas mono rasterization     |
 |                            |        |          | freetype,  | backend. "edgeTable" - unhinted    |
 |                            |        |          | native     | juce::Typeface coverage            |
 |                            |        |          |            | rasterization. "freetype" -        |
@@ -116,7 +116,7 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | font-smoothing (CoreText on macOS, |
 |                            |        |          |            | DirectWrite on Windows).           |
 +----------------------------+--------+----------+------------+------------------------------------+
-| font_gamma                 | float  | 2.2      |            | Coverage LUT gamma exponent        |
+| fontGamma                  | float  | 2.2      |            | Coverage LUT gamma exponent        |
 |                            |        |          |            | applied to every rasterized mono   |
 |                            |        |          |            | glyph byte. 2.2 is the sRGB        |
 |                            |        |          |            | standard transfer-function         |
@@ -127,8 +127,8 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | blending under-weighting partial   |
 |                            |        |          |            | coverage.                          |
 +----------------------------+--------+----------+------------+------------------------------------+
-| font_contrast              | float  | 0.0      |            | Coverage LUT contrast applied      |
-|                            |        |          |            | alongside font_gamma (0.0 = no     |
+| fontContrast               | float  | 0.0      |            | Coverage LUT contrast applied      |
+|                            |        |          |            | alongside fontGamma (0.0 = no      |
 |                            |        |          |            | synthetic darkening). FreeType's   |
 |                            |        |          |            | own autofitter and native          |
 |                            |        |          |            | font-smoothing already bring their |

@@ -143,17 +143,8 @@ void ENDLookAndFeel::loadGraphics()
             [this] (const juce::Identifier& propName, const juce::var& value)
             {
                 if (value.isString())
-                {
-                    auto stem { propName.toString() };
-                    auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
-
-                    juce::Identifier id { suffix.isNotEmpty()
-                        and map::ButtonState::getInstance()->contains (suffix)
-                            ? suffix : stem };
-
-                    graphics.addOrReplace (id,
+                    graphics.addOrReplace (propName,
                         jam::Svg::Flex::getSegments (value.toString(), colourScheme));
-                }
             });
     }
 }

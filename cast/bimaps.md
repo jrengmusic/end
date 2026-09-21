@@ -41,14 +41,14 @@ Resolves each key to its own Identifier stem naming an on-disk SVG file;
 consumer-side helpers derive the full filename. The default row is tabBar.
 ```
 
-+-------------------+-----+-----------------------+
-| name              | key | value                 |
-+===================+=====+=======================+
-| tabBar            | 0   | `tab_bar`             |
-+-------------------+-----+-----------------------+
-| tabHighlight      | 1   | `tab_highlight`       |
-+-------------------+-----+-----------------------+
-| tabButtonNormalOn | 2   | `tab_button_normalOn` |
-+-------------------+-----+-----------------------+
-| resizerBar        | 3   | `resizer_bar`         |
-+-------------------+-----+-----------------------+
++-------------------+-----+----------------+
+| name              | key | value          |
++===================+=====+================+
+| tabBar            | 0   | `tabBar`       |
++-------------------+-----+----------------+
+| tabHighlight      | 1   | `tabHighlight` |
++-------------------+-----+----------------+
+| tabButtonNormalOn | 2   | `normalOn`     |
++-------------------+-----+----------------+
+| resizerBar        | 3   | `resizerBar`   |
++-------------------+-----+----------------+

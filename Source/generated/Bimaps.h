@@ -83,10 +83,10 @@ struct FileThemes : public jam::Bimap<int>
 struct FileFlex : public jam::Bimap<int>
 {
     FileFlex() : jam::Bimap<int> { {
-            { tabBar,            juce::String::fromUTF8 ("tab_bar") },
-            { tabHighlight,      juce::String::fromUTF8 ("tab_highlight") },
-            { tabButtonNormalOn, juce::String::fromUTF8 ("tab_button_normalOn") },
-            { resizerBar,        juce::String::fromUTF8 ("resizer_bar") },
+            { tabBar,            juce::String::fromUTF8 ("tabBar") },
+            { tabHighlight,      juce::String::fromUTF8 ("tabHighlight") },
+            { tabButtonNormalOn, juce::String::fromUTF8 ("normalOn") },
+            { resizerBar,        juce::String::fromUTF8 ("resizerBar") },
     } } {}
 
     enum value : int

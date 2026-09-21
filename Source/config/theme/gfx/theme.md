@@ -11,7 +11,7 @@ from their source palette entry and alpha fraction.
 | background  | colour | 0xbf090d12 |         | Window background tint. Alpha controls window      |
 |             |        |            |         | transparency (glass mode).                         |
 +-------------+--------+------------+---------+----------------------------------------------------+
-| blur_radius | int    | 32         |         | Background blur radius in pixels (0 = no blur).    |
+| blurRadius  | int    | 32         |         | Background blur radius in pixels (0 = no blur).    |
 |             |        |            |         | GPU only.                                          |
 +-------------+--------+------------+---------+----------------------------------------------------+
 
@@ -55,23 +55,23 @@ Terminal editing area.
 |                   |         |                |         | highlightColourId). Semi-transparent    |
 |                   |         |                |         | recommended so text remains readable.   |
 +-------------------+---------+----------------+---------+-----------------------------------------+
-| selection_cursor  | colour  | 0xff00ddee     |         | Selection-mode cursor                   |
+| selectionCursor   | colour  | 0xff00ddee     |         | Selection-mode cursor                   |
 |                   |         |                |         | (selectionCursorColourId). Shown        |
 |                   |         |                |         | instead of the normal cursor when       |
 |                   |         |                |         | selection mode is active.               |
 +-------------------+---------+----------------+---------+-----------------------------------------+
-| editor_background | colour  | 0x00000000     |         | Editor widget background fill (juce::   |
+| editorBackground  | colour  | 0x00000000     |         | Editor widget background fill (juce::   |
 |                   |         |                |         | TextEditor::backgroundColourId).        |
 |                   |         |                |         | Transparent lets the window glass       |
 |                   |         |                |         | effect show through.                    |
 +-------------------+---------+----------------+---------+-----------------------------------------+
-| editor_outline    | colour  | 0x00000000     |         | Editor widget outline (juce::           |
+| editorOutline     | colour  | 0x00000000     |         | Editor widget outline (juce::           |
 |                   |         |                |         | TextEditor::outlineColourId).           |
 +-------------------+---------+----------------+---------+-----------------------------------------+
 | font-family       | string  | Display Mono   |         | Font used for terminal text. Must be a  |
 |                   |         |                |         | monospace font installed on the system. |
 +-------------------+---------+----------------+---------+-----------------------------------------+
-| font_size         | int     | 12             |         | Font size in points before zoom is      |
+| fontSize          | int     | 12             |         | Font size in points before zoom is      |
 |                   |         |                |         | applied (1 - 200).                      |
 +-------------------+---------+----------------+---------+-----------------------------------------+
 | embolden          | bool    | true           |         | Make text appear bolder. Useful for     |
@@ -113,7 +113,7 @@ Tab bar.
 |                |         |            | left,   |                                                |
 |                |         |            | right   |                                                |
 +----------------+---------+------------+---------+------------------------------------------------+
-| always_visible | bool    | true       |         | Tab bar visibility when only single tab        |
+| alwaysVisible  | bool    | true       |         | Tab bar visibility when only single tab        |
 |                |         |            |         | opened.                                        |
 +----------------+---------+------------+---------+------------------------------------------------+
 | background     | colour  | 0xff8fc6d0 |         | Bar strip background (jam::button::Bar::       |
@@ -127,16 +127,16 @@ Tab bar.
 +----------------+---------+------------+---------+------------------------------------------------+
 | font-family    | string  | Display    |         | Tab bar font family.                           |
 +----------------+---------+------------+---------+------------------------------------------------+
-| font_size      | int     | 12         |         | Tab bar font size in points.                   |
+| fontSize       | int     | 12         |         | Tab bar font size in points.                   |
 +----------------+---------+------------+---------+------------------------------------------------+
-| kerning_factor | float   | 0.075      |         | Extra spacing between tab label characters, as |
+| kerningFactor  | float   | 0.075      |         | Extra spacing between tab label characters, as |
 |                |         |            |         | a fraction of the font size (0.0 = font        |
 |                |         |            |         | default).                                      |
 +----------------+---------+------------+---------+------------------------------------------------+
 | depth          | float   | 3.0        |         | Tab bar height as a multiple of the tab font   |
 |                |         |            |         | height.                                        |
 +----------------+---------+------------+---------+------------------------------------------------+
-| text_padding   | int     | 8          |         | Horizontal space between tab text and tab      |
+| textPadding    | int     | 8          |         | Horizontal space between tab text and tab      |
 |                |         |            |         | edge, in pixels (per side).                    |
 +----------------+---------+------------+---------+------------------------------------------------+
 | padding        | numbers | 4, 8, 4, 8 |         | Component padding: space between bar edges and |
@@ -156,13 +156,13 @@ Tab button.
 | button    | colour | 0xff001a20 |         | Inactive tab fill (juce::TextButton::                |
 |           |        |            |         | buttonColourId).                                     |
 +-----------+--------+------------+---------+------------------------------------------------------+
-| button_on | colour | 0xff2d3b40 |         | Active tab fill (juce::TextButton::                  |
+| buttonOn  | colour | 0xff2d3b40 |         | Active tab fill (juce::TextButton::                  |
 |           |        |            |         | buttonOnColourId).                                   |
 +-----------+--------+------------+---------+------------------------------------------------------+
-| text_off  | colour | 0xff33535b |         | Inactive tab text (juce::TextButton::                |
+| textOff   | colour | 0xff33535b |         | Inactive tab text (juce::TextButton::                |
 |           |        |            |         | textColourOffId).                                    |
 +-----------+--------+------------+---------+------------------------------------------------------+
-| text_on   | colour | 0xff00c8d8 |         | Active tab text (juce::TextButton::textColourOnId).  |
+| textOn    | colour | 0xff00c8d8 |         | Active tab text (juce::TextButton::textColourOnId).  |
 +-----------+--------+------------+---------+------------------------------------------------------+
 
 ## overlay
@@ -177,7 +177,7 @@ Tab button.
 +-------------+--------+--------------+---------+--------------------------------------------------+
 | font-family | string | Display Mono |         | Overlay font family (used for status messages).  |
 +-------------+--------+--------------+---------+--------------------------------------------------+
-| font_size   | int    | 14           |         | Overlay font size in points.                     |
+| fontSize    | int    | 14           |         | Overlay font size in points.                     |
 +-------------+--------+--------------+---------+--------------------------------------------------+
 
 ## pane
@@ -185,20 +185,20 @@ Tab button.
 +----------------------+--------+------------+---------+-------------------------------------------+
 | key                  | type   | value      | choices | description                               |
 +======================+========+============+=========+===========================================+
-| resize_bar           | colour | 0xff2c4144 |         | Pane divider bar (paneBarColourId).       |
+| resizeBar            | colour | 0xff2c4144 |         | Pane divider bar (paneBarColourId).       |
 +----------------------+--------+------------+---------+-------------------------------------------+
-| resize_bar_highlight | colour | 0xff6b9099 |         | Pane divider bar when dragging or         |
+| resizeBarHighlight   | colour | 0xff6b9099 |         | Pane divider bar when dragging or         |
 |                      |        |            |         | hovering (paneBarHighlightColourId).      |
 +----------------------+--------+------------+---------+-------------------------------------------+
-| resize_bar_thickness | int    | 8          |         | Pane divider bar thickness in pixels.     |
+| resizeBarThickness   | int    | 8          |         | Pane divider bar thickness in pixels.     |
 +----------------------+--------+------------+---------+-------------------------------------------+
 | outline              | colour | 0x00000000 |         | Pane outline stroke (jam::PaneComponent:: |
 |                      |        |            |         | outlineColourId).                         |
 +----------------------+--------+------------+---------+-------------------------------------------+
-| focused_outline      | colour | 0xff33535b |         | Focused pane outline stroke (jam::        |
+| focusedOutline       | colour | 0xff33535b |         | Focused pane outline stroke (jam::        |
 |                      |        |            |         | PaneComponent::focusedOutlineColourId).   |
 +----------------------+--------+------------+---------+-------------------------------------------+
-| split_line           | string | bracket    | solid,  | Split preview overlay axis line style.    |
+| splitLine            | string | bracket    | solid,  | Split preview overlay axis line style.    |
 |                      |        |            | dash,   |                                           |
 |                      |        |            | bracket |                                           |
 +----------------------+--------+------------+---------+-------------------------------------------+

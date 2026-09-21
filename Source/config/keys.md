@@ -21,79 +21,79 @@ window (e.g. press \` then \\ to split).
 |                    |        |           |         | timeout. Set to "" to disable modal mode     |
 |                    |        |           |         | entirely.                                    |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| prefix_timeout     | int    | 1000      |         | How long to wait (ms) for a modal key after  |
+| prefixTimeout      | int    | 1000      |         | How long to wait (ms) for a modal key after  |
 |                    |        |           |         | pressing the prefix key.                     |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | quit               | string | cmd+q     |         | Quit application.                            |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| close_pane         | string | cmd+w     |         | Close active pane, then tab, then window.    |
+| closePane          | string | cmd+w     |         | Close active pane, then tab, then window.    |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | reload             | string | cmd+r     |         | Reload all configuration files.              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoom_in            | string | cmd+=     |         | Increase font size.                          |
+| zoomIn             | string | cmd+=     |         | Increase font size.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoom_out           | string | cmd+-     |         | Decrease font size.                          |
+| zoomOut            | string | cmd+-     |         | Decrease font size.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoom_reset         | string | cmd+0     |         | Reset font size to configured default.       |
+| zoomReset          | string | cmd+0     |         | Reset font size to configured default.       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| new_window         | string | cmd+n     |         | Open a new window.                           |
+| newWindow          | string | cmd+n     |         | Open a new window.                           |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| reduce_pane_width  | string | cmd+alt+h |         | Reduce the focused pane's width by pane_step |
+| reducePaneWidth    | string | cmd+alt+h |         | Reduce the focused pane's width by paneStep  |
 |                    |        |           |         | (display.md).                                |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| reduce_pane_height | string | cmd+alt+j |         | Reduce the focused pane's height by          |
-|                    |        |           |         | pane_step (display.md).                      |
+| reducePaneHeight   | string | cmd+alt+j |         | Reduce the focused pane's height by          |
+|                    |        |           |         | paneStep (display.md).                       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| expand_pane_width  | string | cmd+alt+l |         | Expand the focused pane's width by pane_step |
+| expandPaneWidth    | string | cmd+alt+l |         | Expand the focused pane's width by paneStep  |
 |                    |        |           |         | (display.md).                                |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| expand_pane_height | string | cmd+alt+k |         | Expand the focused pane's height by          |
-|                    |        |           |         | pane_step (display.md).                      |
+| expandPaneHeight   | string | cmd+alt+k |         | Expand the focused pane's height by          |
+|                    |        |           |         | paneStep (display.md).                       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| new_tab            | string | cmd+t     |         | Open a new tab.                              |
+| newTab             | string | cmd+t     |         | Open a new tab.                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| prev_tab           | string | cmd+[     |         | Switch to previous tab.                      |
+| prevTab            | string | cmd+[     |         | Switch to previous tab.                      |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| next_tab           | string | cmd+]     |         | Switch to next tab.                          |
+| nextTab            | string | cmd+]     |         | Switch to next tab.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| rename_tab         | string | shift+t   |         | Rename the active tab. Press prefix first.   |
+| renameTab          | string | shift+t   |         | Rename the active tab. Press prefix first.   |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| split_vertical     | string | \\        |         | Split pane vertically (side-by-side          |
+| splitVertical      | string | \\        |         | Split pane vertically (side-by-side          |
 |                    |        |           |         | columns). Press prefix first.                |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| split_horizontal   | string | \-        |         | Split pane horizontally (stacked rows).      |
+| splitHorizontal    | string | \-        |         | Split pane horizontally (stacked rows).      |
 |                    |        |           |         | Press prefix first.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| pane_left          | string | h         |         | Focus pane to the left. Press prefix first.  |
+| paneLeft           | string | h         |         | Focus pane to the left. Press prefix first.  |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| pane_down          | string | j         |         | Focus pane below. Press prefix first.        |
+| paneDown           | string | j         |         | Focus pane below. Press prefix first.        |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| pane_up            | string | k         |         | Focus pane above. Press prefix first.        |
+| paneUp             | string | k         |         | Focus pane above. Press prefix first.        |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| pane_right         | string | l         |         | Focus pane to the right. Press prefix first. |
+| paneRight          | string | l         |         | Focus pane to the right. Press prefix first. |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| join_left          | string | ctrl+h    |         | Absorb the pane to the left into the focused |
+| joinLeft           | string | ctrl+h    |         | Absorb the pane to the left into the focused |
 |                    |        |           |         | pane.                                        |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| join_down          | string | ctrl+j    |         | Absorb the pane below into the focused pane. |
+| joinDown           | string | ctrl+j    |         | Absorb the pane below into the focused pane. |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| join_up            | string | ctrl+k    |         | Absorb the pane above into the focused pane. |
+| joinUp             | string | ctrl+k    |         | Absorb the pane above into the focused pane. |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| join_right         | string | ctrl+l    |         | Absorb the pane to the right into the        |
+| joinRight          | string | ctrl+l    |         | Absorb the pane to the right into the        |
 |                    |        |           |         | focused pane.                                |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swap_left          | string | shift+h   |         | Swap the focused pane with the pane to the   |
+| swapLeft           | string | shift+h   |         | Swap the focused pane with the pane to the   |
 |                    |        |           |         | left. Press prefix first.                    |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swap_down          | string | shift+j   |         | Swap the focused pane with the pane below.   |
+| swapDown           | string | shift+j   |         | Swap the focused pane with the pane below.   |
 |                    |        |           |         | Press prefix first.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swap_up            | string | shift+k   |         | Swap the focused pane with the pane above.   |
+| swapUp             | string | shift+k   |         | Swap the focused pane with the pane above.   |
 |                    |        |           |         | Press prefix first.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swap_right         | string | shift+l   |         | Swap the focused pane with the pane to the   |
+| swapRight          | string | shift+l   |         | Swap the focused pane with the pane to the   |
 |                    |        |           |         | right. Press prefix first.                   |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| action_list        | string | ?         |         | Open the action list (command palette).      |
+| actionList         | string | ?         |         | Open the action list (command palette).      |
 |                    |        |           |         | Press prefix first.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+

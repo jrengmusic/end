@@ -49,19 +49,19 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/Source/generated
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_graphics/fonts/harfbuzz
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/generated
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/VST3_SDK
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
-    - -I/var/folders/k6/ms2vt1_n6dq7_rf7jlmhc6_00000gn/T/juce-patched/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/VST3_SDK
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
+    - -I/Users/jreng/.cache/cast/juce/5dee37a4a3c176dd5281daa9a465788838fe9639083b82b26bd39fe19e2c71bc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_web/.
