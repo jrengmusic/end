@@ -14,21 +14,24 @@
                          FOR YOUR EYES ONLY, DO NOT EDIT
 ********************************************************************************/
 
-/**
- * @file Generated.h
- * @brief Generated-header umbrella — includes every generated product header.
- */
-
-#pragma once
-
-#include "ProjectInfo.h"
-#include "Identifiers.h"
-#include "Bimaps.h"
+#include <JuceHeader.h>
 #include "Files.h"
 
-struct Generated
+namespace files
 {
-    jam::SharedInstance<map::FileConfig> fileConfig { std::in_place };///< Config-file section registry.
-    jam::SharedInstance<map::FileThemes> fileThemes { std::in_place };///< Theme-file registry.
-    jam::SharedInstance<map::FileFlex>   fileFlex   { std::in_place };///< Theme SVG graphics-asset registry.
-};
+/*_____________________________________________________________________________*/
+
+/**
+ * @brief Product asset file names — pane split/join corner-menu icons.
+ *
+ * Each constant is the literal file name of an embedded SVG resource,
+ * resolved against the binary-data / asset search path at load time.
+ */
+
+    const juce::String splitVerticalNormal       { juce::String::fromUTF8 ("split_vertical_normal.svg") };
+    const juce::String splitHorizontalNormal     { juce::String::fromUTF8 ("split_horizontal_normal.svg") };
+    const juce::String joinCellsVerticalNormal   { juce::String::fromUTF8 ("join_cells_vertical_normal.svg") };
+    const juce::String joinCellsHorizontalNormal { juce::String::fromUTF8 ("join_cells_horizontal_normal.svg") };
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace files

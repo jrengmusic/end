@@ -27,10 +27,10 @@ namespace files
  * resolved against the binary-data / asset search path at load time.
  */
 
-    inline const juce::String splitVerticalNormal       { juce::String::fromUTF8 ("split_vertical_normal.svg")        };///< Split-vertical corner-menu icon.
-    inline const juce::String splitHorizontalNormal     { juce::String::fromUTF8 ("split_horizontal_normal.svg")      };///< Split-horizontal corner-menu icon.
-    inline const juce::String joinCellsVerticalNormal   { juce::String::fromUTF8 ("join_cells_vertical_normal.svg")   };///< Join-cells-vertical corner-menu icon.
-    inline const juce::String joinCellsHorizontalNormal { juce::String::fromUTF8 ("join_cells_horizontal_normal.svg") };///< Join-cells-horizontal corner-menu icon.
+    extern const juce::String splitVerticalNormal;      ///< Split-vertical corner-menu icon.
+    extern const juce::String splitHorizontalNormal;    ///< Split-horizontal corner-menu icon.
+    extern const juce::String joinCellsVerticalNormal;  ///< Join-cells-vertical corner-menu icon.
+    extern const juce::String joinCellsHorizontalNormal;///< Join-cells-horizontal corner-menu icon.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

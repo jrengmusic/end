@@ -156,6 +156,9 @@ protected:
     void childRemoved (jam::UUID uuid) override;
 
 private:
+    jam::SharedInstance<map::OverlayAxisLine> overlayAxisLine { std::in_place };
+    jam::SharedInstance<map::Position> position { std::in_place };
+
     /** @brief Builds the Blender-style Area Options popup for the focused pane's corner menu. */
     juce::PopupMenu buildAreaOptionsMenu();
 

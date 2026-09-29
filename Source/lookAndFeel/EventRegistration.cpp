@@ -26,11 +26,6 @@ void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
         auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
         typefaces.addOrReplace (key, ptr);
         atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
-
-        // jam::Typeface (hb_font_t interning for jam::GlyphArrangement's
-        // cmap lookup + tryLigature() shaping) is
-        // registered from the SAME (ptr, data, size) triple, one pass.
-        jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
     };
 
     registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);

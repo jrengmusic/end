@@ -54,6 +54,9 @@ public:
     void valueChanged (juce::Value& value) override;
 
 private:
+    jam::SharedInstance<map::MouseButton> mouseButton { std::in_place };
+    jam::SharedInstance<map::Position> position { std::in_place };
+
     ENDActions& actions { *ENDActions::getInstance() };
     Nexus& nexus { *Nexus::getInstance() };
     ConfigModel& config { *ConfigModel::getInstance() };

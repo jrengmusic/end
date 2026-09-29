@@ -264,7 +264,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "${CAST_USER_MODULE_PATH}/jam_freetype/freetype/include"
     "${CAST_JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz"
     "${CAST_USER_MODULE_PATH}/jam_clap"                      # Vendored <clap/...> headers
-    "${CAST_USER_MODULE_PATH}/generated"                     # jam generated-header umbrella
 )
 
 if(APPLE)

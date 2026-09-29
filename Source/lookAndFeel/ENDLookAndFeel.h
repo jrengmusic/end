@@ -309,6 +309,11 @@ public:
     CodeMetrics getCodeMetrics (float zoom) const;
 
 private:
+    jam::SharedInstance<map::ButtonState> buttonState { std::in_place };
+    jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
+    jam::SharedInstance<map::Position> position { std::in_place };
+    jam::SharedInstance<map::WindowFX> windowFX { std::in_place };
+
     /** @brief Singleton config model reference — source for theme path and top-level config values. */
     ConfigModel& config { *ConfigModel::getInstance() };
 

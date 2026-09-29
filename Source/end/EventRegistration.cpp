@@ -179,6 +179,8 @@ static std::tuple<float, float> getPostProcessRenderParams (ConfigModel& config)
 
 static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
 {
+    static const jam::SharedInstance<map::ImageResample> imageResample { std::in_place };
+
     const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
 
     return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
