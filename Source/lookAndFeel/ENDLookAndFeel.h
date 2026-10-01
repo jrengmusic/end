@@ -74,10 +74,10 @@ public:
      * with unique, stable addresses.
      *
      * Cannot run at LookAndFeel construction time — the atlas (owned by
-     * jam::VulkanEngine) does not exist yet then (ENDApplication constructs
-     * vulkanEngine after ENDLookAndFeel, per ENDApplication's member order,
-     * Main.h). Called once, externally, immediately after VulkanEngine
-     * construction (ENDApplication::initialiseVulkan()). Also applies the
+     * jam::VulkanEngine) does not exist yet then (ENDApplication creates the
+     * engine through jam::VulkanEngine::getOrCreate in initialiseVulkan(),
+     * after ENDLookAndFeel construction). Called once, externally, immediately
+     * after engine creation (ENDApplication::initialiseVulkan()). Also applies the
      * shipped/user-configured glyph rasterization backend/gamma/contrast (see
      * setFontRasterization()) and
      * the embolden state (see setEmbolden()) before this atlas ever paints a

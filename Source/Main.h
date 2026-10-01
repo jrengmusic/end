@@ -54,54 +54,16 @@ private:
     //==============================================================================
     ENDLookAndFeel lookAndFeel;
 
-    /** @brief Unified Vulkan resource-ownership tree — constructed unconditionally
-     *  in initialiseVulkan(), after lookAndFeel exists, and never reset/
-     *  reconstructed thereafter (see EventRegistration.cpp's Id::useGpu event callback).
-     *  Owns the shared Device, every SharedResources<T> interning table
-     *  (Typeface, Stamp, Grapheme, Link — each self-registers as its own
-     *  getInstance() singleton on construction), the shared glyph atlas, and
-     *  per-window Graphics instances — member-declaration order inside
-     *  jam::VulkanEngine governs teardown (reverse-order destruction). GPU
-     *  availability/preference only selects which rendering
-     *  engine createContext() dispatches to per paint (native Vulkan vs the
-     *  CPU-fallback jam::LowLevelGraphicsGlyphRenderer) — never whether this
-     *  VulkanEngine, its Device, or its shared glyph atlas exist. The atlas and
-     *  every registered typeface therefore survive every GPU toggle. Declared
-     *  after lookAndFeel so construction order lets registerTypeface() reach an
-     *  already-constructed LookAndFeel, and destructs before lookAndFeel
-     *  (reverse declaration order) while window (declared after, torn down
-     *  first) never outlives it. */
-    std::unique_ptr<jam::VulkanEngine> vulkanEngine;
-
     std::unique_ptr<jam::Window> window;
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
 
-    /** @brief Constructs vulkanEngine, registers END's embedded typefaces with
+    /** @brief Creates the engine through jam::VulkanEngine::getOrCreate, registers END's embedded typefaces with
      *  its atlas, and enables the post-process background-blur shader — the
      *  whole GPU-availability-gated setup block, called once from initialise(). */
     void initialiseVulkan();
 
-    /** @brief Detects the primary display's native vertical refresh rate, in Hz.
-     *
-     *  Feeds initialiseVulkan()'s targetFrameBudgetMs selection — queried once,
-     *  never polled.
-     *
-     *  Windows/Linux: juce::Displays::Display::verticalFrequencyHz is populated
-     *  by JUCE's own findDisplays(), read via
-     *  juce::Desktop::getInstance().getDisplays().getPrimaryDisplay().
-     *
-     *  macOS: verticalFrequencyHz is never populated (confirmed by direct read
-     *  of juce_Windowing_mac.mm's findDisplays() — no assignment to that field
-     *  exists on this platform), so the rate is queried directly via
-     *  CoreVideo's CVDisplayLinkGetNominalOutputVideoRefreshPeriod against the
-     *  main display.
-     *
-     *  @return The detected refresh rate, or indeterminateRefreshRateHz
-     *          (Main.cpp) if no rate could be determined — a deterministic
-     *          fallback, never an unhandled/unspecified case. */
-    static double queryPrimaryDisplayRefreshRateHz() noexcept;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDApplication)
 };

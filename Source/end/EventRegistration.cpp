@@ -6,11 +6,10 @@ void ENDView::registerGraphicsEvents()
         Id::useGpu,
         [this] (juce::ValueTree&)
         {
-            // jam::VulkanEngine is constructed unconditionally, once, by
-            // ENDApplication, and never reset/reconstructed here — GPU
-            // availability/preference only selects which rendering engine
-            // createContext() dispatches to per paint (see ENDApplication's
-            // vulkanEngine doc comment, Main.h).
+            // jam::VulkanEngine is created unconditionally, once, by
+            // ENDApplication::initialiseVulkan(), and never reset or recreated
+            // here — GPU availability/preference only selects which rendering
+            // engine createContext() dispatches to per paint.
 
             // Background/post-process shaders never exist independent of the
             // effective GPU state (Locked Decision 4) — both funnels re-derive

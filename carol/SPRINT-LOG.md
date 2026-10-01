@@ -2,6 +2,46 @@
 
 ---
 
+## Sprint 87: Engine Through jam's getOrCreate — One Vulkan Init Contract ✅
+
+**Date:** 2026-10-01
+**Duration:** part of one session (shared with jam Sprint 145, user_modules Sprint 131, jreng-filter-strip Sprint 99)
+
+### Agents Participated
+- COUNSELOR: opus-5.5 — edits, validation, this log
+- Engineer: sonnet-5 — audit fixes, doc pass
+- Auditor: opus-5 — one sweep (jam Sprint 145)
+
+### Decisions (ARCHITECT)
+- *"the Vulkan init contract must SSOT pattern not just for plugin bootstrap but also for standalone … this pattern used in jam with END"*
+- END: *"getOrCreate in initialise"*; frame budget *"Engine, JUCE source only"*
+
+### Files Modified
+- `Source/Main.cpp` — `initialiseVulkan()`: `jam::VulkanEngine::getOrCreate (jam::VulkanEngine::getPrimaryDisplayExtent(), ProjectInfo::projectName, jam::VulkanEngine::getFrameBudget(), cacheFile, canUseGpu)`; `make_unique`, the CoreGraphics/CoreVideo includes, the four budget constants and `queryPrimaryDisplayRefreshRateHz()` deleted
+- `Source/Main.h` — `std::unique_ptr<jam::VulkanEngine> vulkanEngine` and `queryPrimaryDisplayRefreshRateHz` declaration deleted; `initialiseVulkan` doc
+- `Source/lookAndFeel/ENDLookAndFeel.h`, `Source/end/EventRegistration.cpp` — comments name `getOrCreate` in `initialiseVulkan()`
+
+### Alignment Check
+- [x] BLESSED — S: engine, extent and budget come from jam; B: JUCE deletes the engine in `shutdownJuce_GUI`
+- [x] NAMES.md — no new names
+- [x] MANIFESTO.md — owner first
+
+### Problems Solved
+- `make_unique` engine was never registered where `jam::VulkanEngine::getInstance()` looks (`Nexus.h:63`, `EventRegistration.cpp`).
+- Teardown order flips (ENDLookAndFeel now dies before the engine): safe — font bytes are static `jam::fonts::*_ttf`, and the atlas holds its own `Typeface::Ptr`.
+
+### State for Continuation
+- Not built. ARCHITECT: launch and quit.
+- macOS frame budget is now the engine's (60 Hz / 11.1 ms): JUCE leaves `verticalFrequencyHz` empty on macOS.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 86: Frame-Pacing Race Paid — Read-First Mandate, Bisect-Proven Fix, Rendering Features Verified ✅
 
 **Date:** 2026-09-12
