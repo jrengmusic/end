@@ -141,6 +141,17 @@ endif()
 
 set(CAST_JUCE_PATH "${CAST_PATCHED_JUCE_PATH}")
 
+set(CAST_JUCE_PATCH_SET_STAMP_FILE "${CMAKE_BINARY_DIR}/cast_juce_patch_set")
+
+if(EXISTS "${CAST_JUCE_PATCH_SET_STAMP_FILE}")
+    file(READ "${CAST_JUCE_PATCH_SET_STAMP_FILE}" CAST_BUILT_JUCE_PATCH_SET_HASH)
+endif()
+
+if(NOT "${CAST_BUILT_JUCE_PATCH_SET_HASH}" STREQUAL "${CAST_JUCE_PATCH_SET_HASH}")
+    file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/JUCE" "${CMAKE_BINARY_DIR}/vst3_helpers")
+    file(WRITE "${CAST_JUCE_PATCH_SET_STAMP_FILE}" "${CAST_JUCE_PATCH_SET_HASH}")
+endif()
+
 add_subdirectory("${CAST_JUCE_PATH}" "${CMAKE_BINARY_DIR}/JUCE")
 
 get_directory_property(CAST_FOUND_JUCE_VERSION DIRECTORY "${CAST_JUCE_PATH}" DEFINITION JUCE_VERSION)
@@ -321,6 +332,7 @@ foreach(CAST_SHADER_SOURCE ${CAST_SHADER_SOURCES})
     get_filename_component(CAST_SHADER_NAME "${CAST_SHADER_SOURCE}" NAME)
     set(CAST_SHADER_SPV "${CAST_USER_MODULE_PATH}/resources/spv/${CAST_SHADER_NAME}.spv")
     set(CAST_SHADER_DEPFILE "${CAST_SHADER_SPV}.d")
+    list(APPEND CAST_SHADER_SPV_OUTPUTS "${CAST_SHADER_SPV}")
     add_custom_command(
         OUTPUT  "${CAST_SHADER_SPV}"
         COMMAND "${CAST_VULKAN_GLSLC}"
@@ -339,6 +351,8 @@ endforeach()
 # ==============================================================================
 
 file(GLOB CAST_SHADER_SPV_FILES CONFIGURE_DEPENDS "${CAST_USER_MODULE_PATH}/resources/spv/*.spv")
+list(APPEND CAST_SHADER_SPV_FILES ${CAST_SHADER_SPV_OUTPUTS})
+list(REMOVE_DUPLICATES CAST_SHADER_SPV_FILES)
 
 if(CAST_SHADER_SPV_FILES)
     juce_add_binary_data(jam_vulkan_ShaderData
@@ -374,17 +388,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_BinaryData)
 
 include(CheckIPOSupported)
 
-# ==============================================================================
-# POST BUILD — sign, archive, install, all data-driven
-# ==============================================================================
-
-string(TIMESTAMP CAST_BUILD_DATE "%Y-%m-%d" UTC)
-set(CAST_QA_PATH :::qaDirectory:::)
-set(CAST_QA_DIRECTORY "${CAST_QA_PATH}/${CAST_BUILD_DATE} ${PROJECT_NAME} v${PROJECT_VERSION} macOS")
-
-add_custom_target(post-build ALL)
-add_dependencies(post-build ${PROJECT_NAME})
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     check_ipo_supported(RESULT CAST_IPO_SUPPORTED OUTPUT CAST_IPO_ERROR)
 
@@ -394,28 +397,63 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     else()
         message(WARNING "CAST: LTO not supported — ${CAST_IPO_ERROR}")
     endif()
+endif()
 
-    if(CAST_SIGN AND APPLE)
-        add_custom_command(TARGET post-build POST_BUILD
+# ==============================================================================
+# POST BUILD — sign, install, pack, all data-driven
+# ==============================================================================
+
+:::[list]:::
+
+if(APPLE)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" AND CAST_SIGN)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 :::xattr:::
 :::codesign:::
 :::verify:::
-:::zip:::
-:::notarize:::
-:::staple:::
-:::qa-directory:::
-:::qa-copy:::
-            COMMENT "CAST: sign"
+            COMMENT "CAST: sign ${PROJECT_NAME}"
         )
     endif()
-endif()
 
-if(APPLE)
-    add_custom_command(TARGET post-build POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 :::install-directory:::
 :::install-copy:::
-        COMMENT "CAST: install"
+        COMMENT "CAST: install ${PROJECT_NAME}"
     )
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_custom_target(post-build ALL)
+    add_dependencies(post-build ${PROJECT_NAME})
+
+    set(CAST_PACK_ARCHIVE "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}/:::productName::: v${PROJECT_VERSION} ${CAST_PACK_platform}.${CAST_PACK_format}")
+
+    if(APPLE)
+        set(CAST_PACK_ITEMS "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "Applications" ":::linkDirectory:::")
+        set(CAST_PACK_LAYOUT
+:::[list]:::
+        )
+    elseif(WIN32)
+        set(CAST_PACK_ITEMS "$<TARGET_FILE:${PROJECT_NAME}>" "" "")
+    endif()
+
+    add_custom_command(TARGET post-build POST_BUILD
+        COMMAND cast --pack "${CAST_PACK_ARCHIVE}" ${CAST_PACK_LAYOUT} "${CAST_PACK_ITEMS}"
+        COMMENT "CAST: pack ${CAST_PACK_ARCHIVE}"
+        VERBATIM
+        COMMAND_EXPAND_LISTS
+        USES_TERMINAL
+    )
+
+    if(APPLE AND CAST_SIGN)
+        add_custom_command(TARGET post-build POST_BUILD
+            COMMAND codesign --sign ":::identity:::" "${CAST_PACK_ARCHIVE}"
+            COMMAND xcrun notarytool submit "${CAST_PACK_ARCHIVE}" --keychain-profile ":::notaryProfile:::" --wait
+            COMMAND xcrun stapler staple "${CAST_PACK_ARCHIVE}"
+            COMMENT "CAST: sign ${CAST_PACK_ARCHIVE}"
+            USES_TERMINAL
+        )
+    endif()
 endif()
 
 # ==============================================================================
@@ -461,25 +499,20 @@ juce_add_module(":::root:::/:::name:::"):::[comment]:::
 :::win:::
 ```
 
+```pack-value
+if(APPLE)
+    set(CAST_PACK_:::name::: ":::mac:::")
+elseif(WIN32)
+    set(CAST_PACK_:::name::: ":::win:::")
+endif()
+```
+
+```pack-layout
+"--:::[list]:::=:::[list]:::"
+```
+
 ```codesign
 COMMAND codesign --force --options runtime --entitlements "${CMAKE_SOURCE_DIR}/:::entitlementsPath:::" --sign ":::identity:::" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-```
-
-```zip
-COMMAND ditto -c -k --keepParent "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip"
-```
-
-```notarize
-COMMAND xcrun notarytool submit "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip" --keychain-profile ":::notaryProfile:::" --wait
-COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip"
-```
-
-```qa-directory
-COMMAND ${CMAKE_COMMAND} -E make_directory "${CAST_QA_DIRECTORY}"
-```
-
-```qa-copy
-COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "${CAST_QA_DIRECTORY}/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
 ```
 
 ```install-directory
@@ -496,8 +529,4 @@ COMMAND xattr -cr "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
 
 ```verify
 COMMAND codesign --verify --verbose "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-```
-
-```staple
-COMMAND xcrun stapler staple "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
 ```

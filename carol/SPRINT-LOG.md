@@ -2,6 +2,54 @@
 
 ---
 
+## Sprint 88: Release Chain Conforms to jreng-filter-strip — cast --pack dmg, /Applications, Patch-Set Stamp ✅
+
+**Date:** 2026-10-02
+**Duration:** part of one session (shared with jreng-filter-strip Sprint 101; plan `jreng-filter-strip/PLAN-release-chain.md`)
+
+### Agents Participated
+- COUNSELOR: opus-5.5 — template reads, plan, validation, audit triage, this log
+- Engineer: sonnet-5 — data, template, wiring, audit fixes
+- Auditor: opus-5 — one sweep over END, both archetypes, ARCHETYPE.md, jfs CHANGELOG (24 findings)
+
+### Decisions (ARCHITECT)
+1. *"app is just same no? … END should conform? or current end is the pattern?"* → END keeps the app specifics and takes jfs's release chain and stamp → *"go"*.
+2. Dmg background: *"reuse jfs bg as placeholder for now"*.
+3. Install directory: *"/Applications"*.
+
+### Files Modified
+- `project-info.md` — `## cmake` `installDirectory` `/Applications`, new `linkDirectory` `/Applications`, `qaDirectory` deleted; new `## pack` (folder `../Release`, `dmg`/`zip`, `macOS`/`Windows`) and `## pack layout` (background) after `## signing`.
+- `Source/icons/dmg_background_600x680pt.tiff` — copy of the jfs image (placeholder).
+- `cast/cmake.cast`:
+  - Patch-set stamp before `add_subdirectory` (`:144-153`).
+  - `list(APPEND CAST_SHADER_SPV_OUTPUTS …)` in the glslc loop (`:335`); the spv list adds those outputs, deduplicated (`:353-355`). The shader binary data now depends on the glslc commands.
+  - LTO block above the POST BUILD banner (`:389-400`).
+  - POST BUILD (`:402-`): sign on the app target (Release, `CAST_SIGN`); install on macOS; Release `post-build` target; `cast --pack` with the triple `"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "Applications" ":::linkDirectory:::"` (Windows `"$<TARGET_FILE:${PROJECT_NAME}>" "" ""`); dmg codesign, notarytool `--wait`, stapler.
+  - Fences `zip`, `notarize`, `staple`, `qa-directory`, `qa-copy` deleted; `pack-value`, `pack-layout` added.
+- `cast/spell.md` — `pack`, `pack layout`, `pack layout:key`, `pack layout:value` lines (`:189-192`); five bindings removed.
+
+### Alignment Check
+- [x] BLESSED — S: one release chain shared with jfs; one notarization (the dmg); D: shader embedding no longer depends on files left by an earlier build
+- [x] NAMES.md — names from the jfs family only
+- [x] MANIFESTO.md — template and data only
+
+### Problems Solved
+- END's release ran the old per-bundle zip → notarize → staple → QA copy chain; now jfs's pack chain.
+- Audit: resolved — shader outputs (finding 16), LTO block placement (14). Rejected — `vst3_helpers` removal is a no-op for an app (15, identical text by plan), no Windows install (17, plan "install always on macOS"), `no-sign` overwrites the dmg name (18, same as jfs, no clause), `"Applications"` literal (19, plan text).
+
+### State for Continuation
+- Not generated, not built. ARCHITECT: `cast cast/spell.md` regenerates `CMakeLists.txt` (still the old chain, dated 29 Sep), configures (stamp clears `JUCE/` once), builds, installs to `/Applications`, writes `../Release/END v<ver> macOS.dmg`, signs, notarizes, staples.
+- `/Applications` write access for the build user is not checked.
+- `project-info.md` `haveFcntlH` define: no consumer found in jam, JUCE or END `Source` (Auditor grep).
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 87: Engine Through jam's getOrCreate — One Vulkan Init Contract ✅
 
 **Date:** 2026-10-01

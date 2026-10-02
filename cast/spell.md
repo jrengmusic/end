@@ -186,14 +186,13 @@
 | > > - [list]: @project-info:juce module      |                           | > > - [list]: @cmake:value                      |                    |
 | > > - [list]: @project-info:user module      |                           | > > - [list]: @cmake:link                       |                    |
 | > - [list]: @project-info:layout glob        |                           | > - [list]: @cmake:entry                        |                    |
+| - [list]: @project-info:pack                 |                           | - [list]: @cmake:pack-value                     |                    |
+| - [list]: @project-info:pack layout          |                           | - [list]: @cmake:pack-layout                    |                    |
+| - [list]: @project-info:pack layout:key      |                           |                                                 |                    |
+| - [list]: @project-info:pack layout:value    |                           |                                                 |                    |
 |                                              |                           | - xattr: @cmake:xattr                           |                    |
 |                                              |                           | - codesign: @cmake:codesign                     |                    |
 |                                              |                           | - verify: @cmake:verify                         |                    |
-|                                              |                           | - zip: @cmake:zip                               |                    |
-|                                              |                           | - notarize: @cmake:notarize                     |                    |
-|                                              |                           | - staple: @cmake:staple                         |                    |
-|                                              |                           | - qa-directory: @cmake:qa-directory             |                    |
-|                                              |                           | - qa-copy: @cmake:qa-copy                       |                    |
 |                                              |                           | - install-directory: @cmake:install-directory   |                    |
 |                                              |                           | - install-copy: @cmake:install-copy             |                    |
 +----------------------------------------------+---------------------------+-------------------------------------------------+--------------------+
