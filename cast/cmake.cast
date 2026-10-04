@@ -468,7 +468,7 @@ message(STATUS "━━━━━━━━━━━━━━━━━━━━━�
 ```
 
 ```entry
-:::value::: :::[comment]:::
+:::value::: :::[description]:::
 ```
 
 ```value
@@ -480,11 +480,11 @@ message(STATUS "━━━━━━━━━━━━━━━━━━━━━�
 ```
 
 ```patch
-":::root:::/:::name:::":::[comment]:::
+":::root:::/:::name:::":::[description]:::
 ```
 
 ```module
-juce_add_module(":::root:::/:::name:::"):::[comment]:::
+juce_add_module(":::root:::/:::name:::"):::[description]:::
 ```
 
 ```glob-pattern

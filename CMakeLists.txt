@@ -18,7 +18,7 @@
 @file CMakeLists.txt
 @brief END build manifest — a self-sufficient JUCE GUI application.
 
-Generated from project-info.md; every value traces to one table row.
+Generated from project-info.md and cast/signing.md; every value traces to one table row.
 Edit the table, run cast, then configure.
 ]]
 

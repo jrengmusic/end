@@ -18,7 +18,7 @@ resolved against the binary-data / asset search path at load time.
 ```
 
 +---------+------------------------------+---------+----------------------------------+-----------+-----------------------------------------+
-| type    | name                         | format  | value                            | format    | comment                                 |
+| type    | name                         | format  | value                            | format    | description                             |
 +=========+==============================+=========+==================================+===========+=========================================+
 | @string | split vertical normal        | toCamel | split_vertical_normal.svg        | toLiteral | Split-vertical corner-menu icon.        |
 +---------+------------------------------+---------+----------------------------------+-----------+-----------------------------------------+

@@ -2,6 +2,38 @@
 
 ---
 
+## Sprint 89: `[description]` Migration; `cast/signing.md`; Generated `entitlements.plist` ✅
+
+**Date:** 2026-10-04
+**Duration:** part of one session (jam Sprint 150 is the primary record)
+**Plan:** `dev/jam/PLAN-signing.md` (locked)
+
+### Decisions (ARCHITECT)
+1. *"now let's fix the entitlements generation for ALL project"*; *"ensure everything is table driven"*.
+2. **"Migrate in this sprint"**; lane switch **"Own file per chain (Recommended)"**; keys **"Rows in ## signing"**, **"type column"**.
+
+### Files Modified
+- Migration `[comment]` → `[description]` (cast Sprint `description-reserved`): `cast/cmake.cast` (3 tokens), `cast/spell.md` (7 bindings, 1 header cell), `cast/files.md`, `cast/identifiers.md`, `project-info.md` (header cells, 17 in all).
+- `cast/signing.md` — NEW. `## signing` moved from `project-info.md`; columns `key | value | type | description`; entitlement rows `cs.allow-unsigned-executable-memory`, `cs.disable-library-validation`.
+- `cast/spell.md` — index `@signing`, `@Entitlements`; `- [list]: @signing:signing`; output group `@code:[xml]entitlements` → `@Entitlements`; `CMakeLists.txt` brief: "Generated from project-info.md and cast/signing.md; every value traces to one table row."
+- `CMakeLists.txt:21` — the brief line.
+- `entitlements.plist` — now generated (the previous keys plus the banner).
+
+### Problems Solved
+- The current cast rejects `[comment]`; the manifest now runs on it. Oracle (scratch mirror, `## toolchain` removed): `entitlements.plist` = the previous file plus the banner; the generated headers byte-identical.
+
+### State for Continuation
+- Not built.
+- The committed `CMakeLists.txt` differs from its own manifest's output in sections this sprint did not touch: the JUCE patch stamp, the SPV outputs, the post-build pack form. Only line 21 was changed.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 88: Release Chain Conforms to jreng-filter-strip — cast --pack dmg, /Applications, Patch-Set Stamp ✅
 
 **Date:** 2026-10-02
