@@ -168,6 +168,17 @@ endif()
 
 set(CAST_JUCE_PATH "${CAST_PATCHED_JUCE_PATH}")
 
+set(CAST_JUCE_PATCH_SET_STAMP_FILE "${CMAKE_BINARY_DIR}/cast_juce_patch_set")
+
+if(EXISTS "${CAST_JUCE_PATCH_SET_STAMP_FILE}")
+    file(READ "${CAST_JUCE_PATCH_SET_STAMP_FILE}" CAST_BUILT_JUCE_PATCH_SET_HASH)
+endif()
+
+if(NOT "${CAST_BUILT_JUCE_PATCH_SET_HASH}" STREQUAL "${CAST_JUCE_PATCH_SET_HASH}")
+    file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/JUCE" "${CMAKE_BINARY_DIR}/vst3_helpers")
+    file(WRITE "${CAST_JUCE_PATCH_SET_STAMP_FILE}" "${CAST_JUCE_PATCH_SET_HASH}")
+endif()
+
 add_subdirectory("${CAST_JUCE_PATH}" "${CMAKE_BINARY_DIR}/JUCE")
 
 get_directory_property(CAST_FOUND_JUCE_VERSION DIRECTORY "${CAST_JUCE_PATH}" DEFINITION JUCE_VERSION)
@@ -402,6 +413,7 @@ foreach(CAST_SHADER_SOURCE ${CAST_SHADER_SOURCES})
     get_filename_component(CAST_SHADER_NAME "${CAST_SHADER_SOURCE}" NAME)
     set(CAST_SHADER_SPV "${CAST_USER_MODULE_PATH}/resources/spv/${CAST_SHADER_NAME}.spv")
     set(CAST_SHADER_DEPFILE "${CAST_SHADER_SPV}.d")
+    list(APPEND CAST_SHADER_SPV_OUTPUTS "${CAST_SHADER_SPV}")
     add_custom_command(
         OUTPUT  "${CAST_SHADER_SPV}"
         COMMAND "${CAST_VULKAN_GLSLC}"
@@ -420,6 +432,8 @@ endforeach()
 # ==============================================================================
 
 file(GLOB CAST_SHADER_SPV_FILES CONFIGURE_DEPENDS "${CAST_USER_MODULE_PATH}/resources/spv/*.spv")
+list(APPEND CAST_SHADER_SPV_FILES ${CAST_SHADER_SPV_OUTPUTS})
+list(REMOVE_DUPLICATES CAST_SHADER_SPV_FILES)
 
 if(CAST_SHADER_SPV_FILES)
     juce_add_binary_data(jam_vulkan_ShaderData
@@ -460,17 +474,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_BinaryData)
 
 include(CheckIPOSupported)
 
-# ==============================================================================
-# POST BUILD — sign, archive, install, all data-driven
-# ==============================================================================
-
-string(TIMESTAMP CAST_BUILD_DATE "%Y-%m-%d" UTC)
-set(CAST_QA_PATH "$ENV{HOME}/Documents/Poems/dev/___builds___")
-set(CAST_QA_DIRECTORY "${CAST_QA_PATH}/${CAST_BUILD_DATE} ${PROJECT_NAME} v${PROJECT_VERSION} macOS")
-
-add_custom_target(post-build ALL)
-add_dependencies(post-build ${PROJECT_NAME})
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     check_ipo_supported(RESULT CAST_IPO_SUPPORTED OUTPUT CAST_IPO_ERROR)
 
@@ -480,29 +483,89 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     else()
         message(WARNING "CAST: LTO not supported — ${CAST_IPO_ERROR}")
     endif()
+endif()
 
-    if(CAST_SIGN AND APPLE)
-        add_custom_command(TARGET post-build POST_BUILD
-COMMAND xattr -cr "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-COMMAND codesign --force --options runtime --entitlements "${CMAKE_SOURCE_DIR}/entitlements.plist" --sign "Developer ID Application: Bayu Ardianto \\(9BDSN9TDX3\\)" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-COMMAND codesign --verify --verbose "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-COMMAND ditto -c -k --keepParent "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip"
-COMMAND xcrun notarytool submit "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip" --keychain-profile "notary" --wait
-COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>.zip"
-COMMAND xcrun stapler staple "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-COMMAND ${CMAKE_COMMAND} -E make_directory "${CAST_QA_DIRECTORY}"
-COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "${CAST_QA_DIRECTORY}/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
-            COMMENT "CAST: sign"
-        )
-    endif()
+# ==============================================================================
+# POST BUILD — sign, install, pack, all data-driven
+# ==============================================================================
+
+if(APPLE)
+    set(CAST_PACK_folder "../Release")
+elseif(WIN32)
+    set(CAST_PACK_folder "../Release")
+endif()
+if(APPLE)
+    set(CAST_PACK_format "pkg")
+elseif(WIN32)
+    set(CAST_PACK_format "exe")
+endif()
+if(APPLE)
+    set(CAST_PACK_platform "macOS")
+elseif(WIN32)
+    set(CAST_PACK_platform "Windows")
 endif()
 
 if(APPLE)
-    add_custom_command(TARGET post-build POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E make_directory "$ENV{HOME}/Applications"
-COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "$ENV{HOME}/Applications/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
-        COMMENT "CAST: install"
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" AND CAST_SIGN)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+COMMAND xattr -cr "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
+COMMAND codesign --force --options runtime --entitlements "${CMAKE_SOURCE_DIR}/entitlements.plist" --sign "Developer ID Application: Bayu Ardianto \\(9BDSN9TDX3\\)" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
+COMMAND codesign --verify --verbose "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
+            COMMENT "CAST: sign ${PROJECT_NAME}"
+        )
+    endif()
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E make_directory "/Applications"
+COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "/Applications/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
+        COMMENT "CAST: install ${PROJECT_NAME}"
     )
+endif()
+
+if(WIN32)
+    string(TOLOWER "${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}" CAST_PACK_architecture)
+    set(CAST_PACK_platform "${CAST_PACK_platform} ${CAST_PACK_architecture}")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_custom_target(post-build ALL)
+    add_dependencies(post-build ${PROJECT_NAME})
+
+    set(CAST_PACK_ARCHIVE "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}/END v${PROJECT_VERSION} ${CAST_PACK_platform}.${CAST_PACK_format}")
+
+    if(APPLE AND CAST_SIGN)
+        string(REPLACE ";" "," CAST_HOST_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+        configure_file("${CMAKE_SOURCE_DIR}/cast/installer/mac/distribution.xml" "${CMAKE_BINARY_DIR}/distribution.xml" @ONLY)
+        add_custom_command(TARGET post-build POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/installer"
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/installer/root"
+COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "${CMAKE_BINARY_DIR}/installer/root/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
+COMMAND pkgbuild --analyze --root "${CMAKE_BINARY_DIR}/installer/root" "${CMAKE_BINARY_DIR}/installer/component.plist"
+COMMAND plutil -replace 0.BundleIsRelocatable -bool NO "${CMAKE_BINARY_DIR}/installer/component.plist"
+COMMAND pkgbuild --root "${CMAKE_BINARY_DIR}/installer/root" --install-location "/Applications" --component-plist "${CMAKE_BINARY_DIR}/installer/component.plist" --identifier "com.JRENG.END" --version "${PROJECT_VERSION}" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pkg"
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/installer/resources" "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}"
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/cast/installer/resources/background.png" "${CMAKE_SOURCE_DIR}/cast/installer/resources/background-dark.png" "${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/installer/resources/"
+COMMAND productbuild --distribution "${CMAKE_BINARY_DIR}/distribution.xml" --package-path "${CMAKE_BINARY_DIR}" --resources "${CMAKE_BINARY_DIR}/installer/resources" "${CMAKE_BINARY_DIR}/unsigned.pkg"
+COMMAND productsign --sign "Developer ID Installer: Bayu Ardianto \\(9BDSN9TDX3\\)" "${CMAKE_BINARY_DIR}/unsigned.pkg" "${CAST_PACK_ARCHIVE}"
+COMMAND xcrun notarytool submit "${CAST_PACK_ARCHIVE}" --keychain-profile "notary" --wait
+COMMAND xcrun stapler staple "${CAST_PACK_ARCHIVE}"
+            COMMENT "CAST: installer ${CAST_PACK_ARCHIVE}"
+            USES_TERMINAL
+        )
+    elseif(WIN32 AND CAST_SIGN)
+        cmake_host_system_information(RESULT CAST_INSTALLER_KITS_ROOT QUERY WINDOWS_REGISTRY "HKLM/SOFTWARE/Microsoft/Windows Kits/Installed Roots" VALUE KitsRoot10 VIEW 64_32)
+        file(GLOB CAST_INSTALLER_KITS_VERSIONS LIST_DIRECTORIES true "${CAST_INSTALLER_KITS_ROOT}bin/10.*")
+        list(SORT CAST_INSTALLER_KITS_VERSIONS COMPARE NATURAL ORDER DESCENDING)
+        find_program(CAST_INSTALLER_SIGNTOOL signtool PATHS ${CAST_INSTALLER_KITS_VERSIONS} PATH_SUFFIXES x64 NO_DEFAULT_PATH NO_CACHE REQUIRED)
+        file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/cast/installer/resources" CAST_INSTALLER_RESOURCES)
+        add_custom_command(TARGET post-build POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}"
+COMMAND makensis "/DARTEFACT=$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>" "/DOUTFILE=$<SHELL_PATH:${CAST_PACK_ARCHIVE}>" "/DRESOURCES=${CAST_INSTALLER_RESOURCES}" "/DLICENSE=$<SHELL_PATH:${CMAKE_SOURCE_DIR}/LICENSE>" "/DICON=$<SHELL_PATH:$<TARGET_PROPERTY:${PROJECT_NAME},JUCE_ICON_FILE>>" "/DSIGNTOOL=$<SHELL_PATH:${CAST_INSTALLER_SIGNTOOL}>" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/cast/installer/win/installer.nsi>"
+            COMMENT "CAST: installer ${CAST_PACK_ARCHIVE}"
+            VERBATIM
+            USES_TERMINAL
+        )
+    endif()
 endif()
 
 # ==============================================================================

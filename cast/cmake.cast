@@ -27,7 +27,7 @@ endif()
 project(:::targetName:::
     VERSION :::versionString:::
     LANGUAGES C CXX ${CAST_EXTRA_LANGUAGES}
-    DESCRIPTION :::description:::
+    DESCRIPTION ":::description:::"
 )
 
 message(STATUS "CAST: configuring ${PROJECT_NAME} ${PROJECT_VERSION}")
@@ -422,35 +422,40 @@ if(APPLE)
     )
 endif()
 
+if(WIN32)
+    string(TOLOWER "${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}" CAST_PACK_architecture)
+    set(CAST_PACK_platform "${CAST_PACK_platform} ${CAST_PACK_architecture}")
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_custom_target(post-build ALL)
     add_dependencies(post-build ${PROJECT_NAME})
 
     set(CAST_PACK_ARCHIVE "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}/:::productName::: v${PROJECT_VERSION} ${CAST_PACK_platform}.${CAST_PACK_format}")
 
-    if(APPLE)
-        set(CAST_PACK_ITEMS "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "Applications" ":::linkDirectory:::")
-        set(CAST_PACK_LAYOUT
-:::[list]:::
-        )
-    elseif(WIN32)
-        set(CAST_PACK_ITEMS "$<TARGET_FILE:${PROJECT_NAME}>" "" "")
-    endif()
-
-    add_custom_command(TARGET post-build POST_BUILD
-        COMMAND cast --pack "${CAST_PACK_ARCHIVE}" ${CAST_PACK_LAYOUT} "${CAST_PACK_ITEMS}"
-        COMMENT "CAST: pack ${CAST_PACK_ARCHIVE}"
-        VERBATIM
-        COMMAND_EXPAND_LISTS
-        USES_TERMINAL
-    )
-
     if(APPLE AND CAST_SIGN)
+        string(REPLACE ";" "," CAST_HOST_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+        configure_file("${CMAKE_SOURCE_DIR}/cast/installer/mac/distribution.xml" "${CMAKE_BINARY_DIR}/distribution.xml" @ONLY)
         add_custom_command(TARGET post-build POST_BUILD
-            COMMAND codesign --sign ":::identity:::" "${CAST_PACK_ARCHIVE}"
-            COMMAND xcrun notarytool submit "${CAST_PACK_ARCHIVE}" --keychain-profile ":::notaryProfile:::" --wait
-            COMMAND xcrun stapler staple "${CAST_PACK_ARCHIVE}"
-            COMMENT "CAST: sign ${CAST_PACK_ARCHIVE}"
+:::pkg-staging:::
+:::pkgbuild:::
+:::productbuild:::
+:::productsign:::
+:::notarize:::
+:::staple:::
+            COMMENT "CAST: installer ${CAST_PACK_ARCHIVE}"
+            USES_TERMINAL
+        )
+    elseif(WIN32 AND CAST_SIGN)
+        cmake_host_system_information(RESULT CAST_INSTALLER_KITS_ROOT QUERY WINDOWS_REGISTRY "HKLM/SOFTWARE/Microsoft/Windows Kits/Installed Roots" VALUE KitsRoot10 VIEW 64_32)
+        file(GLOB CAST_INSTALLER_KITS_VERSIONS LIST_DIRECTORIES true "${CAST_INSTALLER_KITS_ROOT}bin/10.*")
+        list(SORT CAST_INSTALLER_KITS_VERSIONS COMPARE NATURAL ORDER DESCENDING)
+        find_program(CAST_INSTALLER_SIGNTOOL signtool PATHS ${CAST_INSTALLER_KITS_VERSIONS} PATH_SUFFIXES x64 NO_DEFAULT_PATH NO_CACHE REQUIRED)
+        file(TO_NATIVE_PATH ":::installerResourceDirectory:::" CAST_INSTALLER_RESOURCES)
+        add_custom_command(TARGET post-build POST_BUILD
+:::makensis:::
+            COMMENT "CAST: installer ${CAST_PACK_ARCHIVE}"
+            VERBATIM
             USES_TERMINAL
         )
     endif()
@@ -507,10 +512,6 @@ elseif(WIN32)
 endif()
 ```
 
-```pack-layout
-"--:::[list]:::=:::[list]:::"
-```
-
 ```codesign
 COMMAND codesign --force --options runtime --entitlements "${CMAKE_SOURCE_DIR}/:::entitlementsPath:::" --sign ":::identity:::" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
 ```
@@ -529,4 +530,60 @@ COMMAND xattr -cr "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
 
 ```verify
 COMMAND codesign --verify --verbose "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
+```
+
+```pkg-staging
+COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/installer"
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/installer/root"
+COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "${CMAKE_BINARY_DIR}/installer/root/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
+COMMAND pkgbuild --analyze --root "${CMAKE_BINARY_DIR}/installer/root" "${CMAKE_BINARY_DIR}/installer/component.plist"
+COMMAND plutil -replace 0.BundleIsRelocatable -bool NO "${CMAKE_BINARY_DIR}/installer/component.plist"
+```
+
+```pkgbuild
+COMMAND pkgbuild --root "${CMAKE_BINARY_DIR}/installer/root" --install-location ":::installDirectory:::" --component-plist "${CMAKE_BINARY_DIR}/installer/component.plist" --identifier :::bundleIdentifier::: --version "${PROJECT_VERSION}" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pkg"
+```
+
+```productbuild
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/installer/resources" "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}"
+COMMAND ${CMAKE_COMMAND} -E copy ":::installerResourceDirectory:::/background.png" ":::installerResourceDirectory:::/background-dark.png" "${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/installer/resources/"
+COMMAND productbuild --distribution "${CMAKE_BINARY_DIR}/distribution.xml" --package-path "${CMAKE_BINARY_DIR}" --resources "${CMAKE_BINARY_DIR}/installer/resources" "${CMAKE_BINARY_DIR}/unsigned.pkg"
+```
+
+```productsign
+COMMAND productsign --sign ":::installerIdentity:::" "${CMAKE_BINARY_DIR}/unsigned.pkg" "${CAST_PACK_ARCHIVE}"
+```
+
+```notarize
+COMMAND xcrun notarytool submit "${CAST_PACK_ARCHIVE}" --keychain-profile ":::notaryProfile:::" --wait
+```
+
+```staple
+COMMAND xcrun stapler staple "${CAST_PACK_ARCHIVE}"
+```
+
+```makensis
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}"
+COMMAND makensis "/DARTEFACT=$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>" "/DOUTFILE=$<SHELL_PATH:${CAST_PACK_ARCHIVE}>" "/DRESOURCES=${CAST_INSTALLER_RESOURCES}" "/DLICENSE=$<SHELL_PATH:${CMAKE_SOURCE_DIR}/LICENSE>" "/DICON=$<SHELL_PATH:$<TARGET_PROPERTY:${PROJECT_NAME},JUCE_ICON_FILE>>" "/DSIGNTOOL=$<SHELL_PATH:${CAST_INSTALLER_SIGNTOOL}>" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/cast/installer/win/installer.nsi>"
+```
+
+```gh
+set(CAST_RELEASE_VERSION :::versionString:::)
+set(CAST_RELEASE_TAG "v${CAST_RELEASE_VERSION}")
+
+:::[list]:::
+
+file(GLOB CAST_RELEASE_ASSETS "${CMAKE_CURRENT_LIST_DIR}/${CAST_PACK_folder}/:::productName::: v${CAST_RELEASE_VERSION} *")
+
+if(NOT CAST_RELEASE_ASSETS)
+    message(FATAL_ERROR "CAST: no release asset for ${CAST_RELEASE_TAG} in ${CAST_PACK_folder}")
+endif()
+
+execute_process(COMMAND gh release view "${CAST_RELEASE_TAG}" --repo ":::repository:::" RESULT_VARIABLE CAST_RELEASE_VIEW OUTPUT_QUIET ERROR_QUIET)
+
+if(CAST_RELEASE_VIEW EQUAL 0)
+    execute_process(COMMAND gh release upload "${CAST_RELEASE_TAG}" ${CAST_RELEASE_ASSETS} --repo ":::repository:::" --clobber COMMAND_ERROR_IS_FATAL ANY)
+else()
+    execute_process(COMMAND gh release create "${CAST_RELEASE_TAG}" ${CAST_RELEASE_ASSETS} --repo ":::repository:::" --title "${CAST_RELEASE_TAG}" --notes-file "${CMAKE_CURRENT_LIST_DIR}/RELEASE.md" COMMAND_ERROR_IS_FATAL ANY)
+endif()
 ```

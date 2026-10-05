@@ -41,6 +41,16 @@
 +--------------------+-------------------------------------+
 | @Entitlements      | ../entitlements.plist               |
 +--------------------+-------------------------------------+
+| @installer         | installer.cast                      |
++--------------------+-------------------------------------+
+| @Distribution      | installer/mac/distribution.xml      |
++--------------------+-------------------------------------+
+| @Installer         | installer/win/installer.nsi         |
++--------------------+-------------------------------------+
+| @Gh                | ../gh.cmake                         |
++--------------------+-------------------------------------+
+| @Release           | ../RELEASE.md                       |
++--------------------+-------------------------------------+
 
 ## headers
 
@@ -191,15 +201,33 @@
 | > > - [list]: @project-info:user module       |                           | > > - [list]: @cmake:link                           |                    |
 | > - [list]: @project-info:layout glob         |                           | > - [list]: @cmake:entry                            |                    |
 | - [list]: @project-info:pack                  |                           | - [list]: @cmake:pack-value                         |                    |
-| - [list]: @project-info:pack layout           |                           | - [list]: @cmake:pack-layout                        |                    |
-| - [list]: @project-info:pack layout:key       |                           |                                                     |                    |
-| - [list]: @project-info:pack layout:value     |                           |                                                     |                    |
 |                                               |                           | - xattr: @cmake:xattr                               |                    |
 |                                               |                           | - codesign: @cmake:codesign                         |                    |
 |                                               |                           | - verify: @cmake:verify                             |                    |
 |                                               |                           | - install-directory: @cmake:install-directory       |                    |
 |                                               |                           | - install-copy: @cmake:install-copy                 |                    |
+|                                               |                           | - pkg-staging: @cmake:pkg-staging                   |                    |
+|                                               |                           | - pkgbuild: @cmake:pkgbuild                         |                    |
+|                                               |                           | - productbuild: @cmake:productbuild                 |                    |
+|                                               |                           | - productsign: @cmake:productsign                   |                    |
+|                                               |                           | - notarize: @cmake:notarize                         |                    |
+|                                               |                           | - staple: @cmake:staple                             |                    |
+|                                               |                           | - makensis: @cmake:makensis                         |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > - [list]: @signing:signing:type=entitlement |                           | @code:[xml]entitlements                             | @Entitlements      |
 |                                               |                           | > - [list]: @code:entitlement                       |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| - [list]: @project-info:cmake                 |                           | @installer:distribution                             | @Distribution      |
+| - [list]: @project-info:project info          |                           |                                                     |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| - [list]: @project-info:project info          |                           | @installer:installer                                | @Installer         |
+| - [list]: @project-info:cmake                 |                           |                                                     |                    |
+| - [list]: @signing:signing                    |                           |                                                     |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| - [list]: @project-info:cmake                 |                           | @cmake:gh                                           | @Gh                |
+| - [list]: @project-info:project info          |                           | - [list]: @cmake:pack-value                         |                    |
+| - [list]: @project-info:pack                  |                           |                                                     |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| - [list]: @project-info:cmake                 |                           | @installer:[no-banner]release                       | @Release           |
+| - [list]: @project-info:release notes         |                           | - [list]: @installer:note                           |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+

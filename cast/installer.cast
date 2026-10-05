@@ -1,0 +1,123 @@
+```distribution
+<?xml version="1.0" encoding="utf-8"?>
+:::[banner]:::
+<installer-gui-script minSpecVersion="2">
+    <title>:::productName:::</title>
+    <license file="LICENSE" mime-type="text/plain"/>
+    <background file="background.png" mime-type="image/png" alignment="bottomleft" scaling="proportional"/>
+    <background-darkAqua file="background-dark.png" mime-type="image/png" alignment="bottomleft" scaling="proportional"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <options customize="never" require-scripts="false" hostArchitectures="@CAST_HOST_ARCHITECTURES@"/>
+    <volume-check>
+        <allowed-os-versions>
+            <os-version min=:::deploymentTarget:::/>
+        </allowed-os-versions>
+    </volume-check>
+    <choices-outline>
+        <line choice=:::bundleIdentifier:::/>
+    </choices-outline>
+    <choice id=:::bundleIdentifier::: title=":::productName:::" start_selected="true">
+        <pkg-ref id=:::bundleIdentifier:::/>
+    </choice>
+    <pkg-ref id=:::bundleIdentifier::: version=:::versionString::: onConclusion="none">:::targetName:::.pkg</pkg-ref>
+</installer-gui-script>
+```
+
+```installer
+!include "MUI2.nsh"
+
+!define PRODUCT :::projectName:::
+!define VERSION :::versionString:::
+!define PUBLISHER :::legalCompanyName:::
+!define COMPANY :::companyName:::
+!define THUMBPRINT ":::identityWindows:::"
+!define UNINSTALLKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT}"
+
+Name "${PRODUCT}"
+OutFile "${OUTFILE}"
+Unicode True
+BrandingText "${COMPANY}"
+RequestExecutionLevel admin
+InstallDir ":::installDirectoryWindows:::"
+
+!system '"${SIGNTOOL}" :::signArgumentsWindows::: "${ARTEFACT}"' = 0
+!finalize '"${SIGNTOOL}" :::signArgumentsWindows::: "%1"' = 0
+!uninstfinalize '"${SIGNTOOL}" :::signArgumentsWindows::: "%1"' = 0
+
+!define MUI_ICON "${ICON}"
+!define MUI_UNICON "${ICON}"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "${RESOURCES}\header.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${RESOURCES}\welcome.bmp"
+
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "${LICENSE}"
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+!insertmacro MUI_LANGUAGE "English"
+
+Section "Install"
+
+  SetOutPath "$INSTDIR"
+  File "${ARTEFACT}"
+
+  SetShellVarContext current
+  SetOutPath "$DOCUMENTS\${COMPANY}\Uninstaller"
+  WriteUninstaller "$DOCUMENTS\${COMPANY}\Uninstaller\${PRODUCT} Uninstaller.exe"
+
+  SetRegView 64
+  WriteRegStr HKLM "${UNINSTALLKEY}" "DisplayName" "${PRODUCT}"
+  WriteRegStr HKLM "${UNINSTALLKEY}" "UninstallString" '"$DOCUMENTS\${COMPANY}\Uninstaller\${PRODUCT} Uninstaller.exe"'
+  WriteRegStr HKLM "${UNINSTALLKEY}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "${UNINSTALLKEY}" "Publisher" "${PUBLISHER}"
+  WriteRegDWORD HKLM "${UNINSTALLKEY}" "NoModify" 1
+  WriteRegDWORD HKLM "${UNINSTALLKEY}" "NoRepair" 1
+
+SectionEnd
+
+Section "Uninstall"
+
+  Delete ":::installDirectoryWindows:::\:::targetName:::.exe"
+  RMDir ":::installDirectoryWindows:::"
+
+  SetRegView 64
+  DeleteRegKey HKLM "${UNINSTALLKEY}"
+
+  SetShellVarContext current
+  Delete "$DOCUMENTS\${COMPANY}\Uninstaller\${PRODUCT} Uninstaller.exe"
+  RMDir "$DOCUMENTS\${COMPANY}\Uninstaller"
+
+SectionEnd
+```
+
+```[no-banner]release
+# :::productName::: v:::buildVersion:::
+
+:::description:::
+
+## What's New
+
+:::[list]:::
+
+## Platforms
+
+| Platform | Architecture       | Format                            |
+| -------- | ------------------ | --------------------------------- |
+| macOS    | universal          | .pkg (signed, notarized)          |
+| Windows  | x64                | .exe installer                    |
+| Windows  | arm64              | .exe installer                    |
+
+## Installation
+
+macOS: open the .pkg. It installs `:::productName:::.app` to `:::installDirectory:::`.
+
+Windows: run the installer. It installs `:::targetName:::.exe` in Program Files.
+```
+
+```note
+- :::note:::
+```

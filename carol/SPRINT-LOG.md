@@ -2,6 +2,32 @@
 
 ---
 
+## Sprint 90: Release Lane — pkg Replaces dmg, Windows NSIS (x64, arm64, admin), gh Upload ✅
+
+**Date:** 2026-10-05
+**Duration:** part of one session (cast sprint `release-lane` is the primary record)
+**Plan:** `dev/cast/PLAN-release-lane.md` (locked)
+
+### Decisions (ARCHITECT)
+1. *"i don't understand why END is separate lane"*; *"installer is installer. only different on default install path"*.
+2. Windows **"Program Files, admin"**; icon *"whatever icon used for the binary per juce project. SSOT"*.
+
+### Files Modified
+- `project-info.md` — `## pack layout` and `linkDirectory` deleted; `## pack` `pkg | exe`; `## release notes`; `## cmake` `repository`, `installerResourceDirectory`, `installDirectoryWindows` (`$PROGRAMFILES64\JRENG\END`); `description` cell plain; `## toolchain` `cmake -P gh.cmake`.
+- `cast/cmake.cast` — dmg pack/sign deleted; bundle pkg → productbuild → productsign → notarize → staple; NSIS at admin level with `JUCE_ICON_FILE`; `DESCRIPTION ":::description:::"`. `cast/installer.cast` (new), `cast/spell.md`, `cast/signing.md` (`installerIdentity`, `identityWindows`, `signArgumentsWindows`), `cast/installer/resources/` (placeholders). `Source/icons/dmg_background_600x680pt.tiff` deleted. `CLAUDE.md`.
+
+### State for Continuation
+- Generation is a fixpoint. The Debug build fails to compile, before this sprint's lane: `ENDLookAndFeel.cpp:92` passes 4 arguments to `jam_ButtonSVG.h:81` `getState` (3 parameters).
+- CLAUDE.md says agents never run builds; this sprint ran the Debug toolchain under the approved plan's generation step.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 89: `[description]` Migration; `cast/signing.md`; Generated `entitlements.plist` ✅
 
 **Date:** 2026-10-04

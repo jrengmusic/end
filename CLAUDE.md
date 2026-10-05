@@ -39,3 +39,5 @@ Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast
 
 ## Build (ARCHITECT only — agents never run)
 `cast cast/spell.md` regenerates `CMakeLists.txt` + `Source/generated/*` · `ninja` via `Builds/` · `ninja doxygen` to regenerate docs
+
+Release (default flow, per host: macOS universal, Windows x64, Windows arm64): macOS `END.app` → `pkgbuild` → `productbuild` (`cast/installer/mac/distribution.xml`) → `productsign` → notarize → staple; Windows NSIS installer (`cast/installer/win/installer.nsi`, admin, `$PROGRAMFILES64/JRENG/END`, signtool with `identityWindows`). Archive `../Release/END v<version> <platform>.<format>`. The last toolchain row `cmake -P gh.cmake` creates or appends to the GitHub release `v<versionString>` of `jrengmusic/end`; notes from the generated `RELEASE.md` (`## release notes` rows). Installer artwork: `cast/installer/resources/`.
