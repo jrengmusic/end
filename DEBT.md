@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20261009T112447
+
+**Observation:** END maps key presses with its own map: ENDActions::buildKeyMap fills jam::HashMap<juce::KeyPress, juce::Identifier> keys and modalKeys from the config KEYS section (Source/action/ENDActions.h:67-92, :152-153). jam now has jam::CommandManager : juce::ApplicationCommandManager in jam_gui/commands. It fills the juce::KeyPressMappingSet from a config keys table, with command ids from map::CommandId.
+**Divergence:** END does not use jam::CommandManager.
+**Expectation:** Replace END's keyboard and config-key handling (the ENDActions key maps and the keys reading) with jam::CommandManager and juce::ApplicationCommandTarget.
+
+---
+
 ## DEBT-20260912T150000
 
 **Observation:** Sprint 86's jam changes are runtime-verified on macOS only. Each carries a Windows arm no run has exercised: the end-of-frame fence wait now also runs on the Windows swapchain branch (jam_VulkanGraphics.cpp:770-780, after the `#endif`); the Window default-glass dispatch has a `blurBehind` arm (jam_Window.cpp:87, :108); the VMA leak-only define compiles on both platforms.

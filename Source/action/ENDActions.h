@@ -72,28 +72,28 @@ public:
         auto keysSection { config.getChildWithName (Id::toType (Id::keys)) };
 
         prefixKey = juce::KeyPress::createFromDescription (
-            keysSection.getProperty (Id::prefix).toString());
-        prefixTimeout = keysSection.getProperty (Id::prefixTimeout);
+            config.getRowValue (Id::toType (Id::keys), Id::prefix).toString());
+        prefixTimeout = config.getRowValue (Id::toType (Id::keys), Id::prefixTimeout);
 
-        jam::Model::forEachProperty (
-            keysSection,
-            [this] (const juce::Identifier& propName, const juce::var& value)
+        for (const auto& row : keysSection)
+        {
+            const auto actionId { row.getType() };
+
+            if (actionId != Id::prefix and actionId != Id::prefixTimeout)
             {
-                if (propName != Id::prefix and propName != Id::prefixTimeout)
-                {
-                    auto key { juce::KeyPress::createFromDescription (value.toString()) };
+                auto key { juce::KeyPress::createFromDescription (row.getProperty (Id::value).toString()) };
 
-                    if (key.getModifiers().isCommandDown() or key.getModifiers().isCtrlDown())
-                        keys.emplace (key, propName);
-                    else
-                        modalKeys.emplace (key, propName);
-                }
-            });
+                if (key.getModifiers().isCommandDown() or key.getModifiers().isCtrlDown())
+                    keys.emplace (key, actionId);
+                else
+                    modalKeys.emplace (key, actionId);
+            }
+        }
     }
 
     void valueTreePropertyChanged (juce::ValueTree& changedTree, const juce::Identifier&) override
     {
-        if (changedTree.hasType (Id::toType (Id::keys)))
+        if (changedTree.getParent().hasType (Id::toType (Id::keys)))
             buildKeyMap();
     }
 

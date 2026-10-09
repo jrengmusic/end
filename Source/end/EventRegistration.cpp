@@ -81,18 +81,18 @@ void ENDView::registerWindowEvents()
 {
     events.add<juce::ValueTree&> (
         Id::alwaysOnTop,
-        [this] (juce::ValueTree& tree)
+        [this] (juce::ValueTree& row)
         {
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setAlwaysOnTop (tree.getProperty (Id::alwaysOnTop));
+                window->setAlwaysOnTop (row.getProperty (Id::value));
         });
 
     events.add<juce::ValueTree&> (
         Id::titleBarButtons,
-        [this] (juce::ValueTree& tree)
+        [this] (juce::ValueTree& row)
         {
             if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setWindowButtons (tree.getProperty (Id::titleBarButtons));
+                window->setWindowButtons (row.getProperty (Id::value));
         });
 }
 
@@ -161,17 +161,17 @@ void ENDView::registerEvents()
 
 static std::tuple<float, float, int> getBackgroundRenderParams (ConfigModel& config)
 {
-    const float opacity { config.getValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
-    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::backgroundResolution) };
-    const int frameRate { config.getValue (Id::toType (Id::graphics), Id::frameRate) };
+    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
+    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution) };
+    const int frameRate { config.getRowValue (Id::toType (Id::graphics), Id::frameRate) };
 
     return { opacity, resolutionScale, frameRate };
 }
 
 static std::tuple<float, float> getPostProcessRenderParams (ConfigModel& config)
 {
-    const float opacity { config.getValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
+    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
+    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
 
     return { opacity, resolutionScale };
 }
@@ -180,7 +180,7 @@ static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
 {
     static const jam::SharedInstance<map::ImageResample> imageResample { std::in_place };
 
-    const auto filterName { config.getValue (Id::toType (Id::graphics), Id::filter).toString() };
+    const auto filterName { config.getRowValue (Id::toType (Id::graphics), Id::filter).toString() };
 
     return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
 }
@@ -191,7 +191,7 @@ void ENDView::setBackground()
     jassert (engine != nullptr);
     const bool gpuEnabled { engine->isGpuAvailable() };
 
-    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::background).toString() };
+    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::background).toString() };
     const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
 
     if (gpuEnabled and projectName.isNotEmpty())
@@ -234,7 +234,7 @@ void ENDView::setPostProcess()
     jassert (engine != nullptr);
     const bool gpuEnabled { engine->isGpuAvailable() };
 
-    const auto projectName { config.getValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
+    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
     const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
 
     if (gpuEnabled and projectName.isNotEmpty())
@@ -273,13 +273,13 @@ void ENDView::setPostProcessParams()
 
 void ENDView::setMouseConfig()
 {
-    const bool enabled { config.getValue (Id::toType (Id::mouse), Id::enabled) };
+    const bool enabled { config.getRowValue (Id::toType (Id::mouse), Id::enabled) };
     const auto imouseButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getValue (Id::toType (Id::mouse), Id::imouse).toString())) };
+        config.getRowValue (Id::toType (Id::mouse), Id::imouse).toString())) };
     const auto orbitButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getValue (Id::toType (Id::mouse), Id::orbit).toString())) };
+        config.getRowValue (Id::toType (Id::mouse), Id::orbit).toString())) };
     const auto resetButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getValue (Id::toType (Id::mouse), Id::reset).toString())) };
+        config.getRowValue (Id::toType (Id::mouse), Id::reset).toString())) };
 
     background.setMouseConfig (enabled, imouseButton, orbitButton, resetButton);
 }

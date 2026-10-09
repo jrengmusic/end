@@ -340,18 +340,22 @@ private:
      *
      *  Keys are resolved from the property name: the suffix after the last '_'
      *  is used when it matches a map::ButtonState entry; otherwise the full
-     *  property name is the key. All SVGs are coloured with the full colourScheme.
+     *  property name is the key. Svg::Flex::getSegments looks up each named SVG
+     *  element as a top-level int key of the colourScheme member of jam::StyleCustom
+     *  (jam_SvgAttributes.cpp). END leaves colourScheme empty, so every element
+     *  keeps its own SVG style.
      */
     jam::HashMap<juce::Identifier, jam::Svg::Flex::Segments> graphics;
 
     /**
      * @brief Event dispatch map keyed by juce::Identifier (property or tree type).
      *
-     * Populated by registerEvents(). Handles:
+     * Populated by registerEvents(). A row child of a config table has no entry of its own,
+     * so valueTreePropertyChanged() looks up the type of its parent table. Handles:
      * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
-     *                     — per-component colour refresh via colourScheme.applyColours()
+     *                     — per-component colour refresh via setColours()
      * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     — re-applies setFontRasterization() on config hot-reload,
      *                       which itself cascades Component::sendLookAndFeelChange()
@@ -459,21 +463,30 @@ private:
      * Iterates properties of the FLEX child via jam::Model::forEachProperty.
      * For each string property: the key is the suffix after the last '_' when it
      * matches a map::ButtonState entry, or the full property name otherwise.
-     * All SVGs are coloured with the full colourScheme. No disk I/O.
+     * Svg::Flex::getSegments looks up each named SVG element as a top-level int key
+     * of the colourScheme member of jam::StyleCustom (jam_SvgAttributes.cpp). END
+     * leaves colourScheme empty, so every element keeps its own SVG style. No disk I/O.
      * Defined in EventRegistration.cpp.
      */
     void loadGraphics();
 
     /**
-     * @brief Builds ColourScheme from config.state and applies all component colours.
+     * @brief Applies all component colours, then the popup menu colours.
      *
-     * Calls jam::ColourScheme::fromValueTree on config.state, then maps every
-     * component-tree colour property to its corresponding JUCE or END ColourId via
-     * addColourId (code, scrollbar, tab, button, overlay, pane).
-     * Finalises by calling colourScheme.applyColours on config.state.
+     * Calls setColours(), then setPopupMenuColours().
      * Defined in EventRegistration.cpp.
      */
     void initialiseColours();
+
+    /**
+     * @brief Sets the JUCE and END colour ids of every component tree from the config rows.
+     *
+     * Reads one colour row through ConfigModel::getRowValue() for each (table type, row key,
+     * colour id) entry of the code, scrollbar, tab, button, overlay and pane tables.
+     * Converts the row with jam::ColourScheme::toColour() and passes it to
+     * juce::LookAndFeel::setColour(). Defined in EventRegistration.cpp.
+     */
+    void setColours();
 
     /**
      * @brief Applies window background, opacity, text, and highlight colours
@@ -493,7 +506,7 @@ private:
      * - Id::theme         → initialiseColours() + loadGraphics()
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
-     *                     → colourScheme.applyColours(config.state)
+     *                     → setColours()
      * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
      *                     → setFontRasterization() (font events live with the
      *                       font owner — relocated from ENDView), whose own

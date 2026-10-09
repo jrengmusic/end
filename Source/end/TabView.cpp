@@ -9,8 +9,8 @@ static constexpr float joinPreviewSentinel { -1.0f };
 static juce::Font getOverlayFont()
 {
     return juce::FontOptions()
-        .withName (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString())
-        .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize)));
+        .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+        .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::textFontSize)));
 }
 
 TabView::TabView (jam::UUID uuid, jam::Model& m, juce::ValueTree sessionState)
@@ -212,7 +212,7 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, fl
                                  + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
 
     jam::drawMessageOverlay (g, *this, preview, message, getOverlayFont(), splitLine, splitVertical,
-                             ConfigModel::getInstance()->getValue (Id::toType (Id::pane), Id::splitLine).toString());
+                             ConfigModel::getInstance()->getRowValue (Id::toType (Id::pane), Id::splitLine).toString());
 }
 
 void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)

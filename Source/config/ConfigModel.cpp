@@ -202,6 +202,15 @@ ConfigModel::ConfigModel()
     startWatcher();
 }
 
+juce::var ConfigModel::getRowValue (const juce::Identifier& type, const juce::Identifier& name) const noexcept
+{
+    const auto table { getChildWithName (type) };
+
+    jassert (table.getChildWithName (name).isValid());
+
+    return jam::Model::getValue<juce::var> (table, name);
+}
+
 void ConfigModel::saveToPath()
 {
     jam::File::getOrCreateDirectory (
@@ -210,7 +219,7 @@ void ConfigModel::saveToPath()
     for (auto& [key, stem] : map::FileConfig::getInstance()->get())
         getOrCreateDefaultFile (ConfigDirectory::Config::path, ConfigDirectory::Config::getName (key));
 
-    theme.saveToPath (getValue (Id::toType (Id::display), Id::theme));
+    theme.saveToPath (getRowValue (Id::toType (Id::display), Id::theme));
 }
 
 void ConfigModel::loadFromPath()
@@ -224,16 +233,16 @@ void ConfigModel::loadFromPath()
     // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
     // notifications and consumers must read fresh source at that point.
     auto diskDisplay { jam::Model::getChildWithName (disk, Id::toType (Id::display)) };
-    errors << theme.loadFromPath (diskDisplay.getProperty (Id::theme));
+    errors << theme.loadFromPath (jam::Model::getValue<juce::var> (diskDisplay, Id::theme));
 
     auto diskGraphics { jam::Model::getChildWithName (disk, Id::toType (Id::graphics)) };
-    errors << background.loadFromPath (diskGraphics.getProperty (Id::background));
-    errors << postProcessing.loadFromPath (diskGraphics.getProperty (Id::postProcessing));
+    errors << background.loadFromPath (jam::Model::getValue<juce::var> (diskGraphics, Id::background));
+    errors << postProcessing.loadFromPath (jam::Model::getValue<juce::var> (diskGraphics, Id::postProcessing));
 
     setValuesFrom (disk);
 
     const juce::String message { errors.isEmpty()
-                                     ? getValue (Id::toType (Id::display), Id::successMessage).toString()
+                                     ? getRowValue (Id::toType (Id::display), Id::successMessage).toString()
                                      : errors };
     appModel.setMessage (message);
 }

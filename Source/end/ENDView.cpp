@@ -4,8 +4,8 @@ ENDView::ENDView (jam::Model& m)
     : jam::Model::Component<ENDView> (m, m.getChildWithName (Id::toType (Id::window)))
     , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)), [] {
         return juce::Font { juce::FontOptions()
-                                .withName (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::fontFamily).toString())
-                                .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getValue (Id::toType (Id::overlay), Id::textFontSize))) };
+                                .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+                                .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::textFontSize))) };
     })
 {
     setOpaque (false);
@@ -28,9 +28,13 @@ ENDView::ENDView (jam::Model& m)
     juce::MessageManager::callAsync (
         [this]
         {
+            auto display { config.getChildWithName (Id::toType (Id::display)) };
+            auto alwaysOnTopRow { display.getChildWithName (Id::alwaysOnTop) };
+            auto titleBarButtonsRow { display.getChildWithName (Id::titleBarButtons) };
+
             events.get (Id::useGpu, config.state);
-            events.get (Id::alwaysOnTop, config.state);
-            events.get (Id::titleBarButtons, config.state);
+            events.get (Id::alwaysOnTop, alwaysOnTopRow);
+            events.get (Id::titleBarButtons, titleBarButtonsRow);
             events.get (Id::enabled, config.state);
 
             actions.run (Id::newSession);
@@ -88,7 +92,9 @@ void ENDView::valueChanged (juce::Value&)
 
 void ENDView::createAndAttachParameters()
 {
-    auto [width, height] = config.getInt (Id::toType (Id::display), Id::size);
+    const auto windowSize { config.getRowValue (Id::toType (Id::display), Id::size) };
+    const int width { windowSize[0] };
+    const int height { windowSize[1] };
 
     //==============================================================================
     model.createAndAddParameter<jam::Parameter<int>> (

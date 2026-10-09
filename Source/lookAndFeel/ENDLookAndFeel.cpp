@@ -17,6 +17,9 @@ void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
 {
     auto key { events.contains (property) ? property : tree.getType() };
 
+    if (not events.contains (key))
+        key = tree.getParent().getType();
+
     if (events.contains (key))
         events.get (key, tree);
 }
@@ -88,8 +91,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
         bounds = { 0.0f, 0.0f, height, width };
     }
 
-    const auto state { jam::ButtonSVG::getState (
-        button, isMouseOver, isMouseDown, map::ButtonState::getInstance()->get().size()) };
+    const auto state { jam::ButtonSVG::getState (button, isMouseOver, isMouseDown) };
     const juce::Identifier stateId { map::ButtonState::getInstance()->get (state) };
 
     // Sparse bank — paint only when the state slot was authored in the FLEX child (loadGraphics()).
@@ -112,9 +114,9 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 //==============================================================================
 juce::Font ENDLookAndFeel::getTabFont() const
 {
-    auto fontFamily { config.getValue (Id::toType (Id::tab), Id::fontFamily) };
-    auto fontSize { config.getValue (Id::toType (Id::tab), Id::textFontSize) };
-    const float kerning { config.getValue (Id::toType (Id::tab), Id::kerningFactor) };
+    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontSize { config.getRowValue (Id::toType (Id::tab), Id::textFontSize) };
+    const float kerning { config.getRowValue (Id::toType (Id::tab), Id::kerningFactor) };
 
     return juce::FontOptions()
         .withName (fontFamily)
@@ -124,8 +126,8 @@ juce::Font ENDLookAndFeel::getTabFont() const
 
 juce::Font ENDLookAndFeel::getCommonFont() const
 {
-    auto fontFamily { config.getValue (Id::toType (Id::tab), Id::fontFamily) };
-    auto fontSize { config.getValue (Id::toType (Id::tab), Id::textFontSize) };
+    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontSize { config.getRowValue (Id::toType (Id::tab), Id::textFontSize) };
 
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
@@ -134,24 +136,24 @@ juce::Font ENDLookAndFeel::getPopupMenuFont() { return getCommonFont(); }
 
 int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
 {
-    const float depth { config.getValue (Id::toType (Id::tab), Id::depth) };
-    const bool alwaysVisible { config.getValue (Id::toType (Id::tab), Id::alwaysVisible) };
+    const float depth { config.getRowValue (Id::toType (Id::tab), Id::depth) };
+    const bool alwaysVisible { config.getRowValue (Id::toType (Id::tab), Id::alwaysVisible) };
     const bool shouldHide { tabs.getChildCount() <= 1 and not alwaysVisible };
     const int tabBarDepth { juce::roundToInt (getTabFont().getHeight() * depth) };
 
     return shouldHide ? 0 : tabBarDepth;
 }
 
-int ENDLookAndFeel::getTabPadding() const { return config.getValue (Id::toType (Id::tab), Id::textPadding); }
+int ENDLookAndFeel::getTabPadding() const { return config.getRowValue (Id::toType (Id::tab), Id::textPadding); }
 int ENDLookAndFeel::getTabPosition() const noexcept
 {
-    const juce::String position { config.getValue (Id::toType (Id::tab), Id::position) };
+    const juce::String position { config.getRowValue (Id::toType (Id::tab), Id::position) };
     return map::Position::getInstance()->get (position);
 }
 
 juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 {
-    if (bool uppercase { config.getValue (Id::toType (Id::tab), Id::uppercase) })
+    if (bool uppercase { config.getRowValue (Id::toType (Id::tab), Id::uppercase) })
         return tabName.toUpperCase();
 
     return tabName;
@@ -160,14 +162,14 @@ juce::String ENDLookAndFeel::getTabText (const juce::String& tabName) const
 //==============================================================================
 int ENDLookAndFeel::getPaneEdgeSize() const noexcept
 {
-    return config.getValue (Id::toType (Id::pane), Id::resizeBarThickness);
+    return config.getRowValue (Id::toType (Id::pane), Id::resizeBarThickness);
 }
 
 //==============================================================================
 juce::Font ENDLookAndFeel::getCodeFont() const
 {
-    auto fontFamily { config.getValue (Id::toType (Id::code), Id::fontFamily) };
-    auto fontSize { config.getValue (Id::toType (Id::code), Id::textFontSize) };
+    auto fontFamily { config.getRowValue (Id::toType (Id::code), Id::fontFamily) };
+    auto fontSize { config.getRowValue (Id::toType (Id::code), Id::textFontSize) };
 
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
@@ -186,8 +188,8 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
     jassert (atlas != nullptr);
     const auto metrics { atlas->calcMetrics (resolvedTypeface, font.getHeight()) };
 
-    const float cellWidthRatio { config.getValue (Id::toType (Id::code), Id::cellWidth) };
-    const float lineHeightRatio { config.getValue (Id::toType (Id::code), Id::lineHeight) };
+    const float cellWidthRatio { config.getRowValue (Id::toType (Id::code), Id::cellWidth) };
+    const float lineHeightRatio { config.getRowValue (Id::toType (Id::code), Id::lineHeight) };
 
     const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth)
                                             * cellWidthRatio) };
@@ -225,9 +227,9 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
 juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = config.getInt16 (Id::toType (Id::tab), Id::padding);
+    const auto padding { config.getRowValue (Id::toType (Id::tab), Id::padding) };
 
-    return juce::BorderSize<int> { top, left, bottom, right };
+    return juce::BorderSize<int> { padding[0], padding[3], padding[2], padding[1] };
 }
 
 int16_t ENDLookAndFeel::getWindowFX() const
@@ -235,9 +237,9 @@ int16_t ENDLookAndFeel::getWindowFX() const
     int16_t fx { 0 };
 
 #if JUCE_MAC
-    auto name { config.getValue (Id::toType (Id::style), Id::mac).toString() };
+    auto name { config.getRowValue (Id::toType (Id::style), Id::mac).toString() };
 #elif JUCE_WINDOWS
-    auto name { config.getValue (Id::toType (Id::style), Id::win).toString() };
+    auto name { config.getRowValue (Id::toType (Id::style), Id::win).toString() };
 #else
     juce::String name;
 #endif
@@ -250,12 +252,12 @@ int16_t ENDLookAndFeel::getWindowFX() const
 
 float ENDLookAndFeel::getWindowBlur() const noexcept
 {
-    return config.getValue (Id::toType (Id::window), Id::blurRadius);
+    return config.getRowValue (Id::toType (Id::window), Id::blurRadius);
 }
 
 void ENDLookAndFeel::prepareWindow (juce::Component& window)
 {
-    const auto colour { jam::ColourScheme::toColour (config.getValue (Id::toType (Id::window), Id::background)) };
+    const auto colour { jam::ColourScheme::toColour (config.getRowValue (Id::toType (Id::window), Id::background)) };
     const auto blur { getWindowBlur() };
     const auto fx { getWindowFX() };
 
@@ -277,7 +279,7 @@ void ENDLookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
             if (safeComponent != nullptr)
             {
                 const auto fx { getWindowFX() };
-                const float menuOpacity { config.getValue (Id::toType (Id::menu), Id::opacity) };
+                const float menuOpacity { config.getRowValue (Id::toType (Id::menu), Id::opacity) };
                 const auto opacity { jam::BackgroundBlur::isEnabled() ? menuOpacity : 1.0f };
                 const auto baseColour {
                     safeComponent->findColour (juce::PopupMenu::backgroundColourId).withAlpha (opacity)

@@ -194,14 +194,14 @@ void ENDView::registerZoomActions()
     registerZoomAction (actions, model, Id::zoomIn,
         [&config = config] (float currentZoom)
         {
-            const float step { config.getValue (Id::toType (Id::display), Id::zoomStep) };
+            const float step { config.getRowValue (Id::toType (Id::display), Id::zoomStep) };
             return currentZoom + step;
         });
 
     registerZoomAction (actions, model, Id::zoomOut,
         [&config = config] (float currentZoom)
         {
-            const float step { config.getValue (Id::toType (Id::display), Id::zoomStep) };
+            const float step { config.getRowValue (Id::toType (Id::display), Id::zoomStep) };
             return currentZoom - step;
         });
 
@@ -293,7 +293,7 @@ void ENDView::registerPaneActions()
                          if (auto* sessionView { getActiveSessionView() })
                              if (auto* tabView { sessionView->getActiveTabView() })
                              {
-                                 const float step { config.getValue (Id::toType (Id::display), Id::paneStep) };
+                                 const float step { config.getRowValue (Id::toType (Id::display), Id::paneStep) };
                                  (tabView->*resize) (tabView->getFocusedChild(), axis, step);
                              }
                      });

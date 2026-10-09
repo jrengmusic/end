@@ -35,8 +35,8 @@ void ENDApplication::initialise (const juce::String& commandLine)
 
     window = std::make_unique<jam::Window> (std::make_unique<ENDView> (*ENDModel::getInstance()),
                                             ProjectInfo::projectName,
-                                            static_cast<bool> (config.getValue (Id::toType (Id::display), Id::alwaysOnTop)),
-                                            static_cast<bool> (config.getValue (Id::toType (Id::display), Id::titleBarButtons)));
+                                            static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::alwaysOnTop)),
+                                            static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::titleBarButtons)));
     window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
     window->setVisible (true);
 }
@@ -49,7 +49,7 @@ void ENDApplication::initialiseVulkan()
     const auto cacheDir { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, Id::cache)) };
-    const bool canUseGpu { static_cast<bool> (config.getValue (Id::toType (Id::display), Id::useGpu)) };
+    const bool canUseGpu { static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::useGpu)) };
 
     const auto maxImageExtent { jam::VulkanEngine::getPrimaryDisplayExtent() };
 

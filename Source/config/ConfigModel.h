@@ -208,6 +208,18 @@ public:
     */
     void loadFromPath();
 
+    /**
+        @brief Returns the value of one config row.
+
+        Reads the property @p name of the table child @p type of this tree.
+        The table and the row must exist.
+
+        @param type  The table type of the config file, as @c Id::toType gives it.
+        @param name  The key of the row.
+        @return The value of the row.
+    */
+    juce::var getRowValue (const juce::Identifier& type, const juce::Identifier& name) const noexcept;
+
 private:
     ENDModel& appModel { *ENDModel::getInstance() };
 

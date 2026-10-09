@@ -204,8 +204,6 @@
 |                                               |                           | - xattr: @cmake:xattr                               |                    |
 |                                               |                           | - codesign: @cmake:codesign                         |                    |
 |                                               |                           | - verify: @cmake:verify                             |                    |
-|                                               |                           | - install-directory: @cmake:install-directory       |                    |
-|                                               |                           | - install-copy: @cmake:install-copy                 |                    |
 |                                               |                           | - pkg-staging: @cmake:pkg-staging                   |                    |
 |                                               |                           | - pkgbuild: @cmake:pkgbuild                         |                    |
 |                                               |                           | - productbuild: @cmake:productbuild                 |                    |

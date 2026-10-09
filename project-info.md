@@ -313,6 +313,8 @@ Every field is a complete literal; nothing downstream derives, concatenates, or 
 +--------------+---------------------+------------------------------------------------------------------------------------+
 | @user-module | jam_markdown        | Clean-room native CommonMark + GFM markdown parsing and rendering                  |
 +--------------+---------------------+------------------------------------------------------------------------------------+
+| @user-module | jam_document        | Universal line break and reflow over jam::Document (UAX #14)                       |
++--------------+---------------------+------------------------------------------------------------------------------------+
 | @user-module | jam_web             | HTML authored-subset and CSS Syntax Level 3 subset tokenizers and parsers          |
 +--------------+---------------------+------------------------------------------------------------------------------------+
 | @user-module | jam_clap            | JAM CLAP Plugin Hosting                                                            |

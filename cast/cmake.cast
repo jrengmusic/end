@@ -414,12 +414,6 @@ if(APPLE)
             COMMENT "CAST: sign ${PROJECT_NAME}"
         )
     endif()
-
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-:::install-directory:::
-:::install-copy:::
-        COMMENT "CAST: install ${PROJECT_NAME}"
-    )
 endif()
 
 if(WIN32)
@@ -514,14 +508,6 @@ endif()
 
 ```codesign
 COMMAND codesign --force --options runtime --entitlements "${CMAKE_SOURCE_DIR}/:::entitlementsPath:::" --sign ":::identity:::" "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
-```
-
-```install-directory
-COMMAND ${CMAKE_COMMAND} -E make_directory ":::installDirectory:::"
-```
-
-```install-copy
-COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" ":::installDirectory:::/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
 ```
 
 ```xattr

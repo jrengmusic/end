@@ -203,6 +203,7 @@ juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_freetype")       # Vendo
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_vulkan")         # Vulkan rendering backend
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_style")          # JAM Style — LookAndFeel base + ColourScheme-backed colour registry
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_markdown")       # Clean-room native CommonMark + GFM markdown parsing and rendering
+juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_document")       # Universal line break and reflow over jam::Document (UAX #14)
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_web")            # HTML authored-subset and CSS Syntax Level 3 subset tokenizers and parsers
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_clap")           # JAM CLAP Plugin Hosting
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_audio_devices")  # JAM Audio Device Abstractions
@@ -306,6 +307,7 @@ target_link_libraries(${PROJECT_NAME}
         jam_vulkan
         jam_style
         jam_markdown
+        jam_document
         jam_web
         jam_clap
         jam_audio_devices
@@ -514,12 +516,6 @@ COMMAND codesign --verify --verbose "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>"
             COMMENT "CAST: sign ${PROJECT_NAME}"
         )
     endif()
-
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E make_directory "/Applications"
-COMMAND ditto "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>" "/Applications/$<TARGET_BUNDLE_DIR_NAME:${PROJECT_NAME}>"
-        COMMENT "CAST: install ${PROJECT_NAME}"
-    )
 endif()
 
 if(WIN32)
