@@ -63,9 +63,6 @@ struct Nexus : jam::Instance<Nexus>
         services.vulkanEngine   = jam::VulkanEngine::getInstance();
         services.glyphAtlas     = jam::GlyphAtlas::getInstance();
         services.typeface       = jam::Typeface::getInstance();
-        services.stamp          = jam::Stamp::getInstance();
-        services.grapheme       = jam::Grapheme::getInstance();
-        services.hyperlink      = jam::Hyperlink::getInstance();
         services.contextFactory = juce::ComponentPeer::externalContextFactory;
     }
 
