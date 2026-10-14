@@ -65,7 +65,7 @@ static juce::String addTables (juce::ValueTree target, juce::Identifier rootTag,
     {
         const auto fileName { getName (key) };
         const auto document { jam::ConfigDocument::parse (read (fileName), fileName) };
-        const auto result { jam::ConfigValidator::isValid (document) };
+        const auto result { jam::ConfigValidator {}.isValid (document) };
 
         if (result.wasOk())
         {

@@ -109,11 +109,11 @@ public:
         /** @brief Filename for the FLEX SVG asset named by @p key.
          *  @param key  @c map::FileFlex bimap key.
          *  @return     @p key's stem, extensioned via @c jam::Format::toFileName
-         *              with @c Id::svg.
+         *              with @c Extensions::svg.
          */
         static juce::String getName (int key) noexcept
         {
-            return jam::Format::toFileName (map::FileFlex::getInstance()->get (key), Id::svg);
+            return jam::Format::toFileName (map::FileFlex::getInstance()->get (key), Extensions::svg);
         }
     };
 

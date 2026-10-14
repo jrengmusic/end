@@ -169,7 +169,7 @@ private:
     @par Composition via jam::ConfigDocument and jam::Model::fromFiles
     @c jam::ConfigDocument::parse and @c jam::Model::fromFiles are the SSOT builders.
     Each bimap key resolves to one markdown file; its parsed document is validated via
-    @c jam::ConfigValidator::isValid, and its @c getValueTree(rootTag) children are
+    the member @c jam::ConfigValidator {}.isValid, and its @c getValueTree(rootTag) children are
     appended into one @p rootTag-typed tree. @c fromFiles sets one property per bimap
     entry on a fresh @p rootTag tree — key = stem, value = @c read(key).
 
