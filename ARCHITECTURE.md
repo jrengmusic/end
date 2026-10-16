@@ -378,7 +378,9 @@ the GPU path by construction.
 ### Glyph Pipeline — jam::GlyphAtlas (shared, message-thread only)
 
 One canonical atlas serves both engines. Mono rasterization backend is **user config**,
-dispatched through a branchless member-function-pointer table:
+dispatched through a branchless member-function-pointer table. The backend applies to
+embedded fonts (typefaces registered with font data). System fonts and colour fonts do not
+use it (see below):
 
 | Backend | Rasterizer | Character |
 |---|---|---|
@@ -393,8 +395,10 @@ dispatched through a branchless member-function-pointer table:
   each embedded typeface with the atlas (reached directly via `jam::GlyphAtlas::getInstance()`)
   via `LookAndFeel::getTypefaceForFont()` override, which guarantees the same Typeface object
   identity flows from name-based Font construction into atlas keys.
-- System fonts (user config): resolved lazily on first miss — font file located via
-  CoreText/DirectWrite, loaded, cached as an FT face. Failures negative-cache.
+- System fonts (user config): `jam::Typeface::registerSystemTypeface()` interns an installed
+  system font. The atlas draws its glyphs from the JUCE outline
+  (`juce::Typeface::getLayersForGlyph` / `getOutlineForGlyph`) through the EdgeTable path,
+  whatever the backend setting.
 - Color/emoji fonts: never enter the grayscale backends — JUCE ImageLayer path renders
   them into the BGRA emoji atlas.
 - Backend/gamma/contrast changes (config hot-reload) flush the atlas and rebuild the LUT —

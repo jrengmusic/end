@@ -107,8 +107,11 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | buffers.                           |
 +----------------------------+--------+----------+------------+------------------------------------+
 | fontRasterizer             | string | freetype | edgeTable, | Glyph atlas mono rasterization     |
-|                            |        |          | freetype,  | backend. "edgeTable" - unhinted    |
-|                            |        |          | native     | juce::Typeface coverage            |
+|                            |        |          | freetype,  | backend for embedded fonts. System |
+|                            |        |          | native     | fonts always draw from the JUCE    |
+|                            |        |          |            | outline, whatever this value.      |
+|                            |        |          |            | "edgeTable" - unhinted             |
+|                            |        |          |            | juce::Typeface coverage            |
 |                            |        |          |            | rasterization. "freetype" -        |
 |                            |        |          |            | unhinted FreeType rasterization    |
 |                            |        |          |            | (default), no autofitter, no stem  |

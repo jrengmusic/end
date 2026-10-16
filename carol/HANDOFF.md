@@ -100,8 +100,9 @@ SVG bank is intended (unfocused tabs paint no SVG).
    plasma, end). Restoring = one cell edit; ARCHITECT rules which/whether.
 8. Stale incremental builds — a clean build (Builds/ deleted) rendered once;
    the WAR race explains the nondeterminism across builds. Build-graph hygiene
-   (define flips not invalidating dependents; patched JUCE in $TMPDIR gated by
-   .patch-stamp, CMakeLists.txt:116-117) remains a MACHINIST-lane observation,
+   (define flips not invalidating dependents; patched JUCE in ~/.cache/cast/juce/<hash> (macOS) or
+   %LOCALAPPDATA%/cast/juce/<hash> (Windows), gated by .patch-stamp,
+   CMakeLists.txt:116-117) remains a MACHINIST-lane observation,
    not this defect.
 
 ## 5. INSTRUMENTATION IN TREE (ODE — remove same sprint, after defect closes)

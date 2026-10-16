@@ -9,6 +9,10 @@
 +--------------------+-------------------------------------+
 | @project-info      | ../project-info.md                  |
 +--------------------+-------------------------------------+
+| @modules           | ../../jam/user-modules-info.md      |
++--------------------+-------------------------------------+
+| @juce              | ../../jam/cast/juce.cast            |
++--------------------+-------------------------------------+
 | @signing           | signing.md                          |
 +--------------------+-------------------------------------+
 | @identifiers       | identifiers.md                      |
@@ -192,7 +196,6 @@
 | - [list]: @project-info:release:stage=        | - [list]: @semicolon      | - [list]: @cmake:win                                |                    |
 | - [list]: @project-info:release:stage=linker  | - [list]: @semicolon      | - [list]: @cmake:win                                |                    |
 | - [list]: @project-info:debug:stage=          | - [list]: @semicolon      | - [list]: @cmake:win                                |                    |
-| - [list]: @project-info:patch                 |                           | - [list]: @cmake:patch                              |                    |
 | - [list]: @project-info:user module           |                           | - [list]: @cmake:module                             |                    |
 | - [list]: @project-info:source glob           |                           | - [list]: @cmake:glob-pattern                       |                    |
 | > - [list]: @project-info:define              |                           | > - [list]: @cmake:entry                            |                    |
@@ -211,6 +214,8 @@
 |                                               |                           | - notarize: @cmake:notarize                         |                    |
 |                                               |                           | - staple: @cmake:staple                             |                    |
 |                                               |                           | - makensis: @cmake:makensis                         |                    |
+|                                               |                           | - patched-juce: @juce:patched-juce                  |                    |
+| - [list]: @modules:submodule:module=patch     |                           | - [list]: @juce:patch                               |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > - [list]: @signing:signing:type=entitlement |                           | @code:[xml]entitlements                             | @Entitlements      |
 |                                               |                           | > - [list]: @code:entitlement                       |                    |
