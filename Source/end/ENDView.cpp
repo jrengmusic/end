@@ -1,11 +1,11 @@
 #include "end/ENDView.h"
 
-ENDView::ENDView (jam::Model& m)
-    : jam::Model::Component<ENDView> (m, m.getChildWithName (Id::toType (Id::window)))
-    , messageOverlay (m, m.getChildWithName (Id::toType (Id::overlay)), [] {
-        return juce::Font { juce::FontOptions()
-                                .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
-                                .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::textFontSize))) };
+ENDView::ENDView()
+    : jam::Model::Component<ENDView> (ENDModel::getInstance()->getChildWithName (Id::toType (Id::window)))
+    , messageOverlay (model.getChildWithName (Id::toType (Id::overlay)), [] {
+        return juce::FontOptions()
+                   .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+                   .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::textFontSize)));
     })
 {
     setOpaque (false);
@@ -100,7 +100,7 @@ void ENDView::createAndAttachParameters()
     model.createAndAddParameter<jam::Parameter<int>> (
         state, Id::size, jam::Size<int16_t> (width, height).toInt());
 
-    messageOverlay.registerParameters();
+    messageOverlay.registerParameters (model);
 
     //==============================================================================
     setSize (width, height);

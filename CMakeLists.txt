@@ -98,14 +98,14 @@ set(CAST_JUCE_VERSION 8.0.14)
 find_package(Git REQUIRED)
 
 set(CAST_JUCE_PATCHES
-"${CAST_USER_MODULE_PATH}/patch/juce-cached-image-factory-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-direct2d-helpers-visibility-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-image-subsection-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-vulkan-engine-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-paint-update-rect-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-attributed-text-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-adhoc-sign-hook.patch"
-"${CAST_USER_MODULE_PATH}/patch/juce-display-changed-hook.patch"
+"${CAST_USER_MODULE_PATH}/patch/juce-cached-image-factory-hook.patch"       # External CachedComponentImage factory
+"${CAST_USER_MODULE_PATH}/patch/juce-direct2d-helpers-visibility-hook.patch"# Direct2D helpers visibility gate
+"${CAST_USER_MODULE_PATH}/patch/juce-image-subsection-hook.patch"           # Root image and subsection bounds hooks
+"${CAST_USER_MODULE_PATH}/patch/juce-vulkan-engine-hook.patch"              # External graphics context factory for Vulkan
+"${CAST_USER_MODULE_PATH}/patch/juce-paint-update-rect-hook.patch"          # OS dirty rectangle before native paint; applies after juce-vulkan-engine-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-attributed-text-hook.patch"            # Attributed text virtual on LowLevelGraphicsContext; applies after juce-vulkan-engine-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-adhoc-sign-hook.patch"                 # No ad-hoc signature on the VST3 bundle
+"${CAST_USER_MODULE_PATH}/patch/juce-display-changed-hook.patch"            # Callback after refresh() finds a display change
 )
 
 if(WIN32)
@@ -134,6 +134,8 @@ if(NOT EXISTS "${CAST_JUCE_PATCH_STAMP_FILE}")
     if(EXISTS "${CAST_PATCHED_JUCE_PATH}")
         file(REMOVE_RECURSE "${CAST_PATCHED_JUCE_PATH}")
     endif()
+
+    file(REAL_PATH "${CAST_JUCE_PATH}" CAST_JUCE_PATH)
 
     file(COPY "${CAST_JUCE_PATH}/"
         DESTINATION "${CAST_PATCHED_JUCE_PATH}"
@@ -210,6 +212,7 @@ juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_document")       # Unive
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_web")            # HTML authored-subset and CSS Syntax Level 3 subset tokenizers and parsers
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_clap")           # JAM CLAP Plugin Hosting
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_audio_devices")  # JAM Audio Device Abstractions
+juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_terminal")       # VT read-side engine, TTY, protocol
 
 message(STATUS "CAST: user modules added from ${CAST_USER_MODULE_PATH}")
 
@@ -314,6 +317,7 @@ target_link_libraries(${PROJECT_NAME}
         jam_web
         jam_clap
         jam_audio_devices
+        jam_terminal
     PUBLIC
         juce::juce_recommended_config_flags
 )

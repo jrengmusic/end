@@ -150,7 +150,7 @@ public:
      *
      * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
      */
-    juce::Font getTabFont() const override;
+    juce::FontOptions getTabFont() const override;
 
     /** @brief Returns the popup menu font constructed from the Display font
      *  config (same source as getTabFont(), no kerning).

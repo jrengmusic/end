@@ -27,7 +27,7 @@ class ENDView
     , public juce::Value::Listener
 {
 public:
-    explicit ENDView (jam::Model& m);
+    ENDView();
 
     ~ENDView() override;
 
@@ -57,6 +57,7 @@ private:
     jam::SharedInstance<map::MouseButton> mouseButton { std::in_place };
     jam::SharedInstance<map::Position> position { std::in_place };
 
+    ENDModel& model { *ENDModel::getInstance() };
     ENDActions& actions { *ENDActions::getInstance() };
     Nexus& nexus { *Nexus::getInstance() };
     ConfigModel& config { *ConfigModel::getInstance() };

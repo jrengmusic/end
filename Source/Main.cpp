@@ -33,7 +33,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
     initialiseVulkan();
     nexus.initialiseServices();
 
-    window = std::make_unique<jam::Window> (std::make_unique<ENDView> (*ENDModel::getInstance()),
+    window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
                                             ProjectInfo::projectName,
                                             static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::alwaysOnTop)),
                                             static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::titleBarButtons)));

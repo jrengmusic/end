@@ -104,7 +104,7 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
     g.fillAll (label.findColour (juce::Label::backgroundColourId));
     if (not label.isBeingEdited())
     {
-        g.setFont (getTabFont());
+        g.setFont (juce::Font { getTabFont() });
         g.setColour (label.findColour (juce::Label::textColourId));
         g.drawText (
             getTabText (label.getText()), label.getLocalBounds(), juce::Justification::centred);
@@ -112,7 +112,7 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 }
 
 //==============================================================================
-juce::Font ENDLookAndFeel::getTabFont() const
+juce::FontOptions ENDLookAndFeel::getTabFont() const
 {
     auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
     auto fontSize { config.getRowValue (Id::toType (Id::tab), Id::textFontSize) };
@@ -139,7 +139,7 @@ int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noex
     const float depth { config.getRowValue (Id::toType (Id::tab), Id::depth) };
     const bool alwaysVisible { config.getRowValue (Id::toType (Id::tab), Id::alwaysVisible) };
     const bool shouldHide { tabs.getChildCount() <= 1 and not alwaysVisible };
-    const int tabBarDepth { juce::roundToInt (getTabFont().getHeight() * depth) };
+    const int tabBarDepth { juce::roundToInt (juce::Font { getTabFont() }.getHeight() * depth) };
 
     return shouldHide ? 0 : tabBarDepth;
 }

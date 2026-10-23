@@ -6,12 +6,13 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 86: Frame-Pacing Race Paid — Read-First Mandate, Bisect-Proven Fix, Rendering Features Verified ✅ (2026-09-12) — waitIdle mask deleted (end-of-frame fence wait, jam_VulkanGraphics.cpp:768); glass-by-default restored; post-process verified in both shader formats; doxygen regen machinery not yet wired into generated CMakeLists (pre-Step 9 open item)
+- **Last sprint:** Sprint 90: Release Lane — pkg replaces dmg, Windows NSIS (x64, arm64, admin), gh Upload ✅ (2026-10-05) — generation is a fixpoint; Debug build fails at `ENDLookAndFeel.cpp:92` (4 arguments to `jam_ButtonSVG.h:81` `getState`, 3 parameters), predates Sprint 90 (per its log)
 - **Active debts:** 
-  - `DEBT-20260912T150000` — Windows conformance of Sprint 111's jam changes (end-of-frame wait on the Windows swapchain branch, default-glass blurBehind arm, VMA leak-only define)
+  - `DEBT-20261009T112447` — END keys do not use `jam::CommandManager` (ENDActions key maps, ENDActions.h:67-92, :152-153)
+  - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (end-of-frame wait on the Windows swapchain branch, default-glass blurBehind arm, VMA leak-only define)
 - **Open PLANs:**
-  - `PLAN-cast-migration.md` — Steps 1-8 landed; Step 9 (doxygen regen + docs final sync) carries forward
-  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop — DEBT-20260713T230500)
+  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop)
+  - `PLAN-terminal-editor.md` — APPROVED (2026-07-12); Step 4 (font seam) gated until the parallel `jam_vulkan` sprint lands
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)`  

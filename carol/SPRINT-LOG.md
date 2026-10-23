@@ -2,6 +2,31 @@
 
 ---
 
+## Sprint 91: Model::Component Binds a Node — END Conforms ✅
+
+**Date:** 2026-10-24
+**Duration:** part of jam Sprint 171 (the primary record; plan `eve/PLAN-texteditor-nvim-parity.md`, Step 1)
+
+### Decisions (ARCHITECT, verbatim)
+1. *"just add an overload? ValueTree is just ValueTree no?"*; *"what need to change? jam::Model? or all its family so could also attach to APVTS? END should conform"*.
+
+### Files Modified
+- `Source/end/ENDView.h/.cpp` — the `ENDModel& model` member, from the `ENDModel` instance, is the single route. `messageOverlay.registerParameters (model)`.
+- `Source/Main.cpp` — conforms to the `Model::Component` change.
+- `project-info.md` — `jam_terminal` row. `CMakeLists.txt` is regenerated with `jam_terminal`.
+- `TabView.cpp`, `ENDLookAndFeel.h/.cpp` (`juce::FontOptions`) and `CLAUDE.md` changed in the working tree before this sprint. This log does not claim them.
+
+### State for Continuation
+- `cast cast/spell.md --debug`: 0 errors, 0 warnings.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 90: Release Lane — pkg Replaces dmg, Windows NSIS (x64, arm64, admin), gh Upload ✅
 
 **Date:** 2026-10-05

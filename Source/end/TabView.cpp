@@ -6,7 +6,7 @@ static constexpr const char* swapPickPrefix { "swap:" };
 
 static constexpr float joinPreviewSentinel { -1.0f };
 
-static juce::Font getOverlayFont()
+static juce::FontOptions getOverlayFont()
 {
     return juce::FontOptions()
         .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
