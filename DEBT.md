@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20261025T135707
+
+**Observation:** END clocks each hosted plugin with `Nexus::VirtualClock`, a `juce::Thread` that waits `blockPeriodMilliseconds` (512 samples at 48 kHz, about 10 ms) and then calls `device.clock (blockSize)` (Source/Nexus.h:168-170, :173-207). END's CLAP host callback `hostRequestProcess` has an empty body (jam/jam_clap/format/jam_ClapPluginInstance.cpp:443-446). JAM's CLAP plugin wrapper receives the `clap_host` (jam/jam_clap/wrapper/jam_ClapWrapper.h:26) but never calls `request_process`.
+**Divergence:** ARCHITECT ruled "Virtual audio device as clock" and "i don't like wake/sleep or period. why manually manage thread? why clock driver not event driven?". PLAN-END-plugin-host.md:300-302 states `request_process` → Nexus pumps `VirtualDevice.clock()` → processBlock; the code clocks on a fixed period instead. JAM Step 5c (jam/PLAN-terminal-swap.md) gives `jam::VirtualDevice` a thread-safe `requestProcess()` and deletes `jam::VirtualClock`.
+**Expectation:** Precondition: the EVE standalone runs at or above the endless baseline (`seq 1 100000` in 0.072 s or less). Then END hosts EVE as a CLAP plugin with the exact same JAM modules. Each hosted plugin's `jam::VirtualDevice` is clocked by events: the plugin calls the host's `request_process`, and `hostRequestProcess` calls that plugin's `device.requestProcess()`. JAM's CLAP plugin wrapper gives the JUCE processor the path to `request_process`. `Nexus::VirtualClock` is deleted.
+
+---
+
 ## DEBT-20261009T112447
 
 **Observation:** END maps key presses with its own map: ENDActions::buildKeyMap fills jam::HashMap<juce::KeyPress, juce::Identifier> keys and modalKeys from the config KEYS section (Source/action/ENDActions.h:67-92, :152-153). jam now has jam::CommandManager : juce::ApplicationCommandManager in jam_gui/commands. It fills the juce::KeyPressMappingSet from a config keys table, with command ids from map::CommandId.
