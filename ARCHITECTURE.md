@@ -785,11 +785,13 @@ plugin instances). `TabView`/`EditorView` orchestrate their own presentation
 ### Hierarchy
 
 ```
-Application:  ENDModel — ENDView — jam::VulkanEngine (message thread)
+Application:  ENDModel — ENDView — jam::CpuGraphicsEngine — jam::VulkanGraphicsEngine (message thread)
 Hosting:      Nexus — end::Session — hosted juce::AudioPluginInstance (VirtualClock thread)
 ```
 
-- **jam::VulkanEngine** — rendering authority: engine dispatch, per-window Graphics, shared Device + GlyphAtlas + Typeface/Stamp/Grapheme/Link. Message thread.
+- **jam::CpuGraphicsEngine** — CPU fast lane. Owns Typeface, GlyphAtlas, GlyphArrangement and ImageLoader. Owns the CPU form of each image operation (blur, choke, feather, matte). Installs the CPU-lane LowLevelGraphicsContext. Created first, deleted last. Message thread.
+- **jam::VulkanGraphicsEngine** — GPU lane. Owns the shared Device and the per-window Graphics. Tells jam::CpuGraphicsEngine the GPU form of each image operation. When no GPU frame begins, it returns the CPU-lane context. Message thread.
+- **ENDApplication** — the engine owner. Reads the font, background and post-process config and tells the engines and ENDView. No Component or LookAndFeel names an engine.
 - **Nexus** — gui-less Host. Owns `ENDModel`, every `Session`, the CLAP plugin format, and one `VirtualClock` thread per hosted plugin. Globally-owned instance via `jam::Instance<Nexus>`.
 - **end::Session** — owns the hosted `juce::AudioPluginInstance`s of one SESSION row (`newPlugin`/`removePlugin`), a `jam::Model::Listener` only.
 - **EditorView** — message thread: owns the hosted plugin's `juce::AudioProcessorEditor`. Detachable — the owning `end::Session` (and its plugin instances) persists without an EditorView.

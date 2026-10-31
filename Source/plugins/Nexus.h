@@ -64,11 +64,10 @@ struct Nexus : jam::Instance<Nexus>
 
     /** @brief Fills services from the host's live Vulkan/glyph state.
      *
-     *  Must be called after jam::VulkanEngine and its interning tables are
+     *  Must be called after jam::VulkanGraphicsEngine and its interning tables are
      *  constructed — resolves stale/null Services otherwise. */
     void initialiseServices()
     {
-        services.vulkanEngine   = jam::VulkanEngine::getInstance();
         services.glyphAtlas     = jam::GlyphAtlas::getInstance();
         services.typeface       = jam::Typeface::getInstance();
         services.contextFactory = juce::ComponentPeer::externalContextFactory;

@@ -184,9 +184,7 @@ ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
     // Cell metrics come from the FT face's own advance/ascender/height at the
     // exact size rasterize() sizes it to, rather than JUCE's
     // juce::GlyphArrangement::getStringWidth()/getAscent() estimate.
-    auto* atlas { jam::GlyphAtlas::getInstance() };
-    jassert (atlas != nullptr);
-    const auto metrics { atlas->calcMetrics (resolvedTypeface, font.getHeight()) };
+    const auto metrics { jam::GlyphRasterizer::calcMetrics (resolvedTypeface, font.getHeight()) };
 
     const float cellWidthRatio { config.getRowValue (Id::toType (Id::code), Id::cellWidth) };
     const float lineHeightRatio { config.getRowValue (Id::toType (Id::code), Id::lineHeight) };

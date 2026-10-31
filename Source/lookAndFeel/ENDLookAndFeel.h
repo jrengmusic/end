@@ -74,18 +74,16 @@ public:
      * with unique, stable addresses.
      *
      * Cannot run at LookAndFeel construction time — the atlas (owned by
-     * jam::VulkanEngine) does not exist yet then (ENDApplication creates the
-     * engine through jam::VulkanEngine::getOrCreate in initialiseVulkan(),
+     * jam::VulkanGraphicsEngine) does not exist yet then (ENDApplication creates the
+     * engine through jam::VulkanGraphicsEngine::getOrCreate in initialiseVulkan(),
      * after ENDLookAndFeel construction). Called once, externally, immediately
      * after engine creation (ENDApplication::initialiseVulkan()). Also applies the
      * shipped/user-configured glyph rasterization backend/gamma/contrast (see
      * setFontRasterization()) and
      * the embolden state (see setEmbolden()) before this atlas ever paints a
      * glyph.
-     *
-     * @param atlas  The Vulkan glyph atlas to register with.
      */
-    void registerTypeface (jam::GlyphAtlas& atlas);
+    void registerTypeface();
 
     /**
      * @brief Single-key event dispatch through the events map.
@@ -310,7 +308,6 @@ public:
 
 private:
     jam::SharedInstance<map::ButtonState> buttonState { std::in_place };
-    jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
     jam::SharedInstance<map::Position> position { std::in_place };
     jam::SharedInstance<map::WindowFX> windowFX { std::in_place };
 
@@ -404,58 +401,6 @@ private:
     int16_t getWindowFX() const;
 
     //==============================================================================
-    /**
-     * @brief Reads graphics.font_rasterizer/font_gamma/font_contrast from
-     *        display.md and calls the Vulkan glyph atlas's setRasterization().
-     *
-     * Reaches the atlas via jam::GlyphAtlas::getInstance() directly rather
-     * than a stored reference — the atlas now always exists once
-     * ENDApplication::initialiseVulkan() has run (font events live with the font
-     * owner, but the atlas itself stays owned by jam::VulkanEngine). Asserts
-     * the instance is non-null rather than silently no-op-ing: by the time any
-     * of this method's three callers (registerTypeface()'s tail, and the
-     * fontRasterizer/fontGamma/fontContrast event callbacks below) can run,
-     * VulkanEngine construction has already happened. Called once from
-     * registerTypeface() right after registration (before this atlas ever
-     * paints a glyph), and again by the
-     * fontRasterizer/fontGamma/fontContrast event callbacks on config hot-reload.
-     *
-     * Only these three properties warrant this call: they change the
-     * rasterized bitmap for an otherwise-unchanged jam::GlyphAtlas::Key (same
-     * typeface/glyphIndex/fontSize, different backend or coverage LUT) — font
-     * family and size changes are a different Key outright and need no
-     * explicit atlas action (see registerEvents()'s doc comment for the full
-     * glyph-identity config audit). GlyphAtlas::setRasterization() itself only
-     * rebuilds the LUT and flushes the cache when backend/gamma/contrast
-     * actually differ from their current values — reapplying identical values
-     * here is a correct no-op, not a gap, since no caller ever needs a flush
-     * without an actual change. Tail-calls Component::sendLookAndFeelChange()
-     * on every juce::Desktop top-level window (ENDLookAndFeel owns no
-     * Component of its own to call it on directly) — the atlas rebuild above
-     * invalidates every cached glyph bitmap for an otherwise-unchanged
-     * GlyphAtlas::Key, and EditorView's own lookAndFeelChanged() is the
-     * sole path that recomputes cell metrics against the now-current atlas
-     * state and repaints. A no-op at startup (registerTypeface()'s own tail
-     * call runs before jam::Window exists). Defined in EventRegistration.cpp.
-     */
-    void setFontRasterization();
-
-    /**
-     * @brief Reads code.embolden from display.md and calls the Vulkan glyph
-     *        atlas's setEmbolden() (`FT_Outline_Embolden` restoration at the
-     *        FreeType rasterize site).
-     *
-     * Reaches the atlas via jam::GlyphAtlas::getInstance() directly, same
-     * precedent as setFontRasterization() (font events live with the font
-     * owner). Called once from registerTypeface()'s tail — the same place
-     * setFontRasterization() runs — and again by the embolden event callback
-     * on config hot-reload. Tail-calls the same juce::Desktop-reached
-     * Component::sendLookAndFeelChange() cascade as setFontRasterization()'s
-     * own tail comment — embolden changes the rasterized bitmap for an
-     * otherwise-unchanged GlyphAtlas::Key too. Defined in EventRegistration.cpp.
-     */
-    void setEmbolden();
-
     /**
      * @brief Reads SVG content from the FLEX child of config.state and
      *        parses each property into Svg::Flex::Segments.

@@ -8,10 +8,12 @@
 #include "generated/Generated.h"
 #include "plugins/Nexus.h"
 
-class ENDApplication : public juce::JUCEApplication
+class ENDApplication : public juce::JUCEApplication,
+                       private juce::ValueTree::Listener
 {
 public:
     ENDApplication();
+    ~ENDApplication() override;
     const juce::String getApplicationName() override;
     const juce::String getApplicationVersion() override;
     bool moreThanOneInstanceAllowed() override;
@@ -41,6 +43,7 @@ private:
     Generated generated;
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
+    jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member
@@ -56,13 +59,29 @@ private:
 
     std::unique_ptr<jam::Window> window;
 
+    jam::Function::Map<juce::Identifier, void> events;
+
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
 
-    /** @brief Creates the engine through jam::VulkanEngine::getOrCreate, registers END's embedded typefaces with
+    /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, registers END's embedded typefaces with
      *  its atlas, and enables the post-process background-blur shader — the
      *  whole GPU-availability-gated setup block, called once from initialise(). */
     void initialiseVulkan();
+
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    void registerEvents();
+
+    void setFontRasterization();
+
+    void setEmbolden();
+
+    void setBackground();
+
+    void setPostProcess();
+
+    void setPostProcessParams();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDApplication)

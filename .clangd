@@ -53,19 +53,19 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/Source/generated
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_graphics/fonts/harfbuzz
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/VST3_SDK
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/VST3_SDK
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/sdk/VST2
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sord/src
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
+    - -I/Users/jreng/.cache/cast/juce/07ee84e4f20e84487dbd6b019825471b89b88a33b627c0232371e88943ee8dcc/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_web/.

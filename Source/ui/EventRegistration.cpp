@@ -2,32 +2,6 @@
 
 void ENDView::registerGraphicsEvents()
 {
-    events.add<juce::ValueTree&> (
-        Id::useGpu,
-        [this] (juce::ValueTree&)
-        {
-            // jam::VulkanEngine is created unconditionally, once, by
-            // ENDApplication::initialiseVulkan(), and never reset or recreated
-            // here — GPU availability/preference only selects which rendering
-            // engine createContext() dispatches to per paint.
-
-            // Background/post-process shaders never exist independent of the
-            // effective GPU state (Locked Decision 4) — both funnels re-derive
-            // it themselves and discard/clear on every toggle away from GPU,
-            // recompile from current config on every toggle onto it. This is
-            // also the SAME call this View makes at initial config load — see
-            // this constructor's callAsync block, which fires this very
-            // callback once at startup.
-            setBackground();
-            setPostProcess();
-        });
-
-    events.add<juce::ValueTree&> (Id::background,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackground();
-                                  });
-
     events.add<juce::ValueTree&> (Id::backgroundOpacity,
                                   [this] (juce::ValueTree&)
                                   {
@@ -44,36 +18,6 @@ void ENDView::registerGraphicsEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackgroundParams();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::filter,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      // filter is shared by both slots (display.md: applies to both the
-                                      // background and post-processing upscale) — baked into the
-                                      // compiled prelude (jam::VulkanShaderCompiler::channelMacros()/sceneMacro()),
-                                      // so a filter change requires a full recompile on both funnels,
-                                      // never the cheaper *Params() path.
-                                      setBackground();
-                                      setPostProcess();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::postProcessing,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcess();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::postProcessingOpacity,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcessParams();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::postProcessingResolution,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcessParams();
                                   });
 }
 
@@ -168,57 +112,11 @@ static std::tuple<float, float, int> getBackgroundRenderParams (ConfigModel& con
     return { opacity, resolutionScale, frameRate };
 }
 
-static std::tuple<float, float> getPostProcessRenderParams (ConfigModel& config)
+void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)
 {
-    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
-
-    return { opacity, resolutionScale };
-}
-
-static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
-{
-    static const jam::SharedInstance<map::ImageResample> imageResample { std::in_place };
-
-    const auto filterName { config.getRowValue (Id::toType (Id::graphics), Id::filter).toString() };
-
-    return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
-}
-
-void ENDView::setBackground()
-{
-    auto* engine { jam::VulkanEngine::getInstance() };
-    jassert (engine != nullptr);
-    const bool gpuEnabled { engine->isGpuAvailable() };
-
-    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::background).toString() };
     const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
 
-    if (gpuEnabled and projectName.isNotEmpty())
-    {
-        const auto shaderState { jam::Model::getChildWithName (config.state, Id::toType (Id::background)) };
-        const auto filter { getImageResampleFilter (config) };
-
-        // ConfigShader::loadFromPath() always stamps Id::shaderFormat with a
-        // definite format ordinal (jam::VulkanShaderFormat::shadertoy or
-        // ::slang) before this state is ever readable here — ConfigModel's
-        // constructor runs loadFromPath() to completion, and
-        // jam::Instance<ConfigModel>::getInstance() (which View::config
-        // resolves through) cannot return before that constructor finishes.
-        const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
-
-        auto compiled { jam::VulkanShaderCompiler::compile (
-            shaderState, true, shaderFormat, filter) };
-
-        // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
-        // keeps whichever shader background currently holds — call nothing (last-good).
-        if (compiled != nullptr)
-            background.setShader (std::move (compiled), opacity, resolutionScale, frameRate);
-    }
-    else
-    {
-        background.setShader (nullptr, opacity, resolutionScale, frameRate);
-    }
+    background.setShader (std::move (shader), opacity, resolutionScale, frameRate);
 }
 
 void ENDView::setBackgroundParams()
@@ -226,49 +124,6 @@ void ENDView::setBackgroundParams()
     const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
 
     background.setParams (opacity, resolutionScale, frameRate);
-}
-
-void ENDView::setPostProcess()
-{
-    auto* engine { jam::VulkanEngine::getInstance() };
-    jassert (engine != nullptr);
-    const bool gpuEnabled { engine->isGpuAvailable() };
-
-    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
-    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
-
-    if (gpuEnabled and projectName.isNotEmpty())
-    {
-        const auto shaderState { jam::Model::getChildWithName (
-            config.state, Id::toType (Id::postProcessing)) };
-        const auto filter { getImageResampleFilter (config) };
-
-        // See setBackground()'s matching comment — Id::shaderFormat is
-        // always a definite format ordinal by the time this state is
-        // readable here.
-        const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
-
-        auto compiled { jam::VulkanShaderCompiler::compile (
-            shaderState, false, shaderFormat, filter) };
-
-        // nullptr (compile failure, diagnostic already logged inside ShaderCompiler)
-        // keeps whichever chain VulkanEngine currently holds — call nothing.
-        if (compiled != nullptr)
-            engine->setPostProcess (std::move (compiled), opacity, resolutionScale);
-    }
-    else
-    {
-        engine->setPostProcess (nullptr, opacity, resolutionScale);
-    }
-}
-
-void ENDView::setPostProcessParams()
-{
-    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
-
-    auto* engine { jam::VulkanEngine::getInstance() };
-    jassert (engine != nullptr);
-    engine->setPostProcessParams (opacity, resolutionScale);
 }
 
 void ENDView::setMouseConfig()

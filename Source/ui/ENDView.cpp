@@ -36,7 +36,6 @@ ENDView::ENDView()
             auto alwaysOnTopRow { display.getChildWithName (Id::alwaysOnTop) };
             auto titleBarButtonsRow { display.getChildWithName (Id::titleBarButtons) };
 
-            events.get (Id::useGpu, config.state);
             events.get (Id::alwaysOnTop, alwaysOnTopRow);
             events.get (Id::titleBarButtons, titleBarButtonsRow);
             events.get (Id::enabled, config.state);

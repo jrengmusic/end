@@ -17,7 +17,7 @@
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)`  
 Hosting: jam_clap (in-house wrapper + host format); `Nexus::VirtualClock` per-plugin demand clock; plugins live in `~/.config/end/plugins/`  
-Graphics: JAM `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; `jam::VulkanEngine` owned by Application — unified resource-ownership tree for Typeface/Stamp/Grapheme/Link, Device, GlyphAtlas)  
+Graphics: JAM `jam_graphics` + `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; owned by Application: `jam::CpuGraphicsEngine` — Typeface, GlyphAtlas, GlyphArrangement, ImageLoader, CPU image operations, CPU-lane context; `jam::VulkanGraphicsEngine` — Device, per-window Graphics, GPU forms of the image operations)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
 Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` (global `Id::`, `map::`, `files::`)

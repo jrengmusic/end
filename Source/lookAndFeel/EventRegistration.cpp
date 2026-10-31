@@ -1,14 +1,6 @@
 #include "ENDLookAndFeel.h"
 
-static void cascadeLookAndFeelChange()
-{
-    auto& desktop { juce::Desktop::getInstance() };
-
-    for (int i = 0; i < desktop.getNumComponents(); ++i)
-        desktop.getComponent (i)->sendLookAndFeelChange();
-}
-
-void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
+void ENDLookAndFeel::registerTypeface()
 {
     // One pass, one parse per font (SSOT font list) — creates the Ptr, stores
     // it in typefaces under its {name, style} composite key (typefaceKey()) for
@@ -20,12 +12,12 @@ void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
         return juce::Typeface::createSystemTypefaceFor (data, size);
     };
 
-    auto registerFont = [this, &atlas, &getTypeface] (const void* data, int size)
+    auto registerFont = [this, &getTypeface] (const void* data, int size)
     {
         auto ptr { getTypeface (data, size) };
         auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
         typefaces.addOrReplace (key, ptr);
-        atlas.registerTypeface (ptr, data, static_cast<size_t> (size));
+        jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
     };
 
     registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
@@ -34,54 +26,6 @@ void ENDLookAndFeel::registerTypeface (jam::GlyphAtlas& atlas)
     registerFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
     registerFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
     registerFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
-
-    // Applies the shipped/user-configured rasterization backend and coverage
-    // LUT gamma/contrast before this atlas ever paints a glyph.
-    setFontRasterization();
-    setEmbolden();
-}
-
-void ENDLookAndFeel::setFontRasterization()
-{
-    auto* atlas { jam::GlyphAtlas::getInstance() };
-    jassert (atlas != nullptr);
-
-    const auto backendName { config.getRowValue (Id::toType (Id::graphics), Id::fontRasterizer).toString() };
-    const auto backend { static_cast<map::FontRasterizerBackend::value> (map::FontRasterizerBackend::getInstance()->get (backendName)) };
-    const float gamma { config.getRowValue (Id::toType (Id::graphics), Id::fontGamma) };
-    const float contrast { config.getRowValue (Id::toType (Id::graphics), Id::fontContrast) };
-
-    atlas->setRasterization (backend, gamma, contrast);
-
-    // Rebuilding the atlas invalidates every cached glyph bitmap for an
-    // otherwise-unchanged GlyphAtlas::Key (backend/gamma/contrast changed,
-    // typeface/glyphIndex/fontSize did not) — EditorView's own
-    // lookAndFeelChanged() (via ENDLookAndFeel::getCodeMetrics()) is the
-    // sole path that recomputes cell metrics against the now-current atlas
-    // state and repaints every pane. ENDLookAndFeel owns no Component of
-    // its own (unlike ENDView's own theme callback, which fires
-    // Component::sendLookAndFeelChange() directly — EventRegistration.cpp,
-    // end/), so the SAME call is reached here through juce::Desktop's
-    // top-level window registry instead. A no-op at startup
-    // (registerTypeface()'s own tail call runs before jam::Window exists —
-    // ENDApplication::initialiseVulkan() precedes jam::Window construction,
-    // Main.cpp — so juce::Desktop holds zero top-level components then).
-    cascadeLookAndFeelChange();
-}
-
-void ENDLookAndFeel::setEmbolden()
-{
-    auto* atlas { jam::GlyphAtlas::getInstance() };
-    jassert (atlas != nullptr);
-
-    const bool embolden { config.getRowValue (Id::toType (Id::code), Id::embolden) };
-
-    atlas->setEmbolden (embolden);
-
-    // Same atlas-invalidation cascade as setFontRasterization()'s own tail
-    // comment — embolden changes the rasterized bitmap for an
-    // otherwise-unchanged GlyphAtlas::Key too.
-    cascadeLookAndFeelChange();
 }
 
 void ENDLookAndFeel::setColours()
@@ -175,34 +119,5 @@ void ENDLookAndFeel::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       setPopupMenuColours();
-                                  });
-
-    // Font-identity config coverage — fontRasterizer/fontGamma/fontContrast are
-    // the ONLY display.md values requiring a route to setFontRasterization().
-    // See this method's own doc comment for the full glyph-identity audit.
-    events.add<juce::ValueTree&> (Id::fontRasterizer,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setFontRasterization();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::fontGamma,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setFontRasterization();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::fontContrast,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setFontRasterization();
-                                  });
-
-    // code.embolden — same font-owner precedent as fontRasterizer/fontGamma/
-    // fontContrast.
-    events.add<juce::ValueTree&> (Id::embolden,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setEmbolden();
                                   });
 }
