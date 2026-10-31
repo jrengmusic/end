@@ -21,7 +21,7 @@ namespace files
 /*_____________________________________________________________________________*/
 
 /**
- * @brief Product asset file names — pane split/join corner-menu icons.
+ * @brief Product asset file names — pane split/join corner-menu icons and the plugin bundle each new pane loads.
  *
  * Each constant is the literal file name of an embedded SVG resource,
  * resolved against the binary-data / asset search path at load time.
@@ -31,6 +31,7 @@ namespace files
     extern const juce::String splitHorizontalNormal;    ///< Split-horizontal corner-menu icon.
     extern const juce::String joinCellsVerticalNormal;  ///< Join-cells-vertical corner-menu icon.
     extern const juce::String joinCellsHorizontalNormal;///< Join-cells-horizontal corner-menu icon.
+    extern const juce::String evePlugin;                ///< EVE plugin bundle that each new pane loads.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

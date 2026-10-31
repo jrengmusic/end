@@ -66,7 +66,6 @@ namespace Id
     const juce::Identifier menu                     { juce::String::fromUTF8 ("menu") };
     const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse") };
     const juce::Identifier newPane                  { juce::String::fromUTF8 ("newPane") };
-    const juce::Identifier newPlugin                { juce::String::fromUTF8 ("newPlugin") };
     const juce::Identifier newSession               { juce::String::fromUTF8 ("newSession") };
     const juce::Identifier newTab                   { juce::String::fromUTF8 ("newTab") };
     const juce::Identifier nextTab                  { juce::String::fromUTF8 ("nextTab") };

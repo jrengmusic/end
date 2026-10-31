@@ -26,6 +26,42 @@ static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
     return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
 }
 
+/** @cond */
+#if JUCE_WINDOWS
+extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory();
+extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback();
+extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback();
+#else
+extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory();
+extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback();
+extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback();
+#endif
+/** @endcond */
+
+decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory()
+{
+    return juce::ComponentPeer::externalContextFactory;
+}
+
+decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback()
+{
+    return juce::ComponentPeer::externalPeerDeletedCallback;
+}
+
+decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback()
+{
+    return [] (const juce::KeyPress& key) -> bool
+    {
+        if (auto* window { juce::TopLevelWindow::getActiveTopLevelWindow() })
+        {
+            if (auto* peer { window->getPeer() })
+                return peer->handleKeyPress (key);
+        }
+
+        return false;
+    };
+}
+
 ENDApplication::ENDApplication() {}
 
 ENDApplication::~ENDApplication() { config.removeListener (this); }
@@ -191,8 +227,7 @@ void ENDApplication::setPostProcessParams()
 }
 
 // juce::JUCEApplicationBase::shutdown() is pure virtual — an override must
-// exist even though its body is empty. Vulkan peer teardown (formerly done
-// here manually) now happens automatically in jam::Window::~Window().
+// exist even though its body is empty.
 void ENDApplication::shutdown() {}
 
 void ENDApplication::systemRequestedQuit() { quit(); }
@@ -218,7 +253,6 @@ void ENDApplication::initialise (const juce::String& commandLine)
     }
 #endif
     initialiseVulkan();
-    nexus.initialiseServices();
 
     window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
                                             ProjectInfo::projectName,

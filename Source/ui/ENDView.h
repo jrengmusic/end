@@ -100,7 +100,7 @@ private:
     /** @brief Registers the focusedPane conduit, theme rebuild, and every event family. */
     void registerEvents();
 
-    /** @brief Registers background/post-process shader and parameter events. */
+    /** @brief Registers the three config keys that feed setBackgroundParams(): background opacity, frame rate, and background resolution. */
     void registerGraphicsEvents();
 
     /** @brief Registers always-on-top and title-bar-button window events. */

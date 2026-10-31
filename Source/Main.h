@@ -59,28 +59,36 @@ private:
 
     std::unique_ptr<jam::Window> window;
 
+    /** @brief Callbacks for the config properties and tables this application applies, keyed by property, tree type or parent tree type. valueTreePropertyChanged() dispatches through it. */
     jam::Function::Map<juce::Identifier, void> events;
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
 
-    /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, registers END's embedded typefaces with
-     *  its atlas, and enables the post-process background-blur shader — the
-     *  whole GPU-availability-gated setup block, called once from initialise(). */
+    /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, registers END's embedded typefaces in
+     *  jam::Typeface, and applies the configured glyph rasterization backend and
+     *  embolden state — called once from initialise(). The background shader and
+     *  the post-process chain are applied later in initialise(), after the window exists. */
     void initialiseVulkan();
 
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
+    /** @brief Populates @ref events with the callbacks for every config value this application applies: font rasterization, embolden, GPU use, background, filter, post-process, and the two post-process render parameters. */
     void registerEvents();
 
+    /** @brief Reads the font rasterizer backend, gamma and contrast from config, applies them to jam::CpuGraphicsEngine, then cascades a LookAndFeel change to every top-level window so the new rasterization repaints. */
     void setFontRasterization();
 
+    /** @brief Reads Id::embolden from config, applies it to jam::CpuGraphicsEngine, then cascades a LookAndFeel change to every top-level window so the new embolden state repaints. */
     void setEmbolden();
 
+    /** @brief Compiles the configured background shader and installs it on the view, or clears the background when the GPU is unavailable or no project is named. */
     void setBackground();
 
+    /** @brief Compiles the configured post-process chain and installs it on the engine with the current opacity and resolution scale, or installs no chain when the GPU is unavailable or no project is named. */
     void setPostProcess();
 
+    /** @brief Applies the post-process opacity and resolution scale from config to the chain the engine already holds. */
     void setPostProcessParams();
 
     //==============================================================================

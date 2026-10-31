@@ -49,37 +49,12 @@ void ENDView::registerTabActions()
             {
                 if (auto* tabView { sessionView->getActiveTabView() })
                 {
-                    jam::UUID uuid {};
-
                     if (edge.isValid())
-                        uuid = tabView->split (edge);
+                        tabView->split (edge);
                     else
-                        uuid = tabView->add();
-
-                    if (uuid != jam::UUID::none())
-                        actions.get (Id::newPlugin, std::move (uuid));
+                        tabView->add();
                 }
             }
-        });
-
-    actions.add<jam::UUID> (
-        Id::newPlugin,
-        [&nexus = nexus] (jam::UUID uuid)
-        {
-            auto& session { nexus.getActiveSession() };
-
-            nexus.createPlugin (
-                [&session, uuid] (std::unique_ptr<juce::AudioPluginInstance> instance)
-                {
-                    if (instance != nullptr)
-                    {
-                        session.newPlugin (uuid, juce::String { Nexus::evePluginId }, std::move (instance));
-                    }
-                    else
-                    {
-                        session.newPlugin (uuid, {}, nullptr);
-                    }
-                });
         });
 
     actions.add (Id::closeTab,
