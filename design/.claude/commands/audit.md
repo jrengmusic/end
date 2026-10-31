@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/audit.md
+/Users/jreng/.carol/commands/audit.md

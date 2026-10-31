@@ -1,6 +1,5 @@
-#include "end/ENDView.h"
+#include "ui/ENDView.h"
 
-static constexpr const char* whelmedPluginId { "com.jreng.whelmed" };
 static const juce::String groupKeySeparator { "#" };
 
 void ENDView::registerSessionActions()
@@ -69,13 +68,12 @@ void ENDView::registerTabActions()
         {
             auto& session { nexus.getActiveSession() };
 
-            nexus.createPlugin (whelmedPluginId,
-                [&nexus = nexus, &session, uuid] (std::unique_ptr<juce::AudioPluginInstance> instance)
+            nexus.createPlugin (
+                [&session, uuid] (std::unique_ptr<juce::AudioPluginInstance> instance)
                 {
                     if (instance != nullptr)
                     {
-                        nexus.createVirtualClock (uuid, *instance);
-                        session.newPlugin (uuid, whelmedPluginId, std::move (instance));
+                        session.newPlugin (uuid, juce::String { Nexus::evePluginId }, std::move (instance));
                     }
                     else
                     {
@@ -150,7 +148,6 @@ void ENDView::registerTabActions()
                                  const auto focusedUuid { tabView->getFocusedChild() };
 
                                  tabView->remove (focusedUuid);
-                                 nexus.removeVirtualClock (focusedUuid);
                                  nexus.getActiveSession().removePlugin (focusedUuid);
                              }
                              else
@@ -251,7 +248,6 @@ void ENDView::registerPaneActions()
 
                                  if (target != jam::UUID::none())
                                  {
-                                     nexus.removeVirtualClock (target);
                                      nexus.getActiveSession().removePlugin (target);
                                  }
                              }

@@ -368,6 +368,8 @@ Every field is a complete literal; nothing downstream derives, concatenates, or 
 +------------------------------------+----------------------------------------------------------------------+---------------------------------------------------------------+
 | juceCoreIncludeComSmartPtr         | `$<$<PLATFORM_ID:Windows>:JUCE_CORE_INCLUDE_COM_SMART_PTR=1>`        | Windows COM smart pointer helpers                             |
 +------------------------------------+----------------------------------------------------------------------+---------------------------------------------------------------+
+| jucePluginHostVst                  | JUCE_PLUGINHOST_VST=1                                                | VST2 plugin hosting                                           |
++------------------------------------+----------------------------------------------------------------------+---------------------------------------------------------------+
 | jucePluginHostVst3                 | JUCE_PLUGINHOST_VST3=1                                               | VST3 plugin hosting                                           |
 +------------------------------------+----------------------------------------------------------------------+---------------------------------------------------------------+
 | jucePluginHostAu                   | `$<$<PLATFORM_ID:Darwin>:JUCE_PLUGINHOST_AU=1>`                      | AU plugin hosting, macOS only                                 |
@@ -413,4 +415,6 @@ Every field is a complete literal; nothing downstream derives, concatenates, or 
 | shaderTemplatesFrag | `${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.frag`        |             |
 +---------------------+------------------------------------------------------------+-------------+
 | shaderTemplatesVert | `${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.vert`        |             |
++---------------------+------------------------------------------------------------+-------------+
+| plugins             | `${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/*.zip`         |             |
 +---------------------+------------------------------------------------------------+-------------+

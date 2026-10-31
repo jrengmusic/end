@@ -3,10 +3,10 @@
 #include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "end/ENDModel.h"
-#include "end/ENDView.h"
+#include "ui/ENDView.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 #include "generated/Generated.h"
-#include "Nexus.h"
+#include "plugins/Nexus.h"
 
 class ENDApplication : public juce::JUCEApplication
 {

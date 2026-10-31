@@ -8,6 +8,15 @@
 
 ---
 
+## DEBT-20261025T214955
+
+**Observation:** Action List should be replaced with CommandManager. Related entry: DEBT-20261009T112447.
+**Divergence:** The Action List duplicates what CommandManager supplies.
+**Expectation:** CommandManager replaces the Action List.
+
+---
+
+
 ## DEBT-20261025T135707
 
 **Observation:** END clocks each hosted plugin with `Nexus::VirtualClock`, a `juce::Thread` that waits `blockPeriodMilliseconds` (512 samples at 48 kHz, about 10 ms) and then calls `device.clock (blockSize)` (Source/Nexus.h:168-170, :173-207). END's CLAP host callback `hostRequestProcess` has an empty body (jam/jam_clap/format/jam_ClapPluginInstance.cpp:443-446). JAM's CLAP plugin wrapper receives the `clap_host` (jam/jam_clap/wrapper/jam_ClapWrapper.h:26) but never calls `request_process`.

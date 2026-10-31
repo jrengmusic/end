@@ -8,22 +8,13 @@ Modifiers: cmd, ctrl, alt, shift. Special keys: return, escape, space, tab,
 backspace, delete, pageup, pagedown, home, end, f1-f12.
 
 Direct bindings fire immediately (e.g. "cmd+c" for copy). Modal bindings
-require the prefix key first, then the action key within the timeout
-window (e.g. press \` then \\ to split).
+are two-character chords typed in sequence (e.g. \`\\ to split).
 
 ## keys
 
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | key                | type   | value     | choices | description                                  |
 +====================+========+===========+=========+==============================================+
-| prefix             | string | \`        |         | The prefix key activates modal mode. Press   |
-|                    |        |           |         | it, then press a modal action key within the |
-|                    |        |           |         | timeout. Set to "" to disable modal mode     |
-|                    |        |           |         | entirely.                                    |
-+--------------------+--------+-----------+---------+----------------------------------------------+
-| prefixTimeout      | int    | 1000      |         | How long to wait (ms) for a modal key after  |
-|                    |        |           |         | pressing the prefix key.                     |
-+--------------------+--------+-----------+---------+----------------------------------------------+
 | quit               | string | cmd+q     |         | Quit application.                            |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | closePane          | string | cmd+w     |         | Close active pane, then tab, then window.    |
@@ -56,21 +47,21 @@ window (e.g. press \` then \\ to split).
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | nextTab            | string | cmd+]     |         | Switch to next tab.                          |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| renameTab          | string | shift+t   |         | Rename the active tab. Press prefix first.   |
+| renameTab          | string | \`T       |         | Rename the active tab.                       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| splitVertical      | string | \\        |         | Split pane vertically (side-by-side          |
-|                    |        |           |         | columns). Press prefix first.                |
+| splitVertical      | string | \`\\      |         | Split pane vertically (side-by-side          |
+|                    |        |           |         | columns).                                    |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| splitHorizontal    | string | \-        |         | Split pane horizontally (stacked rows).      |
-|                    |        |           |         | Press prefix first.                          |
+| splitHorizontal    | string | \`\-      |         | Split pane horizontally (stacked rows).      |
+|                    |        |           |         |                                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| paneLeft           | string | h         |         | Focus pane to the left. Press prefix first.  |
+| paneLeft           | string | \`h       |         | Focus pane to the left.                      |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| paneDown           | string | j         |         | Focus pane below. Press prefix first.        |
+| paneDown           | string | \`j       |         | Focus pane below.                            |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| paneUp             | string | k         |         | Focus pane above. Press prefix first.        |
+| paneUp             | string | \`k       |         | Focus pane above.                            |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| paneRight          | string | l         |         | Focus pane to the right. Press prefix first. |
+| paneRight          | string | \`l       |         | Focus pane to the right.                     |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | joinLeft           | string | ctrl+h    |         | Absorb the pane to the left into the focused |
 |                    |        |           |         | pane.                                        |
@@ -82,18 +73,18 @@ window (e.g. press \` then \\ to split).
 | joinRight          | string | ctrl+l    |         | Absorb the pane to the right into the        |
 |                    |        |           |         | focused pane.                                |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swapLeft           | string | shift+h   |         | Swap the focused pane with the pane to the   |
-|                    |        |           |         | left. Press prefix first.                    |
+| swapLeft           | string | \`H       |         | Swap the focused pane with the pane to the   |
+|                    |        |           |         | left.                                        |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swapDown           | string | shift+j   |         | Swap the focused pane with the pane below.   |
-|                    |        |           |         | Press prefix first.                          |
+| swapDown           | string | \`J       |         | Swap the focused pane with the pane below.   |
+|                    |        |           |         |                                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swapUp             | string | shift+k   |         | Swap the focused pane with the pane above.   |
-|                    |        |           |         | Press prefix first.                          |
+| swapUp             | string | \`K       |         | Swap the focused pane with the pane above.   |
+|                    |        |           |         |                                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| swapRight          | string | shift+l   |         | Swap the focused pane with the pane to the   |
-|                    |        |           |         | right. Press prefix first.                   |
+| swapRight          | string | \`L       |         | Swap the focused pane with the pane to the   |
+|                    |        |           |         | right.                                       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| actionList         | string | ?         |         | Open the action list (command palette).      |
-|                    |        |           |         | Press prefix first.                          |
+| actionList         | string | \`?       |         | Open the action list (command palette).      |
+|                    |        |           |         |                                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+

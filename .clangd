@@ -41,6 +41,7 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_juce_gui_extra=1
     - -DJUCE_PLUGINHOST_AU=1
     - -DJUCE_PLUGINHOST_VST3=1
+    - -DJUCE_PLUGINHOST_VST=1
     - -DJUCE_STANDALONE_APPLICATION=1
     - -DJUCE_STRICT_REFCOUNTEDPOINTER=1
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
@@ -54,8 +55,9 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_graphics/fonts/harfbuzz
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_clap
-    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules
     - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/VST3_SDK
+    - -I/Users/jreng/Documents/Poems/dev/end/../jam/sdk/VST2
+    - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules
     - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK
     - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/lv2
     - -I/Users/jreng/.cache/cast/juce/b9a5c30ac3c5cc43c961073d20513a40ca634c79ef0a5d59faf4fa6b19493afd/modules/juce_audio_processors_headless/format_types/LV2_SDK/serd

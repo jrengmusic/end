@@ -194,6 +194,8 @@ endif()
 
 message(STATUS "CAST: JUCE ${CAST_FOUND_JUCE_VERSION} patched at ${CAST_JUCE_PATH}")
 
+juce_set_vst2_sdk_path("${CAST_USER_MODULE_PATH}/sdk/VST2")
+
 # ==============================================================================
 # MODULES — user framework modules
 # ==============================================================================
@@ -264,6 +266,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     "$<$<PLATFORM_ID:Windows>:JUCE_CORE_INCLUDE_NATIVE_HEADERS=1>"       # Native platform headers in juce_core
     "$<$<PLATFORM_ID:Windows>:JUCE_GRAPHICS_INCLUDE_DIRECT2D_HELPERS=1>" # Direct2D helper visibility, from the framework patch
     "$<$<PLATFORM_ID:Windows>:JUCE_CORE_INCLUDE_COM_SMART_PTR=1>"        # Windows COM smart pointer helpers
+    JUCE_PLUGINHOST_VST=1                                                # VST2 plugin hosting
     JUCE_PLUGINHOST_VST3=1                                               # VST3 plugin hosting
     "$<$<PLATFORM_ID:Darwin>:JUCE_PLUGINHOST_AU=1>"                      # AU plugin hosting, macOS only
     JAM_VULKAN_RUNTIME_SHADER_COMPILER=1                                 # Runtime GLSL/slang to SPIR-V compiler in jam_vulkan
@@ -471,6 +474,7 @@ file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
     "${CAST_USER_MODULE_PATH}/resources/svg/*.svg"
     "${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.frag"
     "${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.vert"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/*.zip"
 )
 
 juce_add_binary_data(${PROJECT_NAME}_BinaryData
