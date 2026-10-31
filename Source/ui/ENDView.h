@@ -62,6 +62,8 @@ public:
 
     bool perform (const InvocationInfo& info) override;
 
+    void setBackground (std::unique_ptr<jam::VulkanShader> shader);
+
 private:
     jam::SharedInstance<map::CommandId> commandId { std::in_place };
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
@@ -107,17 +109,8 @@ private:
     /** @brief Registers imouse/orbit/reset mouse configuration events. */
     void registerMouseEvents();
 
-    /** @brief Compiles and applies the active background shader from config. */
-    void setBackground();
-
     /** @brief Applies the background shader's opacity, resolution, and frame rate. */
     void setBackgroundParams();
-
-    /** @brief Compiles and applies the active post-process shader from config. */
-    void setPostProcess();
-
-    /** @brief Applies the post-process shader's opacity and resolution. */
-    void setPostProcessParams();
 
     /** @brief Applies the interactive-mouse configuration to the background component. */
     void setMouseConfig();
