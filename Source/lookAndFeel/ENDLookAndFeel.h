@@ -47,7 +47,8 @@ public:
 
     /**
      * @brief Initialises colours from config, loads SVG graphics from FLEX
-     *        child properties, registers events, and adds a listener to config.
+     *        child properties, registers events, adds a listener to config,
+     *        and installs itself as JUCE's default LookAndFeel.
      *        Typeface registration happens later — see registerTypeface()'s
      *        doc comment for why it cannot run here.
      */
@@ -61,27 +62,23 @@ public:
      *        font (SSOT font list) — creating each Typeface::Ptr, storing it in
      *        @ref typefaces under its {name, style} composite key (see
      *        typefaceKey()) for name+style lookup (getTypefaceForFont()), and
-     *        registering it with the Vulkan glyph atlas so its mono glyphs
-     *        rasterize through FreeType's autofitter instead of the EdgeTable
-     *        fallback.
+     *        interning the same Ptr in jam::Typeface so the rasterizer reaches
+     *        the face through the interned entry instead of opening the bytes
+     *        again.
      *
      * Name-only keys collide: the two families (Display, DisplayMono) each
      * register three weights (Bold/Book/Medium) that share one juce::Typeface
      * name, so a name-only key lets addOrReplace() release two of every three
      * Ptrs, recycling their heap addresses into later createSystemTypefaceFor()
-     * calls and desyncing the atlas's pointer-keyed FreeType face registry from
-     * the live Typeface identities. The composite key keeps all six Ptrs alive
+     * calls and desyncing jam::Typeface's pointer-keyed intern table from the
+     * live Typeface identities. The composite key keeps all six Ptrs alive
      * with unique, stable addresses.
      *
-     * Cannot run at LookAndFeel construction time — the atlas (owned by
-     * jam::VulkanGraphicsEngine) does not exist yet then (ENDApplication creates the
+     * Cannot run at LookAndFeel construction time — jam::Typeface belongs to
+     * jam::CpuGraphicsEngine, which does not exist yet then (ENDApplication creates the
      * engine through jam::VulkanGraphicsEngine::getOrCreate in initialiseVulkan(),
      * after ENDLookAndFeel construction). Called once, externally, immediately
-     * after engine creation (ENDApplication::initialiseVulkan()). Also applies the
-     * shipped/user-configured glyph rasterization backend/gamma/contrast (see
-     * setFontRasterization()) and
-     * the embolden state (see setEmbolden()) before this atlas ever paints a
-     * glyph.
+     * after engine creation (ENDApplication::initialiseVulkan()).
      */
     void registerTypeface();
 
@@ -176,11 +173,11 @@ public:
      *
      * TypefaceCache resolves juce::Font name lookups through a platform-specific
      * path and would otherwise hand back a *different* Typeface object than the
-     * Ptr registerTypeface() created and registered with the Vulkan glyph atlas.
+     * Ptr registerTypeface() interned in jam::Typeface.
      * Returning the same object identity here guarantees it
-     * flows unchanged from name-based Font construction through shaping into
-     * GlyphAtlas::Key::typeface, so the atlas's pointer-keyed FreeType face
-     * registry hits for END's embedded fonts instead of missing on every glyph.
+     * flows unchanged from name-based Font construction through shaping into the
+     * interned typeface index, so jam::GlyphRasterizer reaches the FreeType face of
+     * that entry for END's embedded fonts instead of opening a second face for every glyph.
      *
      * Two probes against @ref typefaces before falling back to the base class:
      * the exact {name, style} key first, then {name, "Book"} — "Book" is the
@@ -289,12 +286,12 @@ public:
     };
 
     /**
-     * @brief Computed terminal cell metrics at @p zoom — LnF is the font
-     *        owner AND the sanctioned jam::GlyphAtlas caller.
+     * @brief Computed terminal cell metrics at @p zoom — LnF is the owner of
+     *        the resolved typefaces that the metrics are read from.
      *
      * Applies @p zoom to getCodeFont() via juce::Font::withPointHeight()
      * (size × zoom), resolves the zoomed font's typeface, and calls
-     * jam::GlyphAtlas::getInstance()->calcMetrics() at the exact FT size the
+     * jam::GlyphRasterizer::calcMetrics() at the exact FT size the
      * glyphs will rasterize at. The raw FT cell width/height are then scaled
      * by the theme's own cell ratios (code.cellWidth / code.lineHeight)
      * to produce the final pixel cell size — TabView's own split/join preview
@@ -353,10 +350,8 @@ private:
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     — per-component colour refresh via setColours()
-     * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
-     *                     — re-applies setFontRasterization() on config hot-reload,
-     *                       which itself cascades Component::sendLookAndFeelChange()
-     *                       (see setFontRasterization()'s own doc comment)
+     * - Id::toType (Id::menu)
+     *                     — popup menu colour refresh via setPopupMenuColours()
      */
     jam::Function::Map<juce::Identifier, void> events;
 
@@ -452,43 +447,34 @@ private:
      * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     → setColours()
-     * - Id::fontRasterizer, Id::fontGamma, Id::fontContrast
-     *                     → setFontRasterization() (font events live with the
-     *                       font owner — relocated from ENDView), whose own
-     *                       tail cascades Component::sendLookAndFeelChange()
-     *                       to every juce::Desktop top-level window (see
-     *                       setFontRasterization()'s own doc comment)
-     * - Id::embolden      → setEmbolden() (same font-owner precedent as
-     *                       fontRasterizer/fontGamma/fontContrast, same
-     *                       tail cascade)
+     * - Id::toType (Id::menu)
+     *                     → setPopupMenuColours()
      *
-     * Glyph-identity config coverage audit — every config value that can alter
-     * what a glyph looks like was inventoried; only fontRasterizer/fontGamma/
-     * fontContrast/embolden route to the atlas. tab.font_family/font_size/
-     * kerning_factor and jam::overlay's font_family/font_size do NOT need a
-     * dedicated callback: jam::GlyphAtlas::Key (jam_GlyphAtlas.h) identifies a
-     * cached glyph by {typeface pointer, glyphIndex, fontSize} — a new family
-     * resolves to a new typeface pointer and a new size is a new Key member, so
-     * both cache-miss and re-rasterize correctly on the very next paint with no
-     * atlas call required; kerning_factor never reaches Key at all (it shifts
-     * glyph pen positions, never glyph identity). getTabFont() and
-     * MessageOverlay::paint() already re-read config on every paint, and any
-     * theme.md edit unconditionally fires Id::theme (ConfigTheme::loadFromPath)
-     * into the theme callback above, which repaints the whole component tree
-     * (juce::Component::sendLookAndFeelChange descends to every child) — so the
-     * new family/size is picked up immediately. The code font (code.font_family/font_size)
-     * needs no dedicated callback here either: TabView reads this class's
-     * getCodeMetrics (zoom) directly, on demand, for its split/join preview
-     * sizing, entirely independent of this class's own event map. Only fontRasterizer/fontGamma/fontContrast/embolden
-     * change the rasterized bitmap for an UNCHANGED Key (same typeface/
-     * glyphIndex/fontSize, different backend, coverage LUT, or synthetic
-     * embolden), which is exactly why setFontRasterization()/setEmbolden()
-     * must be re-invoked explicitly on those four — and, since ENDView no
-     * longer cascades Component::sendLookAndFeelChange() unconditionally on
-     * every runtime property change (ARCHITECT ruling — runtime state must
-     * never cascade LookAndFeel), why those same two methods now cascade it
-     * themselves, reached via juce::Desktop (see setFontRasterization()'s
-     * own doc comment). Defined in EventRegistration.cpp.
+     * The font events (Id::fontRasterizer, Id::fontGamma, Id::fontContrast,
+     * Id::embolden) are not here: their callbacks write the jam::CpuGraphicsEngine
+     * rasterization state and then cascade Component::sendLookAndFeelChange() to
+     * every juce::Desktop top-level window, so they belong to ENDApplication, which
+     * owns the config and drives engine creation.
+     *
+     * Glyph-identity coverage: every config value that can alter what a glyph
+     * looks like was inventoried; only fontRasterizer/fontGamma/fontContrast/
+     * embolden change the rasterized bitmap for an UNCHANGED glyph.
+     * tab.font_family/font_size/kerning_factor and jam::overlay's
+     * font_family/font_size need no dedicated callback: the glyph key
+     * (jam_GlyphRasterizer.h) identifies a cached glyph by {typeface index,
+     * glyphIndex, fontSize} — a new family resolves to a new interned typeface
+     * index and a new size is a new key member, so both cache-miss and
+     * re-rasterize correctly on the very next paint with no engine call
+     * required; kerning_factor never reaches the key at all (it shifts glyph pen
+     * positions, never glyph identity). getTabFont() and MessageOverlay::paint()
+     * already re-read config on every paint, and any theme.md edit unconditionally
+     * fires Id::theme (ConfigTheme::loadFromPath) into the theme callback above,
+     * which repaints the whole component tree (juce::Component::sendLookAndFeelChange
+     * descends to every child) — so the new family/size is picked up immediately.
+     * The code font (code.font_family/font_size) needs no dedicated callback here
+     * either: TabView reads this class's getCodeMetrics (zoom) directly, on demand,
+     * for its split/join preview sizing, entirely independent of this class's own
+     * event map. Defined in EventRegistration.cpp.
      */
     void registerEvents();
 

@@ -16,7 +16,6 @@ ENDView::ENDView()
 
     commandManager->registerAllCommandsForTarget (this);
     commandManager->setKeyPresses (config.getChildWithName (Id::toType (Id::keys)));
-    addKeyListener (commandManager->getKeyMappings());
 
     addAndMakeVisible (background);
     addMouseListener (&background, true);
@@ -69,7 +68,7 @@ void ENDView::resized()
 
 bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return commandManager->invokeKey (key, state);
+    return commandManager->getKeyMappings()->keyPressed (key, this) or commandManager->invokeKey (key, state);
 }
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)

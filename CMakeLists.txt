@@ -106,6 +106,8 @@ set(CAST_JUCE_PATCHES
 "${CAST_USER_MODULE_PATH}/patch/juce-attributed-text-hook.patch"            # Attributed text virtual on LowLevelGraphicsContext; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-adhoc-sign-hook.patch"                 # No ad-hoc signature on the VST3 bundle
 "${CAST_USER_MODULE_PATH}/patch/juce-display-changed-hook.patch"            # Callback after refresh() finds a display change
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-transparency-hook.patch"        # Host function lookup; plugin editor wrapper transparent under a host that exports jam_host_context_factory; host plugin windows transparent; applies after juce-vulkan-engine-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-key-pressed-hook.patch"                # Host key press callback before a peer's components; applies after juce-plugin-transparency-hook.patch
 )
 
 if(WIN32)

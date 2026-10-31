@@ -70,7 +70,6 @@ extern const juce::Identifier lineHeight;
 extern const juce::Identifier menu;
 extern const juce::Identifier mouse;
 extern const juce::Identifier newPane;
-extern const juce::Identifier newPlugin;
 extern const juce::Identifier newSession;
 extern const juce::Identifier newTab;
 extern const juce::Identifier nextTab;

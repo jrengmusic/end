@@ -13,7 +13,7 @@
  * @brief Owns the hosted juce::AudioPluginInstance for each pane in one
  *        session, keyed by the pane's own identity.
  */
-class Session
+class Session : private juce::ValueTree::Listener
 {
 public:
     Session (jam::UUID newUuid,
@@ -21,7 +21,8 @@ public:
              juce::AudioProcessorGraph& newGraph,
              juce::AudioProcessorGraph::NodeID newAudioInputNodeId,
              juce::AudioProcessorGraph::NodeID newAudioOutputNodeId,
-             juce::AudioProcessorGraph::NodeID newMidiInputNodeId);
+             juce::AudioProcessorGraph::NodeID newMidiInputNodeId,
+             juce::AudioPluginFormatManager& newFormatManager);
 
     ~Session();
 
@@ -37,13 +38,6 @@ public:
      */
     bool contains (jam::UUID uuid) const;
 
-    /** @brief Binds a plugin instance to a pane and stamps its name/identifier.
-     *  @param uuid     Identity of the pane the plugin is bound to.
-     *  @param pluginId Identifier of the plugin, or empty when instance is null.
-     *  @param instance The plugin instance, or nullptr when creation failed.
-     */
-    void newPlugin (jam::UUID uuid, const juce::String& pluginId, std::unique_ptr<juce::AudioPluginInstance> instance);
-
     /** @brief Releases the plugin instance bound to a pane.
      *  @param uuid Identity of the pane whose plugin instance is released.
      */
@@ -52,11 +46,16 @@ public:
     juce::ValueTree state { Id::toType (Id::session) };
 
 private:
+    void newPlugin (jam::UUID uuid);
+
+    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
+
     ENDModel& model;
     juce::AudioProcessorGraph& graph;
     const juce::AudioProcessorGraph::NodeID audioInputNodeId;
     const juce::AudioProcessorGraph::NodeID audioOutputNodeId;
     const juce::AudioProcessorGraph::NodeID midiInputNodeId;
+    juce::AudioPluginFormatManager& formatManager;
 
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;
 
