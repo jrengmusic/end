@@ -74,6 +74,8 @@ set(CAST_JUCE_VERSION :::juceVersion:::)
 
 :::patched-juce:::
 
+juce_set_vst2_sdk_path("${CAST_USER_MODULE_PATH}/sdk/VST2")
+
 # ==============================================================================
 # MODULES — user framework modules
 # ==============================================================================

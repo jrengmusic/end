@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/handoff.md
+/Users/jreng/.carol/commands/handoff.md

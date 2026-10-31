@@ -25,6 +25,8 @@
 +--------------------+-------------------------------------+
 | @bimap             | jam::Bimap<int>                     |
 +--------------------+-------------------------------------+
+| @bimapIdentifier   | jam::Bimap<int, juce::Identifier>   |
++--------------------+-------------------------------------+
 | @semicolon         | ;                                   |
 +--------------------+-------------------------------------+
 | @ProjectInfo       | ../Source/generated/ProjectInfo.h   |
@@ -176,6 +178,18 @@
 |                                               |                           | - keyType: int                                      |                    |
 |                                               |                           | - valueType: juce::String                           |                    |
 |                                               |                           | > > > - [list]: @code:bimap-entry                   |                    |
+|                                               |                           | > > - [list]: @code:enum-entry                      |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| > > > - [list]: @bimaps:CommandId             | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps            |
+|                                               |                           | - name: map                                         |                    |
+| > > - [list]: @bimaps:CommandId               |                           |                                                     |                    |
+|                                               |                           | @code:bimap                                         |                    |
+|                                               |                           | - name: CommandId                                   |                    |
+|                                               |                           | - [description]: Command-id to command-name map.    |                    |
+|                                               |                           | - base: @bimapIdentifier                            |                    |
+|                                               |                           | - keyType: int                                      |                    |
+|                                               |                           | - valueType: juce::Identifier                       |                    |
+|                                               |                           | > > > - [list]: @code:identifier-entry              |                    |
 |                                               |                           | > > - [list]: @code:enum-entry                      |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | - [list]: @headers:type=header                |                           | @code:struct                                        | @Generated         |

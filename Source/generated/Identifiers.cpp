@@ -62,7 +62,6 @@ namespace Id
     const juce::Identifier joinRight                { juce::String::fromUTF8 ("joinRight") };
     const juce::Identifier joinUp                   { juce::String::fromUTF8 ("joinUp") };
     const juce::Identifier kerningFactor            { juce::String::fromUTF8 ("kerningFactor") };
-    const juce::Identifier keys                     { juce::String::fromUTF8 ("keys") };
     const juce::Identifier lineHeight               { juce::String::fromUTF8 ("lineHeight") };
     const juce::Identifier menu                     { juce::String::fromUTF8 ("menu") };
     const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse") };
@@ -81,11 +80,10 @@ namespace Id
     const juce::Identifier paneStep                 { juce::String::fromUTF8 ("paneStep") };
     const juce::Identifier paneUp                   { juce::String::fromUTF8 ("paneUp") };
     const juce::Identifier pluginId                 { juce::String::fromUTF8 ("pluginId") };
+    const juce::Identifier plugins                  { juce::String::fromUTF8 ("plugins") };
     const juce::Identifier postProcessing           { juce::String::fromUTF8 ("postProcessing") };
     const juce::Identifier postProcessingOpacity    { juce::String::fromUTF8 ("postProcessingOpacity") };
     const juce::Identifier postProcessingResolution { juce::String::fromUTF8 ("postProcessingResolution") };
-    const juce::Identifier prefix                   { juce::String::fromUTF8 ("prefix") };
-    const juce::Identifier prefixTimeout            { juce::String::fromUTF8 ("prefixTimeout") };
     const juce::Identifier prevTab                  { juce::String::fromUTF8 ("prevTab") };
     const juce::Identifier quit                     { juce::String::fromUTF8 ("quit") };
     const juce::Identifier reducePaneHeight         { juce::String::fromUTF8 ("reducePaneHeight") };
@@ -102,6 +100,7 @@ namespace Id
     const juce::Identifier sessions                 { juce::String::fromUTF8 ("sessions") };
     const juce::Identifier shaderFormat             { juce::String::fromUTF8 ("shaderFormat") };
     const juce::Identifier splitHorizontal          { juce::String::fromUTF8 ("splitHorizontal") };
+    const juce::Identifier splitLine                { juce::String::fromUTF8 ("splitLine") };
     const juce::Identifier splitVertical            { juce::String::fromUTF8 ("splitVertical") };
     const juce::Identifier successMessage           { juce::String::fromUTF8 ("successMessage") };
     const juce::Identifier swapDown                 { juce::String::fromUTF8 ("swapDown") };

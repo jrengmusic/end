@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/go.md
+/Users/jreng/.carol/commands/go.md
