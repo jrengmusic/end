@@ -19,9 +19,10 @@
 
 ## DEBT-20261025T135707
 
-**Observation:** END clocks each hosted plugin with `Nexus::VirtualClock`, a `juce::Thread` that waits `blockPeriodMilliseconds` (512 samples at 48 kHz, about 10 ms) and then calls `device.clock (blockSize)` (Source/Nexus.h:168-170, :173-207). END's CLAP host callback `hostRequestProcess` has an empty body (jam/jam_clap/format/jam_ClapPluginInstance.cpp:443-446). JAM's CLAP plugin wrapper receives the `clap_host` (jam/jam_clap/wrapper/jam_ClapWrapper.h:26) but never calls `request_process`.
-**Divergence:** ARCHITECT ruled "Virtual audio device as clock" and "i don't like wake/sleep or period. why manually manage thread? why clock driver not event driven?". PLAN-END-plugin-host.md:300-302 states `request_process` → Nexus pumps `VirtualDevice.clock()` → processBlock; the code clocks on a fixed period instead. JAM Step 5c (jam/PLAN-terminal-swap.md) gives `jam::VirtualDevice` a thread-safe `requestProcess()` and deletes `jam::VirtualClock`.
-**Expectation:** Precondition: the EVE standalone runs at or above the endless baseline (`seq 1 100000` in 0.072 s or less). Then END hosts EVE as a CLAP plugin with the exact same JAM modules. Each hosted plugin's `jam::VirtualDevice` is clocked by events: the plugin calls the host's `request_process`, and `hostRequestProcess` calls that plugin's `device.requestProcess()`. JAM's CLAP plugin wrapper gives the JUCE processor the path to `request_process`. `Nexus::VirtualClock` is deleted.
+**Status:** Deferred by ARCHITECT (2026-11-01): *"ENAX by default will be using CLAP binary format (future work per grand scheme)"*. Rewritten to its remainder: *"Rewrite the debt"*.
+**Observation:** END hosts EVE as VST2, VST3 and AU (`project-info.md:371-375`; `files::evePlugin`, `cast/files.md:31`). END does not host EVE as CLAP: EVE has no CLAP target. The clock part is done: `Nexus::VirtualClock` is deleted (`carol/SPRINT-LOG.md:125`), and `ClapPluginInstance::hostRequestProcess` activates an inactive plugin on the message thread (`jam/jam_clap/format/jam_ClapPluginInstance.cpp:443-459`, `carol/SPRINT-LOG.md:36`).
+**Divergence:** CLAP is ENAX's default binary format (`eve/PLAN-Grand-Scheme.md` §4.3 `[AMENDED 2026-11-01 — ENAX]`). EVE owns its clock in every host: *"VirtualDevice as full throttle clock is EVE SPEC contract"* (`eve/PLAN-Grand-Scheme.md` §8 `[AMENDED 2026-10-29]`).
+**Expectation:** EVE gets a CLAP target. END hosts EVE as CLAP through the jam CLAP host contract (`jam/jam_clap/clap/host.h`), with ENAX rules identical to the other formats. `request_process` reaches the plugin's own `jam::VirtualDevice`. END has no host clock.
 
 ---
 
