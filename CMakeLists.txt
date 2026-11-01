@@ -106,8 +106,11 @@ set(CAST_JUCE_PATCHES
 "${CAST_USER_MODULE_PATH}/patch/juce-attributed-text-hook.patch"            # Attributed text virtual on LowLevelGraphicsContext; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-adhoc-sign-hook.patch"                 # No ad-hoc signature on the VST3 bundle
 "${CAST_USER_MODULE_PATH}/patch/juce-display-changed-hook.patch"            # Callback after refresh() finds a display change
-"${CAST_USER_MODULE_PATH}/patch/juce-plugin-transparency-hook.patch"        # Host function lookup; plugin editor wrapper transparent under a host that exports jam_host_context_factory; host plugin windows transparent; applies after juce-vulkan-engine-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-transparency-hook.patch"        # Plugin editor wrappers (VST2, VST3) transparent when the host is END; host plugin windows transparent; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-key-pressed-hook.patch"                # Host key press callback before a peer's components; applies after juce-plugin-transparency-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-host-type-hook.patch"           # END registered as a known PluginHostType host: HostType END, isEND(), description, host file name detection
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-window-focus-hook.patch"        # VST2 and AU host plugin windows take keyboard focus and make the plugin view first responder; applies after juce-plugin-transparency-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-mouse-event-hook.patch"                # Host mouse event callback before a peer's components; applies after juce-key-pressed-hook.patch
 )
 
 if(WIN32)
@@ -478,6 +481,19 @@ file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
     "${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.vert"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/*.zip"
 )
+
+set(CAST_PLUGIN_FILES ${CAST_LAYOUT_FILES})
+list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX "[.]zip$")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CAST_PLUGIN_FILES})
+
+set(CAST_PLUGINS_HASH_CONCAT "")
+foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
+    file(SHA256 "${CAST_PLUGIN_FILE}" CAST_PLUGIN_FILE_HASH)
+    string(APPEND CAST_PLUGINS_HASH_CONCAT "${CAST_PLUGIN_FILE_HASH}")
+endforeach()
+string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE CAST_PLUGINS_HASH="${CAST_PLUGINS_HASH}")
 
 juce_add_binary_data(${PROJECT_NAME}_BinaryData
     NAMESPACE "BinaryData"

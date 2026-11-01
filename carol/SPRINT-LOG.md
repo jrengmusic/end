@@ -2,6 +2,88 @@
 
 ---
 
+## Sprint 93: ENAX Plan 1 Steps 1–8d — END Hosts EVE in Every Pane, One Instance per Pane ✅
+
+**Date:** 2026-11-02
+**Duration:** one session, over a context compaction. The start and end times are not recorded.
+**Plan:** `PLAN-enax-plugin-host-type.md` Steps 1–8d (locked). Steps 9 and 10 are folded into `PLAN-enax-command-id.md` by ARCHITECT's order.
+
+### Agents Participated
+- COUNSELOR — discussion, trace specs, every validation read, the small edits named below, this log.
+- Pathfinder (haiku) — reads, the whatdbg `trace` runs (interactive with ARCHITECT), git status and diff, binary hash checks.
+- Engineer (sonnet) — Steps 8c, "pane complete at creation", the plugin offload stamp, the TextEditor terminal lanes, the ViewManager bind-before-bounds order.
+- Auditor — not run. ARCHITECT: *"/audit wholesale until /log"*; it runs once over Plan 2's sprint.
+
+### Files Modified
+**end (24 files):**
+- `Source/Main.cpp:29-40` — one export `enax_get_extension (const char* id)` returns `Nexus::getExtension (id)`. The three `jam_host_*` exports are deleted.
+- `Source/plugins/Nexus.h` / `.cpp` — `extensions` table: `enaxContextFactory`, `enaxPeerDeleted`, `enaxKeyPressed`, `enaxMouseEvent`, `enaxDisplayBounds` (`Nexus.cpp:30-34`); `keyPressedCallback` and `mouseEventCallback` forward to the active window's peer (`:6-24`); `getExtension` (`:112-121`); `registerAudioUnit` (`:188-209`). `offloadPlugins` extracts only when the stamp differs from `CAST_PLUGINS_HASH` (`:123-150`), because the old size test kept a stale EVE of equal size.
+- `Source/plugins/Session.cpp:39-82` — one synchronous load per pane: `PluginDescription` with `fileOrIdentifier` and `pluginFormatName`, then `formatManager.createPluginInstance`. The `findAllTypesForFile` scan (it built a throw-away instance, `juce_VSTPluginFormatHeadless.cpp:53`) and the `Id::pluginId` write are deleted.
+- `Source/ui/EditorView.cpp:4-12`, `:72-92` — the editor is created in the constructor (`createProcessorEditor()`), JUCE-native. `resized` sets the hosted `Width`/`Height` parameters through `convertTo0to1 (snapToLegalValue (…))` (`:22-55`). `visibilityChanged` and the `pluginId` branch are deleted.
+- `Source/ui/SessionView.cpp:56` — `property == Id::name or property == Id::focusedPane`.
+- `Source/lookAndFeel/ENDLookAndFeel.h` / `.cpp:509-519` — the pane outline reads the pane row's `Id::focus`; `createFocusOutlineForComponent` is deleted.
+- `cast/cmake.cast:295-306` — `CAST_PLUGINS_HASH`: SHA256 over the `.zip` files of the layout glob, a configure dependency, a compile definition.
+- `cast/files.md:33` — `plugins stamp` = `.plugins-stamp`. `cast/identifiers.md` — `pluginId` row deleted.
+- `project-info.md` — the EVE spell runs before jam in each cast row. `Source/plugins/EVE v0.1.0 macOS.zip` — the current EVE build.
+- Generated: `CMakeLists.txt`, `Source/generated/Files.*`, `Identifiers.*`, `.clangd`, `.project`.
+- `SPEC.md`, `ARCHITECTURE.md` — END as an audio plugin host with ENAX (partial; see State for Continuation). `PLAN-enax-plugin-host-type.md` — Steps 8a–8d recorded. `PLAN-enax-command-id.md:101` — "arm" wording replaced.
+
+**jam (36 tracked + 6 new):**
+- `jam_core/utilities/jam_PluginHostType.h` / `.cpp` (new) — one detection object over `juce::PluginHostType`; `jam_PluginHost.h` deleted; callers moved (`jam_AudioModel.cpp:126`, `:446`, `jam_PopupMenu.h:1966`, `jam_ScaledContent.cpp:7`, `jam_ViewEditor.cpp:76`, `:93`, `jam_ViewPanel.cpp:18`).
+- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h` / `.cpp` (new) — mixin, rule table, one `isEND()` probe; `set (rule, callback, args…)` forwards its arguments (`.h:12-19`); the size rule fills `ranges[width/height]` from `minimumPaneExtent` and END's display bounds (`.cpp:21-27`).
+- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h:57-128` — `create` takes the extensions; `engine` and `keys` rules replace the `getHostFunction` branch.
+- `jam_plugin_bootstrap/parameter/jam_ParameterLayout.h` / `.cpp:77-166` — `get (parameters, ranges)` with an integer entry.
+- `jam_plugin_bootstrap/view/jam_PluginEditor.cpp` — `resized` writes width/height through a gesture (`:58-70`); `getZoomSize() const` (`:168-177`); `width`/`height` registry callbacks call `setScaling()` (`:236-246`).
+- `jam_plugin_bootstrap/view/jam_ViewManager.h:75-78` / `.cpp:60-70`, `:95-146` — build, bind, then lay out: the build pass sets no bounds; `applyComponentBounds<DocumentType>` runs after `addBindings`; the XML lane lays out from each row's `rect`. MANIFESTO E, Complete at Creation.
+- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — the `onKeyPress`, `onMouse`, `onImages` slots and the `liveCursor`, `liveCursorVisible`, `liveIsRecording`, `winsize` Values are deleted. `bindToModel` binds the instance's `Id::terminal` row before it redirects `state` (`.cpp:148-163`); `cursor`, `cursorVisible`, `isRecording` dispatch through the `properties` map (`:782-789`); `setWinsize()` writes the row (`:1098`). Terminal mode encodes keys and mouse with `TerminalKeyboard::map` / `TerminalMouse::map` against the row and sends prvalues through `bindToEvents` → `chainEvents[Id::terminalInput]` (`:137-145`, `:542-557`, `:1457-1471`). `setImageBounds`, `addImageBounds`, `imageBounds` and `Value::Listener` are deleted. Local `node` renamed `componentState` (NAMES Rule 6).
+- `jam_gui/layout/jam_OwnedComponent.h` (`focusOfChildComponentChanged`), `jam_OwnerComponent.h:80` (`addAndMakeVisible`), `jam_MatrixComponent.cpp:353-359` (no `setVisible`), `jam_PaneComponent.h` (`setHasFocusOutline` removed).
+- `jam_plugin_bootstrap/standalone/jam_AudioStandaloneApp.*` — `MainWindow::focusGained` gives the editor focus.
+- `patch/juce-plugin-host-type-hook.patch`, `juce-plugin-window-focus-hook.patch`, `juce-mouse-event-hook.patch` (new); `juce-plugin-transparency-hook.patch` (opaque only when the host is not END).
+- `cast/core.md:74-78` (five ENAX ids), `cast/plugin_bootstrap.md` (`engine`), `cast/terminal.md:63` (`winsize`, moved from EVE because jam now names it), generated, `user-modules-info.md`, `jam_core.*`, `jam_plugin_bootstrap.*`.
+
+**eve (12 files):**
+- `Source/EVEProcessor.h` — `jam::ENAXClientExtensions` mixin; `create (*this, …)`; size ranges into `ParameterLayout::get`.
+- `Source/EVEViewComponents.cpp:26-37` — `registration.events` is stateless (`[]`): `bindToEvents (chainEvents->at (eventName))`, then terminal mode. The old `[this]` capture bound every later editor to the first instance's terminal row through the first-wins shared registry (`jam_SharedInstance.h:1-3`).
+- `Source/EVEView.h` / `.cpp` — `setOverlays`, `applyImage`, `overlays` deleted.
+- `Source/EVETerminalProcessor.cpp:37` — the destructor calls `releaseResources()`.
+- `Source/layout/parameters.md` — `width` (80–7680, 800) and `height` (80–4320, 600).
+- `cast/identifiers.md` — `winsize` moved to jam. `CMakeLists.txt` (patch list), `project-info.md` (absolute toolchain paths), generated, `PLAN-Grand-Scheme.md` ("arm" wording).
+
+### Alignment Check
+- [x] BLESSED principles followed — one instance per pane; per-instance state through the lanes each bind receives; bind before layout.
+- [x] NAMES.md adhered — corrected in-sprint: the conditional `set` in `setWinsize` was reverted (Rule 1), `node` renamed (Rule 6).
+- [x] MANIFESTO.md principles applied
+- [ ] No @Auditor and no doxygen pass. ARCHITECT ordered both to run once, wholesale, at the end of Plan 2.
+
+### Problems Solved
+- **Second pane empty.** The cause was the shared registry. `jam::PluginEditor` holds `SharedInstance<Registry>` (`jam_PluginEditor.h:217`), first-wins. EVE's `[this]` bind lambda therefore bound instance 2's text editor to instance 1's terminal row. The trace showed instance 2's `winsize` never firing and instance 1 restarting at 110×37. Fixed by stateless registration, with per-instance data through the bind lanes (JFS pattern, `FilterStripViewRegistration.cpp:365-401`).
+- **Stale EVE.** The size-only offload test kept an older EVE of equal size (SHA256 differed). Fixed by the build-time hash stamp.
+- **Two instances per pane.** The type scan built a throw-away instance. Replaced by one direct load.
+- **The `winsize` write on an unbound row** (`juce_ValueTree.cpp:777`). Fixed at the causes: `bindToModel` binds the row before it redirects `state`, and `ViewManager` binds before it lays out.
+- **Crash on first key.** `Function::Array::get` deduced `<const char*&, int&>`; fixed by passing prvalues (`jam_Function.h:145-149`).
+- ARCHITECT's runtime test: 2 tabs, 2 panes, every terminal created, focus correct, each pane closed until quit, no issue.
+
+### State for Continuation
+- Plan 2 (`PLAN-enax-command-id.md`) is next. It absorbs, by ARCHITECT's order:
+  1. Per-instance key `mode`. `jam::CommandManager::mode` is one `juce::Value` per binary (`jam_CommandManager.h:23`). Each TextEditor `referTo`s it (`jam_TextEditor.cpp:105`, `:159`), so the editor bound last owns it for every pane (`jam_CommandManager.cpp:54`). Plan 2 `:38`, `:95`, `:109` keep this design and need amendment.
+  2. `Session::newPlugin` takes a `juce::PluginDescription`; EVE's description is fixed data from `Nexus` (`Session.cpp:48` hardcodes the VST format name). The name `defaultPlugin` is not ratified.
+  3. The `MVKBlockObserver` duplicate class (END and EVE) and the `FSEventStream` assertion, logged once per instance.
+  4. Plan 1 Step 9 (AU, one format at a time) and Step 10 (SPEC/ARCHITECTURE).
+  5. Plan 2's own citations are stale (for example `:39`, `:51`); refresh them first.
+- `ARCHITECTURE.md` still describes the removed `Id::pluginId` and the type scan (the lifecycle bullets and "The View is detachable"). Read the code before you rewrite it.
+- Stale doc lines for the doxygen pass: `jam_TextEditor.h:67`, `:141`, `:160`, `:471`, the constructor and `setWinsize` docs; `jam_ViewManager.h:278-279`, `:302-303`, `:323-329`, `:685`; `EVEView.h:7-10` and the `registerViewComponents` doc; `EditorView.h:14-16`, `:44-47`; `jam_OwnerComponent.h:64-73`; the `jam_PluginEditor.h` `getZoomSize` / `addCallbacks` docs; `ENDLookAndFeel.h:258`; "arm" prose at `jam_ParameterLayout.h:18`, `:199`, `jam_ModelLayout.h:17`.
+- Under the debugger only, `split` asserted at `jam_MatrixComponent.cpp:70` when the window was not focused at the pane's focus grab (`juce_Component.cpp:2960-2966`). It did not occur in ARCHITECT's runtime test.
+- DEBT-20261025T214955 and DEBT-20261009T112447 are recorded as paid in `CLAUDE.md`. Their receipts belong to Plan 2 Step 10 (`PLAN-enax-command-id.md:146`).
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
+
+---
+
 ## Sprint 92: ENAX Host–Client Contract Planned — Grand-Scheme Amendment, Two Executable Plans, Plan Hygiene ✅
 
 **Date:** 2026-11-01
@@ -273,32 +355,6 @@ None.
 
 ### State for Continuation
 - `cast cast/spell.md --debug`: 0 errors, 0 warnings.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
-
----
-
-## Sprint 90: Release Lane — pkg Replaces dmg, Windows NSIS (x64, arm64, admin), gh Upload ✅
-
-**Date:** 2026-10-05
-**Duration:** part of one session (cast sprint `release-lane` is the primary record)
-**Plan:** `dev/cast/PLAN-release-lane.md` (locked)
-
-### Decisions (ARCHITECT)
-1. *"i don't understand why END is separate lane"*; *"installer is installer. only different on default install path"*.
-2. Windows **"Program Files, admin"**; icon *"whatever icon used for the binary per juce project. SSOT"*.
-
-### Files Modified
-- `project-info.md` — `## pack layout` and `linkDirectory` deleted; `## pack` `pkg | exe`; `## release notes`; `## cmake` `repository`, `installerResourceDirectory`, `installDirectoryWindows` (`$PROGRAMFILES64\JRENG\END`); `description` cell plain; `## toolchain` `cmake -P gh.cmake`.
-- `cast/cmake.cast` — dmg pack/sign deleted; bundle pkg → productbuild → productsign → notarize → staple; NSIS at admin level with `JUCE_ICON_FILE`; `DESCRIPTION ":::description:::"`. `cast/installer.cast` (new), `cast/spell.md`, `cast/signing.md` (`installerIdentity`, `identityWindows`, `signArgumentsWindows`), `cast/installer/resources/` (placeholders). `Source/icons/dmg_background_600x680pt.tiff` deleted. `CLAUDE.md`.
-
-### State for Continuation
-- Generation is a fixpoint. The Debug build fails to compile, before this sprint's lane: `ENDLookAndFeel.cpp:92` passes 4 arguments to `jam_ButtonSVG.h:81` `getState` (3 parameters).
-- CLAUDE.md says agents never run builds; this sprint ran the Debug toolchain under the approved plan's generation step.
 
 ### Debts Paid
 - None

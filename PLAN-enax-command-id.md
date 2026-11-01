@@ -98,7 +98,7 @@ Each step is validated by COUNSELOR before proceeding to the next — against MA
 
 ### Step 5: Hosted key rule
 **Scope:** `jam_ENAXClientExtensions.cpp` (keys rule from Plan 1); the binder.
-**Action:** the keys rule's END arm also removes the `normal` command's default key (`` `] ``) from the joined defaults before `setKeyPresses`. END's own `normal` command drives that mode change (Step 7). The own arm leaves the defaults as they are. Hosted EVE still applies its disk overrides.
+**Action:** the keys rule's END callback also removes the `normal` command's default key (`` `] ``) from the joined defaults before `setKeyPresses`. END's own `normal` command drives that mode change (Step 7). The caller's `callback` leaves the defaults as they are. Hosted EVE still applies its disk overrides.
 **Validation:** with EVE in END, `` `] `` reaches END first and runs END's `normal`. Standalone EVE keeps `` `] ``.
 
 ### Step 6: Mode as an EVE host parameter, attached to the TextEditor

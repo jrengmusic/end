@@ -82,7 +82,6 @@ extern const juce::Identifier paneLeft;
 extern const juce::Identifier paneRight;
 extern const juce::Identifier paneStep;
 extern const juce::Identifier paneUp;
-extern const juce::Identifier pluginId;
 extern const juce::Identifier plugins;
 extern const juce::Identifier postProcessing;
 extern const juce::Identifier postProcessingOpacity;

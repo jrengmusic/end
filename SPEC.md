@@ -1,16 +1,23 @@
 # SPEC.md — END: Ephemeral Nexus Display
 
 **Version:** 0.0.1
-**Date:** 2026-06-04 (original), updated 2026-09-12
-**Identity revision:** END is a CLAP plugin host. The terminal emulator moved out of
-this repository into a hosted plugin.
+**Date:** 2026-06-04 (original), updated 2026-11-01
+**Identity revision:** END is an audio plugin host, end to end. Its default plugin is
+EVE, the terminal, under the ENAX contract. ARCHITECT: *"END is audio plugin host.
+through and through audio plugins host end-to-end. its default plugin is EVE with ENAX
+(developed with all audio plugin format, one by one), later will be formalised with
+CLAP"*.
 
 ---
 
 ## 0. Identity
 
-END is a **JUCE GUI application** that hosts CLAP plugins in a tabbed, splittable
-pane workspace, rendered by the JAM Vulkan engine.
+END is a **JUCE GUI application** that hosts audio plugins in a tabbed, splittable
+pane workspace, rendered by the JAM Vulkan engine. The formats are VST2, VST3 and AU
+through JUCE (`Nexus.cpp:28`), and CLAP through jam_clap (`Nexus.cpp:29-34`). Each new
+pane loads EVE (`Session.cpp:39-90`, `cast/files.md:31`). EVE is checked in one format
+at a time. ARCHITECT: *"ALL formats means ONE at a time, for EVE. any valid audio format
+SHOULD WORK. any 3rd audio plugin with "ALL FORMAT" must be able to be loaded in END."*
 
 It is not a terminal emulator. The VT engine, the document model, and the terminal
 widgets that earlier versions of this SPEC described now live outside this
@@ -26,8 +33,10 @@ system, the rendering engine, and the plugin lifecycle. Plugins supply content.
 
 1. **JUCE GUI application.** Component hierarchy, ValueTree state, native
    windowing. Every architectural decision starts here.
-2. **CLAP plugin host.** jam_clap is the in-house wrapper and host format. One
-   plugin instance per pane. The host stays content-ignorant.
+2. **Audio plugin host.** JUCE's formats and jam_clap host the plugins. One plugin
+   instance per pane, each a node of one audio graph. The host stays
+   content-ignorant. ENAX is formalised later with CLAP (`DEBT.md`,
+   DEBT-20261025T135707).
 3. **GPU-first rendering.** The JAM Vulkan engine renders every window. Shader
    pipeline (Shadertoy background, Slang post-process, OBJ mesh) is host-level
    decoration.
@@ -46,21 +55,23 @@ belongs to content, it belongs to a plugin.
 ### 1.0 Layer Order (top → bottom)
 
 ```
-Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)
+Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)
 ```
 
 - **ENDApplication** (Main.cpp) — orchestrator. Constructs `jam::Window` directly
   (there is no ENDWindow class). Owns config and the Nexus lane.
 - **Config** (`Source/config/`) — ConfigDirectory, ConfigModel and its per-domain
   subclasses (theme, shader). Four-phase lifecycle. Data source is markdown.
-- **Nexus** (`Source/Nexus.h`) — host singleton. Owns the sessions Model state
-  (`Id::sessions` tree: `focused_session`, `focused_pane` parameters), the
-  per-session plugin instances, and the per-plugin `Nexus::VirtualClock` demand
-  clocks. Creates plugins via jam_clap from `~/.config/end/plugins/`.
+- **Nexus** (`Source/plugins/Nexus.h`) — host singleton. Owns the sessions Model
+  state (`Id::sessions` tree: `focused_session`, `focused_pane` parameters), the
+  plugin format manager, the one audio graph, and the ENAX extensions
+  (`Nexus.h:41`). Offloads the plugins from BinaryData to `~/.config/end/plugins/`
+  (`Nexus.cpp` `offloadPlugins`).
 - **Session** — uuid-keyed container of hosted plugin instances for one window's
-  session. `newPlugin (uuid, pluginId, instance)` / `removePlugin (uuid)`.
+  session. A new PANE row runs `newPlugin (uuid)`; `removePlugin (uuid)` removes the
+  node (`Session.cpp:31-99`).
 - **EditorView panes** — each pane hosts one plugin editor
-  (`juce::AudioProcessorEditor` from the CLAP instance). A pane with no loaded
+  (`juce::AudioProcessorEditor` from the hosted instance). A pane with no loaded
   plugin renders bare (outline only).
 
 ### 1.1 View Composition
@@ -148,24 +159,43 @@ teardown.
   `jam::Format::replaceholder` with an explicit at-sign delimiter.
 - Paint dispatch is message-thread-synchronous; no dedicated GPU thread.
 
-### 1.5 Plugin Hosting — jam_clap
+### 1.5 Plugin Hosting — JUCE Formats, jam_clap and ENAX
 
-- Format and wrapper are in-house (`jam_clap`, JAM repository).
-- Plugins live in `~/.config/end/plugins/`. `Nexus::createPlugin (pluginId,
-  callback)` resolves and instantiates asynchronously; a missing plugin yields a
-  bare pane (`newPlugin (uuid, {}, nullptr)`).
-- Each plugin gets a `Nexus::VirtualClock` — a per-plugin demand clock, created
-  and removed with the pane.
-- `EditorView::createProcessorEditor` hosts the instance's
-  `AudioProcessorEditor`; resizable editors track pane bounds.
+- Formats: JUCE's default formats (VST2, VST3, AU) and `jam::ClapPluginFormat`
+  (`Nexus.cpp:28-34`).
+- Plugins live in `~/.config/end/plugins/`. `Nexus::offloadPlugins` writes them from
+  BinaryData. On macOS, when `files::evePlugin` names a `.component`, it registers
+  that one bundle in the process (`Nexus::registerAudioUnit`, `Nexus.cpp:138-143`).
+  Formats are tested one at a time, so no other bundle loads. ARCHITECT: *"i dont
+  want to put "END's in-house plugin" into system audio plugins path"*.
+- A new PANE row makes `Session::newPlugin` create the plugin synchronously and add
+  it as a node of the one graph (`Session.cpp:31-90`). Each plugin owns its clock.
+- `EditorView::createProcessorEditor` hosts the instance's `AudioProcessorEditor`.
+  Resizable editors track the pane bounds.
+- **Host identity.** END is a known JUCE host: `juce::PluginHostType::END` and
+  `isEND()` (`jam/patch/juce-plugin-host-type-hook.patch`). ARCHITECT: *"we NEED END
+  as one of the KNOWN type, this is the SSOT seam"*.
+- **ENAX channel.** END exports one function, `enax_get_extension (const char* id)`
+  (`Main.cpp:29-40`). It returns the `Nexus::extensions` entry for the id, or
+  nullptr (`Nexus.cpp:96-105`). The ids are `enax.context-factory`,
+  `enax.peer-deleted` and `enax.key-pressed` (`jam/cast/core.md:74-76`).
+- **ENAX rules.** The plugin side, `jam::ENAXClientExtensions`, holds the END-only
+  rules in one table, selected by one `isEND()` probe. Outside END, the plugin keeps
+  its standalone contract. ARCHITECT: *"as standalone, plugins that loaded into
+  whatever known hosts other than END, EVE SPEC CONTRACT must stands as is"*.
+- **Focus.** END owns focus. The focused pane gives keyboard focus to its plugin
+  editor (`EditorView.cpp:46-50`). The plugin never grabs focus. ARCHITECT: *"so END
+  pane focus management actually only need to forward, focused PANE give the keyboard
+  focus to its loaded plugin"*.
 
 ### 1.6 Main Goal — Shared Vulkan Engine Across Host and Plugins
 
-The central challenge of END-as-host: hosted plugin instances must share the
-host's Vulkan engine — one `jam::VulkanDevice`, one atlas/interning family, one
-resource-ownership tree serving host chrome and plugin content alike. This is the
-next architecture phase; it is unimplemented and undesigned as of this revision.
-Design work happens plugin-side and host-side together (see §3 Roadmap).
+Hosted plugin instances share the host's Vulkan engine: one device for host chrome
+and plugin content. Under END, the ENAX `engine` rule gives the plugin END's context
+factory and peer-deleted callback, so the plugin paints through END's engine. Outside
+END, the plugin creates its own `VulkanGraphicsEngine`
+(`jam_PluginEditorLayout.h:119-125`). Each binary keeps its own CPU engine
+(`jam_PluginEditorLayout.h:119`).
 
 ---
 
@@ -189,10 +219,10 @@ Iteration proceeds both ways between host and plugins:
 
 1. **Freeze current host state** — workspace, config, rendering, focus contract
    verified (this revision).
-2. **eve** — terminal as a CLAP plugin. Carries the VT engine, document model,
+2. **eve** — terminal as an audio plugin, END's default plugin under ENAX. Carries the VT engine, document model,
    CodeView rendering, PTY transport formerly specified here. The terminal-era
    SPEC is preserved verbatim as eve's baseline: `dev/plugins/eve/SPEC.md`.
-3. **whelmed** — markdown editor/viewer as a CLAP plugin.
+3. **whelmed** — markdown editor/viewer as an audio plugin.
 4. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
    live editors (DEBT-20260713T230500 lane), session persistence.
 5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render

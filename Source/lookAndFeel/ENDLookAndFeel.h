@@ -259,8 +259,6 @@ public:
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
 
-    std::unique_ptr<juce::FocusOutline> createFocusOutlineForComponent (juce::Component&) override;
-
     /** @brief Pane EDGE seam thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
      *  jam::PaneEdge::getSeam() to size the drag-hit region.

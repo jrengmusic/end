@@ -53,7 +53,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == Id::name or property == Id::pluginId)
+    if (property == Id::name or property == Id::focusedPane)
     {
         const auto tabState { EditorView::findAncestorRow (tree, Id::toType (Id::tab)) };
 
