@@ -28,38 +28,15 @@ static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
 
 /** @cond */
 #if JUCE_WINDOWS
-extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory();
-extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback();
-extern "C" __declspec (dllexport) decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback();
+extern "C" __declspec (dllexport) const void* enax_get_extension (const char* id);
 #else
-extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory();
-extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback();
-extern "C" __attribute__ ((visibility ("default"))) decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback();
+extern "C" __attribute__ ((visibility ("default"))) const void* enax_get_extension (const char* id);
 #endif
 /** @endcond */
 
-decltype (juce::ComponentPeer::externalContextFactory) jam_host_context_factory()
+const void* enax_get_extension (const char* id)
 {
-    return juce::ComponentPeer::externalContextFactory;
-}
-
-decltype (juce::ComponentPeer::externalPeerDeletedCallback) jam_host_peer_deleted_callback()
-{
-    return juce::ComponentPeer::externalPeerDeletedCallback;
-}
-
-decltype (juce::ComponentPeer::externalKeyPressedCallback) jam_host_key_pressed_callback()
-{
-    return [] (const juce::KeyPress& key) -> bool
-    {
-        if (auto* window { juce::TopLevelWindow::getActiveTopLevelWindow() })
-        {
-            if (auto* peer { window->getPeer() })
-                return peer->handleKeyPress (key);
-        }
-
-        return false;
-    };
+    return Nexus::getInstance()->getExtension (id);
 }
 
 ENDApplication::ENDApplication() {}

@@ -42,50 +42,42 @@ void Session::newPlugin (jam::UUID uuid)
     jassert (paneRow.isValid());
 
     const auto file { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
-    juce::OwnedArray<juce::PluginDescription> descriptions;
 
-    for (auto* format : formatManager.getFormats())
-        if (format->fileMightContainThisPluginType (file.getFullPathName()))
-            format->findAllTypesForFile (descriptions, file.getFullPathName());
+    juce::PluginDescription description;
+    description.fileOrIdentifier = file.getFullPathName();
+    description.pluginFormatName = juce::VSTPluginFormat::getFormatName();
 
-    jassert (descriptions.size() > 0);
+    juce::String errorMessage;
+    auto instance { formatManager.createPluginInstance (description, graph.getSampleRate(), graph.getBlockSize(), errorMessage) };
+    jassert (instance != nullptr);
 
-    if (descriptions.size() > 0)
+    if (instance != nullptr)
     {
-        juce::String errorMessage;
-        auto instance { formatManager.createPluginInstance (*descriptions.getFirst(), graph.getSampleRate(), graph.getBlockSize(), errorMessage) };
-        jassert (instance != nullptr);
+        instance->enableAllBuses();
 
-        if (instance != nullptr)
-        {
-            instance->enableAllBuses();
+        auto node { graph.addNode (std::move (instance)) };
+        jassert (node != nullptr);
 
-            auto node { graph.addNode (std::move (instance)) };
-            jassert (node != nullptr);
+        const auto [entry, inserted] { plugins.try_emplace (uuid, node->nodeID) };
+        jassert (inserted);
 
-            const auto [entry, inserted] { plugins.try_emplace (uuid, node->nodeID) };
-            jassert (inserted);
+        paneRow.setProperty (Id::name, node->getProcessor()->getName(), nullptr);
 
-            paneRow.setProperty (Id::name, node->getProcessor()->getName(), nullptr);
+        auto* processor { node->getProcessor() };
+        const auto inputChannels { std::min (processor->getTotalNumInputChannels(),
+                                             graph.getNodeForId (audioInputNodeId)->getProcessor()->getTotalNumOutputChannels()) };
+        const auto outputChannels { std::min (processor->getTotalNumOutputChannels(),
+                                              graph.getNodeForId (audioOutputNodeId)->getProcessor()->getTotalNumInputChannels()) };
 
-            auto* processor { node->getProcessor() };
-            const auto inputChannels { std::min (processor->getTotalNumInputChannels(),
-                                                 graph.getNodeForId (audioInputNodeId)->getProcessor()->getTotalNumOutputChannels()) };
-            const auto outputChannels { std::min (processor->getTotalNumOutputChannels(),
-                                                  graph.getNodeForId (audioOutputNodeId)->getProcessor()->getTotalNumInputChannels()) };
+        for (int channel { 0 }; channel < inputChannels; ++channel)
+            graph.addConnection ({ { audioInputNodeId, channel }, { node->nodeID, channel } });
 
-            for (int channel { 0 }; channel < inputChannels; ++channel)
-                graph.addConnection ({ { audioInputNodeId, channel }, { node->nodeID, channel } });
+        for (int channel { 0 }; channel < outputChannels; ++channel)
+            graph.addConnection ({ { node->nodeID, channel }, { audioOutputNodeId, channel } });
 
-            for (int channel { 0 }; channel < outputChannels; ++channel)
-                graph.addConnection ({ { node->nodeID, channel }, { audioOutputNodeId, channel } });
-
-            if (processor->acceptsMidi())
-                graph.addConnection ({ { midiInputNodeId, juce::AudioProcessorGraph::midiChannelIndex },
-                                       { node->nodeID, juce::AudioProcessorGraph::midiChannelIndex } });
-
-            paneRow.setProperty (Id::pluginId, files::evePlugin, nullptr);
-        }
+        if (processor->acceptsMidi())
+            graph.addConnection ({ { midiInputNodeId, juce::AudioProcessorGraph::midiChannelIndex },
+                                   { node->nodeID, juce::AudioProcessorGraph::midiChannelIndex } });
     }
 }
 

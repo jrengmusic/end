@@ -33,6 +33,7 @@ namespace files
     const juce::String joinCellsVerticalNormal   { juce::String::fromUTF8 ("join_cells_vertical_normal.svg") };
     const juce::String joinCellsHorizontalNormal { juce::String::fromUTF8 ("join_cells_horizontal_normal.svg") };
     const juce::String evePlugin                 { juce::String::fromUTF8 ("EVE.vst") };
+    const juce::String pluginsStamp              { juce::String::fromUTF8 (".plugins-stamp") };
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

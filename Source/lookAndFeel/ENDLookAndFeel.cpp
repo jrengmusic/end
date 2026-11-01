@@ -509,40 +509,12 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
 
 void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
 {
-    g.setColour (findColour (jam::PaneComponent::outlineColourId));
+    g.setColour (findColour (static_cast<int> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus)) == 1
+                                 ? jam::PaneComponent::focusedOutlineColourId
+                                 : jam::PaneComponent::outlineColourId));
     g.drawRoundedRectangle (
         pane.getLocalBounds().toFloat().reduced (jam::PaneComponent::edgePadding
                                                  + jam::PaneComponent::lineThickness),
         jam::PaneComponent::cornerSize,
         jam::PaneComponent::lineThickness);
-}
-
-struct WindowProperties final : public juce::FocusOutline::OutlineWindowProperties
-{
-    explicit WindowProperties (juce::Colour outlineColour)
-        : colour (outlineColour)
-    {
-    }
-
-    juce::Rectangle<int> getOutlineBounds (juce::Component& focusedComponent) override
-    {
-        return focusedComponent.getScreenBounds().reduced (
-            static_cast<int> (jam::PaneComponent::edgePadding + jam::PaneComponent::lineThickness));
-    }
-
-    void drawOutline (juce::Graphics& g, int width, int height) override
-    {
-        g.setColour (colour);
-        g.drawRoundedRectangle ({ 0.0f, 0.0f, static_cast<float> (width), static_cast<float> (height) },
-                                jam::PaneComponent::cornerSize,
-                                jam::PaneComponent::lineThickness);
-    }
-
-    juce::Colour colour;
-};
-
-std::unique_ptr<juce::FocusOutline> ENDLookAndFeel::createFocusOutlineForComponent (juce::Component&)
-{
-    return std::make_unique<juce::FocusOutline> (
-        std::make_unique<WindowProperties> (findColour (jam::PaneComponent::focusedOutlineColourId)));
 }

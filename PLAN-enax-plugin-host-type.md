@@ -26,6 +26,13 @@ END becomes a known JUCE host through `jam::PluginHostType`. END gives its hooks
 - *"END is audio plugin host. through and through audio plugins host end-to-end. its default plugin is EVE with ENAX (developed with all audio plugin format, one by one), later will be formalised with CLAP"*
 - Focus in this plan: *"Plan 1 (PluginHostType)"*. *"Focus is END responsibility"*. *"END as HOST should control the FOCUS. END already always control new pane created to be always the FOCUSED one … it should never manage its own focus, never steal focus."*; *"so END pane focus management actually only need to forward, focused PANE give the keyboard focus to its loaded plugin"*.
 - *"NO HACK, NO WORKAROUND, NO PATCHING BULLSHIT without comprehensive understanding. must be DESIGN BY CONTRACT"*
+- Amendment of 2026-11-01 (runtime test: the pane never shows its outline, `split` asserts at `jam_OwnerComponent.h:110`, the editor keeps its first size):
+  - *"if Pane was never focused, all the state machine will fail"*; *"when Pane focus tracking incorrect. the whole chain will fail"*.
+  - *"mouse and keyboard are same contract. EVE has Viewport, it also forward to mouse event to terminal"*.
+  - *"where do you call those APIs? be careful with ENCAPSULATION. IIUC this is lower level API, should not from any juce::Component"*.
+  - *"patch is the only LAST RESORT when there's no alternative, and must be very minimal"*; *"at juce surface, we still must be USING juce native API"*; *"must be crossplatfrom"*.
+  - *"suggesting chanel via Presonus extension is FUCKING BULLSHIT. we are not presonus, we never support presonus extension, that's fucking hack, that's contract violations"*.
+  - VST2 editor size: *"ENAX extension"*; *"why not through APVTS? like zoom and MODE?"*; *"Two AudioParameterInt"*.
 
 ## Language / Framework Constraints
 
@@ -106,8 +113,8 @@ Each step is validated by COUNSELOR before proceeding to the next — against MA
 **Scope:** NEW `jam/jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h` + `.cpp`; include rows in `jam_plugin_bootstrap.h` / `.cpp`; `eve/Source/EVEProcessor.h` (base list).
 **Action:**
 1. The object holds `jam::Function::Map<juce::Identifier, void> rules` (`jam_Function.h:212-344`; owner-table precedent `jam_CpuGraphicsEngine.h:122-126`).
-2. Its constructor calls `jam::PluginHostType().isEND()` once. Only when the answer is true does it add the END arm of each rule (Step 6). This is the one probe.
-3. `apply (const juce::Identifier& rule, …ownArm)` runs the registered END arm for `rule`, or else `ownArm`. This is the one dispatch site.
+2. Its constructor calls `jam::PluginHostType().isEND()` once. Only when the answer is true does it add the END callback of each rule (Step 6). This is the one probe.
+3. `set (const juce::Identifier& rule, Callback&& callback)` runs the registered END callback for `rule`, or else the caller's `callback`. This is the one dispatch site.
 4. `getExtension (juce::StringRef id) const` looks up `enax_get_extension` in the host executable and calls it with `id`. The body moves from the transparency patch's `getHostFunction`:
    - posix: `juce::DynamicLibrary`, `open ({})`, then `getFunction`;
    - Windows: `GetProcAddress (GetModuleHandleW (nullptr), …)`.
@@ -124,10 +131,10 @@ Each step is validated by COUNSELOR before proceeding to the next — against MA
 2. `PluginEditorLayout::create` gains `const jam::ENAXClientExtensions&`. `EVEProcessor` passes `*this`. The base is constructed before the `layout` member.
 3. Replace `jam_PluginEditorLayout.h:118-133` with:
    - `CpuGraphicsEngine::getOrCreate()` (every host);
-   - `extensions.apply (Id::engine, ownArm)`, where `ownArm` is today's `VulkanGraphicsEngine::getOrCreate (extent)` (`:131-132`). The END arm sets `externalContextFactory` and `externalPeerDeletedCallback` from `getExtension (Id::enaxContextFactory)` and `getExtension (Id::enaxPeerDeleted)`;
-   - `extensions.apply (Id::keys, ownArm)`, where `ownArm` does nothing. The END arm sets `externalKeyPressedCallback` from `getExtension (Id::enaxKeyPressed)`.
+   - `extensions.set (Id::engine, callback)`, where `callback` is today's `VulkanGraphicsEngine::getOrCreate (extent)` (`:131-132`). The END callback sets `externalContextFactory` and `externalPeerDeletedCallback` from `getExtension (Id::enaxContextFactory)` and `getExtension (Id::enaxPeerDeleted)`;
+   - `extensions.set (Id::keys, callback)`, where `callback` does nothing. The END callback sets `externalKeyPressedCallback` from `getExtension (Id::enaxKeyPressed)`.
 4. Rule ids: `Id::keys` exists (`jam/generated/jam_Gui.cpp:39`). Read the jam cast tables for `engine`; add an `@id` row in `jam/cast/plugin_bootstrap.md` only if it is absent.
-**Validation:** `jam_PluginEditorLayout.h` has no host branch. The END-arm casts are the CODING function-pointer case only. Standalone EVE still creates its own `VulkanGraphicsEngine`.
+**Validation:** `jam_PluginEditorLayout.h` has no host branch. The END-callback casts are the CODING function-pointer case only. Standalone EVE still creates its own `VulkanGraphicsEngine`.
 
 ### Step 7: Transparency through JUCE's own host query
 **Scope:** `jam/patch/juce-plugin-transparency-hook.patch` (regenerated); `juce_audio_plugin_client_AU_1.mm` (read first).
@@ -147,6 +154,52 @@ Each step is validated by COUNSELOR before proceeding to the next — against MA
 4. Standalone: read the `MainWindow` of `jam_AudioStandaloneApp.cpp`. The window gives the editor focus when it is shown (`juce_TopLevelWindow.cpp:51`).
 5. END keeps `focusedPane` while the plugin holds native focus (`jam_OwnerComponent.h:174-178`). Read the pane-outline source (`jam_PaneComponent.h`, `StyleCustom::drawPaneOutline`). If it reads `Id::focus`, align it to the focused-pane aggregate.
 **Validation:** EVE Source has no `grabKeyboardFocus`. Focus reaches the terminal only through the host. END's `focusedPane` does not change while the user types in EVE.
+
+**Amendment, runtime evidence (whatdbg, 2026-11-01).** A new pane gains JUCE focus (`jam_OwnedComponent.h:73`). Then `EditorView.cpp:53` passes focus to the editor, and the pane gets `focusLost`, so `Id::focus` = 0 (`:79`). Two JUCE images cannot both hold live focus: `takeKeyboardFocus` needs the component's peer focused (`juce_Component.cpp:2965-2966`), and one NSView is first responder (`juce_NSViewComponentPeer_mac.mm:1566-1585`, `:2174-2184`). The outline is JUCE's `FocusOutline`, drawn only while the pane itself has JUCE focus (`jam_PaneComponent.h:52`, `juce_Component.h:1572`, `ENDLookAndFeel.cpp:544-548`). Steps 8a to 8d complete Step 8. Step 8 items 2 to 4 stay.
+
+### Step 8a: Pane focus is END's Model state
+**Scope:** `jam/jam_gui/layout/jam_OwnedComponent.h`, `jam_OwnerComponent.h`, `jam_PaneComponent.h`; `end/Source/lookAndFeel/ENDLookAndFeel.h` / `.cpp`.
+**Action:**
+1. `OwnedComponent` reports focus with JUCE's own API: `focusGained` writes `Id::focus` 1 (`jam_OwnedComponent.h:71-75`), and `focusOfChildComponentChanged` writes 1 when `hasKeyboardFocus (true)` (`juce_Component.h:1510`, `:2019`). A child never writes 0. Delete `focusLost` (`:77-81`).
+2. `OwnerComponent` is the one writer of 0. When its focused-child parameter changes (`jam_OwnerComponent.h:180-183`), it tells the previous child's row `Id::focus` 0. `Id::focus` = 1 holds on exactly the row that the aggregate names.
+3. The outline paints from the row. `drawPaneOutline` draws `focusedOutlineColourId` when the pane's own row has `Id::focus` 1, else `outlineColourId` (`ENDLookAndFeel.cpp:510-518`; colour ids `jam_PaneComponent.h:28-36`). The pane repaints when its row's `Id::focus` changes. Delete `setHasFocusOutline (true)` (`jam_PaneComponent.h:52`, `:64`) and `ENDLookAndFeel::createFocusOutlineForComponent` with its `WindowProperties` (`ENDLookAndFeel.cpp:520-548`, `.h:262`).
+**Validation:** after the editor takes focus, the pane row keeps `Id::focus` 1 and `focusedPane` names the pane. `split` finds the focused child (`jam_MatrixComponent.cpp:64-70`). The outline follows the row, not JUCE focus.
+
+### Step 8b: Mouse hook — the key-hook contract for mouse
+**Scope:** NEW `jam/patch/juce-mouse-event-hook.patch`; `jam/user-modules-info.md` (one `patch` row after `:1364`); `jam/cast/core.md` (`enax` rows `:74-76`); `jam_ENAXClientExtensions.cpp` (keys rule `:15-18`); `end/Source/plugins/Nexus.cpp` (`:6-21`).
+**Action:**
+1. Patch, in the form of `juce-key-pressed-hook.patch`:
+   - `juce_ComponentPeer.h`, after `externalKeyPressedCallback`: `static inline void (*externalMouseEventCallback) (MouseInputSource::InputSourceType, Point<float>, ModifierKeys, float, float, int64, PenDetails, int) = nullptr;`. The point is a screen position.
+   - `juce_ComponentPeer.cpp`, top of `handleMouseEvent` (`:95-100`): when the pointer is set, call it with `localToGlobal (pos)` (`juce_ComponentPeer.h:219`) and the other arguments unchanged. The hook observes. It never consumes, so the peer's own dispatch continues, and EVE's Viewport still forwards mouse to the terminal.
+2. `core.md`: `@string | enaxMouseEvent | enax.mouse-event | ENAX id of the host mouse-event callback.` (sibling `:75`).
+3. `Nexus.cpp`: a static `mouseEventCallback` beside `keyPressedCallback` (`:6-15`). It only forwards: `getActiveTopLevelWindow()->getPeer()`, then `peer->handleMouseEvent` with `peer->globalToLocal` of the point (`juce_ComponentPeer.h:222`). It names no END UI type, reads no tree, writes no Model. Register it as `extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback)` (sibling `:21`).
+4. The keys rule's END callback (`jam_ENAXClientExtensions.cpp:15-18`) also sets `juce::ComponentPeer::externalMouseEventCallback` from `getExtension (Id::enaxMouseEvent)`. Keys and mouse are one input contract, one rule.
+**Validation:** a click in an EVE pane reaches END's own dispatch. JUCE's click grab (`juce_Component.cpp:2542`) focuses the pane subtree, and Step 8a writes the row. Native focus then returns to the clicked EVE through Step 8 items 2 and 3. No `juce::Component` calls a peer-level API.
+
+### Step 8c: Editor size through two host parameters, range authored by END
+**Rulings:** *"Two AudioParameterInt"*; *"the SSOT of range even the sole AUTHOR is the END the host. the maximum range is runtime, which display being used"*; *"the parameters.md only serve as fallback when there is no other seam to set the value"*; *"size lowest range should not be 0"*; *"no manual handroll arithmetic allowed"*; the registry form: *"Registry returns value"* with the `set` verb, through `jam::Function::Map` argument forwarding (`jam_Function.h:18`, `:27-36`, `:267-276`; precedent `EVETerminalProcessor.cpp:137-151`).
+**Facts:** a hosted parameter exposes no range (`juce_HostedAudioProcessorParameter.h:44`, `juce_AudioProcessorParameter.h:113-289`); the VST2 wire is one float (`aeffect.h:162-163`); a JUCE parameter range is `const` after construction (`juce_AudioParameterInt.h:154`); the ENAX base is constructed before EVE's `model` member (`EVEProcessor.h:9`, `:112-115`).
+**Scope:** `jam_ENAXClientExtensions.h` / `.cpp`; `jam/cast/core.md` (`enax` rows); `end/Source/plugins/Nexus.cpp`; `jam_ParameterLayout.h` / `.cpp`; `eve/Source/EVEProcessor.h`; `eve/Source/layout/parameters.md`; `jam_PluginEditor.h` / `.cpp`; `end/Source/ui/EditorView.cpp`.
+**Action:**
+1. `ENAXClientExtensions::set (rule, callback, args...)` forwards `args` to the registered END callback (`rules.get (rule, args...)`) or to `callback (args...)`. Existing callers pass no `args`.
+2. ENAX id `@string | enaxDisplayBounds | enax.display-bounds | ENAX id of the host display-bounds getter.` END registers a static `displayBoundsGetter` returning `juce::Desktop::getInstance().getDisplays().getTotalBounds (false)`, beside `mouseEventCallback` (`Nexus.cpp:17-31`).
+3. Under `isEND()`, the size rule `Id::size` registers `add<jam::HashMap<juce::Identifier, juce::Range<int>>&>`. Its END callback replaces `ranges[Id::width]` and `ranges[Id::height]` with `{ jam::PaneComponent::minimumPaneExtent, bounds.getWidth() }` and `{ …, bounds.getHeight() }`, where `bounds` comes from `getExtension (Id::enaxDisplayBounds)`.
+4. `ParameterLayout::get (parameters, ranges)`: its dispatch table gains the integer entry, `juce::AudioParameterInt` with `getIntAttributes` (`:46-51`), in the form of the choice entry (`:123-131`). A row whose id has an entry in `ranges` takes that range. Otherwise it takes its `min` / `max` cells.
+5. `EVEProcessor`: the `model` initialiser builds `ranges`, lets `set (Id::size, [] (auto&) {}, ranges)` replace it, then passes it to `ParameterLayout::get`.
+6. EVE `parameters.md` rows `width` and `height`, type `int`, group `master`, fallback range 80 to 7680 and 80 to 4320 (8K), defaults 800 and 600. Host names `Width` and `Height` (`jam_ParameterLayout.cpp:26-31`).
+7. `jam::PluginEditor`: the two parameters are the one truth of the editor size. They replace the `Id::width` / `Id::height` component state (`jam_PluginEditor.cpp:58-60`, `:158-164`). Registry callbacks on `Id::toType (Id::width)` and `Id::toType (Id::height)` set the editor size, in the zoom callback's form (`:217-221`). `resized` writes them back through the gesture calls (`:136-138`).
+8. END `EditorView::resized`: for the hosted parameters named `Width` and `Height`, `setValueNotifyingHost` of `juce::NormalisableRange<float> { minimumPaneExtent, displayBounds side }.convertTo0to1 (pane side)` inside a change gesture. END reads the same `displayBoundsGetter` and the same jam constant that it handed to EVE, so the range has one author.
+**Validation:** one range author (END) and one size truth per instance (the parameters). No manual arithmetic: `NormalisableRange` converts. Outside END, `parameters.md` gives the range. A pane resize resizes EVE in VST2, VST3 and AU. Limit: an instance keeps the range of the display set at its creation.
+
+### Step 8d: Runtime bugs from the test
+**Scope:** the code each trace names.
+**Action:** after ARCHITECT builds 8a to 8c, trace with whatdbg:
+1. `split` (`jam_MatrixComponent.cpp:62-98`).
+2. No terminal in the second pane: the TTY path (`jam_TerminalTTY_posix.cpp:244-279`).
+3. The crash on pane close: the destructor chain from `juce::GraphRenderSequence` to `EVETerminalProcessor::~EVETerminalProcessor` (ARCHITECT's stack).
+
+Fix each from its stop evidence.
+**Validation:** each fix cites a trace stop.
 
 ### Step 9: AU in-process registration
 **Scope:** `end/Source/plugins/Nexus.h` / `.cpp`.

@@ -32,6 +32,7 @@ namespace files
     extern const juce::String joinCellsVerticalNormal;  ///< Join-cells-vertical corner-menu icon.
     extern const juce::String joinCellsHorizontalNormal;///< Join-cells-horizontal corner-menu icon.
     extern const juce::String evePlugin;                ///< EVE plugin bundle that each new pane loads.
+    extern const juce::String pluginsStamp;             ///< Hash stamp of the plugin archives last offloaded.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

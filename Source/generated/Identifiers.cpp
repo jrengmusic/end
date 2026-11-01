@@ -78,7 +78,6 @@ namespace Id
     const juce::Identifier paneRight                { juce::String::fromUTF8 ("paneRight") };
     const juce::Identifier paneStep                 { juce::String::fromUTF8 ("paneStep") };
     const juce::Identifier paneUp                   { juce::String::fromUTF8 ("paneUp") };
-    const juce::Identifier pluginId                 { juce::String::fromUTF8 ("pluginId") };
     const juce::Identifier plugins                  { juce::String::fromUTF8 ("plugins") };
     const juce::Identifier postProcessing           { juce::String::fromUTF8 ("postProcessing") };
     const juce::Identifier postProcessingOpacity    { juce::String::fromUTF8 ("postProcessingOpacity") };
