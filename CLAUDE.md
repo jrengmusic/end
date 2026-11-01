@@ -1,22 +1,25 @@
 # END — Ephemeral Nexus Display
 
-**Type:** GPU-accelerated CLAP plugin host (terminal lives in the hosted `eve` plugin)  
+**Type:** GPU-accelerated audio plugin host, end to end (default plugin: EVE, the terminal, under the ENAX contract; formats VST2, VST3, AU one at a time; CLAP later)  
 **Stack:** C++17 · JUCE · JAM  
 **Root:** `~/Documents/Poems/dev/end/`  
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 90: Release Lane — pkg replaces dmg, Windows NSIS (x64, arm64, admin), gh Upload ✅ (2026-10-05) — generation is a fixpoint; Debug build fails at `ENDLookAndFeel.cpp:92` (4 arguments to `jam_ButtonSVG.h:81` `getState`, 3 parameters), predates Sprint 90 (per its log)
-- **Active debts:** 
-  - `DEBT-20261009T112447` — END keys do not use `jam::CommandManager` (ENDActions key maps, ENDActions.h:67-92, :152-153)
-  - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (end-of-frame wait on the Windows swapchain branch, default-glass blurBehind arm, VMA leak-only define)
+- **Last sprint:** Sprint 91: Model::Component Binds a Node — END Conforms ✅ (2026-10-24). Since then: the EVE-hosted-at-END work is in the 2026-10-31 handoffs (`carol/SPRINT-LOG.md:5-201`), not yet logged.
+- **Active debts (`DEBT.md`):**
+  - `DEBT-20261025T214955` — Action List replaced by CommandManager (paid; receipt at `/log`)
+  - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
+  - `DEBT-20261009T112447` — END keys through `jam::CommandManager` (paid: `ENDView.h:69`; receipt at `/log`)
+  - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
 - **Open PLANs:**
-  - `PLAN-END-plugin-host.md` — remaining steps pending incl. Step 19 (focus loop)
-  - `PLAN-terminal-editor.md` — APPROVED (2026-07-12); Step 4 (font seam) gated until the parallel `jam_vulkan` sprint lands
+  - `PLAN-enax-plugin-host-type.md` — Plan 1: `jam::PluginHostType`, the ENAX channel and rules, transparency, focus, AU registration
+  - `PLAN-enax-command-id.md` — Plan 2: owner-scoped command ids, one binder, mode and zoom through host parameters, copy and paste
+  - Contract record: `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md` §4.3 `[AMENDED 2026-11-01 — ENAX]`
 
 ## Layer Order (top → bottom)
-`Application → Config → Nexus → Session → hosted CLAP plugins (EditorView panes)`  
-Hosting: jam_clap (in-house wrapper + host format); `Nexus::VirtualClock` per-plugin demand clock; plugins live in `~/.config/end/plugins/`  
+`Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)`  
+Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus.cpp:13-19`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
 Graphics: JAM `jam_graphics` + `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; owned by Application: `jam::CpuGraphicsEngine` — Typeface, GlyphAtlas, GlyphArrangement, ImageLoader, CPU image operations, CPU-lane context; `jam::VulkanGraphicsEngine` — Device, per-window Graphics, GPU forms of the image operations)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
