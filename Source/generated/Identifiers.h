@@ -49,6 +49,7 @@ extern const juce::Identifier depth;
 extern const juce::Identifier editorBackground;
 extern const juce::Identifier editorOutline;
 extern const juce::Identifier enabled;
+extern const juce::Identifier exclusiveZoom;
 extern const juce::Identifier expandPaneHeight;
 extern const juce::Identifier expandPaneWidth;
 extern const juce::Identifier filter;

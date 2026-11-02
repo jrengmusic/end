@@ -1,7 +1,7 @@
 #include "ui/SessionView.h"
 
-SessionView::SessionView (jam::Model& m, juce::ValueTree sessionState)
-    : jam::TabbedComponent { m, sessionState }
+SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
+    : jam::TabbedComponent { newModel, sessionState }
 {
     setTabBarDepth (0);
 }
@@ -9,7 +9,6 @@ SessionView::SessionView (jam::Model& m, juce::ValueTree sessionState)
 TabView& SessionView::add (jam::UUID uuid)
 {
     OwnerComponent::add (uuid, std::make_unique<TabView> (uuid, model, state));
-    setCurrentTab (uuid);
 
     auto* tabView { &get (uuid) };
 
@@ -47,6 +46,12 @@ TabView* SessionView::getActiveTabView() noexcept
     return getChildren().contains (focused)
                ? static_cast<TabView*> (getChildren().at (focused).get())
                : nullptr;
+}
+
+void SessionView::setZoom (const juce::Identifier& command, float step)
+{
+    for (const auto& [uuid, child] : getChildren())
+        static_cast<TabView&> (*child).setZoom (command, step);
 }
 
 void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)

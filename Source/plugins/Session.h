@@ -22,17 +22,17 @@ public:
      * @param newUuid                     Identity of the session.
      * @param newModel                    Model that creates the identity parameter.
      * @param newGraph                    Audio graph that owns the plugin instances.
-     * @param newAudioInputNodeId         Identity of the audio input processor in the graph.
-     * @param newAudioOutputNodeId        Identity of the audio output processor in the graph.
-     * @param newMidiInputNodeId          Identity of the MIDI input processor in the graph.
+     * @param newAudioInputId         Identity of the audio input processor in the graph.
+     * @param newAudioOutputId        Identity of the audio output processor in the graph.
+     * @param newMidiInputId          Identity of the MIDI input processor in the graph.
      * @param newFormatManager            Format manager that creates the plugin instances.
      */
     Session (jam::UUID newUuid,
              ENDModel& newModel,
              juce::AudioProcessorGraph& newGraph,
-             juce::AudioProcessorGraph::NodeID newAudioInputNodeId,
-             juce::AudioProcessorGraph::NodeID newAudioOutputNodeId,
-             juce::AudioProcessorGraph::NodeID newMidiInputNodeId,
+             juce::AudioProcessorGraph::NodeID newAudioInputId,
+             juce::AudioProcessorGraph::NodeID newAudioOutputId,
+             juce::AudioProcessorGraph::NodeID newMidiInputId,
              juce::AudioPluginFormatManager& newFormatManager);
 
     /** @brief Stops listening to the session row. */
@@ -63,18 +63,6 @@ public:
      */
     void removePlugin (jam::UUID uuid);
 
-    /**
-     * @brief Calls a function with the processor of each hosted plugin of the session.
-     * @tparam Function  Callable taking the processor as `juce::AudioProcessor&`.
-     * @param function   Callable applied to each processor.
-     */
-    template <typename Function>
-    void applyToPlugins (Function&& function)
-    {
-        for (const auto& [uuid, nodeId] : plugins)
-            function (*graph.getNodeForId (nodeId)->getProcessor());
-    }
-
     /** @brief Tree of the session row. Its identity parameter holds the session identity. */
     juce::ValueTree state { Id::toType (Id::session) };
 
@@ -86,9 +74,9 @@ private:
      * The plugin takes the audio input and output channels that both sides have, and the MIDI input when it accepts MIDI.
      * The name of the plugin is written to the pane row.
      *
-     * @param uuid  Identity of the pane that receives the plugin.
+     * @param paneRow  Pane row that receives the plugin. The row gets the name of the plugin.
      */
-    void newPlugin (jam::UUID uuid);
+    void addPlugin (juce::ValueTree& paneRow);
 
     /**
      * @brief Creates the hosted plugin of each pane row that is added to the session.
@@ -100,13 +88,25 @@ private:
      */
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 
+    /** @brief Model that creates the identity parameter of the session row. */
     ENDModel& model;
+
+    /** @brief Audio graph that owns the plugin instances. */
     juce::AudioProcessorGraph& graph;
-    const juce::AudioProcessorGraph::NodeID audioInputNodeId;
-    const juce::AudioProcessorGraph::NodeID audioOutputNodeId;
-    const juce::AudioProcessorGraph::NodeID midiInputNodeId;
+
+    /** @brief Identity of the audio input processor in the graph. addPlugin() connects each plugin to it. */
+    const juce::AudioProcessorGraph::NodeID audioInputId;
+
+    /** @brief Identity of the audio output processor in the graph. addPlugin() connects each plugin to it. */
+    const juce::AudioProcessorGraph::NodeID audioOutputId;
+
+    /** @brief Identity of the MIDI input processor in the graph. addPlugin() connects it to each plugin that accepts MIDI. */
+    const juce::AudioProcessorGraph::NodeID midiInputId;
+
+    /** @brief Format manager that creates the plugin instances. */
     juce::AudioPluginFormatManager& formatManager;
 
+    /** @brief Identity of each hosted plugin in the graph, keyed by the identity of its pane. */
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;
 
     //==============================================================================

@@ -19,7 +19,14 @@ class SessionView
     : public jam::TabbedComponent
 {
 public:
-    SessionView (jam::Model& model, juce::ValueTree sessionState);
+    /**
+     * @brief Constructs the view of a session. Its tab bar starts with zero depth.
+     * @param newModel      Owning model.
+     * @param sessionState  Row of the session that holds the tabs.
+     */
+    SessionView (jam::Model& newModel, juce::ValueTree sessionState);
+
+    /** @brief Default destructor. */
     ~SessionView() override = default;
 
     /** @brief Mints and mounts a new tab, wiring its tab-bar label to state.
@@ -44,10 +51,18 @@ public:
      */
     TabView* getActiveTabView() noexcept;
 
+    /**
+     * @brief Sets the zoom parameter of each pane of each tab of the session with a zoom command.
+     * @param command  Zoom command name.
+     * @param step     Zoom step that the command uses.
+     */
+    void setZoom (const juce::Identifier& command, float step);
+
 private:
+    /** @brief Application look and feel. It gives the tab bar depth and position. */
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
-    /** @brief Reapplies a tab's displayed name on Id::name/Id::pluginId changes.
+    /** @brief Reapplies a tab's displayed name when its Id::name or Id::focusedPane changes.
      *  @param tree     The ValueTree whose property changed.
      *  @param property The identifier of the changed property.
      */

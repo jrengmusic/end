@@ -2,7 +2,6 @@ CompileFlags:
   CompilationDatabase: /Users/jreng/Documents/Poems/dev/end
   Remove: [--target=*]
   Add:
-    - -DCAST_PLUGINS_HASH=\"f0efc68ef8d257ba9b9e0d10a4092203b86523b87e7e7b68aeeee4232140da4a\"
     - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
     - -DHAVE_FCNTL_H

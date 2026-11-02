@@ -39,7 +39,6 @@ public:
      */
     enum ColourIds
     {
-        cursorColourId = 0x2000001,
         paneBarColourId = 0x2000009,
         paneBarHighlightColourId = 0x200000A,
         selectionCursorColourId = 0x2000301,
@@ -146,6 +145,8 @@ public:
      * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
      */
     juce::FontOptions getTabFont() const override;
+
+    juce::FontOptions getOverlayFont() const;
 
     /** @brief Returns the popup menu font constructed from the Display font
      *  config (same source as getTabFont(), no kerning).

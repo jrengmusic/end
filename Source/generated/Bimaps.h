@@ -127,7 +127,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
             { zoomIn,           juce::Identifier { "zoomIn" } },
             { zoomOut,          juce::Identifier { "zoomOut" } },
             { zoomReset,        juce::Identifier { "zoomReset" } },
-            { newWindow,        juce::Identifier { "newWindow" } },
             { reducePaneWidth,  juce::Identifier { "reducePaneWidth" } },
             { reducePaneHeight, juce::Identifier { "reducePaneHeight" } },
             { expandPaneWidth,  juce::Identifier { "expandPaneWidth" } },
@@ -135,7 +134,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
             { newTab,           juce::Identifier { "newTab" } },
             { prevTab,          juce::Identifier { "prevTab" } },
             { nextTab,          juce::Identifier { "nextTab" } },
-            { renameTab,        juce::Identifier { "renameTab" } },
             { splitVertical,    juce::Identifier { "splitVertical" } },
             { splitHorizontal,  juce::Identifier { "splitHorizontal" } },
             { paneLeft,         juce::Identifier { "paneLeft" } },
@@ -150,7 +148,8 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
             { swapDown,         juce::Identifier { "swapDown" } },
             { swapUp,           juce::Identifier { "swapUp" } },
             { swapRight,        juce::Identifier { "swapRight" } },
-            { actionList,       juce::Identifier { "actionList" } },
+            { normal,           juce::Identifier { "normal" } },
+            { prefix,           juce::Identifier { "prefix" } },
     } } {}
 
     enum value : int
@@ -161,7 +160,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
         zoomIn           = 0x4700004,
         zoomOut          = 0x4700005,
         zoomReset        = 0x4700006,
-        newWindow        = 0x4700007,
         reducePaneWidth  = 0x4700008,
         reducePaneHeight = 0x4700009,
         expandPaneWidth  = 0x470000a,
@@ -169,7 +167,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
         newTab           = 0x470000c,
         prevTab          = 0x470000d,
         nextTab          = 0x470000e,
-        renameTab        = 0x470000f,
         splitVertical    = 0x4700010,
         splitHorizontal  = 0x4700011,
         paneLeft         = 0x4700012,
@@ -184,7 +181,8 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
         swapDown         = 0x470001b,
         swapUp           = 0x470001c,
         swapRight        = 0x470001d,
-        actionList       = 0x470001e,
+        normal           = 0x470001f,
+        prefix           = 0x4700020,
     };
 
     static CommandId* getInstance() noexcept

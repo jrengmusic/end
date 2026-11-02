@@ -37,9 +37,7 @@ Nexus::Nexus()
 
     auto sessionsTree { model.getOrCreateChildWithName (Id::toType (Id::sessions)) };
     model.createAndAddParameter<jam::Parameter<int64_t>> (
-        sessionsTree, Id::focusedSession, int64_t { 0 });
-    model.createAndAddParameter<jam::Parameter<int64_t>> (
-        sessionsTree, Id::focusedPane, int64_t { 0 });
+        sessionsTree, Id::focusedSession, jam::UUID::none().value);
 
     juce::addDefaultFormatsToManager (formatManager);
     formatManager.addFormat (std::make_unique<jam::ClapPluginFormat> (
@@ -50,14 +48,21 @@ Nexus::Nexus()
         juce::String { ProjectInfo::versionString }));
     deviceManager.initialiseWithDefaultDevices (2, 2);
     player.setProcessor (&graph);
-    audioInputNodeId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
+    audioInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode))->nodeID;
-    audioOutputNodeId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
+    audioOutputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode))->nodeID;
-    midiInputNodeId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
+    midiInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode))->nodeID;
     deviceManager.addAudioCallback (&player);
     offloadPlugins();
+
+#if JUCE_MAC
+    const auto pluginFile { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
+
+    if (pluginFile.hasFileExtension (files::audioUnitExtension))
+        registerAudioUnit (pluginFile);
+#endif
 }
 
 Nexus::~Nexus()
@@ -70,7 +75,7 @@ Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, graph, audioInputNodeId, audioOutputNodeId, midiInputNodeId, formatManager));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, graph, audioInputId, audioOutputId, midiInputId, formatManager));
     jassert (inserted);
     auto& [key, session] = *entry;
 
@@ -81,7 +86,7 @@ Session& Nexus::createSession()
         Id::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
-    if (focusedSessionParameter->getValue() == 0)
+    if (jam::UUID { focusedSessionParameter->getValue() } == jam::UUID::none())
         focusedSessionParameter->setValue (sessionUuid.value);
 
     return *session;
@@ -104,7 +109,7 @@ Session& Nexus::getActiveSession()
 
     // Threat: called before ENDApplication's bootstrap createSession() —
     // Id::focusedSession is still its 0 (no-session) seed value.
-    jassert (focusedSessionParameter->getValue() != 0);
+    jassert (jam::UUID { focusedSessionParameter->getValue() } != jam::UUID::none());
 
     return getSession (jam::UUID (focusedSessionParameter->getValue()));
 }
@@ -120,9 +125,6 @@ const void* Nexus::getExtension (const char* id) const
     return nullptr;
 }
 
-static constexpr const char* archiveExtension { "zip" };
-static constexpr const char* audioUnitExtension { "component" };
-
 void Nexus::offloadPlugins()
 {
     const auto pluginsDirectory { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::plugins) };
@@ -137,7 +139,7 @@ void Nexus::offloadPlugins()
             const auto original { juce::File::createFileWithoutCheckingPath (
                 BinaryData::getNamedResourceOriginalFilename (resourceName)) };
 
-            if (original.hasFileExtension (archiveExtension))
+            if (original.hasFileExtension (files::archiveExtension))
             {
                 int resourceSize { 0 };
                 const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
@@ -151,13 +153,6 @@ void Nexus::offloadPlugins()
 
         stamp.replaceWithText (pluginsHash);
     }
-
-#if JUCE_MAC
-    const auto pluginFile { pluginsDirectory.getChildFile (files::evePlugin) };
-
-    if (pluginFile.hasFileExtension (audioUnitExtension))
-        registerAudioUnit (pluginFile);
-#endif
 }
 
 #if JUCE_MAC

@@ -30,14 +30,7 @@ public:
      *  Any thread — ParameterText::setValue is lock-free.
      *  @param text  Message text to display.
      */
-    void setMessage (const juce::String& text)
-    {
-        auto* param { getParameter<jam::ParameterText> (Id::toType (Id::overlay), Id::message) };
-        jassert (param != nullptr);
-
-        if (param != nullptr)
-            param->setValue (text);
-    }
+    void setMessage (const juce::String& text);
 
 private:
     //==============================================================================

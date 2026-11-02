@@ -1,5 +1,5 @@
 This file is auto-generated with default values on first launch. Edit any
-value below to customise your terminal. Invalid or missing values fall back
+value below to customise END. Invalid or missing values fall back
 to defaults and are reported in the message overlay with file:line. Reload
 with Cmd+R (no restart needed).
 

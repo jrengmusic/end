@@ -22,35 +22,38 @@
 class TabView : public jam::MatrixComponent
 {
 public:
+    /** @brief Items of the Area Options menu. Each value is the item ID that buildAreaOptionsMenu() adds. */
     enum class AreaOption
     {
-        splitVertical = 1,
-        splitHorizontal,
-        joinLeft,
-        joinRight,
-        joinUp,
-        joinDown,
-        swapPick
+        splitVertical = 1, ///< Splits the focused pane along a vertical seam.
+        splitHorizontal,   ///< Splits the focused pane along a horizontal seam.
+        joinLeft,          ///< Joins the focused pane with its left neighbour.
+        joinRight,         ///< Joins the focused pane with its right neighbour.
+        joinUp,            ///< Joins the focused pane with its upper neighbour.
+        joinDown,          ///< Joins the focused pane with its lower neighbour.
+        swapLeft,          ///< Swaps the focused pane with its left neighbour.
+        swapRight,         ///< Swaps the focused pane with its right neighbour.
+        swapUp,            ///< Swaps the focused pane with its upper neighbour.
+        swapDown           ///< Swaps the focused pane with its lower neighbour.
     };
 
     /**
-     * @brief Constructs the tab's pane graph, registering the tab's own
-     *        name/edge/position parameters on state.
+     * @brief Constructs the tab's pane graph, registering the tab's name parameter on state.
      *
      * @param uuid         Identity of this tab.
-     * @param model        Owning model; source of registered parameters.
+     * @param newModel     Owning model; source of registered parameters.
      * @param sessionState Session's own tree to adopt/append this tab's row under.
      */
-    TabView (jam::UUID uuid, jam::Model& model, juce::ValueTree sessionState);
+    TabView (jam::UUID uuid, jam::Model& newModel, juce::ValueTree sessionState);
     /** @brief Default destructor. */
     ~TabView() override = default;
 
-    /** @brief Mints and mounts a new pane as the graph's root or first child.
+    /** @brief Mints a new pane and mounts it as a child of the graph.
      *  @return Identity of the newly minted pane.
      */
     jam::UUID add();
 
-    /** @brief Moves keyboard focus to the neighbouring pane in direction, when one exists.
+    /** @brief Sets the focused child to the neighbouring pane in direction, when one exists.
      *  @param direction Edge to look across — Id::left/right/top/bottom.
      */
     void focusPane (const juce::Identifier& direction);
@@ -73,52 +76,38 @@ public:
     EditorView& get (jam::UUID uuid);
 
     /**
-     * @brief Resolves a pending swap-pick target, or cancels swap-pick on right-click.
-     *
-     * Only acts while state's edge property carries the "swap:" prefix (set by
-     * handleAreaOptionsResult()'s Swap Areas entry). A popup-menu click cancels
-     * the pending pick; any other click on a jam::PaneComponent swaps that pane
-     * with the pick's source pane.
+     * @brief Sets the zoom parameter of each pane of the tab with a zoom command.
+     * @param command  Zoom command name.
+     * @param step     Zoom step that the command uses.
      */
-    void mouseDown (const juce::MouseEvent& event) override;
+    void setZoom (const juce::Identifier& command, float step);
 
     /**
-     * @brief Tracks a corner drag past splitDragThreshold and arms a
-     *        split/join preview on state's edge/position properties.
+     * @brief Repaints the pane surface while a corner drag passes splitDragThreshold, so that paintOverChildren() draws the preview.
      *
-     * The dragged corner's dominant axis (larger of |dx|, |dy|) selects
-     * horizontal or vertical; the drag's sign relative to which side of the
-     * pane the corner sits on selects inward (toward the pane's centre, a
-     * split preview at the cursor's proportion) or outward (away from the
-     * pane, a join preview — position is written as -1.0f as the join
-     * sentinel). No preview arms until the threshold is crossed.
+     * The dragged corner's dominant axis (larger of |dx|, |dy|) selects horizontal or vertical. The sign of the drag
+     * relative to the side of the corner selects a split (inward) or a join (outward). No preview is drawn until the
+     * threshold is crossed.
      *
-     * @param event Mouse event; originalComponent must be a jam::PaneComponent.
+     * @param event Mouse event. It is handled only when its original component is inside a jam::PaneComponent.
      */
     void mouseDrag (const juce::MouseEvent& event) override;
 
     /**
-     * @brief Commits the gesture armed by mouseDrag(): a split when
-     *        position is a valid proportion, a join when position carries
-     *        the -1.0f sentinel.
+     * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * Join dispatches through ENDActions (joinLeft/Right/Up/Down) rather
-     * than calling join() directly, keeping the action registry as the
-     * single dispatch point. Clears state's edge property either way.
+     * A split cuts the pane at the cursor proportion along the edge axis. A join runs the joinLeft, joinRight, joinUp or
+     * joinDown action of ENDActions. The pane surface repaints after the gesture.
      *
      * @param event Mouse event that ends the gesture.
      */
     void mouseUp (const juce::MouseEvent& event) override;
 
     /**
-     * @brief Renders the active split/join/swap-pick preview overlay on top
-     *        of the pane children.
+     * @brief Paints the split or join preview of the corner drag that the main mouse source holds.
      *
-     * Dispatches on state's edge property: the "swap:" prefix draws the
-     * swap-pick prompt; a valid position proportion draws the split preview
-     * with each resulting pane's cell dimensions; the -1.0f join sentinel
-     * draws the join preview over the union of the focused pane and its
-     * target neighbour. No-op when edge is empty.
+     * While the main mouse source drags over a pane, an inward edge paints the split preview at the cursor position, and an
+     * outward edge paints the join preview. The function paints nothing when no edge is valid.
      *
      * @param g Graphics context for this paint pass.
      */
@@ -156,26 +145,50 @@ protected:
     void childRemoved (jam::UUID uuid) override;
 
 private:
-    jam::SharedInstance<map::OverlayAxisLine> overlayAxisLine { std::in_place };
-    jam::SharedInstance<map::Position> position { std::in_place };
-
-    /** @brief Builds the Blender-style Area Options popup for the focused pane's corner menu. */
+    /** @brief Builds the Area Options popup for the focused pane's corner menu. */
     juce::PopupMenu buildAreaOptionsMenu();
 
     /**
-     * @brief Dispatches an Area Options menu selection.
+     * @brief Dispatches an Area Options menu selection to the ENDActions action of the same name.
      *
-     * Splits and joins run directly through split() and ENDActions; Swap Areas
-     * instead arms swap-pick by writing the "swap:" prefix plus the focused
-     * pane's UUID into state's edge property, consumed by mouseDown().
+     * The action runs for splitVertical, splitHorizontal, joinLeft, joinRight, joinUp, joinDown,
+     * swapLeft, swapRight, swapUp and swapDown.
      *
      * @param result The chosen item ID from buildAreaOptionsMenu().
      */
     void handleAreaOptionsResult (int result);
 
+    /**
+     * @brief Paints the split preview: the cell size of each pane that the split would make, in a message overlay at the split line.
+     * @param g         Graphics context for this paint pass.
+     * @param edge      Edge name of the split: the key of map::Position.
+     * @param position  Split position along the axis of the edge, as a proportion of the focused pane.
+     */
     void paintSplitPreview (juce::Graphics& g, const juce::String& edge, float position);
 
+    /**
+     * @brief Paints the join preview: the cell size of the union of the focused pane and its neighbour across an edge.
+     * @param g     Graphics context for this paint pass.
+     * @param edge  Edge name across which the join looks for the neighbour: the key of map::Position.
+     */
     void paintJoinPreview (juce::Graphics& g, const juce::String& edge);
+
+    /**
+     * @brief Returns the edge that a corner drag starts across.
+     * @param pane                 Pane under the drag.
+     * @param mouseDownPosition    Position of the mouse-down, in the space of @p pane.
+     * @param offset               Offset of the drag from the mouse-down position.
+     * @return `Id::left`, `Id::right`, `Id::top` or `Id::bottom`. An invalid identifier when the drag is below splitDragThreshold or starts off a corner.
+     */
+    juce::Identifier getEdge (const jam::PaneComponent& pane, juce::Point<int> mouseDownPosition, juce::Point<int> offset) const;
+
+    /**
+     * @brief Answers whether a corner drag points toward the centre of the pane.
+     * @param edge    Edge that the drag starts across.
+     * @param offset  Offset of the drag from the mouse-down position.
+     * @return True when the drag points toward the centre, which makes a split.
+     */
+    bool isInward (const juce::Identifier& edge, juce::Point<int> offset) const;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabView)
