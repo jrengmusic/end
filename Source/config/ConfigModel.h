@@ -36,44 +36,24 @@ public:
 
     ~ConfigShader() override = default;
 
-    /** @brief Reads GLSL source from the shader project directory into @c state.
+    /** @brief Reads the GLSL source of the active shader project into @c state.
      *
-     *  Locates the shader directory via @c ConfigDirectory::Shaders::getPath, then reads
-     *  that directory's own @c .slangp manifest (any filename, extension-only
-     *  discovery via @c jam::VulkanShaderFormat::getExtension() — only
-     *  @c slang carries a manifest-extension entry, the SAME wildcard both
-     *  this detection and @c jam::VulkanShaderFormat's own directory readers
-     *  resolve through) and parses it via @c jam::VulkanShaderPreset::parse()
-     *  — the ONE lex both this detection and those readers share, never a
-     *  second, independently hand-rolled scan. Format is content-derived from
-     *  the parsed result: a non-empty @c preset.passes (a @c shaders=
-     *  directive present) is @c jam::VulkanShaderFormat::slang; an absent
-     *  @c .slangp, or one with no passes at all (an END-extension resource
-     *  manifest carrying only @c textures=/mesh=), is @c jam::
-     *  VulkanShaderFormat::shadertoy. The resolved format ordinal is then handed to
-     *  @c jam::VulkanShaderFormat::load(), which owns both formats' own
-     *  directory-to-ValueTree reading (shadertoy's fixed Common/Image/BufferX
-     *  @c .frag files, plus its own @c .slangp resource-manifest text when one
-     *  exists; slang's own @c .slangp @c shaders/shaderN directive parsing) —
-     *  this method never parses either format itself.
+     *  Finds the shader directory through @c ConfigDirectory::Shaders::getPath.
+     *  Reads the first file with the slang manifest extension in that directory,
+     *  and parses it with @c jam::VulkanShaderPreset::parse(). The format is
+     *  @c jam::VulkanShaderFormat::slang when the parsed preset has passes. An
+     *  absent manifest, or one without passes, gives
+     *  @c jam::VulkanShaderFormat::shadertoy. @c jam::VulkanShaderFormat::load()
+     *  reads the directory in the resolved format. This method does not parse
+     *  the sources itself.
      *
-     *  The read tree is overlaid onto @c state via @c setValuesFrom, and
-     *  @c Id::shaderFormat is stamped with the resolved format ordinal (a plain
-     *  int — @c jam::VulkanShaderFormat::shadertoy or @c ::slang) so callers
-     *  always read a definite, resolved format — never an empty or missing
-     *  value, even before any project has ever been loaded. @c Id::path
-     *  is also stamped at @c state's own root level with @p dir's own full
-     *  path, so @c jam::VulkanShaderCompiler::compile() can absolutize every
-     *  parsed @c textures=/mesh= path against it (both are as-written,
-     *  relative to the project directory).
-     *
-     *  Fires @c state.sendPropertyChangeMessage(Id::toType (Id::graphics)) so downstream
-     *  listeners (jam::VulkanShaderCompiler, via ENDView's funnels) pick up the
-     *  new source.
+     *  Overlays the loaded tree on @c state with @c setValuesFrom. Stamps
+     *  @c Id::shaderFormat with the resolved format, and @c Id::path with the
+     *  full path of the directory, on @c state. Sends a property change for
+     *  @c Id::toType (Id::graphics).
      *
      *  @param path  Active shader project name from ConfigModel.
-     *  @return      Always empty — the @c .slangp parse this method drives
-     *               cannot itself fail.
+     *  @return      Always empty. This method reports no error.
      */
     juce::String loadFromPath (const juce::var& path) override;
 
@@ -110,24 +90,24 @@ public:
 
     ~ConfigTheme() override = default;
 
-    /** @brief Reads each theme markdown file from disk and overlays valid properties onto
-     *         @c state via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory.
-     *         Fires @c state.sendPropertyChangeMessage(Id::theme). Accumulates errors in @c errors.
+    /** @brief Reads the theme markdown files and the flex SVG files of the active theme into @c state.
      *
-     *  Locates the theme directory via @c ConfigDirectory::Themes::getPath and performs a
-     *  single @c setValuesFrom pass after assembling a disk-mirror THEMES tree
-     *  (THEME via @c jam::ConfigDocument + FLEX via @c fromFiles).
+     *  Locates the theme directory via @c ConfigDirectory::Themes::getPath. Builds a disk tree of THEMES from
+     *  its markdown files through @c jam::ConfigDocument, and of FLEX from its flex/ files through @c fromFiles.
+     *  Overlays the disk tree on @c state with one @c setValuesFrom call. When the directory is missing, adds a
+     *  missing-directory error and overlays nothing. Sends a property change for @c Id::toType (Id::theme) in both cases.
      *
      *  @param path  Active theme name from ConfigModel.
-     *  @return      Accumulated markdown validation errors; empty when successful.
+     *  @return      The validation errors and the missing-directory error. Empty when successful.
      */
     juce::String loadFromPath (const juce::var& path) override;
 
-    /** @brief Writes missing theme markdown and SVG files to the active theme directory.
+    /** @brief Writes the default theme files to the active theme directory.
      *
-     *  Creates the theme directory and its @c flex/ subdirectory if absent, then
-     *  seeds any missing markdown and SVG assets from BinaryData. No-op when the
-     *  directory already contains all expected files.
+     *  Creates the theme directory and its @c flex/ subdirectory when absent.
+     *  Writes each theme markdown file that has a BinaryData default through
+     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which replaces a file whose version is older.
+     *  Writes each flex SVG file only when the file is absent. Does nothing when the theme path is empty.
      *
      *  @param path  Active theme name from ConfigModel.
      */
@@ -200,31 +180,51 @@ public:
     /**
         @brief Reads each root markdown config file from disk and overlays @c state.
 
-        Builds a CONFIG-rooted disk mirror via @c jam::ConfigDocument, overlays
-        valid properties via @c setValuesFrom, then drives @c theme.loadFromPath()
-        and @c shader.loadFromPath(), accumulating each returned error string.
-        Writes the final result to @c ENDModel's message overlay:
-        @c Id::successMessage on success, or the accumulated error string on failure.
+        Builds a CONFIG-rooted disk tree from the config files, through @c jam::ConfigDocument.
+        Loads the theme, the background shader and the post-processing shader, and collects their errors.
+        Overlays the disk tree on @c state with @c setValuesFrom.
+        Shows the successMessage row of the display table when no error exists. Otherwise shows the collected errors,
+        in @c ENDModel's message overlay.
     */
     void loadFromPath();
 
     /**
         @brief Returns the value of one config row.
 
-        Reads the property @p name of the table child @p type of this tree.
-        The table and the row must exist.
+        Finds the row child @c Id::toType (name) in the table child @p type of this tree.
+        Returns the dark cell when the row has one and the display appearance is dark.
+        Otherwise returns the value cell. The table and the row must exist.
 
         @param type  The table type of the config file, as @c Id::toType gives it.
-        @param name  The key of the row.
+        @param name  The key of the row. @c Id::toType gives the row child name.
         @return The value of the row.
     */
     juce::var getRowValue (const juce::Identifier& type, const juce::Identifier& name) const noexcept;
 
+    /**
+        @brief Returns the key of the handler for a property change.
+
+        The property is the key when @p events registers it. Otherwise the key is the type of @p tree.
+        When that key has no handler, the key is the type of the parent of @p tree.
+
+        @param events    Handlers keyed by property name or tree type.
+        @param tree      Tree whose property changed.
+        @param property  Property that changed.
+        @return The key to look up in @p events.
+    */
+    static juce::Identifier getEventKey (const jam::Function::Map<juce::Identifier, void>& events,
+                                         const juce::ValueTree& tree,
+                                         const juce::Identifier& property);
+
 private:
     ENDModel& appModel { *ENDModel::getInstance() };
+    jam::SharedInstance<map::Appearance> appearance { std::in_place };
 
     /**
-        @brief Writes missing root markdown files from BinaryData to @c ConfigDirectory::Config::path.
+        @brief Writes the root markdown files from BinaryData to @c ConfigDirectory::Config::path, then saves the theme.
+
+        Each file that has a BinaryData default goes through @c jam::ConfigDocument::getOrCreateDefaultFile,
+        which replaces a file whose version is older. The theme path comes from the display table.
     */
     void saveToPath();
 

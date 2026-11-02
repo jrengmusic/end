@@ -63,7 +63,6 @@ namespace Id
     const juce::Identifier joinRight                { juce::String::fromUTF8 ("joinRight") };
     const juce::Identifier joinUp                   { juce::String::fromUTF8 ("joinUp") };
     const juce::Identifier kerningFactor            { juce::String::fromUTF8 ("kerningFactor") };
-    const juce::Identifier lineHeight               { juce::String::fromUTF8 ("lineHeight") };
     const juce::Identifier menu                     { juce::String::fromUTF8 ("menu") };
     const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse") };
     const juce::Identifier newPane                  { juce::String::fromUTF8 ("newPane") };
@@ -94,7 +93,6 @@ namespace Id
     const juce::Identifier resizeBarThickness       { juce::String::fromUTF8 ("resizeBarThickness") };
     const juce::Identifier resizerBar               { juce::String::fromUTF8 ("resizerBar") };
     const juce::Identifier scrollbar                { juce::String::fromUTF8 ("scrollbar") };
-    const juce::Identifier selectionCursor          { juce::String::fromUTF8 ("selectionCursor") };
     const juce::Identifier session                  { juce::String::fromUTF8 ("session") };
     const juce::Identifier sessions                 { juce::String::fromUTF8 ("sessions") };
     const juce::Identifier shaderFormat             { juce::String::fromUTF8 ("shaderFormat") };
@@ -109,6 +107,7 @@ namespace Id
     const juce::Identifier tab                      { juce::String::fromUTF8 ("tab") };
     const juce::Identifier tabBar                   { juce::String::fromUTF8 ("tabBar") };
     const juce::Identifier tabHighlight             { juce::String::fromUTF8 ("tabHighlight") };
+    const juce::Identifier textFontFamily           { juce::String::fromUTF8 ("fontFamily") };
     const juce::Identifier textFontSize             { juce::String::fromUTF8 ("fontSize") };
     const juce::Identifier textOff                  { juce::String::fromUTF8 ("textOff") };
     const juce::Identifier textOn                   { juce::String::fromUTF8 ("textOn") };

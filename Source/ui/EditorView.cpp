@@ -23,37 +23,59 @@ void EditorView::resized()
 
     if (editor != nullptr)
     {
-        if (editor->isResizable())
-            editor->setBounds (getLocalBounds());
-        else
-            editor->setTopLeftPosition (0, 0);
+        jassert (dynamic_cast<jam::StyleCustom*> (&getLookAndFeel()) != nullptr);
 
-        const auto bounds { (*static_cast<juce::Rectangle<int> (*const*)()> (
-            Nexus::getInstance()->getExtension (Id::enaxDisplayBounds.toRawUTF8())))() };
-        const juce::NormalisableRange<float> widthRange {
-            static_cast<float> (jam::PaneComponent::minimumPaneExtent),
-            static_cast<float> (bounds.getWidth())
-        };
-        const juce::NormalisableRange<float> heightRange {
-            static_cast<float> (jam::PaneComponent::minimumPaneExtent),
-            static_cast<float> (bounds.getHeight())
-        };
+        constexpr float outlineSides { 2.0f };
 
-        static const juce::String widthName { jam::Format::toParameterName (
-            Id::master.toString(), Id::width.toString()) };
-        static const juce::String heightName { jam::Format::toParameterName (
-            Id::master.toString(), Id::height.toString()) };
+        const int inset { juce::roundToInt (
+            static_cast<float> (static_cast<jam::StyleCustom&> (getLookAndFeel()).getPanePadding())
+            + outlineSides * jam::PaneComponent::lineThickness) };
 
-        if (auto* parameter { getParameter (editor->processor, widthName) })
-            setParameter (*parameter,
-                          widthRange.convertTo0to1 (
-                              widthRange.snapToLegalValue (static_cast<float> (getWidth()))));
-
-        if (auto* parameter { getParameter (editor->processor, heightName) })
-            setParameter (*parameter,
-                          heightRange.convertTo0to1 (
-                              heightRange.snapToLegalValue (static_cast<float> (getHeight()))));
+        setEditorBounds (inset);
+        setSizeParameters (getLocalBounds().reduced (inset));
     }
+}
+
+void EditorView::setEditorBounds (int inset)
+{
+    if (editor->isResizable())
+        editor->setBounds (getLocalBounds().reduced (inset));
+    else
+        editor->setTopLeftPosition (inset, inset);
+}
+
+void EditorView::setSizeParameters (juce::Rectangle<int> inner)
+{
+    const auto bounds { (*static_cast<juce::Rectangle<int> (*const*)()> (
+        Nexus::getInstance()->getExtension (Id::enaxDisplayBounds.toRawUTF8())))() };
+    const juce::NormalisableRange<float> widthRange {
+        static_cast<float> (jam::PaneComponent::minimumPaneExtent),
+        static_cast<float> (bounds.getWidth())
+    };
+    const juce::NormalisableRange<float> heightRange {
+        static_cast<float> (jam::PaneComponent::minimumPaneExtent),
+        static_cast<float> (bounds.getHeight())
+    };
+
+    static const juce::String widthName { jam::Format::toParameterName (
+        Id::master.toString(), Id::width.toString()) };
+    static const juce::String heightName { jam::Format::toParameterName (
+        Id::master.toString(), Id::height.toString()) };
+
+    if (auto* parameter { getParameter (editor->processor, widthName) })
+        setParameter (*parameter,
+                      widthRange.convertTo0to1 (
+                          widthRange.snapToLegalValue (static_cast<float> (inner.getWidth()))));
+
+    if (auto* parameter { getParameter (editor->processor, heightName) })
+        setParameter (*parameter,
+                      heightRange.convertTo0to1 (
+                          heightRange.snapToLegalValue (static_cast<float> (inner.getHeight()))));
+}
+
+void EditorView::lookAndFeelChanged()
+{
+    resized();
 }
 
 void EditorView::childBoundsChanged (juce::Component* child)

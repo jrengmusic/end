@@ -225,6 +225,7 @@ return {
   sources = {
     "/Users/jreng/Documents/Poems/dev/end/project-info.md",
     "/Users/jreng/Documents/Poems/dev/end/Builds/Debug/compile_commands.json",
+    "/Users/jreng/Documents/Poems/dev/end/Builds/Release/compile_commands.json",
   },
   targets = {
     {
