@@ -166,6 +166,8 @@ void TabView::paintOverChildren (juce::Graphics& g)
     }
 }
 
+static const juce::String sizeSeparator { " x " };
+
 void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, float position)
 {
     const auto preview { get (getFocusedChild()).getBounds() };
@@ -174,16 +176,14 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, fl
     const int splitLine { splitVertical
                               ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
                               : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
-    const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics() };
-
     const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
     const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
 
-    const juce::String message { juce::String (static_cast<int> (head.getWidth() / metrics.cellWidth)) + " x "
-                                 + juce::String (static_cast<int> (head.getHeight() / metrics.cellHeight))
-                                 + " | "
-                                 + juce::String (static_cast<int> (tail.getWidth() / metrics.cellWidth)) + " x "
-                                 + juce::String (static_cast<int> (tail.getHeight() / metrics.cellHeight)) };
+    static const juce::String regionSeparator { " | " };
+
+    const juce::String message { juce::String (head.getWidth()) + sizeSeparator + juce::String (head.getHeight())
+                                 + regionSeparator
+                                 + juce::String (tail.getWidth()) + sizeSeparator + juce::String (tail.getHeight()) };
 
     jam::drawMessageOverlay (g, *this, preview, message, ENDLookAndFeel::getInstance()->getOverlayFont(), splitLine, splitVertical,
                              ConfigModel::getInstance()->getRowValue (Id::toType (Id::pane), Id::splitLine).toString());
@@ -198,10 +198,8 @@ void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)
     {
         const auto targetBounds { get (target).getBounds() };
         const auto merged { preview.getUnion (targetBounds) };
-        const auto metrics { ENDLookAndFeel::getInstance()->getCodeMetrics() };
 
-        const juce::String message { juce::String (static_cast<int> (merged.getWidth() / metrics.cellWidth)) + " x "
-                                     + juce::String (static_cast<int> (merged.getHeight() / metrics.cellHeight)) };
+        const juce::String message { juce::String (merged.getWidth()) + sizeSeparator + juce::String (merged.getHeight()) };
 
         jam::drawMessageOverlay (g, *this, targetBounds, message, ENDLookAndFeel::getInstance()->getOverlayFont());
     }

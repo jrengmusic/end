@@ -6,13 +6,12 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 95: Prefix Layer in jam CommandManager, One-Way Focus Told by the Owner, Audit Sweep, Lane → TextBlock ✅ (2026-11-02).
+- **Last sprint:** Sprint 96: END and EVE Config — Named Light/Dark Palette, One Load Path, Pane Padding, Canon Settings Lane, Keyword Key Form ✅ (2026-11-03).
 - **Active debts (`DEBT.md`):**
   - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
   - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
 - **Open PLANs:**
-  - `PLAN-enax-plugin-host-type.md` — Plan 1: `jam::PluginHostType`, the ENAX channel and rules, transparency, focus, AU registration
-  - `PLAN-enax-command-id.md` — Plan 2: owner-scoped command ids, one binder, mode and zoom through host parameters, copy and paste
+  - `PLAN-end-eve-config.md` — END and EVE config: lower-case keys, named light/dark palette, one jam load path, pane padding
   - Contract record: `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md` §4.3 `[AMENDED 2026-11-01 — ENAX]`
 
 ## Layer Order (top → bottom)

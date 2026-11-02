@@ -32,56 +32,26 @@ juce::String ConfigShader::loadFromPath (const juce::var& path)
 }
 
 //==============================================================================
-// getOrCreateDefaultFile — seeds a missing config/theme file from BinaryData
+// addFileTables — per-file loop over a bimap-keyed markdown table set
 //==============================================================================
 
-static juce::File getOrCreateDefaultFile (const juce::File& folder, const juce::String& fileName)
-{
-    const juce::File file { folder.getChildFile (fileName) };
-
-    if (not file.existsAsFile())
-    {
-        BinaryData::Raw raw (fileName);
-
-        if (raw.exists())
-            file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
-    }
-
-    return file;
-}
-
-//==============================================================================
-// addTables — shared parse/validate/gated-merge for a bimap-keyed markdown table set
-//==============================================================================
-
-static juce::String addTables (juce::ValueTree target, juce::Identifier rootTag,
-                                const jam::Bimap<int>& files,
-                                const std::function<juce::String (int)>& getName,
-                                const std::function<juce::String (const juce::String&)>& read)
+static juce::String addFileTables (juce::ValueTree target,
+                                   const jam::Bimap<int>& files,
+                                   const std::function<juce::String (int)>& getName,
+                                   const std::function<juce::String (const juce::String&)>& read)
 {
     juce::String errors;
 
     for (auto& [key, stem] : files.get())
     {
         const auto fileName { getName (key) };
-        const auto document { jam::ConfigDocument::parse (read (fileName), fileName) };
-        const auto result { jam::ConfigValidator {}.isValid (document) };
+        const auto defaultDocument { jam::ConfigDocument::parse (BinaryData::getString (fileName), fileName) };
+        const auto readDocument { jam::ConfigDocument::parse (read (fileName), fileName) };
+        const auto failures { jam::ConfigDocument::addTables (target, defaultDocument, readDocument,
+                                                              jam::ConfigValidator {}.getRules()) };
 
-        if (result.wasOk())
-        {
-            auto fileTree { document.getValueTree (rootTag) };
-
-            while (fileTree.getNumChildren() > 0)
-            {
-                auto child { fileTree.getChild (0) };
-                fileTree.removeChild (0, nullptr);
-                target.appendChild (child, nullptr);
-            }
-        }
-        else
-        {
-            errors << result.getErrorMessage() << "\n";
-        }
+        if (failures.isNotEmpty())
+            errors << failures << juce::String::charToString (Chars::newline);
     }
 
     return errors;
@@ -95,7 +65,7 @@ ConfigTheme::ConfigTheme()
     : ConfigDirectory ([]
       {
           juce::ValueTree themes { Id::toType (Id::themes) };
-          const auto errors { addTables (themes, Id::toType (Id::themes),
+          const auto errors { addFileTables (themes,
               *map::FileThemes::getInstance(),
               ConfigDirectory::Themes::getName,
               [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
@@ -127,12 +97,23 @@ void ConfigTheme::saveToPath (const juce::var& path)
         jam::File::getOrCreateDirectory (dir.getParentDirectory(), dir.getFileName());
 
         for (auto& [key, stem] : map::FileThemes::getInstance()->get())
-            getOrCreateDefaultFile (dir, ConfigDirectory::Themes::getName (key));
+        {
+            const auto fileName { ConfigDirectory::Themes::getName (key) };
+
+            if (BinaryData::Raw (fileName).exists())
+                jam::ConfigDocument::getOrCreateDefaultFile (dir.getChildFile (fileName), BinaryData::getString (fileName));
+        }
 
         auto flexDir { jam::File::getOrCreateDirectory (dir, Id::flex) };
 
         for (auto& [key, stem] : map::FileFlex::getInstance()->get())
-            getOrCreateDefaultFile (flexDir, ConfigDirectory::Flex::getName (key));
+        {
+            const auto fileName { ConfigDirectory::Flex::getName (key) };
+            const auto file { flexDir.getChildFile (fileName) };
+
+            if (BinaryData::Raw (fileName).exists() and not file.existsAsFile())
+                file.replaceWithText (BinaryData::getString (fileName));
+        }
     }
 }
 
@@ -145,7 +126,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
     {
         juce::ValueTree disk { Id::toType (Id::themes) };
 
-        errors << addTables (disk, Id::toType (Id::themes),
+        errors << addFileTables (disk,
             *map::FileThemes::getInstance(),
             ConfigDirectory::Themes::getName,
             [dir] (const juce::String& fileName) { return dir.getChildFile (fileName).loadFileAsString(); });
@@ -163,8 +144,13 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
 
         setValuesFrom (disk);
     }
+    else
+    {
+        errors << dir.getFullPathName() + Id::diagnosticSeparator + text::English::failMissingDirectory + path.toString()
+               << juce::String::charToString (Chars::newline);
+    }
 
-    state.sendPropertyChangeMessage (Id::theme);
+    state.sendPropertyChangeMessage (Id::toType (Id::theme));
 
     return errors;
 }
@@ -177,7 +163,7 @@ ConfigModel::ConfigModel()
     : jam::Model ([]
       {
           juce::ValueTree config { Id::toType (Id::config) };
-          const auto errors { addTables (config, Id::toType (Id::config),
+          const auto errors { addFileTables (config,
               *map::FileConfig::getInstance(),
               ConfigDirectory::Config::getName,
               [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
@@ -206,9 +192,16 @@ juce::var ConfigModel::getRowValue (const juce::Identifier& type, const juce::Id
 {
     const auto table { getChildWithName (type) };
 
-    jassert (table.getChildWithName (name).isValid());
+    const auto row { table.getChildWithName (Id::toType (name)) };
 
-    return jam::Model::getValue<juce::var> (table, name);
+    jassert (row.isValid());
+
+    const auto appearanceText { jam::Model::getValue<juce::var> (getChildWithName (Id::toType (Id::display)),
+                                                                  Id::toType (Id::appearance)).toString() };
+
+    return row.hasProperty (Id::dark) and jam::StyleManager::isDark (appearanceText)
+               ? row.getProperty (Id::dark)
+               : jam::Model::getValue<juce::var> (table, Id::toType (name));
 }
 
 void ConfigModel::saveToPath()
@@ -217,7 +210,13 @@ void ConfigModel::saveToPath()
         ConfigDirectory::Config::path.getParentDirectory(), ConfigDirectory::Config::path.getFileName());
 
     for (auto& [key, stem] : map::FileConfig::getInstance()->get())
-        getOrCreateDefaultFile (ConfigDirectory::Config::path, ConfigDirectory::Config::getName (key));
+    {
+        const auto fileName { ConfigDirectory::Config::getName (key) };
+
+        if (BinaryData::Raw (fileName).exists())
+            jam::ConfigDocument::getOrCreateDefaultFile (ConfigDirectory::Config::path.getChildFile (fileName),
+                                                         BinaryData::getString (fileName));
+    }
 
     theme.saveToPath (getRowValue (Id::toType (Id::display), Id::theme));
 }
@@ -225,19 +224,25 @@ void ConfigModel::saveToPath()
 void ConfigModel::loadFromPath()
 {
     juce::ValueTree disk { Id::toType (Id::config) };
-    juce::String errors { addTables (disk, Id::toType (Id::config),
+    juce::String errors { addFileTables (disk,
         *map::FileConfig::getInstance(),
         ConfigDirectory::Config::getName,
         [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); }) };
 
     // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
     // notifications and consumers must read fresh source at that point.
-    auto diskDisplay { jam::Model::getChildWithName (disk, Id::toType (Id::display)) };
-    errors << theme.loadFromPath (jam::Model::getValue<juce::var> (diskDisplay, Id::theme));
+    const auto getMergedValue { [this, &disk] (const juce::Identifier& tableType, const juce::Identifier& rowType)
+    {
+        const auto diskTable { jam::Model::getChildWithName (disk, tableType) };
+        const auto sourceTable { diskTable.getChildWithName (rowType).isValid() ? diskTable
+                                                                               : jam::Model::getChildWithName (state, tableType) };
 
-    auto diskGraphics { jam::Model::getChildWithName (disk, Id::toType (Id::graphics)) };
-    errors << background.loadFromPath (jam::Model::getValue<juce::var> (diskGraphics, Id::background));
-    errors << postProcessing.loadFromPath (jam::Model::getValue<juce::var> (diskGraphics, Id::postProcessing));
+        return jam::Model::getValue<juce::var> (sourceTable, rowType);
+    } };
+
+    errors << theme.loadFromPath (getMergedValue (Id::toType (Id::display), Id::toType (Id::theme)));
+    errors << background.loadFromPath (getMergedValue (Id::toType (Id::graphics), Id::toType (Id::background)));
+    errors << postProcessing.loadFromPath (getMergedValue (Id::toType (Id::graphics), Id::toType (Id::postProcessing)));
 
     setValuesFrom (disk);
 
@@ -245,6 +250,16 @@ void ConfigModel::loadFromPath()
                                      ? getRowValue (Id::toType (Id::display), Id::successMessage).toString()
                                      : errors };
     appModel.setMessage (message);
+}
+
+juce::Identifier ConfigModel::getEventKey (const jam::Function::Map<juce::Identifier, void>& events,
+                                           const juce::ValueTree& tree,
+                                           const juce::Identifier& property)
+{
+    const juce::Identifier typeKey { events.contains (property) ? property : tree.getType() };
+
+    if (events.contains (typeKey)) return typeKey;
+    return tree.getParent().getType();
 }
 
 void ConfigModel::startWatcher()

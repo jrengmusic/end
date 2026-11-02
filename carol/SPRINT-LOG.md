@@ -2,6 +2,78 @@
 
 ---
 
+## Sprint 96: END and EVE Config — Named Light/Dark Palette, One Load Path, Pane Padding, Canon Settings Lane, Keyword Key Form ✅
+
+**Date:** 2026-11-03
+**Duration:** several sessions (compactions). The start and end times are not recorded.
+**Scope (ARCHITECT):** PLAN/RFC hygiene; END and EVE config cleaned (END carries no markdown, mermaid or terminal config; EVE organised like END; colours as names with `light | dark`; every key lower-case words formatted by the reader); one SSOT load path with version front matter, `Document::Validator`, errors in an overlay, the binary default as fallback, no assert on user input; pane padding as config. Then the amendment: *"KANJUT PluginEditorLayout is the canon"*, *"no bloating Style concern into PluginEditorLayout"*, *"hardcoding case into generated definition is the problem. format case is C++ responsibility always"*. `/audit` with every validated finding resolved; the doxygen pass; this log.
+
+### Agents Participated
+- COUNSELOR — PLAN and its amendment, every validation read, the DCF triage of both audits, small edits named below, this log.
+- Pathfinder (haiku) — discovery maps (KANJUT canon diff, hard-coded keyword forms, END/EVE config-tree readers, map value readers), the doxygen pass.
+- Engineer (sonnet) — implementation of PLAN steps, amendment K1–K8, both audit fix rounds.
+- Auditor (opus) — two passes (before and after the amendment).
+
+### Files Modified
+**jam:**
+- `jam_core/utils/jam_Id.h`, `jam_Id.cpp` (new), `jam_core.cpp` — `Id::toTag` gives one tag from any form of a keyword through `Format::toWords`; bodies moved to the `.cpp` (CODING one object one translation unit).
+- `jam_core/text/jam_Format.h` / `.cpp` — `toWords (std::string_view) -> std::string`: any case to lower-case words, no juce::String (ARCHITECT: *"NOT with juce::String"*); `isNumber` strict.
+- `jam_markdown/document/jam_ConfigDocument.h` / `.cpp` — `light`/`dark` columns; colour by hex, `colours` table, then `map::ColourNames`; `getRowKey` returns the tag (private); `getConfigRow` compares tags and never builds an empty Identifier; writer writes words; `getOrCreateDefaultFile` (version gate); `addTables` validates, checks the header set, then `getTableFailures` (duplicate, unknown key, numbers count, unresolved reference) against the default tree built once.
+- `jam_markdown/document/jam_ConfigValidator.cpp` — rules as `get*Failures` file-statics; strict number, integer through `std::from_chars`, colour, key (empty or no words), choices; well-formed set texts.
+- `jam_data_structures/model/jam_Model.h` / `.cpp` — static `setValuesFrom (target, source)`.
+- `jam_web/css/jam_Css.h` / `.cpp` — every custom-property name, `var()` value, metric, window and fonts attribute id stored as `Id::toType (name)`; `stripCustomPropertyPrefix` deleted.
+- `jam_style/style_manager/jam_StyleManager.h` / `.cpp` — every lookup formats its name at the owner; `setAppearance` matches `map::ColourId` in O(1) through `Format::toWords`; font aliases keyed by tag; `setAppearance (int64)`.
+- `jam_style/jam_StyleCustom.*` — `getPanePadding`; `jam_StyleVariDisplay.cpp`, `jam_StylePopupTextBox.cpp` — alias compare through `Id::toType`.
+- `jam_gui/style/jam_StyleTheme.h` / `.cpp` — `setFontRasterization`, `setEmbolden` (the canon place; text compare as the canon).
+- `jam_gui/commands/jam_CommandManager.*` — command and row match through `Id::toType`; key rows and layers stored as tags; `mode` assert removed (a settings rule checks it).
+- `jam_gui/layout/jam_Viewport.cpp` — scroll rows by tag; ordered ranges, no `jmap` on an empty range. `jam_gui/layout/jam_PaneComponent.h` — `edgePadding` deleted.
+- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h` / `.cpp`, `jam_SettingsDocument.h` / `.cpp` — back on the KANJUT canon text; markdown lane: version gate, `addTables` overlay on the binary default, errors in `Id::message`, rules through `getConfigRow`, new rules `appearance`, `rasterizer`, `src`, `mode`; XML lane verbatim canon; `addParameters` adds tags; `setSettingsValue` writes a new key as words and never dereferences a missing table.
+- `jam_plugin_bootstrap/view/jam_PluginEditor.cpp`, `jam_ViewManager.cpp` — zoom step, scaling, size by tag; zoom applies only for a positive step; `lookAndFeelChanged` calls the theme; one key form for component parameters.
+- `cast/style.md` (`ColourId`, `FontId` values are lower-case words), `cast/terminal.md` (`TerminalIndexed` values; `AnsiColour` added then removed), `cast/spell.md`, `cast/core.md` (fail texts `failNotNumber`, `failNotColour`, `failEmptyKey`, `failTableStructure`, `failNoWords`, `failCountMismatch`, `failUnknownKey`, `failDuplicateKey`, `failUnknownReference`, `failMissingDirectory`).
+- `resources/markdown.css` — one `mono` (ARCHITECT: *"there's only ONE `mono`"*).
+
+**end:**
+- `Source/config/display.md`, `keys.md`, `theme/gfx/theme.md` — front matter `version: 0.0.1`; keys in words; `## colours` palette; `light | dark`; `## code` deleted; embolden in `## font`; editor colours in `## tab`; `## pane padding`; `appearance` row.
+- `Source/config/ConfigModel.h` / `.cpp` — one load path through `ConfigDocument::addTables`; `getRowValue` reads by tag and picks `dark`; no copy of the config tree; missing theme folder reports an error.
+- `Source/lookAndFeel/ENDLookAndFeel.*`, `Source/Main.cpp`, `Source/ui/ENDView.cpp` — event keys in tag form; one dispatch through `getEventKey`; `getPanePadding`.
+- `Source/ui/EditorView.*` — hosted editor inside the outline; `TabView.cpp` — previews show pixel size.
+- `cast/identifiers.md`, `SPEC.md`, `ARCHITECTURE.md`, `README.md`, `CLAUDE.md`, `PLAN-end-eve-config.md`; deleted `PLAN-enax-plugin-host-type.md`, `PLAN-enax-command-id.md`, `INVENTORY-end-plugin-host.md`, `carol/HANDOFF.md`.
+
+**eve:**
+- `Source/layout/ViewLayout.md` — keys in words; `Source/layout/style.css`, `Source/textEditor.css` — colour names, one `mono`.
+- `Source/EVEView.*` — message overlay fed by the `message` component property; empty FIFO names build nothing. `Source/EVETerminalProcessor.*` — the command event captures its tag once (audio thread); `addCommand` removed.
+- `SPEC.md`, `README.md`, `PLAN-Grand-Scheme.md` amendment; deleted `HANDOFF-profiling.md`, `PLAN-eve-terminal-protocol.md`.
+
+**kuassa, cast, ggwp, scout:** `markdown.css` — the `--mono` duplicate removed.
+
+### Alignment Check
+- [x] BLESSED principles followed — one definition per keyword; C++ formats; the binary default owns every row.
+- [x] NAMES.md adhered — names added in resolution recorded in the PLAN (`getMergedValue`, `aliasType`, `getTableFailures`).
+- [x] MANIFESTO.md principles applied
+- [ ] Doxygen not regenerated; ARCHITECT regenerates and reads the warning count.
+
+### Problems Solved
+- **Style translation layer.** COUNSELOR designed a css↔config translation in `PluginEditorLayout` without reading the KANJUT canon; removed, the four bootstrap files restored to the canon.
+- **Keyword forms.** Cast tables hard-coded the css var form; the md reader invented camelCase. Now one tag form from any input (`Id::toTag`), definitions are lower-case words, every reader formats.
+- **Crashes surfaced by ARCHITECT.** `findColour` and `getFontsStyleValue` asserts (key round trip), `events.get` by a raw id, `getOrCreateTypeface` (font-face attributes are header columns, raw), prefix-layer `perform` false (layers stored raw).
+- **Audit 1.** 34 findings triaged. **Audit 2.** 44 findings: accepted 1–9, 11–17, 19, 22, 25, 28, 29, 31, 32 (partly), 34, 44; rejected 10, 18, 20, 21, 23, 24, 26, 27, 32 (EVE text source), 33, 35–43, each with its read in `PLAN-end-eve-config.md` "Audit 2 triage".
+- **Mistakes owned.** The translation layer; the camelCase key; a wrong claim of the text of `Id::UIScale`; line-count-driven split requests; stale background agents; font-face attributes formatted.
+
+### State for Continuation
+- Run `cast cast/spell.md` in jam (cast tables `ColourId`, `FontId`, `TerminalIndexed`, `core.md` texts, `AnsiColour` removed), end, eve. Then build.
+- Test from an empty `~/.config/end/` (shaders kept): EVE and END launch; an invalid eve.md shows the error in the overlay and keeps the defaults (`jam_PluginEditorLayout.cpp:49-77`).
+- Regenerate doxygen (`ninja doxygen`, jam `<leader>bd`; jam `docs/xml/index.xml` was 0 bytes during the audit).
+- Pathfinder note, not fixed (file outside the sprint set): `jam_MarkdownDocument.h` doc of `getTableRows (const Element&)` says an empty array for a table with no header row; `jam_MarkdownDocument.cpp:124-135` keeps every non-border row.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
+
+---
+
 ## Sprint 95: Prefix Layer in jam CommandManager, One-Way Focus Told by the Owner, Audit Sweep, Lane → TextBlock ✅
 
 **Date:** 2026-11-02

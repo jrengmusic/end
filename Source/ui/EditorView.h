@@ -35,10 +35,12 @@ public:
     static constexpr int maximumNameLength { 128 };
 
     /**
-     * @brief Lays out the hosted editor in the pane, then writes the pane size to the width and height parameters of the plugin.
+     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin.
      *
-     * A resizable editor takes the local bounds of the pane. Any other editor goes to the top left corner.
-     * The width and the height parameters take the pane size, snapped to the legal values of their ranges.
+     * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
+     * Any other editor sits at the inset position from the top left corner.
+     * The inner size is the pane bounds reduced by the inset. The width and the height parameters take the inner size,
+     * snapped to the legal values of their ranges.
      */
     void resized() override;
 
@@ -47,6 +49,8 @@ public:
      * @param child  Component whose bounds changed.
      */
     void childBoundsChanged (juce::Component* child) override;
+
+    void lookAndFeelChanged() override;
 
     /**
      * @brief Moves the zoom parameter of the hosted plugin by a zoom command.
@@ -92,6 +96,17 @@ private:
      * @param normalisedValue  Value in the range 0 to 1.
      */
     static void setParameter (juce::AudioProcessorParameter& parameter, float normalisedValue);
+
+    /**
+     * @brief Places the hosted editor inside the pane outline.
+     *
+     * A resizable editor takes the pane bounds reduced by @p inset on each side. Any other editor moves to (inset, inset).
+     *
+     * @param inset  Distance in pixels between the pane bounds and the editor.
+     */
+    void setEditorBounds (int inset);
+
+    void setSizeParameters (juce::Rectangle<int> inner);
 
     /**
      * @brief Writes the Id::focus value of the own row to the focus parameter of the hosted plugin.

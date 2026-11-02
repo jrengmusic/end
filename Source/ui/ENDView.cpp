@@ -26,7 +26,7 @@ ENDView::ENDView()
     juce::MessageManager::callAsync (
         [this]
         {
-            events.get (Id::enabled, config.state);
+            events.get (Id::toType (Id::enabled), config.state);
 
             actions.run (Id::newSession);
             grabKeyboardFocus();
@@ -61,18 +61,10 @@ bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (events.contains (property))
-    {
-        events.get (property, tree);
-    }
-    else if (events.contains (tree.getType()))
-    {
-        events.get (tree.getType(), tree);
-    }
-    else if (tree.getParent().hasType (Id::toType (Id::keys)))
-    {
-        commandManager->setKeyPresses (tree.getParent());
-    }
+    const auto key { ConfigModel::getEventKey (events, tree, property) };
+
+    if (events.contains (key))
+        events.get (key, tree);
 }
 
 juce::ApplicationCommandTarget* ENDView::getNextCommandTarget()
@@ -406,13 +398,13 @@ void ENDView::registerActions()
 
 void ENDView::registerGraphicsEvents()
 {
-    for (const auto& id : { Id::backgroundOpacity, Id::frameRate, Id::backgroundResolution })
+    for (const auto& id : { Id::toType (Id::backgroundOpacity), Id::toType (Id::frameRate), Id::toType (Id::backgroundResolution) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
 }
 
 void ENDView::registerMouseEvents()
 {
-    for (const auto& id : { Id::enabled, Id::imouse, Id::orbit, Id::reset })
+    for (const auto& id : { Id::toType (Id::enabled), Id::toType (Id::imouse), Id::toType (Id::orbit), Id::toType (Id::reset) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setMouseConfig(); });
 }
 
@@ -420,6 +412,8 @@ void ENDView::registerEvents()
 {
     registerGraphicsEvents();
     registerMouseEvents();
+
+    events.add<juce::ValueTree&> (Id::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
 }
 
 void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)

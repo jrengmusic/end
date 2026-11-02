@@ -20,13 +20,13 @@
  * Event dispatch uses a single-key lookup: property key takes priority; when no
  * event is registered for the property, the lookup falls back to tree.getType().
  * This routes theme rebuild (Id::theme) and per-component colour refresh
- * (Id::toType (Id::code), scrollbar, tab, button, overlay, pane)
- * through one code path.
+ * (scrollbar, tab, button, overlay, pane, appearance) through one code path.
  */
 class ENDLookAndFeel
     : public jam::StyleCustom
     , public jam::Instance<ENDLookAndFeel>
     , public juce::ValueTree::Listener
+    , private juce::DarkModeSettingListener
 {
 public:
     /**
@@ -41,7 +41,6 @@ public:
     {
         paneBarColourId = 0x2000009,
         paneBarHighlightColourId = 0x200000A,
-        selectionCursorColourId = 0x2000301,
     };
 
     /**
@@ -255,7 +254,7 @@ public:
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
-    /** @brief Draws the outline of a pane as a rounded rectangle, inset by the edge padding and the line thickness of the pane.
+    /** @brief Draws the outline of a pane as a rounded rectangle, inset by the pane padding and the line thickness of the pane.
      *  The outline takes the focused colour when the focus of the pane row is 1, and the outline colour otherwise.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
@@ -266,37 +265,18 @@ public:
      */
     int getPaneEdgeSize() const noexcept override;
 
-    /**
-     * @brief Returns the terminal code font constructed from theme config
-     *        (family, size).
-     *
-     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::textFontSize. The font carries
-     * no kerning factor and no zoom.
+    /** @brief Pane padding in pixels from the display config.
+     *  Reads the padding row of the pane table. The space lies between the pane bounds and the pane outline.
      */
-    juce::Font getCodeFont() const;
-
-    /** @brief Terminal cell size of the code font, in pixels. */
-    struct CodeMetrics
-    {
-        int cellWidth;
-        int cellHeight;
-    };
-
-    /**
-     * @brief Returns the terminal cell size in pixels, from the code font and the code config.
-     *
-     * The glyph metrics of the code font come from `jam::GlyphRasterizer::calcMetrics()`, at the height of the font.
-     * The cell width and the cell height are scaled by the `cellWidth` and `lineHeight` ratios of the code config,
-     * and rounded to pixels. The split and join previews of TabView use the result.
-     *
-     * @return The cell width and the cell height, in pixels.
-     */
-    CodeMetrics getCodeMetrics() const;
+    int getPanePadding() const noexcept override;
 
 private:
     jam::SharedInstance<map::ButtonState> buttonState { std::in_place };
     jam::SharedInstance<map::Position> position { std::in_place };
     jam::SharedInstance<map::WindowFX> windowFX { std::in_place };
+    jam::SharedInstance<map::Appearance> appearance { std::in_place };
+
+    void darkModeSettingChanged() override;
 
     /** @brief Singleton config model reference — source for theme path and top-level config values. */
     ConfigModel& config { *ConfigModel::getInstance() };
@@ -337,9 +317,11 @@ private:
      * Populated by registerEvents(). A row child of a config table has no entry of its own,
      * so valueTreePropertyChanged() looks up the type of its parent table. Handles:
      * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
-     * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
+     * - Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     — per-component colour refresh via setColours()
+     * - Id::toType (Id::appearance)
+     *                     — colour refresh via initialiseColours()
      * - Id::toType (Id::menu)
      *                     — popup menu colour refresh via setPopupMenuColours()
      */
@@ -349,7 +331,7 @@ private:
      * @brief Builds the composite key @ref typefaces is keyed by: name and
      *        style joined by "/".
      *
-     * Both registerTypeface() (EventRegistration.cpp) and getTypefaceForFont()
+     * Both registerTypeface() (ENDLookAndFeel.cpp) and getTypefaceForFont()
      * use this single definition so the key building never drifts between
      * insertion and lookup. See @ref typefaces and registerTypeface() for why
      * a name-only key is unsafe.
@@ -396,7 +378,7 @@ private:
      * Svg::Flex::getSegments looks up each named SVG element as a top-level int key
      * of the colourScheme member of jam::StyleCustom (jam_SvgAttributes.cpp). END
      * leaves colourScheme empty, so every element keeps its own SVG style. No disk I/O.
-     * Defined in EventRegistration.cpp.
+     * Defined in ENDLookAndFeel.cpp.
      */
     void loadGraphics();
 
@@ -404,7 +386,7 @@ private:
      * @brief Applies all component colours, then the popup menu colours.
      *
      * Calls setColours(), then setPopupMenuColours().
-     * Defined in EventRegistration.cpp.
+     * Defined in ENDLookAndFeel.cpp.
      */
     void initialiseColours();
 
@@ -412,9 +394,9 @@ private:
      * @brief Sets the JUCE and END colour ids of every component tree from the config rows.
      *
      * Reads one colour row through ConfigModel::getRowValue() for each (table type, row key,
-     * colour id) entry of the code, scrollbar, tab, button, overlay and pane tables.
+     * colour id) entry of the scrollbar, tab, button, overlay and pane tables.
      * Converts the row with jam::ColourScheme::toColour() and passes it to
-     * juce::LookAndFeel::setColour(). Defined in EventRegistration.cpp.
+     * juce::LookAndFeel::setColour(). Defined in ENDLookAndFeel.cpp.
      */
     void setColours();
 
@@ -423,9 +405,8 @@ private:
      *        to the juce::PopupMenu colour IDs.
      *
      * Reads Id::toType (Id::menu) properties against the window background colour
-     * (Id::toType (Id::window)). Called once at construction (after initialiseColours())
-     * and again on Id::toType (Id::menu)'s colour-refresh event. Defined in
-     * EventRegistration.cpp.
+     * (Id::toType (Id::window)). Called by initialiseColours(), and on the
+     * Id::toType (Id::menu) colour-refresh event. Defined in ENDLookAndFeel.cpp.
      */
     void setPopupMenuColours();
 
@@ -434,9 +415,11 @@ private:
      *
      * Registers callbacks for:
      * - Id::theme         → initialiseColours() + loadGraphics()
-     * - Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
+     * - Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
      *   Id::toType (Id::overlay), Id::toType (Id::pane)
      *                     → setColours()
+     * - Id::toType (Id::appearance)
+     *                     → initialiseColours()
      * - Id::toType (Id::menu)
      *                     → setPopupMenuColours()
      *
@@ -461,10 +444,7 @@ private:
      * fires Id::theme (ConfigTheme::loadFromPath) into the theme callback above,
      * which repaints the whole component tree (juce::Component::sendLookAndFeelChange
      * descends to every child) — so the new family/size is picked up immediately.
-     * The code font (code.font_family/font_size) needs no dedicated callback here
-     * either: TabView reads this class's getCodeMetrics (zoom) directly, on demand,
-     * for its split/join preview sizing, entirely independent of this class's own
-     * event map. Defined in EventRegistration.cpp.
+     * Defined in ENDLookAndFeel.cpp.
      */
     void registerEvents();
 

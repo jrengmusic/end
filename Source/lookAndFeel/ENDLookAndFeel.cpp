@@ -6,19 +6,29 @@ ENDLookAndFeel::ENDLookAndFeel()
     loadGraphics();
     registerEvents();
     config.addListener (this);
+    juce::Desktop::getInstance().addDarkModeSettingListener (this);
 
     juce::LookAndFeel::setDefaultLookAndFeel (this);
 }
 
-ENDLookAndFeel::~ENDLookAndFeel() { config.removeListener (this); }
+ENDLookAndFeel::~ENDLookAndFeel()
+{
+    juce::Desktop::getInstance().removeDarkModeSettingListener (this);
+    config.removeListener (this);
+}
+
+void ENDLookAndFeel::darkModeSettingChanged()
+{
+    const juce::String appearanceName { config.getRowValue (Id::toType (Id::display), Id::appearance) };
+
+    if (map::Appearance::getInstance()->get (appearanceName) == map::Appearance::automatic)
+        initialiseColours();
+}
 
 void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
                                                const juce::Identifier& property)
 {
-    auto key { events.contains (property) ? property : tree.getType() };
-
-    if (not events.contains (key))
-        key = tree.getParent().getType();
+    const auto key { ConfigModel::getEventKey (events, tree, property) };
 
     if (events.contains (key))
         events.get (key, tree);
@@ -114,7 +124,7 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 //==============================================================================
 juce::FontOptions ENDLookAndFeel::getTabFont() const
 {
-    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::textFontFamily) };
     auto fontSize { config.getRowValue (Id::toType (Id::tab), Id::textFontSize) };
     const float kerning { config.getRowValue (Id::toType (Id::tab), Id::kerningFactor) };
 
@@ -127,13 +137,13 @@ juce::FontOptions ENDLookAndFeel::getTabFont() const
 juce::FontOptions ENDLookAndFeel::getOverlayFont() const
 {
     return juce::FontOptions()
-        .withName (config.getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+        .withName (config.getRowValue (Id::toType (Id::overlay), Id::textFontFamily).toString())
         .withPointHeight (static_cast<float> (config.getRowValue (Id::toType (Id::overlay), Id::textFontSize)));
 }
 
 juce::Font ENDLookAndFeel::getCommonFont() const
 {
-    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
+    auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::textFontFamily) };
     auto fontSize { config.getRowValue (Id::toType (Id::tab), Id::textFontSize) };
 
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
@@ -172,40 +182,17 @@ int ENDLookAndFeel::getPaneEdgeSize() const noexcept
     return config.getRowValue (Id::toType (Id::pane), Id::resizeBarThickness);
 }
 
+int ENDLookAndFeel::getPanePadding() const noexcept
+{
+    return config.getRowValue (Id::toType (Id::pane), Id::padding);
+}
+
 //==============================================================================
-juce::Font ENDLookAndFeel::getCodeFont() const
-{
-    auto fontFamily { config.getRowValue (Id::toType (Id::code), Id::fontFamily) };
-    auto fontSize { config.getRowValue (Id::toType (Id::code), Id::textFontSize) };
-
-    return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
-}
-
-ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics() const
-{
-    const auto font { getCodeFont() };
-
-    auto resolvedTypeface { font.getTypefacePtr() };
-
-    // Cell metrics come from the FT face's own advance/ascender/height at the
-    // exact size rasterize() sizes it to, rather than JUCE's
-    // juce::GlyphArrangement::getStringWidth()/getAscent() estimate.
-    const auto metrics { jam::GlyphRasterizer::calcMetrics (resolvedTypeface, font.getHeight()) };
-
-    const float cellWidthRatio { config.getRowValue (Id::toType (Id::code), Id::cellWidth) };
-    const float lineHeightRatio { config.getRowValue (Id::toType (Id::code), Id::lineHeight) };
-
-    const int cellWidth { juce::roundToInt (static_cast<float> (metrics.cellWidth)
-                                            * cellWidthRatio) };
-    const int cellHeight { juce::roundToInt (static_cast<float> (metrics.cellHeight)
-                                             * lineHeightRatio) };
-
-    return CodeMetrics { cellWidth, cellHeight };
-}
-
 juce::String ENDLookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
 {
-    return name + "/" + style;
+    static constexpr const char* styleSeparator { "/" };
+
+    return name + styleSeparator + style;
 }
 
 juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
@@ -220,7 +207,8 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
     // "Book" is the regular weight of both embedded families — juce::Font
     // requests style "Regular" by default, which none of the six embedded
     // faces carry, so the exact key above misses on every unstyled Font.
-    auto bookKey { typefaceKey (name, "Book") };
+    static constexpr const char* regularStyle { "Book" };
+    auto bookKey { typefaceKey (name, regularStyle) };
 
     if (typefaces.contains (bookKey))
         return typefaces.at (bookKey);
@@ -314,21 +302,17 @@ void ENDLookAndFeel::drawPopupMenuBackgroundWithOptions (juce::Graphics& g,
 
 static const char* getMenuItemSVG (int itemID)
 {
-    static const juce::String splitVertical { BinaryData::getString (files::splitVerticalNormal) };
-    static const juce::String splitHorizontal { BinaryData::getString (files::splitHorizontalNormal) };
-    static const juce::String joinCellsVertical { BinaryData::getString (files::joinCellsVerticalNormal) };
-    static const juce::String joinCellsHorizontal { BinaryData::getString (files::joinCellsHorizontalNormal) };
+    static const jam::HashMap<int, juce::String> menuItemIcons {
+        { 1, BinaryData::getString (files::splitVerticalNormal) },
+        { 2, BinaryData::getString (files::splitHorizontalNormal) },
+        { 3, BinaryData::getString (files::joinCellsVerticalNormal) },
+        { 4, BinaryData::getString (files::joinCellsVerticalNormal) },
+        { 5, BinaryData::getString (files::joinCellsHorizontalNormal) },
+        { 6, BinaryData::getString (files::joinCellsHorizontalNormal) }
+    };
 
-    switch (itemID)
-    {
-        case 1: return splitVertical.toRawUTF8();
-        case 2: return splitHorizontal.toRawUTF8();
-        case 3:
-        case 4: return joinCellsVertical.toRawUTF8();
-        case 5:
-        case 6: return joinCellsHorizontal.toRawUTF8();
-        default: return nullptr;
-    }
+    if (menuItemIcons.contains (itemID)) return menuItemIcons.at (itemID).toRawUTF8();
+    return nullptr;
 }
 
 static void drawMenuItemBackground (ENDLookAndFeel& laf,
@@ -517,11 +501,12 @@ void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
 {
     jassert (dynamic_cast<jam::OwnedComponent*> (&pane) != nullptr);
 
-    g.setColour (findColour (static_cast<int> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus)) == 1
-                                 ? jam::PaneComponent::focusedOutlineColourId
-                                 : jam::PaneComponent::outlineColourId));
+    const bool isFocused { static_cast<bool> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus)) };
+
+    g.setColour (findColour (isFocused ? jam::PaneComponent::focusedOutlineColourId
+                                       : jam::PaneComponent::outlineColourId));
     g.drawRoundedRectangle (
-        pane.getLocalBounds().toFloat().reduced (jam::PaneComponent::edgePadding
+        pane.getLocalBounds().toFloat().reduced (static_cast<float> (getPanePadding())
                                                  + jam::PaneComponent::lineThickness),
         jam::PaneComponent::cornerSize,
         jam::PaneComponent::lineThickness);
@@ -555,10 +540,9 @@ void ENDLookAndFeel::setColours()
 {
     static const std::vector<std::tuple<juce::Identifier, juce::Identifier, int>> colourIds
     {
-        { Id::toType (Id::code), Id::caret, juce::CaretComponent::caretColourId },
-        { Id::toType (Id::code), Id::selectionCursor, selectionCursorColourId },
-        { Id::toType (Id::code), Id::editorBackground, juce::TextEditor::backgroundColourId },
-        { Id::toType (Id::code), Id::editorOutline, juce::TextEditor::outlineColourId },
+        { Id::toType (Id::tab), Id::caret, juce::CaretComponent::caretColourId },
+        { Id::toType (Id::tab), Id::editorBackground, juce::TextEditor::backgroundColourId },
+        { Id::toType (Id::tab), Id::editorOutline, juce::TextEditor::outlineColourId },
         { Id::toType (Id::scrollbar), Id::thumb, juce::ScrollBar::thumbColourId },
         { Id::toType (Id::scrollbar), Id::track, juce::ScrollBar::trackColourId },
         { Id::toType (Id::tab), Id::background, jam::ButtonBar::backgroundColourId },
@@ -619,15 +603,17 @@ void ENDLookAndFeel::loadGraphics()
 
 void ENDLookAndFeel::registerEvents()
 {
-    events.add<juce::ValueTree&> (Id::theme,
+    events.add<juce::ValueTree&> (Id::toType (Id::theme),
                                   [this] (juce::ValueTree&)
                                   {
                                       initialiseColours();
                                       loadGraphics();
                                   });
 
-    for (const auto& type : { Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button), Id::toType (Id::overlay), Id::toType (Id::pane) })
+    for (const auto& type : { Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button), Id::toType (Id::overlay), Id::toType (Id::pane) })
         events.add<juce::ValueTree&> (type, [this] (juce::ValueTree&) { setColours(); });
+
+    events.add<juce::ValueTree&> (Id::toType (Id::appearance), [this] (juce::ValueTree&) { initialiseColours(); });
 
     events.add<juce::ValueTree&> (Id::toType (Id::menu),
                                   [this] (juce::ValueTree&)

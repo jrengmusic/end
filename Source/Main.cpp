@@ -38,10 +38,7 @@ ENDApplication::~ENDApplication() { config.removeListener (this); }
 void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
                                                const juce::Identifier& property)
 {
-    auto key { events.contains (property) ? property : tree.getType() };
-
-    if (not events.contains (key))
-        key = tree.getParent().getType();
+    const auto key { ConfigModel::getEventKey (events, tree, property) };
 
     if (events.contains (key))
         events.get (key, tree);
@@ -49,66 +46,67 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
 
 void ENDApplication::registerEvents()
 {
-    for (const auto& id : { Id::fontRasterizer, Id::fontGamma, Id::fontContrast })
+    for (const auto& id : { Id::toType (Id::fontRasterizer), Id::toType (Id::fontGamma), Id::toType (Id::fontContrast) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setFontRasterization(); });
 
-    events.add<juce::ValueTree&> (Id::alwaysOnTop,
+    events.add<juce::ValueTree&> (Id::toType (Id::alwaysOnTop),
                                   [this] (juce::ValueTree& row)
                                   {
                                       window->setAlwaysOnTop (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::titleBarButtons,
+    events.add<juce::ValueTree&> (Id::toType (Id::titleBarButtons),
                                   [this] (juce::ValueTree& row)
                                   {
                                       window->setWindowButtons (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::theme,
+    events.add<juce::ValueTree&> (Id::toType (Id::theme),
                                   [] (juce::ValueTree&)
                                   {
                                       cascadeLookAndFeelChange();
                                   });
 
-    events.add<juce::ValueTree&> (Id::embolden,
+    events.add<juce::ValueTree&> (Id::toType (Id::embolden),
                                   [this] (juce::ValueTree&)
                                   {
                                       setEmbolden();
                                   });
 
-    events.add<juce::ValueTree&> (Id::useGpu,
+    events.add<juce::ValueTree&> (Id::toType (Id::useGpu),
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackground();
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::background,
-                                  [this] (juce::ValueTree&)
+    events.add<juce::ValueTree&> (Id::toType (Id::background),
+                                  [this] (juce::ValueTree& row)
                                   {
-                                      setBackground();
+                                      if (row.getParent().getType() == Id::toType (Id::graphics))
+                                          setBackground();
                                   });
 
-    events.add<juce::ValueTree&> (Id::filter,
+    events.add<juce::ValueTree&> (Id::toType (Id::filter),
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackground();
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::postProcessing,
+    events.add<juce::ValueTree&> (Id::toType (Id::postProcessing),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::postProcessingOpacity,
+    events.add<juce::ValueTree&> (Id::toType (Id::postProcessingOpacity),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
                                   });
 
-    events.add<juce::ValueTree&> (Id::postProcessingResolution,
+    events.add<juce::ValueTree&> (Id::toType (Id::postProcessingResolution),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
@@ -129,7 +127,7 @@ void ENDApplication::setFontRasterization()
 
 void ENDApplication::setEmbolden()
 {
-    const bool embolden { config.getRowValue (Id::toType (Id::code), Id::embolden) };
+    const bool embolden { config.getRowValue (Id::toType (Id::font), Id::embolden) };
 
     jam::CpuGraphicsEngine::getInstance()->setEmbolden (embolden);
 

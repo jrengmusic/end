@@ -108,7 +108,7 @@ ninja                # build, in Builds/
 
 Works identically on macOS, Linux, and Windows via MSYS2. On Windows, MSVC is located and configured automatically.
 
-Config lives in `~/.config/end/`. Both markdown files, `display.md` and `keys.md`, are auto-generated with documented defaults on first launch. Every value has inline comments. Changes are picked up automatically — no restart needed.
+Config lives in `~/.config/end/`. `display.md`, `keys.md` and `themes/gfx/theme.md` are auto-generated with documented defaults on first launch. Every key is plain lower-case words. Theme colours are named in a `## colours` table and chosen per `light` / `dark` column by the `appearance` row of `display.md`. A file with an error keeps the built-in defaults and shows the error in the overlay. Changes are picked up automatically — no restart needed. EVE keeps its own config in `~/.config/end/eve.md`.
 
 ---
 

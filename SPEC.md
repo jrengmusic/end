@@ -133,13 +133,33 @@ Config data lives in markdown grid tables, parsed by jam_markdown
 
 - **Sources (deployed, live):** `~/.config/end/display.md`, `keys.md`,
   `themes/<name>/theme.md`. Shipped defaults live at `Source/config/`.
+- **Load path (shared with EVE):** each file starts with a front matter
+  `version: 0.0.1`. `jam::ConfigDocument::getOrCreateDefaultFile` writes the binary
+  default when the disk file is missing or its version is older. Agents never change
+  a version. `jam::ConfigDocument::addTables` validates the disk file and appends
+  each table whose columns equal the binary table's; `setValuesFrom` lays those
+  rows over the binary default. A failure (bad cell, changed columns, unknown table)
+  goes to the message overlay with `file:line (column)`; the binary rows stay; nothing
+  asserts on a disk file (`Source/config/ConfigModel.cpp`).
 - **Value typing** is per-row (`integer`, `float`, `bool`, `string`, `colour`,
-  `numbers`) via `ConfigDocument::getValueTypes`.
-- **Authoring rules:** table key cells are property names verbatim. A property
-  consumed through a jam lexicon identifier uses jam's spelling (single owner —
-  e.g. `lineHeight`). A value cell whose text collides with markdown block syntax
-  is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser resolves the escape to
-  the literal.
+  `numbers`) via `ConfigDocument::getValueTypes`. A number cell must be a number
+  (`Format::isNumber`).
+- **Authoring rules:** every key cell is lower-case words (`always on top`,
+  `close pane`). The reader formats it to the reserved identifier with
+  `Format::toCamelCase` when it creates the row. ARCHITECT: *"END and EVE keys all
+  using user friendly case. lower case with whitespace. althought the exact word is
+  internally reserved and FORMATTED."* A value cell whose text collides with
+  markdown block syntax is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser
+  resolves the escape to the literal.
+- **Theme colours:** `theme.md` `## colours` names each opaque colour (JFS palette
+  name, else jam's nearest colour name) with a `0xAARRGGBB` value. Every other theme
+  table has `key | type | light | dark | choices | description`; a colour cell holds a
+  `## colours` key, a jam colour name, or a direct `0xAARRGGBB` (every alpha colour is
+  direct). An empty `dark` is the light value. `display.md` `appearance` (AUTO, LIGHT,
+  DARK) picks the column; AUTO follows the OS (`ConfigModel::getRowValue`).
+- **Pane padding:** `theme.md` `## pane` `padding` is the one inset of the focused
+  outline and of the hosted editor, which sits inside the outline stroke
+  (`ENDLookAndFeel::getPanePadding`, `EditorView::resized`).
 - **Constants pipeline:** `cast/*.md` (project-info, identifiers, bimaps, files)
   → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,
   Files,Generated}.h` (global `Id::`, `map::`, `files::`). The generated lexicon
