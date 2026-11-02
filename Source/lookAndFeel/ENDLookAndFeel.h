@@ -254,8 +254,8 @@ public:
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
-    /** @brief Pane outline indicator — plain outline colour; the focused
-     *  state is drawn by createFocusOutlineForComponent()'s FocusOutline.
+    /** @brief Draws the outline of a pane as a rounded rectangle, inset by the edge padding and the line thickness of the pane.
+     *  The outline takes the focused colour when the focus of the pane row is 1, and the outline colour otherwise.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
 
@@ -269,14 +269,12 @@ public:
      * @brief Returns the terminal code font constructed from theme config
      *        (family, size).
      *
-     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::textFontSize. Unlike
-     * getTabFont(), carries no kerning factor (code.font_family/font_size
-     * has no kerning_factor property) and no zoom — zoom is applied by
-     * getCodeMetrics() below.
+     * Reads Id::toType (Id::code) properties: Id::fontFamily, Id::textFontSize. The font carries
+     * no kerning factor and no zoom.
      */
     juce::Font getCodeFont() const;
 
-    /** @brief Terminal cell size in pixels, in the code font's zoomed metrics. */
+    /** @brief Terminal cell size of the code font, in pixels. */
     struct CodeMetrics
     {
         int cellWidth;
@@ -284,22 +282,15 @@ public:
     };
 
     /**
-     * @brief Computed terminal cell metrics at @p zoom — LnF is the owner of
-     *        the resolved typefaces that the metrics are read from.
+     * @brief Returns the terminal cell size in pixels, from the code font and the code config.
      *
-     * Applies @p zoom to getCodeFont() via juce::Font::withPointHeight()
-     * (size × zoom), resolves the zoomed font's typeface, and calls
-     * jam::GlyphRasterizer::calcMetrics() at the exact FT size the
-     * glyphs will rasterize at. The raw FT cell width/height are then scaled
-     * by the theme's own cell ratios (code.cellWidth / code.lineHeight)
-     * to produce the final pixel cell size — TabView's own split/join preview
-     * consumes cellWidth/cellHeight directly, with no ratio-only getter
-     * anywhere in the chain.
+     * The glyph metrics of the code font come from `jam::GlyphRasterizer::calcMetrics()`, at the height of the font.
+     * The cell width and the cell height are scaled by the `cellWidth` and `lineHeight` ratios of the code config,
+     * and rounded to pixels. The split and join previews of TabView use the result.
      *
-     * @param zoom  Caller-supplied zoom factor (EditorView::defaultZoom).
-     * @return Populated CodeMetrics — cellWidth, cellHeight, in pixels.
+     * @return The cell width and the cell height, in pixels.
      */
-    CodeMetrics getCodeMetrics (float zoom) const;
+    CodeMetrics getCodeMetrics() const;
 
 private:
     jam::SharedInstance<map::ButtonState> buttonState { std::in_place };

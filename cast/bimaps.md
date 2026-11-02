@@ -95,4 +95,5 @@ The key is the juce::CommandID; the value is the row key.
 | swapUp           | 0x470001c | `swapUp`           |
 | swapRight        | 0x470001d | `swapRight`        |
 | actionList       | 0x470001e | `actionList`       |
+| normal           | 0x470001f | `normal`           |
 +------------------+-----------+--------------------+

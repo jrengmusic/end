@@ -2,6 +2,87 @@
 
 ---
 
+## Sprint 94: ENAX Plan 2 — Owner-Scoped Command Ids, Per-Instance Mode, END Drives the Plugin by Host Parameter; Wholesale Audit ✅
+
+**Date:** 2026-11-02
+**Duration:** one session. The start and end times are not recorded.
+**Plan:** `PLAN-enax-command-id.md` (locked), with the open items of Sprint 93 folded in by ARCHITECT's order: *"fold outstanding to PLAN 2, execution"*, *"/audit wholesale until /log"*. Plan 1 Steps 9 and 10 are Plan 2 Steps 11 and 10.
+
+### Agents Participated
+- COUNSELOR — the fold (`PLAN-enax-command-id.md`), every brief and validation read, the trace spec, the small edits named below, SPEC/ARCHITECTURE/eve SPEC, the Auditor triage, this log.
+- Pathfinder (haiku) — discovery reads (jam key path, cast tables, END host, file watcher, AU format, MoltenVK, command tables), the Step 1 trace run, the doxygen pass.
+- Engineer (sonnet) — Steps 2–9, 11, the Auditor fixes, the one-TU moves, `rm` of four files.
+- Librarian (haiku) — FSEvents dispatch-queue ownership (SDK headers, LLVM, Git, fswatch, Chromium).
+- Auditor (opus) — one wholesale pass over Plan 1 and Plan 2: 38 findings.
+
+### Files Modified
+**end:**
+- `PLAN-enax-command-id.md` — fold: per-instance mode (Step 2), paste moved to the TextEditor (Step 9), Step 11 (format from the file), Step 12 (watcher teardown), Step 10 docs; every citation re-read after `6c017a1`.
+- `Source/plugins/Session.cpp:44-54` — `pluginFormatName` is the `getName()` of the first format whose `fileMightContainThisPluginType` accepts the file (`juce_AudioPluginFormatManager.cpp:139-152`); the hardcoded VST name is gone. `Session.h:46-51` — `applyToPlugins`.
+- `Source/ui/ENDView.cpp` — one TU (CODING): the bodies of `ENDActions.cpp` and `EventRegistration.cpp` moved in (635 lines). `normal` action sets the focused plugin's `Mode` parameter (`:442-460`). Zoom actions set the plugin's `Zoom` parameter by a normalised `zoomStep`, every pane or the focused pane when `exclusiveZoom` (`:297-354`). `closeTab` removes the plugins of the closed tab (`:208-226`).
+- `Source/ui/EventRegistration.cpp` — deleted. `Source/action/ENDActions.cpp` / `.h` — only `ENDActions::run` (moved out of the header).
+- `Source/ui/EditorView.h` / `.cpp` — pane `Id::zoom` and `defaultZoom`/`zoomMin`/`zoomMax` deleted; `getParameter` by host-visible name with `compare` (`:98-108`); width/height through `jam::Format::toParameterName`; listens to its own row.
+- `Source/ui/TabView.cpp:203`, `:227`, `Source/lookAndFeel/ENDLookAndFeel.h` / `.cpp` — `getCodeMetrics()` takes no zoom; `drawPaneOutline` asserts the downcast.
+- `Source/plugins/Nexus.cpp:123-124` — named archive and AU extensions.
+- `cast/bimaps.md` (`normal 0x470001f`), `cast/identifiers.md` (`exclusiveZoom`), `cast/cmake.cast:306` (`CAST_PLUGINS_HASH` on `Nexus.cpp` only).
+- `Source/config/keys.md` (`normal` = `` `] ``, zoom descriptions), `Source/config/display.md` (`zoomStep` normalised, `exclusiveZoom`).
+- `SPEC.md`, `ARCHITECTURE.md` — host format, keys, commands, host parameters, ENAX ids and hooks, focus chain, pane rows under EDGE rows, every stale `pluginId`/scan/CLAP line; each line cites code.
+- Headers: doc pass (`EditorView.h`, `Session.h`, `Nexus.h`, `ENDView.h`, `ENDLookAndFeel.h`, `ENDActions.h`).
+
+**jam:**
+- `cast/gui.md` — `EditorMode` 0-based (`:232-234`); `copy`, `paste` ids; `## TextEditorCommandId` (`0x48…`), `## textEditorKeys mac` / `windows`, `## textEditorModes` (`:253-435`). `cast/plugin_bootstrap.md` — `## PluginEditorCommandId` (`0x49…`), `## pluginEditorKeys`; `master` moved to `cast/core.md:108`. `cast/spell.md:134-136`, `:937-964`, `:1411-1431`; `cast/code.cast` — `platform-value-lookup-table`.
+- `jam_gui/commands/jam_CommandManager.h` / `.cpp` — no shared `mode`; `setKeyPresses` builds the sheet once (one row per key and mode, `Id::id`, `Id::mode` key); `invokeKey` matches chords and key descriptions by the caller's own mode; only modeless rows enter the shared key mappings; `getCommandForName` public.
+- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — mode key; `jam::Model::Object` with its own `mode` Value and a `ValueAttachment` on `MODE`; no own key binding; TextEditorCommandId commands; `getDefaultKeys`; `copy`; `paste` (bracketed when DEC 2004). `jam_TextEditorStatusBar.cpp` — mode key.
+- `jam_gui/layout/jam_OwnedComponent`, `jam_OwnerComponent`, `jam_PaneComponent` — bodies in new `.cpp` files (`jam_gui.cpp:6-8`); the owner writes focus 0 to the previous child only; `cornerJustifications` defined in the `.cpp`.
+- `jam_terminal/keyboard/jam_TerminalKeyboard.h` — `bracketedPasteStart`, `bracketedPasteEnd`.
+- `jam_core/text/jam_Format.h` / `.cpp` — `toParameterName`. `jam_core/file/jam_Listener.cpp` — no unschedule before invalidate; the queue and the paths are released. `jam_core/utilities/jam_PluginHostType.cpp` — format.
+- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h` / `.cpp` — hooks read END's variables through their addresses at each call; the keys rule takes the key sheet and drops `normal`; `addOrReplace` ranges. `layout/jam_PluginEditorLayout.h` — `keys` (TextEditor defaults, host rule applied). `parameter/jam_ParameterLayout.h` / `.cpp` — `toParameterName`. `view/jam_PluginEditor.h` / `.cpp` — PluginEditorCommandId commands, `getDefaultKeys`, the one binder `addCommands` after `initialiseView`, reload through it. `PluginHostType` per-event sites made static (`jam_PluginEditor.cpp`, `jam_AudioModel.cpp`, `jam_PopupMenu.h`, `jam_ViewEditor.cpp`, `jam_ViewPanel.cpp`). Doc pass over the touched headers, `jam_ViewManager.h`, `jam_ModelLayout.h`.
+
+**eve:**
+- `Source/EVEView.cpp` — one TU (the bodies of `EVEViewComponents.cpp`, `EVEViewPanelCallbacks.cpp`, `EVEViewRegistration.cpp` moved in, files deleted, `project-info.md` rows removed); commands = PluginEditor's + EVE's; shell commands by any registered name (`:150-151` before the move). `EVEViewComponents` `setMode` call removed.
+- `cast/identifiers.md` — `## CommandId` keeps `clear`, `preview`. `Source/layout/ViewLayout.md` — version 0.0.2, keys keep `clear`, `preview`. `Source/layout/parameters.md` — `mode` choice, default 2.
+- `Source/EVETerminalProcessor.cpp` — quits only in the standalone app; no manual `cancelPendingUpdate`.
+- `SPEC.md` — keys summary, command protocol, mode parameter, terminal consumers. `Source/EVEView.h` — doc pass.
+
+### Alignment Check
+- [x] BLESSED principles followed — the mode lives in each instance's node; one key entry per caller; END tells by host parameter.
+- [x] NAMES.md adhered — `candidate`, shadowing locals and "resolve" prose corrected in-sprint.
+- [x] MANIFESTO.md principles applied
+- [ ] No build. Cast was not re-run. ARCHITECT runs `cast` (jam, eve, end), builds and tests.
+
+### Problems Solved
+- **Mode per binary.** `CommandManager::mode` was one Value per binary; the last bound editor owned every pane's mode. The mode now lives only in each editor's node and the host parameter.
+- **Command id collision.** JUCE asserts on two commands with one id (`juce_ApplicationCommandManager.cpp:61`, `:71`). TextEditor ids are `0x48…`, PluginEditor ids `0x49…`; the tables are read by row through `Bimap::indexOf`.
+- **SharedInstance lifetime.** The new maps had no live holder at first use (layout constructor); members and function-local static holders added.
+- **FSEventStream assertion.** The destructor unscheduled the stream before `FSEventStreamInvalidate`; the SDK forbids it (`FSEvents.h:1209-1213`). The queue leak is closed (`queue.h:1057-1060`).
+- **Pane format.** `EVE.vst3` and `EVE.component` load through the format that accepts the file.
+- **Auditor (38 findings).** Fixed: 1, 3, 4, 5, 6, 7, 8, 9, 11, 15, 19, 21, 22, 25 (own row), 28, 34, 35, 36, 37, 38. Rejected by read: 13 (END is the source of both ranges), 15 out-parameter (ruling *"Registry returns value … through jam::Function::Map argument forwarding"*, `PLAN-enax-plugin-host-type.md:180`), 17 (sibling `spell.md:133`), 18 (`#else` keeps Linux compiling), 20 (ruled in Sprint 93), 23 (creation), 26 (MANIFESTO E example asserts and nests), 27 (a third-party plugin can have no editor), 29 (numbers only), 30 (END tells), 31, 32 (*"it STILL HANDLE its own hjlk per its state"*), 33 (no read confirms).
+
+### State for Continuation
+- ARCHITECT: run `cast cast/spell.md` in jam, eve and end; build; test the Plan 2 ARCHITECT Gate (`PLAN-enax-command-id.md`) for `EVE.vst`, `EVE.vst3`, `EVE.component`.
+- Step 1 trace: the 2026-11-02 run had no key input (`END outcome=timeout stops=0`, spec `scratchpad/trace-keypath.json`). It runs again with ARCHITECT at the keyboard. Auditor finding 2 (a lone `` ` `` under END is lost: END keeps it as its chord prefix, `ENDView.cpp:71`, and never forwards it) is a key-path fix, and the plan requires a trace stop for each key fix (`PLAN-enax-command-id.md:67`).
+- Rulings that conflict with the locked plan or CONTRACT (stop set, both citations):
+  1. Finding 14 — *"if it was jam wiget parameter then it must be at jam"* (`PLAN-enax-command-id.md:23`) against Plan 2 Step 6.1 (`mode` in `eve/Source/layout/parameters.md`, like `zoom` at `:11`).
+  2. Finding 16 — MANIFESTO S (a value appearing more than once) against Plan 2 Step 3.2 (full `textEditorKeys mac` / `windows` tables, `jam/cast/gui.md:290-399`).
+  3. Finding 10 — *"must be crossplatfrom"* (`PLAN-enax-plugin-host-type.md:33`) against the macOS-only focus patch (`jam/patch/juce-plugin-window-focus-hook.patch`) and DEBT-20260912T150000.
+  4. Finding 12 — Plan 2 constraint *"`jam_gui` never names `jam_plugin_bootstrap`"* (`:35`) against the guarded `TextEditor::bindToModel (…, AudioModel&)` (`jam_TextEditor.h:142-154`).
+  5. Finding 24 — END is the size author (`PLAN-enax-plugin-host-type.md:180`) against `PluginEditor::resized` writing `Width`/`Height` too (`jam_PluginEditor.cpp` `resized`).
+  6. Finding 25 — `EditorView` reaches `Nexus::getInstance()` (`EditorView.cpp:31`, `:79`) against ARCHITECTURE.md "never by members reaching sideways, upward, or across".
+- L crossings after the one-TU moves: `ENDView.cpp` 635 lines, `jam_TextEditor.cpp` ~1720 lines (MANIFESTO L: rethink the decomposition).
+- MoltenVK: `Class MVKBlockObserver is implemented in both …/END and …/EVE.vst/Contents/MacOS/EVE` on each EVE load (END run log 2026-11-02 06:02:34). END and EVE each link `libMoltenVK.a` (`end/CMakeLists.txt:333-341`, `eve/CMakeLists.txt:401-409`). Recorded as the Plan 1 gate asks (`PLAN-enax-plugin-host-type.md:229`).
+- `ViewLayout.md` version 0.0.2 replaces each user's seeded `~/.config/end/eve.md` on first load.
+- Doxygen not regenerated (`ninja doxygen`).
+
+### Debts Paid
+- `DEBT-20261025T214955` — Action List replaced by CommandManager: END dispatches through `jam::CommandManager` and the action map behind `perform` (`ENDView.h:69`, `ENDView.cpp:116-119`).
+- `DEBT-20261009T112447` — END keys through `jam::CommandManager` (`ENDView.cpp:17-18`, `:69-72`).
+
+### Debts Deferred
+- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
+
+---
+
 ## Sprint 93: ENAX Plan 1 Steps 1–8d — END Hosts EVE in Every Pane, One Instance per Pane ✅
 
 **Date:** 2026-11-02
@@ -336,29 +417,4 @@ None.
 
 ### Next Steps
 - Start sprint N+1 with `/go` on `~/Documents/Poems/dev/jam/PLAN-cpu-graphics-engine.md`.
-
----
-
-## Sprint 91: Model::Component Binds a Node — END Conforms ✅
-
-**Date:** 2026-10-24
-**Duration:** part of jam Sprint 171 (the primary record; plan `eve/PLAN-texteditor-nvim-parity.md`, Step 1)
-
-### Decisions (ARCHITECT, verbatim)
-1. *"just add an overload? ValueTree is just ValueTree no?"*; *"what need to change? jam::Model? or all its family so could also attach to APVTS? END should conform"*.
-
-### Files Modified
-- `Source/end/ENDView.h/.cpp` — the `ENDModel& model` member, from the `ENDModel` instance, is the single route. `messageOverlay.registerParameters (model)`.
-- `Source/Main.cpp` — conforms to the `Model::Component` change.
-- `project-info.md` — `jam_terminal` row. `CMakeLists.txt` is regenerated with `jam_terminal`.
-- `TabView.cpp`, `ENDLookAndFeel.h/.cpp` (`juce::FontOptions`) and `CLAUDE.md` changed in the working tree before this sprint. This log does not claim them.
-
-### State for Continuation
-- `cast cast/spell.md --debug`: 0 errors, 0 warnings.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
 

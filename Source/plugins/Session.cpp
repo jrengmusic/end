@@ -42,10 +42,16 @@ void Session::newPlugin (jam::UUID uuid)
     jassert (paneRow.isValid());
 
     const auto file { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
+    const auto formats (formatManager.getFormats());
+    const auto pluginFormat { std::find_if (formats.begin(), formats.end(), [&file] (juce::AudioPluginFormat* format)
+    {
+        return format->fileMightContainThisPluginType (file.getFullPathName());
+    }) };
+    jassert (pluginFormat != formats.end());
 
     juce::PluginDescription description;
     description.fileOrIdentifier = file.getFullPathName();
-    description.pluginFormatName = juce::VSTPluginFormat::getFormatName();
+    description.pluginFormatName = (*pluginFormat)->getName();
 
     juce::String errorMessage;
     auto instance { formatManager.createPluginInstance (description, graph.getSampleRate(), graph.getBlockSize(), errorMessage) };

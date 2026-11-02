@@ -8,13 +8,6 @@
 
 ---
 
-## DEBT-20261025T214955
-
-**Observation:** Action List should be replaced with CommandManager. Related entry: DEBT-20261009T112447.
-**Divergence:** The Action List duplicates what CommandManager supplies.
-**Expectation:** CommandManager replaces the Action List.
-
----
 
 
 ## DEBT-20261025T135707
@@ -26,13 +19,6 @@
 
 ---
 
-## DEBT-20261009T112447
-
-**Observation:** END maps key presses with its own map: ENDActions::buildKeyMap fills jam::HashMap<juce::KeyPress, juce::Identifier> keys and modalKeys from the config KEYS section (Source/action/ENDActions.h:67-92, :152-153). jam now has jam::CommandManager : juce::ApplicationCommandManager in jam_gui/commands. It fills the juce::KeyPressMappingSet from a config keys table, with command ids from map::CommandId.
-**Divergence:** END does not use jam::CommandManager.
-**Expectation:** Replace END's keyboard and config-key handling (the ENDActions key maps and the keys reading) with jam::CommandManager and juce::ApplicationCommandTarget.
-
----
 
 ## DEBT-20260912T150000
 

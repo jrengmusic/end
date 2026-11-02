@@ -19,12 +19,12 @@ Active theme directory name and window chrome and lifecycle toggles.
 | size                 | numbers | 640, 480 |         | Initial window size in pixels {width,      |
 |                      |         |          |         | height}.                                   |
 +----------------------+---------+----------+---------+--------------------------------------------+
-| zoomStep             | float   | 0.1      |         | Zoom step applied by the zoomIn/zoomOut    |
-|                      |         |          |         | actions (keys.md). Added to (zoomIn) or    |
-|                      |         |          |         | subtracted from (zoomOut) the focused      |
-|                      |         |          |         | pane's current zoom factor, clamped to     |
-|                      |         |          |         | [0.25, 4.0]. zoomReset always sets zoom    |
-|                      |         |          |         | to 1.0 directly, ignoring this step.       |
+| zoomStep             | float   | 0.1      |         | Normalised step of the plugin's zoom       |
+|                      |         |          |         | parameter that zoomIn and zoomOut add or   |
+|                      |         |          |         | subtract (keys.md).                        |
++----------------------+---------+----------+---------+--------------------------------------------+
+| exclusiveZoom        | bool    | false    |         | false zooms every pane; true zooms the     |
+|                      |         |          |         | focused pane only.                         |
 +----------------------+---------+----------+---------+--------------------------------------------+
 | paneStep             | float   | 0.05     |         | Proportion step applied by the             |
 |                      |         |          |         | reducePaneWidth/reducePaneHeight/          |

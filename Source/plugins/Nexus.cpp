@@ -120,6 +120,9 @@ const void* Nexus::getExtension (const char* id) const
     return nullptr;
 }
 
+static constexpr const char* archiveExtension { "zip" };
+static constexpr const char* audioUnitExtension { "component" };
+
 void Nexus::offloadPlugins()
 {
     const auto pluginsDirectory { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::plugins) };
@@ -134,7 +137,7 @@ void Nexus::offloadPlugins()
             const auto original { juce::File::createFileWithoutCheckingPath (
                 BinaryData::getNamedResourceOriginalFilename (resourceName)) };
 
-            if (original.hasFileExtension ("zip"))
+            if (original.hasFileExtension (archiveExtension))
             {
                 int resourceSize { 0 };
                 const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
@@ -152,7 +155,7 @@ void Nexus::offloadPlugins()
 #if JUCE_MAC
     const auto pluginFile { pluginsDirectory.getChildFile (files::evePlugin) };
 
-    if (pluginFile.hasFileExtension ("component"))
+    if (pluginFile.hasFileExtension (audioUnitExtension))
         registerAudioUnit (pluginFile);
 #endif
 }
