@@ -45,6 +45,7 @@ namespace Id
     const juce::Identifier editorBackground         { juce::String::fromUTF8 ("editorBackground") };
     const juce::Identifier editorOutline            { juce::String::fromUTF8 ("editorOutline") };
     const juce::Identifier enabled                  { juce::String::fromUTF8 ("enabled") };
+    const juce::Identifier exclusiveZoom            { juce::String::fromUTF8 ("exclusiveZoom") };
     const juce::Identifier expandPaneHeight         { juce::String::fromUTF8 ("expandPaneHeight") };
     const juce::Identifier expandPaneWidth          { juce::String::fromUTF8 ("expandPaneWidth") };
     const juce::Identifier filter                   { juce::String::fromUTF8 ("filter") };

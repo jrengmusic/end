@@ -12,8 +12,8 @@
  *        juce::AudioProcessorEditor.
  *
  * The editor is created once, in the constructor, from the plugin that the
- * session holds for this pane. When the focus of the own row becomes 1, the
- * hosted editor takes the keyboard focus.
+ * session holds for this pane. When the Id::focus of the own row changes, the
+ * focus parameter of the hosted plugin takes that value.
  */
 class EditorView
     : public jam::PaneComponent
@@ -48,6 +48,26 @@ public:
      */
     void childBoundsChanged (juce::Component* child) override;
 
+    /**
+     * @brief Moves the zoom parameter of the hosted plugin by a zoom command.
+     *
+     * Zoom in adds @p step to the value and zoom out subtracts it, both clamped to 0..1. Zoom reset sets the default value.
+     * The function does nothing when the pane holds no editor, or when the plugin has no zoom parameter.
+     *
+     * @param command  Zoom command name: zoomIn, zoomOut or zoomReset.
+     * @param step     Zoom step, in normalised units.
+     */
+    void setZoom (const juce::Identifier& command, float step);
+
+    /**
+     * @brief Writes the editor mode to the mode parameter of the hosted plugin.
+     *
+     * The function does nothing when the pane holds no editor, or when the plugin has no mode parameter.
+     *
+     * @param newMode  Editor mode, a constant of `map::EditorMode`.
+     */
+    void setMode (int newMode);
+
     /** @brief Walks tree's own ancestor chain up to and including the first
      *  row of the given type.
      *  @param tree Starting ValueTree; walked upward through getParent().
@@ -57,6 +77,7 @@ public:
      */
     static juce::ValueTree findAncestorRow (juce::ValueTree tree, const juce::Identifier& type);
 
+private:
     /**
      * @brief Returns the parameter of a plugin whose name equals a name.
      * @param plugin  Plugin whose parameters are searched.
@@ -65,11 +86,17 @@ public:
      */
     static juce::AudioProcessorParameter* getParameter (juce::AudioProcessor& plugin, const juce::String& name);
 
-private:
     /**
-     * @brief Grabs the keyboard focus for the hosted editor when the focus of the own row becomes 1.
+     * @brief Sets the normalised value of a parameter in a change gesture, which notifies the host.
+     * @param parameter        Parameter to set.
+     * @param normalisedValue  Value in the range 0 to 1.
+     */
+    static void setParameter (juce::AudioProcessorParameter& parameter, float normalisedValue);
+
+    /**
+     * @brief Writes the Id::focus value of the own row to the focus parameter of the hosted plugin.
      * @param tree      The ValueTree whose property changed.
-     * @param property  The identifier of the changed property.
+     * @param property  The identifier of the changed property. Only Id::focus writes the parameter.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 

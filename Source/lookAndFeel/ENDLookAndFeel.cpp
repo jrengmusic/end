@@ -124,6 +124,13 @@ juce::FontOptions ENDLookAndFeel::getTabFont() const
         .withKerningFactor (kerning);
 }
 
+juce::FontOptions ENDLookAndFeel::getOverlayFont() const
+{
+    return juce::FontOptions()
+        .withName (config.getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
+        .withPointHeight (static_cast<float> (config.getRowValue (Id::toType (Id::overlay), Id::textFontSize)));
+}
+
 juce::Font ENDLookAndFeel::getCommonFont() const
 {
     auto fontFamily { config.getRowValue (Id::toType (Id::tab), Id::fontFamily) };
@@ -401,15 +408,15 @@ static void drawMenuItemArrow (ENDLookAndFeel& laf,
 
     if (hasSubMenu)
     {
-        auto arrowH { arrowHeightRatio * laf.getPopupMenuFont().getAscent() };
+        auto arrowHeight { arrowHeightRatio * laf.getPopupMenuFont().getAscent() };
 
-        auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowH)).getX()) };
-        auto halfH { static_cast<float> (r.getCentreY()) };
+        auto x { static_cast<float> (r.removeFromRight (static_cast<int> (arrowHeight)).getX()) };
+        auto arrowCentreY { static_cast<float> (r.getCentreY()) };
 
         juce::Path path;
-        path.startNewSubPath (x, halfH - arrowH * arrowVerticalHalfRatio);
-        path.lineTo (x + arrowH * arrowTipHorizontalRatio, halfH);
-        path.lineTo (x, halfH + arrowH * arrowVerticalHalfRatio);
+        path.startNewSubPath (x, arrowCentreY - arrowHeight * arrowVerticalHalfRatio);
+        path.lineTo (x + arrowHeight * arrowTipHorizontalRatio, arrowCentreY);
+        path.lineTo (x, arrowCentreY + arrowHeight * arrowVerticalHalfRatio);
 
         g.strokePath (path, juce::PathStrokeType (arrowStrokeWidth));
     }
@@ -429,9 +436,9 @@ static void drawMenuItemText (juce::Graphics& g,
 
     if (item.shortcutKeyDescription.isNotEmpty())
     {
-        auto f2 { font.withPointHeight (font.getHeightInPoints() * shortcutFontScale) };
-        f2.setHorizontalScale (shortcutHorizontalScale);
-        g.setFont (f2);
+        auto shortcutFont { font.withPointHeight (font.getHeightInPoints() * shortcutFontScale) };
+        shortcutFont.setHorizontalScale (shortcutHorizontalScale);
+        g.setFont (shortcutFont);
 
         g.drawText (item.shortcutKeyDescription, r, juce::Justification::centredRight, true);
     }
@@ -518,4 +525,113 @@ void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
                                                  + jam::PaneComponent::lineThickness),
         jam::PaneComponent::cornerSize,
         jam::PaneComponent::lineThickness);
+}
+
+//==============================================================================
+void ENDLookAndFeel::registerTypeface()
+{
+    auto getTypeface = [] (const void* data, int size)
+    {
+        return juce::Typeface::createSystemTypefaceFor (data, size);
+    };
+
+    auto registerFont = [this, &getTypeface] (const void* data, int size)
+    {
+        auto ptr { getTypeface (data, size) };
+        auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
+        typefaces.addOrReplace (key, ptr);
+        jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
+    };
+
+    registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
+    registerFont (jam::fonts::DisplayBook_ttf, jam::fonts::DisplayBook_ttfSize);
+    registerFont (jam::fonts::DisplayMedium_ttf, jam::fonts::DisplayMedium_ttfSize);
+    registerFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
+    registerFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+    registerFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
+}
+
+void ENDLookAndFeel::setColours()
+{
+    static const std::vector<std::tuple<juce::Identifier, juce::Identifier, int>> colourIds
+    {
+        { Id::toType (Id::code), Id::caret, juce::CaretComponent::caretColourId },
+        { Id::toType (Id::code), Id::selectionCursor, selectionCursorColourId },
+        { Id::toType (Id::code), Id::editorBackground, juce::TextEditor::backgroundColourId },
+        { Id::toType (Id::code), Id::editorOutline, juce::TextEditor::outlineColourId },
+        { Id::toType (Id::scrollbar), Id::thumb, juce::ScrollBar::thumbColourId },
+        { Id::toType (Id::scrollbar), Id::track, juce::ScrollBar::trackColourId },
+        { Id::toType (Id::tab), Id::background, jam::ButtonBar::backgroundColourId },
+        { Id::toType (Id::tab), Id::highlight, jam::ButtonBar::highlightColourId },
+        { Id::toType (Id::tab), Id::outline, jam::ButtonBar::outlineColourId },
+        { Id::toType (Id::button), Id::button, juce::TextButton::buttonColourId },
+        { Id::toType (Id::button), Id::buttonOn, juce::TextButton::buttonOnColourId },
+        { Id::toType (Id::button), Id::textOff, juce::TextButton::textColourOffId },
+        { Id::toType (Id::button), Id::textOn, juce::TextButton::textColourOnId },
+        { Id::toType (Id::overlay), Id::background, juce::Label::backgroundColourId },
+        { Id::toType (Id::overlay), Id::text, juce::Label::textColourId },
+        { Id::toType (Id::pane), Id::resizeBar, paneBarColourId },
+        { Id::toType (Id::pane), Id::resizeBarHighlight, paneBarHighlightColourId },
+        { Id::toType (Id::pane), Id::outline, jam::PaneComponent::outlineColourId },
+        { Id::toType (Id::pane), Id::focusedOutline, jam::PaneComponent::focusedOutlineColourId }
+    };
+
+    for (const auto& [tableType, rowKey, colourId] : colourIds)
+        setColour (colourId, jam::ColourScheme::toColour (config.getRowValue (tableType, rowKey)));
+}
+
+void ENDLookAndFeel::initialiseColours()
+{
+    setColours();
+    setPopupMenuColours();
+}
+
+void ENDLookAndFeel::setPopupMenuColours()
+{
+    const auto windowColour { jam::ColourScheme::toColour (config.getRowValue (Id::toType (Id::window), Id::background)) };
+    const float menuOpacity { config.getRowValue (Id::toType (Id::menu), Id::opacity) };
+    const auto textColour { jam::ColourScheme::toColour (config.getRowValue (Id::toType (Id::menu), Id::text)) };
+    const auto highlightColour { jam::ColourScheme::toColour (config.getRowValue (Id::toType (Id::menu), Id::highlight)) };
+
+    setColour (juce::PopupMenu::backgroundColourId, windowColour.withAlpha (menuOpacity));
+    setColour (juce::PopupMenu::textColourId, textColour);
+    setColour (juce::PopupMenu::highlightedBackgroundColourId, highlightColour);
+    setColour (juce::PopupMenu::highlightedTextColourId, textColour);
+}
+
+void ENDLookAndFeel::loadGraphics()
+{
+    graphics.clear();
+
+    auto graphicsTree { jam::Model::getChildWithName (config.state, Id::toType (Id::flex)) };
+
+    if (graphicsTree.isValid())
+    {
+        jam::Model::forEachProperty (graphicsTree,
+            [this] (const juce::Identifier& propName, const juce::var& value)
+            {
+                if (value.isString())
+                    graphics.addOrReplace (propName,
+                        jam::Svg::Flex::getSegments (value.toString(), colourScheme));
+            });
+    }
+}
+
+void ENDLookAndFeel::registerEvents()
+{
+    events.add<juce::ValueTree&> (Id::theme,
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      initialiseColours();
+                                      loadGraphics();
+                                  });
+
+    for (const auto& type : { Id::toType (Id::code), Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button), Id::toType (Id::overlay), Id::toType (Id::pane) })
+        events.add<juce::ValueTree&> (type, [this] (juce::ValueTree&) { setColours(); });
+
+    events.add<juce::ValueTree&> (Id::toType (Id::menu),
+                                  [this] (juce::ValueTree&)
+                                  {
+                                      setPopupMenuColours();
+                                  });
 }

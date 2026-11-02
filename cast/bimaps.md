@@ -71,7 +71,6 @@ The key is the juce::CommandID; the value is the row key.
 | zoomIn           | 0x4700004 | `zoomIn`           |
 | zoomOut          | 0x4700005 | `zoomOut`          |
 | zoomReset        | 0x4700006 | `zoomReset`        |
-| newWindow        | 0x4700007 | `newWindow`        |
 | reducePaneWidth  | 0x4700008 | `reducePaneWidth`  |
 | reducePaneHeight | 0x4700009 | `reducePaneHeight` |
 | expandPaneWidth  | 0x470000a | `expandPaneWidth`  |
@@ -79,7 +78,6 @@ The key is the juce::CommandID; the value is the row key.
 | newTab           | 0x470000c | `newTab`           |
 | prevTab          | 0x470000d | `prevTab`          |
 | nextTab          | 0x470000e | `nextTab`          |
-| renameTab        | 0x470000f | `renameTab`        |
 | splitVertical    | 0x4700010 | `splitVertical`    |
 | splitHorizontal  | 0x4700011 | `splitHorizontal`  |
 | paneLeft         | 0x4700012 | `paneLeft`         |
@@ -94,6 +92,6 @@ The key is the juce::CommandID; the value is the row key.
 | swapDown         | 0x470001b | `swapDown`         |
 | swapUp           | 0x470001c | `swapUp`           |
 | swapRight        | 0x470001d | `swapRight`        |
-| actionList       | 0x470001e | `actionList`       |
 | normal           | 0x470001f | `normal`           |
+| prefix           | 0x4700020 | `prefix`           |
 +------------------+-----------+--------------------+

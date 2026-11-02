@@ -17,33 +17,32 @@
  * @class ENDView
  * @brief Root content component. It owns every SessionView, registers the
  *        ENDActions, and dispatches the changes of the model and the config
- *        to the graphics, window, and mouse events.
+ *        to the graphics and mouse events.
  */
 class ENDView
     : public juce::Component
     , public jam::Model::Component<ENDView>
     , public juce::ValueTree::Listener
     , public juce::KeyListener
-    , public juce::Value::Listener
     , public juce::ApplicationCommandTarget
 {
 public:
     /**
      * @brief Registers the actions, the events and the commands, creates the parameters and the message overlay.
      *
-     * The constructor queues an asynchronous call. The call runs the events of the window and the mouse config,
+     * The constructor queues an asynchronous call. The call runs the event of the `enabled` key of the config,
      * runs the new-session action, and takes the keyboard focus.
      */
     ENDView();
 
-    /** @brief Stops listening to the model, the config and the focused pane. */
+    /** @brief Stops listening to the model and the config. */
     ~ENDView() override;
 
     /** @brief Writes the view size to the state, lays out the background, the message overlay and the active session view. */
     void resized() override;
 
     /**
-     * @brief Gives a key press to the key press mappings of the command manager, then to its key sheet.
+     * @brief Passes a key press to the command manager, which matches it against its key sheet.
      * @param key                  Key press.
      * @param originatingComponent Unused.
      * @return True when the command manager used the key press.
@@ -60,12 +59,6 @@ public:
      */
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
-
-    /** @brief Mirrors the currently tracked TAB row's focusedPane onto the
-     *  SESSIONS-level focusedPane parameter.
-     *  @param value The changed Value — always focusedPane.
-     */
-    void valueChanged (juce::Value& value) override;
 
     /** @brief Returns no next command target. The view is the root of the command targets. */
     juce::ApplicationCommandTarget* getNextCommandTarget() override;
@@ -100,14 +93,12 @@ public:
     void setBackground (std::unique_ptr<jam::VulkanShader> shader);
 
 private:
-    /** @brief Shared instance of the `map::CommandId` map. The view reads the map through its `getInstance()`. */
+    /** @brief Holds a `map::CommandId` instance, constructed in place. */
     jam::SharedInstance<map::CommandId> commandId { std::in_place };
     /** @brief Command manager of the view. It holds the key presses and the key sheet from the keys config. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
-    /** @brief Shared instance of the `map::MouseButton` map. */
+    /** @brief Holds a `map::MouseButton` instance, constructed in place. */
     jam::SharedInstance<map::MouseButton> mouseButton { std::in_place };
-    /** @brief Shared instance of the `map::Position` map. */
-    jam::SharedInstance<map::Position> position { std::in_place };
 
     /** @brief Model that holds the window row, the sessions, and the overlay. */
     ENDModel& model { *ENDModel::getInstance() };
@@ -117,13 +108,11 @@ private:
     Nexus& nexus { *Nexus::getInstance() };
     /** @brief Config of the application. */
     ConfigModel& config { *ConfigModel::getInstance() };
-    /** @brief The LookAndFeel singleton of the application. */
-    ENDLookAndFeel& endLookAndFeel { *ENDLookAndFeel::getInstance() };
 
     /** @brief Registers the view's own Id::size parameter and the message overlay's, then sets the window size from the display config. */
     void createAndAttachParameters();
 
-    /** @brief Registers every action family: session, tab, zoom, pane, and window. */
+    /** @brief Registers the session, tab, zoom and pane action families. */
     void registerActions();
 
     /** @brief Registers Id::newSession, which creates a session with a view, then runs the new-tab action. */
@@ -133,34 +122,25 @@ private:
     void registerTabActions();
 
     /**
-     * @brief Registers zoomIn, zoomOut and zoomReset. Each moves the `Zoom` parameter of the host.
+     * @brief Registers zoomIn, zoomOut and zoomReset. Each moves the zoom parameter of the hosted plugins.
      *
-     * With `exclusiveZoom` in the display config, only the plugin of the focused pane moves. Otherwise every plugin of the active session moves.
-     * Zoom in and zoom out clamp the value to 0 through 1. Zoom reset sets the default value.
+     * The step is the `zoomStep` of the display config. With `exclusiveZoom` in the display config, the
+     * focused pane of the active tab moves. Otherwise every pane of the active session moves.
      */
     void registerZoomActions();
 
     /**
-     * @brief Registers the pane focus, join, swap and resize actions for each direction, and the normal action.
+     * @brief Registers the pane focus, join, swap and resize actions, and the normal action.
      *
-     * The normal action sets the `Mode` parameter of the plugin of the focused pane to the normal mode.
+     * The normal action sets the mode of the hosted plugin of the focused pane to the normal mode.
      */
     void registerPaneActions();
 
-    /**
-     * @brief Registers one action for each window position. The action of a leaf position toggles the visibility of its leaf.
-     *        The center position has no toggle.
-     */
-    void registerWindowActions();
-
-    /** @brief Registers the focusedPane conduit, the theme rebuild, the layout on a change of a leaf visibility, and every event family. */
+    /** @brief Registers the graphics events and the mouse events. */
     void registerEvents();
 
     /** @brief Registers the three config keys that feed setBackgroundParams(): background opacity, frame rate, and background resolution. */
     void registerGraphicsEvents();
-
-    /** @brief Registers always-on-top and title-bar-button window events. */
-    void registerWindowEvents();
 
     /** @brief Registers the enabled, imouse, orbit and reset mouse configuration events. */
     void registerMouseEvents();
@@ -191,9 +171,6 @@ private:
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
     /** @brief Event callbacks keyed by the property or the tree type that changed. */
     jam::Function::Map<juce::Identifier, void> events;
-
-    /** @brief Conduit to the focusedPane of the tab row that last changed. `valueChanged()` mirrors it to the sessions. */
-    juce::Value focusedPane {};
 
     /** @brief Message overlay, shown above the sessions. */
     jam::MessageOverlay messageOverlay;

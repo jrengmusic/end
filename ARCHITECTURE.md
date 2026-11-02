@@ -2,52 +2,36 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). END is an audio plugin host: `Nexus` owns `Session` instances, each hosting `juce::AudioPluginInstance`s created through the registered format that accepts the plugin file (`Session.cpp:44-54`); `EditorView` panes host each plugin's own `AudioProcessorEditor` (see "Session Layer — Landed Contract"). The terminal-emulator pipeline (CellFifo, `terminal::Processor`, `jam::CodeView`) has moved out of this repository — END builds no `jam_terminal` module.
+**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). END is an audio plugin host: `Nexus` owns `Session` instances, each hosting `juce::AudioPluginInstance`s created through the registered format that accepts the plugin file (`Session.cpp:43-53`); `EditorView` panes host each plugin's own `AudioProcessorEditor` (see "Session Layer — Landed Contract"). The terminal-emulator pipeline (CellFifo, `terminal::Processor`, `jam::CodeView`) has moved out of this repository, into the EVE plugin. END still links the `jam_terminal` module (`project-info.md:312`).
 
-**Last Updated:** 2026-09-12
+**Last Updated:** 2026-11-02
 
 ---
 
 ## Identity
 
-END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:44-50`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
+END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:42-48`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
 
 ---
 
 ## Shared Resources — Globally-Owned Instances
 
-**Phase 4 (current):** `jam::VulkanEngine` (Application-owned, `end::Application::vulkanEngine`) is the unified resource-ownership tree for four shared-resource globally-owned instances via `jam::Instance<T>`, plus the shared Device and shared GlyphAtlas. Each self-registers on construction. Member-declaration order inside `jam::VulkanEngine` is the teardown contract (reverse-order destruction):
+Two JAM engines own the shared rendering resources. Each is a `jam::Instance<T>` and a `juce::DeletedAtShutdown`, so it lives until JUCE's shutdown deletion (`jam_CpuGraphicsEngine.h:30-31`, `jam_VulkanGraphicsEngine.h:72-74`). No `ENDApplication` member holds an engine.
 
-| Instance | Type | Owner | Registered as |
-|----------|------|-------|----------------|
-| **Typeface** | `jam::Typeface` | `jam::VulkanEngine` member | `jam::Typeface::getInstance()` |
-| **Stamp** | `jam::Stamp` | `jam::VulkanEngine` member | `jam::Stamp::getInstance()` |
-| **Grapheme** | `jam::Grapheme` | `jam::VulkanEngine` member | `jam::Grapheme::getInstance()` |
-| **Link** | `jam::Link` | `jam::VulkanEngine` member | `jam::Link::getInstance()` |
-| **Device** | `jam::VulkanDevice` | `jam::VulkanEngine` member | `jam::VulkanDevice::getInstance()` |
-| **GlyphAtlas** | `jam::GlyphAtlas` | `jam::VulkanEngine` member | `jam::GlyphAtlas::getInstance()` |
+| Engine | Members (declaration order) | Created by |
+|--------|-----------------------------|------------|
+| `jam::CpuGraphicsEngine` | `typeface`, `glyphAtlas`, `glyphArrangement`, `imageLoader`, `imageOperations` (`jam_CpuGraphicsEngine.h:155-171`) | `CpuGraphicsEngine::getOrCreate()`, called first by `VulkanGraphicsEngine::getOrCreate` (`jam_VulkanGraphicsEngine.h:167-170`) |
+| `jam::VulkanGraphicsEngine` | `device`, `textureCache`, `geometryCache`, `pipelineCache`, `imageRenderer`, `blurRenderer`, `contexts` (one `VulkanGraphics` per peer), the post-process shader (`jam_VulkanGraphicsEngine.h:528-600`) | `ENDApplication::initialiseVulkan` → `VulkanGraphicsEngine::getOrCreate (maxImageExtent, …)` (`Main.cpp:250-267`, `:262`) |
 
-`end::Application` declares `vulkanEngine` (`std::unique_ptr<jam::VulkanEngine>`) **after** `lookAndFeel`, **before** `window` (Main.h). Destruction order is reverse: window → vulkanEngine (which itself tears down, in reverse member-declaration order: contexts → glyphAtlas → link/grapheme/stamp/typeface → device) → lookAndFeel, ensuring every consumer is torn down before its dependencies.
-
-**Dependency graph (jam::VulkanEngine member order, inside Application::vulkanEngine):**
+**Application member order** (`Main.h:43-63`):
 ```
-device (destructs LAST — every GPU resource depends on it)
+generated, shaderFormat, fontRasterizerBackend
     ↓
-typeface / stamp / grapheme / link
+nexus → config → actions → lookAndFeel
     ↓
-glyphAtlas (constructed from device; keys carry typeface pointers)
-    ↓
-contexts (per-window Graphics, destructs FIRST)
+window (jam::Window holding ENDView; created in initialise(), Main.cpp:237-240)
 ```
-
-**Application member order:**
-```
-lookAndFeel (uses/registers typefaces)
-    ↓
-vulkanEngine (jam::VulkanEngine; depends on lookAndFeel to exist first)
-    ↓
-window (end::View, depends on all above)
-```
+`initialise` creates the engines (`initialiseVulkan`) before the window. `lookAndFeel.registerTypeface()` runs after the engines exist (`Main.cpp:250-267`).
 
 ---
 
@@ -55,9 +39,9 @@ window (end::View, depends on all above)
 
 ```
  Application (ENDApplication, ENDView, SessionView, TabView)
-    — orchestrates; owns all top-level lifetimes (ConfigModel, ENDLookAndFeel,
-      jam::VulkanEngine — itself owning the Stamp/Grapheme/Link/Typeface
-      globally-owned instances, Device, and GlyphAtlas — window)
+    — orchestrates; owns all top-level lifetimes (Nexus, ConfigModel,
+      ENDActions, ENDLookAndFeel, window); creates the two JAM engines
+      (jam::CpuGraphicsEngine, jam::VulkanGraphicsEngine) at init
     |
     v
  Config (ConfigModel, ConfigTheme, ConfigShader)
@@ -69,22 +53,22 @@ window (end::View, depends on all above)
     — gui-less. Owns ENDModel (the app SSOT), every end::Session keyed by
       uuid, the juce::AudioPluginFormatManager (JUCE default formats +
       jam::ClapPluginFormat), the one juce::AudioProcessorGraph and its
-      player and device, and the ENAX extensions (Nexus.h:34-49). Each
+      player and device, and the ENAX extensions (Nexus.h:93). Each
       hosted plugin owns its own clock.
     |
     v
  Session (end::Session)
     — gui-less, a juce::ValueTree::Listener on its own state. A PANE row
-      added runs newPlugin (uuid): the plugin is created synchronously and
-      added as a node of Nexus's graph, keyed by uuid; removePlugin (uuid)
-      removes the node (Session.cpp:31-97).
+      added runs addPlugin (paneRow) with the delivered row: the plugin is
+      created synchronously and added as a node of Nexus's graph, keyed by
+      uuid; removePlugin (uuid) removes the node (Session.cpp:31-96).
     |
     v
  Pane / EditorView (jam::PaneComponent)
     — message thread. Its constructor resolves the owning Session via
       Nexus::getSession() and calls createEditorAndMakeActive(), parenting
       the returned juce::AudioProcessorEditor as its sole child
-      (EditorView.cpp:4-10, :68-88). The pane is complete at creation.
+      (EditorView.cpp:4-10, createProcessorEditor). The pane is complete at creation.
 ```
 
 **Header inclusion rules:**
@@ -97,7 +81,8 @@ window (end::View, depends on all above)
 
 ### Swapchain / Scene-Target Resize (jam::vulkan)
 
-- Handled per paint inside `VulkanEngine::createContext()`: when the peer's physical
+- Handled per paint inside `VulkanGraphicsEngine::createContext()` (macOS
+  `jam_VulkanGraphicsEngine.cpp:374-446`): when the peer's physical
   extent no longer matches the swapchain extent, `Graphics::resize()` recreates
   the swapchain, stencil image, MSAA scene target (color + stencil + resolve),
   and framebuffers at the new extent.
@@ -114,15 +99,15 @@ Two independent global state trees (both `jam::Instance<T>` globally-owned insta
 
 ```
 ConfigModel (Id::config)                    ENDModel (Id::end)
-  display (theme, size, zoom_step, ...)       WINDOW (Id::size — packed jam::Size<int16_t>,
+  display (theme, size, zoomStep, ...)        WINDOW (Id::size — packed jam::Size<int16_t>,
   graphics (gpu, fontRasterizer,                      Parameter<int>)
     fontGamma, fontContrast, ...)             SESSIONS — the topology
-    BACKGROUND (ConfigShader tree —             (jam::ID::focusedPane app-singular,
-      shader source properties)                  jam::ID::focusedSession)
+    BACKGROUND (ConfigShader tree —             (jam::ID::focusedSession; the focused
+      shader source properties)                  pane is the TAB row's focusedPane)
     POST_PROCESSING (ConfigShader tree)         SESSION (jam::ID::id — SessionView adopts)
   mouse                                           TAB[N] (TabView row, jam::ID::name,
-  keys (prefix, prefixTimeout, bindings)                 jam::ID::focus, jam::ID::focusedPane)
-  actions (macro tables)                            PANE (jam::ID::id, Id::name,
+  keys (one row per command: key, description)          jam::ID::focus, jam::ID::focusedPane)
+                                                    PANE (jam::ID::id, Id::name,
   THEMES (ConfigTheme tree, appended as a                 jam::ID::focus — EditorView row)
     direct CONFIG child — window, style,            EDGE (jam::ID::id, jam::ID::head,
     code, scrollbar, tab, button, overlay,                jam::ID::tail, jam::ID::orientation,
@@ -131,10 +116,10 @@ ConfigModel (Id::config)                    ENDModel (Id::end)
                                                    ID::message (ParameterText)
 ```
 \* PANE and EDGE rows live under their TAB row. A split re-parents the split
-pane's row under its new EDGE row (`jam_MatrixComponent.cpp:85-94`), so a PANE
-row can sit under EDGE rows. Each EDGE's head/tail names a SPACE (a PANE row or
-another EDGE row) by UUID; the root space is derived — the one row no EDGE
-references.
+pane's row under its new EDGE row (`MatrixComponent::split`, `setRow`), so a PANE
+row can sit under EDGE rows. An EDGE row holds its head and tail SPACE (a PANE row
+or another EDGE row) as child rows 0 and 1; the root space is own state's child 0
+(`jam_MatrixComponent.h:10-17`).
 
 - **ConfigModel** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Markdown files on disk (`~/.config/end/*.md`) are the SSOT, read through `jam::ConfigDocument`/`jam::ConfigValidator` — see "Config Chain" below. Config tree is derived state, rebuilt from disk on every reload (same code path as init). `BACKGROUND`/`POST_PROCESSING` are first-class `GRAPHICS` children, each a `ConfigShader` (`ConfigDirectory` subclass) holding one shader project's parsed source tree. Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config and hot-reload live.
 - **ENDModel** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state, owned by `Nexus`. Changes during app lifetime. State placement follows the Attachment Contract below — placement tokens exist only at the engine tier, never on views.
@@ -150,23 +135,24 @@ dead). Describes the landed code:
 - **Owner/Owned composite (jam_gui/layout).** One abstraction owns the
   container contract at every level:
   `jam::OwnedComponent` (`juce::Component` + `jam::Model::Component
-  <OwnedComponent>` CRTP mixin) — state-bound child, self-reports keyboard
-  focus onto its own row's `jam::ID::focus`.
+  <OwnedComponent>` CRTP mixin) — state-bound child; holds the
+  `jam::ID::focus` parameter of its own row and publishes its bounds. It never
+  reads or writes keyboard focus.
   `jam::OwnerComponent : OwnedComponent` (abstract) — owns UUID-keyed
   children (`jam::HashMap<jam::UUID, std::unique_ptr<OwnedComponent>>` +
-  one `jam::Model::Attachment` per child), aggregates child focus
-  self-reports into one focused-child parameter on its own row (identifier
-  supplied by the derived strategy), pure virtual
-  `childAdded`/`childRemoved`/`layout`. An owner IS ownable — composite
-  recursion, no diamond.
+  one `jam::Model::Attachment` per child), owns one focused-child parameter on
+  its own row (identifier supplied by the derived strategy) and tells each child
+  row its focus, pure virtual `childAdded`/`childRemoved`/`layout`. An owner IS
+  ownable — composite recursion, no diamond.
   Strategies: `jam::TabbedComponent : OwnerComponent` (machinery
-  `jam::button::Bar`, one-visible swap, authors `jam::ID::focusedTab`) and
+  `jam::ButtonBar`, one-visible swap, authors `jam::ID::focusedTab`) and
   `jam::MatrixComponent : OwnerComponent` (machinery EDGE rows +
-  `jam::PaneEdge` — binary space graph: head/tail name a SPACE (PANE or
-  EDGE uuid), layout = recursive descent from the derived root, split
-  rewires the referencing slot to the new edge, removal collapses the
-  parent EDGE into the sibling space; authors `jam::ID::focusedPane`).
-  **Matrix verbs (jam_MatrixComponent.cpp):** `getNeighbor(pane, direction)` — ascend to the bounding EDGE, accumulate normalized coordinate through perpendicular ancestors, descend the far side to the leaf whose span contains it (centre-from-proportions, zero pixel reads); `swap(a, b)` — exchange two PANE uuids in their referencing EDGE slots, `layout()`; `join(pane, direction)` — three shapes: sibling collapse (shared parent dies), initiator-absorbs (multi-level: accumulated extent folds into proportions, intermediate edges rescaled), mirrored-perpendicular rotate; ineligible returns `UUID::none()`, zero mutation; `rotate(parent, child)` — AVL-style rotation of an EDGE and its child EDGE. `split(edge, position)` — creates new PANE + EDGE, rewires referencing slot.
+  `jam::PaneEdge` — binary space graph: an EDGE row holds its head and tail
+  spaces as child rows 0 and 1, layout = recursive descent from own state's
+  child 0, split puts the new EDGE row in the split pane's slot, removal
+  collapses the parent EDGE into the sibling space; authors
+  `jam::ID::focusedPane`).
+  **Matrix verbs (jam_MatrixComponent.cpp):** `getNeighbour(pane, direction)` — ascend to the bounding EDGE, accumulate normalized coordinate through perpendicular ancestors, descend the far side to the leaf whose span contains it (centre-from-proportions, zero pixel reads); `swap(a, b)` — move the two PANE rows into each other's slots, `layout()`; `join(pane, direction)` — three shapes: sibling collapse (shared parent dies), initiator-absorbs (multi-level: accumulated extent folds into proportions, intermediate edges rescaled), mirrored-perpendicular rotate; ineligible returns `UUID::none()`, zero mutation; `rotate(parent, child)` — AVL-style rotation of an EDGE and its child EDGE. `split(edge, position)` — creates new PANE + EDGE and puts the EDGE in the split pane's slot. `setRow(row, newRow)` puts a row into another row's slot under its parent, for `split`, `rotate` and `childRemoved`.
   **Gesture state:** corner drag-to-split/join gesture state held as registered model parameters on the TAB row: `jam::ID::edge` (ParameterText — direction or empty) + `jam::ID::position` (Parameter<float> — normalized split position; -1 sentinel = join mode). TabView carries zero gesture members.
   Leaf: `jam::PaneComponent : OwnedComponent`.
 - **Mirror law: the component tree is a pure function of the state tree.**
@@ -201,42 +187,42 @@ dead). Describes the landed code:
 - **`end::Session` = engine (P).** SESSION row carries its `jam::ID::id`
   parameter only — zero UI vocabulary, no TABS authoring. Owns the
   uuid-keyed graph node ids of the plugins created for its own PANE rows
-  (`Session.cpp:64-68`). `newPlugin` also stamps the row's `Id::name`
-  (`Session.cpp:70`). `applyToPlugins` gives each plugin of the session to a
-  caller's function (`Session.h:46-51`).
+  (`Session.cpp:63-67`). `addPlugin` also stamps the row's `Id::name`
+  (`Session.cpp:69`). The pane's `EditorView` is the only consumer of a plugin
+  instance (`Session::getPlugin`, `EditorView::createProcessorEditor`).
 - **Nexus = host.** Owns `ENDModel`, every `Session`
   (`createSession`/`getSession`/`removeSession`/`getActiveSession`), the
   `juce::AudioPluginFormatManager` with JUCE's default formats and
-  `jam::ClapPluginFormat` (`Nexus.cpp:44-50`), the one
+  `jam::ClapPluginFormat` (`Nexus.cpp:42-48`), the one
   `juce::AudioProcessorGraph`, and the ENAX extensions. SESSION row
   placement under SESSIONS happens in `createSession` — engine-side
   authorship, the host verb.
 - **Plugin lifecycle is one flow:** a PANE row added → `Session::valueTreeChildAdded`
-  → `Session::newPlugin (uuid)`: a `juce::PluginDescription` of
-  `files::evePlugin` with the format that accepts the file, one
-  `createPluginInstance`, the node in the graph, audio and MIDI connections
-  (`Session.cpp:31-88`). No type scan runs, so no throw-away instance exists.
-  The pane's `EditorView` hosts the plugin's editor when it is built.
-  `Session::removePlugin (uuid)` removes the node (`Session.cpp:90-97`).
+  → `Session::addPlugin (paneRow)`, with the row the event delivers: a
+  `juce::PluginDescription` of `files::evePlugin` with the format that accepts
+  the file, one `createPluginInstance`, the node in the graph, audio and MIDI
+  connections (`Session.cpp:31-87`). No type scan runs, so no throw-away instance
+  exists. The pane's `EditorView` hosts the plugin's editor when it is built.
+  `Session::removePlugin (uuid)` removes the node (`Session.cpp:89-96`). A closed
+  tab removes its views first, then the plugins of its pane rows, so no editor
+  outlives its processor (`ENDView.cpp`, `closeTab`).
 
-**Singular focus:** `focused_pane`/`focused_tab`/`focused_session` are
+**Singular focus:** `focusedPane`/`focusedTab`/`focusedSession` are
 SINGULAR uuid-valued parameters — the value IS the identity,
-`parameterChanged (id, value)` is fully self-describing downstream. The
-chain: each `OwnedComponent` self-reports focus 1 on its OWN row
-(`jam::ID::focus`, from `focusGained` and `focusOfChildComponentChanged` — the
-report channel); each `OwnerComponent` is the sole author of its own row's
-focused-child parameter (its `valueTreePropertyChanged` sees an owned child's
-row focus become 1 — membership is the child registry, because a row can sit
-under EDGE rows — writes that child's uuid, and writes focus 0 to the previously
-focused child's row — TabView authors `TAB.focusedPane`, SessionView authors
-`SESSION.focusedTab`); ENDView's `jam::ID::focusedPane` events-map
-reaction re-points a `juce::Value` (`referTo`) at the reporting TAB row's
-`focused_pane` property (type-filtered — the SESSIONS write re-fires the
-same key); its `Value::Listener::valueChanged` writes the app-level
-`SESSIONS.focused_pane` parameter — last change wins, the singular stays a
-registered parameter.
-Every downstream consumer reacts to the singular parameter by id+value
-alone. No other writer of a `focused_*` parameter may exist.
+`parameterChanged (id, value)` is fully self-describing downstream. Each
+`OwnerComponent` is the sole author of its own row's focused-child parameter
+(TabView authors `TAB.focusedPane`, SessionView authors `SESSION.focusedTab`). It
+writes it in the derived `childAdded` hook, with the survivor on remove, on a
+click inside a child (`OwnerComponent::mouseDown`), and on the focus-move action
+(`TabView::focusPane`). Focus is told downward only: on a change of its
+focused-child parameter or of its own row's `jam::ID::focus`, the owner sets each
+child row's `jam::ID::focus` to 1 when the child is focused and its own row is
+focused, else 0 (`OwnerComponent::valueTreePropertyChanged`). ENDView tells the
+active session row (`ENDView.cpp:150`). Keyboard focus never writes the Model.
+There is no app-level copy of the focused pane: a consumer reads the active tab's
+focused child (`SessionView::getActiveTabView()->getFocusedChild()`), so a tab
+switch can never leave a stale pane id. No other writer of a `focused*` parameter
+may exist.
 
 **No cross-tree references:** ConfigModel → ENDModel dependency is one-way data flow. No upward references.
 
@@ -264,42 +250,33 @@ This pattern avoids separate width/height parameters that would fire two events 
 
 ---
 
-## Rendering Engine — jam::VulkanEngine (Dual Engine, Never Null)
+## Rendering Engine — jam::CpuGraphicsEngine and jam::VulkanGraphicsEngine
 
-`jam::VulkanEngine` replaces JUCE's default renderers (`CoreGraphicsContext` /
-`Direct2DGraphicsContext` / software) for ALL painting — terminal text, panes, chrome.
-JUCE's own renderers are structurally unreachable: `VulkanEngine::createContext()`, installed
-as `juce::ComponentPeer::externalContextFactory`, **never returns nullptr**.
+Two JAM engines replace JUCE's default renderers for all painting — panes, chrome, and
+the hosted plugins' editors under ENAX. `jam::VulkanGraphicsEngine::createContext`,
+installed as `juce::ComponentPeer::externalContextFactory`
+(`jam_VulkanGraphicsEngine.cpp:18-20`), makes the context of each peer. On Windows the
+factory is set only while the GPU is available (`:275-281`).
 
 ### Ownership / Lifecycle
 
-- `end::Application` owns `vulkanEngine` (`std::unique_ptr<jam::VulkanEngine>`), declared
-  **after** `lookAndFeel`, **before** `window` (Main.h).
-  - `jam::VulkanEngine` is itself the unified resource-ownership tree for the four
-    shared-resource globally-owned instances (Typeface, Stamp, Grapheme, Link), the shared
-    Device, and the shared GlyphAtlas — see "Shared Resources" above for its internal
-    member-declaration/teardown order.
-  - Critical order: lookAndFeel → vulkanEngine → window.
-- Constructed **unconditionally, exactly once**, in `Application::initialiseVulkan()`:
-  - `targetFrameBudgetMs` — derived from the primary display's refresh rate at init
-    (`Main.cpp`: CoreVideo nominal rate on macOS, `verticalFrequencyHz` elsewhere;
-    ≥120 Hz → 5.8 ms, otherwise 11.1 ms; detected once, never polled); JAM has no
-    hidden default.
-  - `pipelineCacheFile` — `~/.config/end/cache/vulkan_pipeline.cache`, END-resolved.
-  - `gpuEnabled` — `config gpu flag AND jam::GpuProbe::probe().isAvailable`.
-- **jam::Typeface** (a `jam::VulkanEngine` member, self-registers via `jam::Typeface::getInstance()`)
-  exists as soon as VulkanEngine is constructed. LookAndFeel registers these typefaces with the
-  shared glyph atlas during `lookAndFeel.registerTypeface(*jam::GlyphAtlas::getInstance())`, which
-  creates the JUCE name-resolution map entry AND FreeType face together for each font.
-  Font rasterization config applied to the atlas after VulkanEngine construction.
-- **Never reset/reconstructed.** The `ID::gpu` config handler only calls
-  `jam::VulkanEngine::getInstance()->setGpuEnabled(...)` — GPU preference selects which engine
-  `createContext()` dispatches to per paint, never whether the VulkanEngine, its Device, or
-  the shared atlas exist. The atlas and every registered typeface survive GPU toggles.
-- VulkanEngine owns: the shared `jam::VulkanDevice` (one `vk::Instance`/`vk::Device`/
-  `vk::Queue`/VMA allocator per application), the shared `jam::Typeface`/`jam::Stamp`/
-  `jam::Grapheme`/`jam::Link` interning tables, the shared `jam::GlyphAtlas`, and per-window
-  `jam::VulkanGraphics` instances keyed by native window handle.
+- Each engine is a `jam::Instance` and a `juce::DeletedAtShutdown`
+  (`jam_CpuGraphicsEngine.h:30-31`, `jam_VulkanGraphicsEngine.h:72-74`). See "Shared
+  Resources" above for their members.
+- Created **exactly once**, in `ENDApplication::initialiseVulkan()` (`Main.cpp:250-267`):
+  `jam::VulkanGraphicsEngine::getOrCreate (maxImageExtent, ProjectInfo::projectName,
+  jam::VulkanGraphicsEngine::getFrameBudget(), cacheFile, canUseGpu)` (`:262`). Its
+  `getOrCreate` creates the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
+  - `maxImageExtent` — `VulkanGraphicsEngine::getPrimaryDisplayExtent()`.
+  - `cacheFile` — the pipeline cache under END's own `cache` directory
+    (`ConfigDirectory::Config::path`), named by `jam::Format::toFileName`. JAM decides no
+    path.
+  - `canUseGpu` — the `useGpu` row of the display config.
+- `lookAndFeel.registerTypeface()` runs after the engines exist, then the font
+  rasterization and the emboldening go to `jam::CpuGraphicsEngine`
+  (`Main.cpp:250-267`, `setFontRasterization`, `setEmbolden`).
+- **Never reset or reconstructed.** The `useGpu` config event re-applies the background
+  and the post-process (`Main.cpp`, `registerEvents`); `isGpuAvailable()` selects them.
 
 ### Vulkan Vocabulary — vulkan-hpp (plain vk::)
 
@@ -330,21 +307,19 @@ jam_vulkan speaks vulkan-hpp exclusively — no raw C Vulkan API anywhere in mod
 ### Engine Dispatch (per paint)
 
 ```
-VulkanEngine::createContext (peer)
-  gpuEnabled and GpuProbe available and device valid
-    → lazily create per-window Graphics; resize swapchain on extent mismatch
-    → beginFrame() + beginRenderPass() → jam::VulkanLowLevelGraphicsContext
-  otherwise (categorically unavailable, disabled, or transient begin failure)
-    → jam::LowLevelGraphicsGlyphRenderer (CPU fallback)
+VulkanGraphicsEngine::createContext (peer)        (macOS jam_VulkanGraphicsEngine.cpp:374-446)
+  GPU available
+    → getOrCreateGraphics (peer): one VulkanGraphics per peer (.cpp:113-144)
+    → jam::VulkanLowLevelGraphicsContext
+  no Vulkan context made
+    → CpuGraphicsEngine::createContext (peer)       (.cpp:442-443)
 ```
 
-**CPU fallback** — `jam::LowLevelGraphicsGlyphRenderer` subclasses
-`juce::LowLevelGraphicsSoftwareRenderer` over an owned image: JUCE's software rasterizer
-handles everything except `drawGlyphs`, which routes through the SAME shared `GlyphAtlas`
-(SIMD blend compositing). It presents its image itself at frame end via native OS calls
-(CoreGraphics on macOS, GDI on Windows) — returning non-null from the factory means JUCE
-performs zero presentation of its own. Same atlas, same rasterization: visual parity with
-the GPU path by construction.
+**CPU lane** — `jam::CpuLowLevelGraphicsContext<BaseContext>` decorates a JUCE native
+context: the base context draws everything except glyphs, which route through the CPU
+engine's `jam::GlyphAtlas` (`jam_CpuLowLevelGraphicsContext.h:30-32`, `:50-51`). The
+glyph typeface is the current font's, interned in the binary's own `jam::Typeface`, so a
+hosted plugin and END each resolve their own typeface index.
 
 ### GPU Draw Architecture
 
@@ -391,10 +366,10 @@ use it (see below):
 | `freetype` | vendored FreeType (unhinted, no stem darkening) | unhinted, platform-identical |
 | `native` | CoreText (mac) / DirectWrite (Windows) | OS-native smoothing, per-OS look |
 
-- Coverage conditioning: a gamma+contrast LUT (config: `font_gamma` — sRGB-derived 2.2
-  default — and `font_contrast`) applied at the single atlas-write site, backend-blind.
-- **Embedded fonts:** `jam::Typeface::getInstance()` is self-registered by VulkanEngine's
-  `typeface` member at VulkanEngine construction. Immediately after, LookAndFeel registers
+- Coverage conditioning: a gamma+contrast LUT (config: `fontGamma` — sRGB-derived 2.2
+  default — and `fontContrast`) applied at the single atlas-write site, backend-blind.
+- **Embedded fonts:** `jam::Typeface::getInstance()` is the `typeface` member of
+  `jam::CpuGraphicsEngine` (`jam_CpuGraphicsEngine.h:155`). After the engines exist, LookAndFeel registers
   each embedded typeface with the atlas (reached directly via `jam::GlyphAtlas::getInstance()`)
   via `LookAndFeel::getTypefaceForFont()` override, which guarantees the same Typeface object
   identity flows from name-based Font construction into atlas keys.
@@ -404,9 +379,10 @@ use it (see below):
   whatever the backend setting.
 - Color/emoji fonts: never enter the grayscale backends — JUCE ImageLayer path renders
   them into the BGRA emoji atlas.
-- Backend/gamma/contrast changes (config hot-reload) flush the atlas and rebuild the LUT —
-  handled by `LookAndFeel`'s own config event handlers (font events live with the font
-  owner), reaching the atlas directly via `jam::GlyphAtlas::getInstance()`. Font family/size
+- Backend/gamma/contrast changes (config hot-reload) go to
+  `jam::CpuGraphicsEngine::setRasterization`, then a LookAndFeel change cascades to every
+  desktop component (`ENDApplication::setFontRasterization`, `Main.cpp`; one event per
+  `fontRasterizer`, `fontGamma`, `fontContrast` row, `registerEvents`). Font family/size
   changes need no handler: they produce new atlas keys and re-rasterize naturally.
 
 ### Shaders
@@ -484,7 +460,7 @@ file change (markdown/GLSL) → CONFIG state → ID::background / ID::postProces
   at record time; `stampChannels` is the single channel rule: buffer-pass bindless index
   by ordinal, scene fallback on the post-process path, `noScene` elsewhere.
 - **Post-process** — app-global frame-graph stage, not a component:
-  `VulkanEngine::setPostProcess (unique_ptr<Shader>, opacity, resolution)` installs/clears;
+  `VulkanGraphicsEngine::setPostProcess (unique_ptr<VulkanShader>, opacity, resolutionScale)` installs/clears (`jam_VulkanGraphicsEngine.h:240`);
   each window's `Graphics::endFrame()` pulls it (contentHash compare) between scene
   resolve and swapchain composite — the chain's Image pass IS the composite. Before any
   buffer/Image pass records, `Graphics::recordStraightAlphaPass()` (engine-owned
@@ -614,10 +590,10 @@ own index sub-range.
 - The interactive orbit (`addOrbitDelta()`) is `OrbitCamera`'s own method, driven by
   `jam::VulkanShaderComponent`'s own gesture state machine (`mouseDrag()` — the SAME
   `juce::Component` override this component's own direct-hit path already used, invoked
-  as a `juce::MouseListener` callback once `end::View` registers it via
-  `addMouseListener (&background, true)`, mirroring the SAME event stream its iMouse
+  as a `juce::MouseListener` callback once `ENDView` registers it via
+  `addMouseListener (&background, true)` (`ENDView.cpp:17`), mirroring the SAME event stream its iMouse
   tracking already intercepts — separate state, separate purpose, not iMouse itself).
-  `end::View` holds zero orbit state of its own.
+  `ENDView` holds zero orbit state of its own.
 - `getViewMatrix()`/`getProjectionMatrix()` (`GLM_FORCE_DEPTH_ZERO_TO_ONE`, right-handed —
   glm's own default, `GLM_FORCE_LEFT_HANDED` deliberately NOT defined — combined with the
   manual Vulkan-NDC Y-flip; left-handed + that same Y-flip would compound into an odd number
@@ -666,13 +642,13 @@ submits + presents only when the count reaches zero.
 
 | Method | Thread |
 |--------|--------|
-| `Application::initialiseVulkan()` (VulkanEngine construction, typeface registration) | MESSAGE (app init) |
-| `ID::gpu` handler → `setGpuEnabled()` | MESSAGE (VT listener) |
-| `VulkanEngine::createContext()` (engine dispatch, per-peer Graphics, resize, beginFrame) | MESSAGE (JUCE paint dispatch) |
-| Both engines' draw overrides | MESSAGE (JUCE paint dispatch) |
+| `ENDApplication::initialiseVulkan()` (engine creation, typeface registration) | MESSAGE (app init) |
+| `useGpu` event → `setBackground()` / `setPostProcess()` | MESSAGE (VT listener) |
+| `VulkanGraphicsEngine::createContext()` (engine dispatch, per-peer Graphics) | MESSAGE (JUCE paint dispatch) |
+| Both lanes' draw overrides | MESSAGE (JUCE paint dispatch) |
 | `jam::GlyphAtlas` (all methods, explicit doxygen contract) | MESSAGE only |
-| `Graphics::endFrame()` (submit + present) / CPU fallback native presentation | MESSAGE (LLGC destructor) |
-| `LookAndFeel` font-config handlers (atlas rebuild) | MESSAGE (VT listener) |
+| `Graphics::endFrame()` (submit + present) | MESSAGE (LLGC destructor) |
+| `ENDApplication` font-config events (`setFontRasterization`, `setEmbolden`) | MESSAGE (VT listener) |
 | View shader funnels (`setBackground`/`setPostProcess`, shaderc compile) | MESSAGE (VT listener) |
 | `jam::VulkanShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
 
@@ -699,8 +675,9 @@ markdown files on disk (SSOT — ~/.config/end/*.md, themes/<name>/*.md)
     getValueTree(rootTag), merged via addTables())
   → ConfigModel::state properties updated via setValuesFrom (one overlay pass)
   → valueTreePropertyChanged fires on all listeners
-  → each listener reacts: ENDLookAndFeel re-styles + rebuilds the glyph atlas
-    (font rasterization values), ENDView applies size/gpu/mouse config, etc.
+  → each listener reacts: ENDLookAndFeel re-styles; ENDApplication applies the font
+    rasterization, the window flags (alwaysOnTop, titleBarButtons), the theme
+    cascade and the shaders; ENDView applies the background and mouse config.
 ```
 
 Config delivery: consumers listen on ConfigModel's tree. No referTo. No manual distribution cascade. Standard JUCE ValueTree listener chain. A load or validation failure's accumulated error text (or the success message on a clean load) is written to `MessageOverlay` via `ENDModel::setMessage`.
@@ -717,13 +694,13 @@ literal hosting relationship:
 |---|---|
 | Host (DAW) | `Nexus` (owns `ENDModel`, all Sessions, the `juce::AudioPluginFormatManager` and the one `juce::AudioProcessorGraph`) |
 | Project / session state | `end::Session` (gui-less: uuid-keyed graph node ids under one SESSION row) |
-| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`, created by `Session::newPlugin` and owned by the graph node (`Session.cpp:56-68`) |
+| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`, created by `Session::addPlugin` and owned by the graph node (`Session.cpp:55-67`) |
 | Host-side APVTS analog | `jam::Model` (`ENDModel`, `ConfigModel`) — the hosted plugin owns its own parameter state internally |
 | APVTS::Listener | `jam::Model::Listener` |
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | Plugin's audio clock | The plugin's own clock |
-| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` and parented by `EditorView` (`EditorView.cpp:68-88`) |
-| Host automation | END tells a plugin through its host parameters, found by host-visible name (`jam::Format::toParameterName`, `EditorView::getParameter`, `EditorView.cpp:98-108`): `Width` / `Height` on resize (`EditorView.cpp:20-51`), `Zoom` (`ENDView.cpp:297-354`), `Mode` (`ENDView.cpp:442-460`) |
+| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` and parented by `EditorView` (`EditorView::createProcessorEditor`) |
+| Host automation | The pane tells its own plugin through its host parameters, found by host-visible name (`jam::Format::toParameterName`, private `EditorView::getParameter`) and written as one gesture (private `EditorView::setParameter`): `width` / `height` on resize (`EditorView::resized`), `focus` from its row (`EditorView::valueTreePropertyChanged`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), `mode` (`EditorView::setMode`, told by the `normal` action) |
 
 ### ENAX — END Native API eXtension
 
@@ -739,8 +716,8 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`jam_PluginHostType.cpp:6-39`).
 - **Channel.** END exports one C function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-40`). It returns `Nexus::getExtension (id)`: the
-  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:112-121`).
-  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:45-46`).
+  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:117-126`).
+  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:43-44`).
 - **Ids** (`jam/cast/core.md:74-78`) and their values (`Nexus.cpp:30-34`), each
   the address of a host variable of the matching type:
   - `Id::enaxContextFactory` → `&juce::ComponentPeer::externalContextFactory`
@@ -755,23 +732,24 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`EVEProcessor.h:9`). Its constructor calls `PluginHostType().isEND()` once and,
   only under END, registers the END callback of each rule in
   `jam::Function::Map<juce::Identifier, void> rules`
-  (`jam_ENAXClientExtensions.cpp:5-48`, `.h:24`). `set (rule, callback)` runs the
-  END callback, or else the caller's `callback` (`jam_ENAXClientExtensions.h:12-19`).
+  (`jam_ENAXClientExtensions.cpp:5-52`, `.h:57`). `set (rule, callback, args…)` runs the
+  END callback, or else the caller's `callback` (`jam_ENAXClientExtensions.h:35-42`).
   `getExtension` finds `enax_get_extension` in the host executable
-  (`jam_ENAXClientExtensions.cpp:50-62`). Each hook reads END's variable through
+  (`jam_ENAXClientExtensions.cpp:54-68`). Each hook reads END's variable through
   its address at each call, so the plugin keeps no copy of END's value
-  (`jam_ENAXClientExtensions.cpp:11-18`, `:25-35`).
-  - `Id::engine`: under END, the plugin reads END's context factory and
-    peer-deleted callback. Elsewhere, it creates its own `VulkanGraphicsEngine`.
-    The CPU engine is created in every host (`jam_PluginEditorLayout.h:122-128`).
-  - `Id::keys`: under END, the plugin's peer key and mouse hooks forward to END, and
-    the default key of the plugin's `normal` command leaves the default key sheet;
-    elsewhere nothing (`jam_ENAXClientExtensions.cpp:21-38`,
-    `jam_PluginEditorLayout.h:116`, `:130`). The hook gives END every key before the
-    plugin's components (`jam/patch/juce-key-pressed-hook.patch:21-23`).
+  (`jam_ENAXClientExtensions.cpp:9-31`).
+  - `Id::engine`: under END, the plugin reads END's context factory, peer-deleted,
+    key and mouse callbacks; its peer hooks forward to END. Elsewhere, it creates its
+    own `VulkanGraphicsEngine`. The CPU engine is created in every host
+    (`jam_PluginEditorLayout.h:137-143`). The key hook gives END every key before
+    the plugin's components (`jam/patch/juce-key-pressed-hook.patch:21-23`).
+  - `Id::keys`: under END, the text editor's `normal` and `prefix` rows leave the
+    default key sheet, so the hosted text editor holds no layer binding; elsewhere
+    nothing (`jam_ENAXClientExtensions.cpp:33-39`). The plugin's binder applies the
+    rule to the text editor's defaults (`PluginEditor::addCommands`).
   - `Id::size`: under END, the plugin's `width` and `height` parameter ranges run from
     `jam::PaneComponent::minimumPaneExtent` to END's display bounds
-    (`jam_ENAXClientExtensions.cpp:40-46`).
+    (`jam_ENAXClientExtensions.cpp:40-50`).
 - **Transparency.** The VST2 and VST3 plugin editor wrappers are opaque, as JUCE
   ships them, except under END
   (`jam/patch/juce-plugin-transparency-hook.patch`:
@@ -779,19 +757,20 @@ hardcoded to END. The contract is formalised and enforced at run time.
   and AU host windows and `NSViewComponentWithParent` are not opaque (same patch,
   `juce_VSTPluginFormat.cpp`, `juce_VST3PluginFormat.cpp`,
   `juce_AudioUnitPluginFormat.mm` hunks).
-- **Focus.** END owns focus. A pane whose row gets `Id::focus` 1 tells its editor
-  `grabKeyboardFocus()` (`EditorView.cpp:59-66`). On macOS, the VST2 and AU host
-  windows want keyboard focus, and their `focusGained` makes the plugin view the
-  first responder (`jam/patch/juce-plugin-window-focus-hook.patch`). The VST3 host
-  window forwards with `view->onFocus (true)` (JUCE). EVE never grabs focus
-  (`EVEView.cpp:4-12`). In standalone, `MainWindow::focusGained` gives the editor
-  focus (`jam_AudioStandaloneApp.cpp:74-78`).
-- **AU registration.** On macOS, when `files::evePlugin` names a `.component`,
-  `Nexus::offloadPlugins` registers that one bundle in the process:
-  `CFBundleCreate`, the plist `AudioComponents` entries,
-  `CFBundleGetFunctionPointerForName` with `factoryFunction`, then
-  `AudioComponentRegister` (`Nexus.cpp:152-157`, `:161-210`). No other bundle
-  loads. Nexus owns each bundle for the process (`Nexus.h:34-36`).
+- **Focus.** END owns focus. A pane sets its plugin's `focus` host parameter from
+  its row's `Id::focus` (`EditorView::valueTreePropertyChanged`). jam `PluginEditor`
+  grabs keyboard focus only when the parameter turns on (`PluginEditor::addCallbacks`),
+  and EVE passes it to its default component (`EVEView::focusGained`). JUCE's
+  `grabFocus` on the embedded editor's peer makes END's window key and the plugin
+  view the first responder (`juce_NSViewComponentPeer_mac.mm:237-239`, `:1590-1600`).
+  The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
+  gives the editor focus (`jam_AudioStandaloneApp.cpp:74-78`).
+- **AU registration.** On macOS, when `files::evePlugin` names a `.component`
+  (`files::audioUnitExtension`), the `Nexus` constructor registers that one bundle in
+  the process after `offloadPlugins`: `CFBundleCreate`, the plist `AudioComponents`
+  entries, `CFBundleGetFunctionPointerForName` with `factoryFunction`, then
+  `AudioComponentRegister` (`Nexus.cpp:60-65`, `:158-208`). No other bundle
+  loads. Nexus owns each bundle for the process (`Nexus.h:82-85`).
 
 The View is detachable. `EditorView` creates the hosted editor once, in its
 constructor (`EditorView.cpp:4-10`); `Session` (and its plugin instances)
@@ -804,26 +783,33 @@ A command id is a callback id, owned by the owner of the state that its callback
 changes. Each owner's table carries its default keys. Config only overrides keys by
 command name, and a widget never reads config.
 
-- **END.** `map::CommandId` (`cast/bimaps.md:56-99`). `ENDView` is the one binder
-  (`ENDView.cpp:17-18`, `:84-87`) and `perform` runs the `ENDActions` entry of the
-  command name (`ENDView.cpp:116-119`).
+- **END.** `map::CommandId` (`cast/bimaps.md:56-96`). `ENDView` is the one binder
+  (`ENDView.cpp:13-14`, `:72-75`), `invokeKey` is its one key entry (`:57-60`), and
+  `perform` runs the `ENDActions` entry of the command name (`ENDView.cpp:95-98`).
 - **jam `TextEditor`.** `map::TextEditorCommandId` with the default keys
-  `map::textEditorKeys` (per platform) and the modes `map::textEditorModes`, one row
-  per command in table order (`jam/cast/gui.md:253-435`). `TextEditor::getDefaultKeys()`
-  builds the default key sheet (`jam_TextEditor.cpp:170-188`).
+  `map::textEditorKeys` (per platform), the modes `map::textEditorModes` and the
+  layers `map::textEditorLayers`, one row per command in table order
+  (`jam/cast/gui.md`). `TextEditor::getDefaultKeys()` builds the default key sheet.
 - **jam `PluginEditor`.** `map::PluginEditorCommandId` and `map::pluginEditorKeys`
-  (`jam/cast/plugin_bootstrap.md`), `PluginEditor::getDefaultKeys()`
-  (`jam_PluginEditor.cpp:26-37`).
-- **Plugin binder.** `PluginEditor::addCommands` joins the layout's default sheet
-  (the hosted rule already applied) and the PluginEditor defaults, lets each config
-  row replace the default rows of its name, registers every command target in the
-  view, then sets the key presses (`jam_PluginEditor.cpp:292-314`).
+  (`jam/cast/plugin_bootstrap.md`), `PluginEditor::getDefaultKeys()`.
+- **Plugin binder.** `PluginEditor::addCommands` applies the host `keys` rule to
+  `TextEditor::getDefaultKeys()`, joins it with the PluginEditor defaults, lets each
+  config row replace the default rows of its name, registers every command target in
+  the view, then sets the key presses.
 - **Mode is per instance.** `jam::CommandManager::setKeyPresses` builds the sheet once:
-  one row per key and mode, with the command id and the mode key
-  (`jam_CommandManager.cpp:5-37`). `invokeKey` compares a row's mode with the
-  caller's own state (`:39-69`). Only rows with no mode enter JUCE's shared key
-  mappings (`:25-26`). The TextEditor mode is the host parameter
-  `Mode`, attached to the editor's node (`jam_TextEditor.cpp:144-157`).
+  one row per key and mode, with the command id, the mode key and the layer; an
+  unknown mode token asserts. `invokeKey` is the one key entry: it compares a row's
+  mode and layer with the caller's own state. No row enters JUCE's
+  `KeyPressMappingSet`. The TextEditor mode is the host parameter `mode`, attached
+  to the editor's node (`TextEditor::bindToModel`).
+- **Layers and sequences.** A row's `layer` names its layer; an empty layer is the
+  default layer. A row whose name is a layer name enters that layer (`prefix`). In a
+  layer, the prefix key clears the layer and passes through; any other unmatched key
+  is dropped. In the default layer an unmatched key passes through. The caller's
+  state holds `Id::layer` and `Id::sequence`; a key from another component ends the
+  previous component's sequence. One `juce::Timer` in `CommandManager` ends a
+  sequence or a layer after `sequenceTimeout` (jam default
+  `defaultSequenceTimeout`, 1000 ms; a config row overrides it).
 
 ---
 
@@ -892,7 +878,7 @@ Hosting:      Nexus — end::Session — hosted juce::AudioPluginInstance (graph
 - **jam::VulkanGraphicsEngine** — GPU lane. Owns the shared Device and the per-window Graphics. Tells jam::CpuGraphicsEngine the GPU form of each image operation. When no GPU frame begins, it returns the CPU-lane context. Message thread.
 - **ENDApplication** — the engine owner. Reads the font, background and post-process config and tells the engines and ENDView. No Component or LookAndFeel names an engine.
 - **Nexus** — gui-less Host. Owns `ENDModel`, every `Session`, the plugin formats, the one graph, and the ENAX extensions. Globally-owned instance via `jam::Instance<Nexus>`.
-- **end::Session** — owns the graph node ids of the hosted plugins of one SESSION row (`newPlugin`/`removePlugin`), a `juce::ValueTree::Listener` on its own state (`Session.cpp:19`).
+- **end::Session** — owns the graph node ids of the hosted plugins of one SESSION row (`addPlugin`/`removePlugin`), a `juce::ValueTree::Listener` on its own state (`Session.cpp:19`).
 - **EditorView** — message thread: owns the hosted plugin's `juce::AudioProcessorEditor`. Detachable — the owning `end::Session` (and its plugin instances) persists without an EditorView.
 
 ---

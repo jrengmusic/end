@@ -2,6 +2,76 @@
 
 ---
 
+## Sprint 95: Prefix Layer in jam CommandManager, One-Way Focus Told by the Owner, Audit Sweep, Lane → TextBlock ✅
+
+**Date:** 2026-11-02
+**Duration:** two sessions (one compaction). The start and end times are not recorded.
+**Scope (ARCHITECT):** the prefix-layer key method in jam `CommandManager`; focus told one way by the owner (*"UNIDIRECTIONAL"*); `/audit` over the unlogged work, every validated finding resolved; the corner-button bug ARCHITECT surfaced; the doxygen pass; this log.
+
+### Agents Participated
+- COUNSELOR — every brief and validation read, the DCF triage of each Auditor and Pathfinder finding, the small edits named below, SPEC/ARCHITECTURE/README/DEBT, END `CLAUDE.md` Version Rule, this log.
+- Pathfinder (haiku) — discovery reads (TextEditor jobs, cast key tables), the whatdbg corner trace, the doxygen pass and its correction pass.
+- Engineer (sonnet) — CommandManager layers, focus, MatrixComponent `setRow`/orientation, TabView gesture, renames (`node` → `plugin`, `applyZoom` → `setZoom`), the `TextEditorLane` extraction and the Lane → Block rename.
+- Auditor (opus) — one pass over the unlogged work.
+
+### Files Modified
+**jam:**
+- `jam_gui/commands/jam_CommandManager.h` / `.cpp` — private `juce::Timer`; `sequenceLength`, `defaultSequenceTimeout` (1000); `keyPresses` built once in `setKeyPresses` (`Id::sequenceTimeout`, `Id::layer` per row); `invokeKey (key, componentState)` enters a layer, matches a sequence or a key press per layer and mode, clears on a state change; `isInLayer`, `isLayer`, `hasSequence`, `getKey`, `setSequence`, `timerCallback`. ARCHITECT: *"prefix is only tell to "enter a layer", while "gg" is on "default layer""*.
+- `cast/gui.md` — Ids `layer`, `sequence`, `sequenceTimeout`, `editorBlocks` (was `editorLanes`); `TextEditorCommandId::prefix` 0x4800016; `normal` key `]`, lone backtick row; `## textEditorLayers` (23 rows) with its brief; sequence wording. `cast/spell.md` — `@textEditorLayer`, counts 23.
+- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — `getDefaultKeys` adds `Id::layer`; `pendingChord` gone; lane layout moved out; every `lane` identifier renamed to the block family (`addBlocks`, `setBlocks`, `setLiveBlock`, `removeHeadBlocks`, `getBlockNumber`, `getBlockNumberAt`, `getBlockStart`, `getBlockTop`); unused `editorMode` holder removed (`map::EditorMode` is read only by its enum constants).
+- `jam_gui/widgets/jam_TextBlock.h` / `.cpp` (new) — the old nested `Lane` and its static layout functions (`setBlock`, `setRows`, `setLineRows`, `setTableRows`, `setGridRows`, `setImageRows`, `addRowHeights`, `addRuns`, `getContentWidth`, `isGridLine`, `getGutterWidth`) moved verbatim; Auditor #17 (LANGUAGE.md:35: *"If the object has more than one responsibility, decompose it into objects"*). Name ruled by ARCHITECT: *"TextBlock?"*, *"in the codebase Block is used everywhere"*.
+- `jam_terminal/document/jam_TerminalSwap.h` / `.cpp` — `linesPerLane` → `linesPerBlock`.
+- `user-modules-info.md:1030`, `:1063` — submodule rows for `jam_TextBlock.h` / `.cpp` (cast writes the include region from them).
+- `jam_gui/layout/jam_OwnerComponent.h` / `.cpp` — `addMouseListener (this, true)`; `mouseDown` sets the focused child; `add`/`remove` write no focus and grab nothing; `valueTreePropertyChanged` writes `Id::focus` to each child from the focused-child parameter and own `Id::focus`.
+- `jam_gui/layout/jam_OwnedComponent.*` — focus handlers removed (the owner tells).
+- `jam_gui/layout/jam_MatrixComponent.h` / `.cpp` — `childAdded` focuses and lays out (ruling (b)); `childRemoved` focuses the survivor; private `setRow` serves `split`, `rotate`, `childRemoved`; orientation stored as an int key.
+- `jam_gui/layout/jam_PaneEdge.h` — `int newOrientation`, `Parameter<int>`; `jam_TabbedComponent.cpp` — `changeCallback` without grab.
+- `jam_gui/layout/jam_PaneComponent.cpp:133-135` — corner menus take the mouse (`setInterceptsMouseClicks (false, false)` removed); `juce::Button` hovers and clicks by itself (`juce_Button.cpp:467`, `:484-497`).
+- `jam_gui/windows/jam_Window.h` / `.cpp` — `visibilityChanged` sets the macOS buttons; `const juce::String& name`.
+- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp` — engine rule installs context-factory, peer-deleted, key and mouse hooks; keys rule removes `normal` and `prefix`.
+- `jam_plugin_bootstrap/view/jam_PluginEditor.h` / `.cpp` — focus callback grabs when the focus parameter is true; key listener gone; `applyZoom` → `setZoom` (ARCHITECT: *"there is no fucking apply apply bullshit, those are parameter contract. set** not fucking apply"*).
+- Doxygen pass and correction pass over every header above.
+
+**end:**
+- `Source/config/keys.md` — `layer` column, 11 `prefix` rows, `prefix` and `sequenceTimeout` rows. `cast/bimaps.md` — `prefix` 0x4700020. `cast/identifiers.md` — `joinPreview`, `swapPick` rows removed.
+- `Source/ui/ENDView.h` / `.cpp` — `newSession` tells the session row `Id::focus`; zoom actions through `setZoom`; `normal` action → `setMode`; `getBackgroundRenderParams` removed; unused `position` holder removed.
+- `Source/ui/EditorView.h` / `.cpp` — `setZoom`, `setMode`; private `getParameter`/`setParameter`; the row's `Id::focus` sets the plugin's `focus` parameter; the hosted editor goes to the back (`addAndMakeVisible (*editor, 0)`, `:141`) so the pane's corner menus are on top.
+- `Source/ui/TabView.h` / `.cpp` — `getEdge`, `isInward`; gesture from the event payload; directional swap options; the pane found with `findParentComponentOfClass` (`:96`, `:105`, `:147-149`); redundant `overlayAxisLine` and `position` holders removed (`jam_MessageOverlay.cpp:67`, `jam_MatrixComponent.h:206` hold them).
+- `Source/ui/SessionView.*` — `setZoom`. `Source/plugins/Session.*`, `Nexus.*` — `node` → `plugin`, `audioInputId`, `audioOutputId`, `midiInputId`; `applyToPlugins` deleted. `Source/Main.cpp` — `getPostProcessRenderParams` removed.
+- `SPEC.md`, `ARCHITECTURE.md`, `README.md`, `DEBT.md`, `CLAUDE.md` (Version Rule: always 0.0.1).
+
+**eve:**
+- `Source/layout/parameters.md` — `focus` bool row. `Source/layout/ViewLayout.md` — `sequenceTimeout` row, keys prose, version `0.0.1` (ARCHITECT: *"CHANGE MOTHERFUCKER"*).
+- `SPEC.md` (focus, blocks), `PLAN-Grand-Scheme.md` §4.3.
+
+### Alignment Check
+- [x] BLESSED principles followed — focus flows one way from the owner; the model holds layer and sequence on the component row.
+- [x] NAMES.md adhered — `node`, `apply` on parameters, and `Lane` removed by ARCHITECT's rulings.
+- [x] MANIFESTO.md principles applied
+- [ ] No build. Cast not re-run in jam, end, eve. ARCHITECT runs cast, builds and tests.
+
+### Problems Solved
+- **Prefix keys.** The backtick enters the `prefix` layer; sequences live in the default layer; a key with no match in a layer is dropped.
+- **Focus.** Owners tell `Id::focus`; children never grab; END tells the plugin's `focus` parameter.
+- **Auditor findings.** Resolved: #1, #2, #3, #4, #5, #7, #14, #15, #16 (setRow, orientation), #17 (TextBlock), #18, #21, D1–D18. Rejected by read with clause: #6, #8 (each table one fact, keyed once by `TextEditorCommandId`, `gui.md:266`), #10, #11, #12, #13, #16 join length (cause fixed, a count remains), #19 (transient colour, MANIFESTO S), #20.
+- **Pathfinder findings.** F2 unused holders: three removed (`TabView.h` ×2, `ENDView.h` position, `TextEditor.h` editorMode), the others back a `getInstance()` read. F1 rejected (state is the Model row, `jam_CommandManager.cpp:113-114`). F3 rejected (MANIFESTO D). F4 = the cast include region (`user-modules-info.md`).
+- **Corner buttons hidden.** The pane's corner menus were added before the hosted editor, which went in front (`jam_PaneComponent.cpp:136`, `EditorView.cpp:141`), and they refused the mouse (`jam_PaneComponent.cpp:134`).
+- **Mistakes owned.** Focus patches to working code (reverted), a ViewLayout version bump (reverted), `swapPick`/`joinPreview` and the `"swap:"` string (removed), and a wrong claim that nothing JUCE can draw over a hosted editor (withdrawn).
+
+### State for Continuation
+- Run `cast cast/spell.md` in jam (include region from `user-modules-info.md:1030`, `:1063`; `Id::editorBlocks`), end, eve. Then build.
+- Test on a hosted pane: corner hover icon, left/right click menu, corner drag split/join (`EditorView.cpp:141`, `jam_PaneComponent.cpp:133-135`, `TabView.cpp:94-167`).
+- Regenerate doxygen (`ninja doxygen`, jam `<leader>bd`) and read the warning count.
+
+### Debts Paid
+- `DEBT-20261025T214955` (eve) — OSC command names reach the commands: the command FIFO drains into `EVEView::invokeCommand` (`eve/Source/EVEView.cpp:249-288`).
+
+### Debts Deferred
+- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86 (ARCHITECT).
+
+---
+
 ## Sprint 94: ENAX Plan 2 — Owner-Scoped Command Ids, Per-Instance Mode, END Drives the Plugin by Host Parameter; Wholesale Audit ✅
 
 **Date:** 2026-11-02
@@ -313,108 +383,4 @@ None. Chord handling is resolved by ARCHITECT: *"CommandManager should have "mer
 ### Next Steps
 - When ARCHITECT says `/go` on `PLAN-end-host-contract.md`, start Step 1 (the `juce-plugin-host-type-hook.patch`).
 - Before Step 7, ARCHITECT builds END Debug and EVE Debug (same configuration on both sides).
-
----
-
-## Handoff to COUNSELOR: EVE Hosted at END — Two Consecutive PLANs
-
-**From:** COUNSELOR
-**Date:** 2026-10-31
-**Status:** Ready for Implementation
-
-### Read First
-1. `~/Documents/Poems/dev/jam/PLAN-cpu-graphics-engine.md` — sprint N+1, executed first.
-2. `PLAN-eve-shared-engine.md` — sprint N+2. It depends on PLAN 1 and continues the outstanding steps of PLAN 3.
-3. `PLAN-eve-hosted-at-end.md` — this sprint's locked plan. Steps 1-11 are done except 11.2. It records the rulings and amendments of this sprint.
-4. `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md:1332-1349` — EVE owns its clock (`jam::VirtualDevice`), with "one wiring in every host".
-
-### Context
-- The objective was to host EVE in END and run it as fast as standalone, with END a true audio plugin host.
-- Steps 1-11 of `PLAN-eve-hosted-at-end.md` landed. END builds, and EVE Release builds in VST, VST3 and AU. END loads `EVE.vst3` from `~/.config/end/plugins/`, which the 2026-10-31 whatdbg run log confirms.
-- The runtime showed three defects:
-  - EVE draws on solid black.
-  - Keys go to the wrong owner.
-  - Splitting a pane crashes.
-- Research traced the first two to a design defect. Each binary carries its own JUCE, jam and MoltenVK copy. jam's CPU fast lane is owned by `VulkanEngine`, so component and LookAndFeel code names the engine.
-- ARCHITECT ruled the fix and split the remaining work into two consecutive PLANs.
-
-### Completed
-- **PLAN-eve-hosted-at-end, Step 1:** VST2 SDK copied to `jam/sdk/VST2/`.
-- **Step 2:** EVE `vst` format and toolchain rows (`eve/project-info.md:150-155`, `:176`). `VST` added to `signFormats` and `installFormats` (`eve/cast/signing.md:24-26`).
-- **Step 3:** `Nexus::VirtualClock` deleted (`Source/plugins/Nexus.h`).
-- **Step 4:**
-  - Each plugin is a node of the one Nexus graph, with device input, output and MIDI connected (`Source/plugins/Session.cpp:24-59`).
-  - `removePlugin` skips bare panes (`:61-68`).
-- **Step 6:** `jucePluginHostVst` define row added (`project-info.md`), plus `juce_set_vst2_sdk_path` (`cast/cmake.cast:77`).
-- **Step 7:** `Source/plugins/` and `Source/ui/` created, with all includes rewritten.
-- **Step 8 (amended: the project owns the command map):**
-  - jam: `CommandId` deleted from jam. `CommandManager`, `TextEditor` and `PluginEditor` read JUCE's command registry and key their commands by name (`jam_CommandManager.cpp` `getCommandForName`).
-  - EVE: owns `## CommandId` (`eve/cast/identifiers.md`) and registers it in place (`EVEView.cpp:76-86`).
-  - END: owns `## CommandId` (`cast/bimaps.md`). `ENDView` is the command owner. `ENDActions` is the action list only, and modal keys are two-character chords (`Source/config/keys.md`).
-- **Step 9:** EVE's Release post-build runs `cast --pack` into `end/Source/plugins/EVE v0.1.0 macOS.zip`. This is the JFS pattern (`eve/cast/cmake.cast` post-build block; `eve/project-info.md` `## pack`).
-- **Steps 10-11 (VST2, VST3):**
-  - `Nexus::offloadPlugins` writes BinaryData to `~/.config/end/plugins/`.
-  - `createPlugin` loads `Nexus::evePluginId` (`"EVE.vst3"`) through whichever format claims the file. `whelmedPluginId` and the CLAP-only lookup are deleted.
-- **Build fixes found this sprint:**
-  - `jam/cast/gui.md`: four identifier rows that had been placed inside the `ButtonState` table were moved out.
-  - `eve/cast/cmake.cast`: the missing `pack-value` slot was added.
-  - `end/cast/identifiers.md`: the zoom rows were restored, because END does not link `jam_plugin_bootstrap`.
-  - `ENDActions() = default`.
-  - The `Id::keys` duplicate was removed from `cast/identifiers.md`.
-  - The jam doxygen params were fixed (`jam_TerminalProcessor.h:335`, `jam_TerminalSwap.h:58`).
-
-### Remaining
-1. Sprint N+1: `jam/PLAN-cpu-graphics-engine.md`, Steps 1-8 and its gate (COUNSELOR, Engineer, ARCHITECT build).
-2. Sprint N+2: `PLAN-eve-shared-engine.md`, Phases A-D:
-   - the split crash (whatdbg)
-   - jam's Objective-C class names
-   - the C-ABI factory symbol
-   - host-first keys
-   - transparency only in END
-   - the old Steps 11.2, gate C, CLAP, daemon and docs
-3. Scratchpad backups from this sprint (`jam_TextEditor.cpp.bak`, `spell.md.bak`) were left by an Engineer. They are not in the project tree.
-4. DEBT ledger:
-   - Pay at N+2: DEBT-20261025T135707 (CLAP clock) and DEBT-20261025T214955 / DEBT-20261009T112447 (CommandManager, done in Step 8). Clear them at `/log`.
-   - Deferred by ARCHITECT: DEBT-20260912T150000 (Windows): *"windows build still miles ahead. defer."*
-
-### Key Decisions
-- *"the goal of this sprint is to ensure eve loaded and run as fast as standalone."*
-- *"END is still true and true audio plugin host. EVE still an audio plugin but drives its own clock"*
-- *"END load EVE as default is SPEC contract. not user configurable."*
-- *"i dont want to put "END's in-house plugin" into system audio plugins path"*
-- *"it carry into END's binary, runtime offload to disk, then load. READ how endless use the pattern for conpty"*
-- *"EVE target release build is only post-build copy, just like how JFS copy to release directory, the exact pattern"*
-- *"command manager should be project specific id. built by its own table"*; *"Owner (PROJECT) need to define its map, then tell the widget as consumer."*; *"NO COPY"*
-- *"END owned ActionList. it defined its own map. EVE wrong design put everything on framework."*
-- *"EVE as an actual audio plugins (all format) and standalone must work as is, carry its own vulkan contract"*
-- *"shared juce? shared vulkan with scattered dynamic lib? FUCK NO"*
-- *"at juce::Component level (including LAF) must be juce native contract … never acknowledge about rendering engine"*
-- *"my rulings as principles never contradicts … the code implementations written with WRONG RATIONALE"*
-- Names: `jam::CpuGraphicsEngine`, `jam::VulkanGraphicsEngine`, `jam::CpuLowLevelGraphicsContext` (*"CpuLLGC"*).
-- Channel: *"C-ABI symbol lookup"*. Keys: *"Host first"*. Transparency: *"Only in END"*.
-- *"this sprints outstanding works must be splitted into 2 exectutable PLAN. next sprint is CpuGrahicsEngine (and VulkanGraphicsEngine). its next sprint is continuation of this sprint outstandings that blocked by that, with dedicated PLAN."*
-
-### Files Modified
-- **jam:**
-  - `jam_clap`: none.
-  - `cast/{gui,core,markdown,plugin_bootstrap,spell}.md`
-  - `jam_gui/commands/jam_CommandManager.*`, `jam_gui/widgets/jam_TextEditor.*`, `jam_plugin_bootstrap/view/jam_PluginEditor.*`
-  - `jam_terminal/processor/jam_TerminalProcessor.h`, `jam_terminal/document/jam_TerminalSwap.h`
-  - `sdk/VST2/` (new)
-  - `PLAN-cpu-graphics-engine.md` (new)
-- **EVE:**
-  - `project-info.md`, `cast/{signing,identifiers,spell}.md`, `cast/cmake.cast`
-  - `Source/EVEView.{h,cpp}`
-- **END:**
-  - `project-info.md`, `cast/{identifiers,bimaps,spell}.md`, `cast/cmake.cast`
-  - `Source/plugins/{Nexus.h,Session.h,Session.cpp}`, `Source/ui/*` (moved), `Source/action/ENDActions.{h,cpp}`, `Source/Main.h`, `Source/config/keys.md`
-  - `PLAN-eve-hosted-at-end.md`, `PLAN-eve-shared-engine.md` (new)
-
-### Open Questions
-None.
-- The symbol name is ratified: *"jam_host_context_factory"*.
-- MoltenVK linked twice is a validation check in `PLAN-eve-shared-engine.md` Step 4.
-
-### Next Steps
-- Start sprint N+1 with `/go` on `~/Documents/Poems/dev/jam/PLAN-cpu-graphics-engine.md`.
 

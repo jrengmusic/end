@@ -9,14 +9,6 @@ static void cascadeLookAndFeelChange()
         desktop.getComponent (i)->sendLookAndFeelChange();
 }
 
-static std::tuple<float, float> getPostProcessRenderParams (ConfigModel& config)
-{
-    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
-
-    return { opacity, resolutionScale };
-}
-
 static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
 {
     static const jam::SharedInstance<map::ImageResample> imageResample { std::in_place };
@@ -57,22 +49,25 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
 
 void ENDApplication::registerEvents()
 {
-    events.add<juce::ValueTree&> (Id::fontRasterizer,
-                                  [this] (juce::ValueTree&)
+    for (const auto& id : { Id::fontRasterizer, Id::fontGamma, Id::fontContrast })
+        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setFontRasterization(); });
+
+    events.add<juce::ValueTree&> (Id::alwaysOnTop,
+                                  [this] (juce::ValueTree& row)
                                   {
-                                      setFontRasterization();
+                                      window->setAlwaysOnTop (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::fontGamma,
-                                  [this] (juce::ValueTree&)
+    events.add<juce::ValueTree&> (Id::titleBarButtons,
+                                  [this] (juce::ValueTree& row)
                                   {
-                                      setFontRasterization();
+                                      window->setWindowButtons (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::fontContrast,
-                                  [this] (juce::ValueTree&)
+    events.add<juce::ValueTree&> (Id::theme,
+                                  [] (juce::ValueTree&)
                                   {
-                                      setFontRasterization();
+                                      cascadeLookAndFeelChange();
                                   });
 
     events.add<juce::ValueTree&> (Id::embolden,
@@ -173,7 +168,8 @@ void ENDApplication::setPostProcess()
     const bool gpuEnabled { engine->isGpuAvailable() };
 
     const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
-    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
+    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
+    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
@@ -197,10 +193,9 @@ void ENDApplication::setPostProcess()
 
 void ENDApplication::setPostProcessParams()
 {
-    const auto [opacity, resolutionScale] { getPostProcessRenderParams (config) };
-
     auto* engine { jam::VulkanGraphicsEngine::getInstance() };
-    engine->setPostProcessParams (opacity, resolutionScale);
+    engine->setPostProcessParams (static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity)),
+                                  static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution)));
 }
 
 // juce::JUCEApplicationBase::shutdown() is pure virtual — an override must

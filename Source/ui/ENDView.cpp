@@ -2,11 +2,7 @@
 
 ENDView::ENDView()
     : jam::Model::Component<ENDView> (ENDModel::getInstance()->getChildWithName (Id::toType (Id::window)))
-    , messageOverlay (model.getChildWithName (Id::toType (Id::overlay)), [] {
-        return juce::FontOptions()
-                   .withName (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::fontFamily).toString())
-                   .withPointHeight (static_cast<float> (ConfigModel::getInstance()->getRowValue (Id::toType (Id::overlay), Id::textFontSize)));
-    })
+    , messageOverlay (model.getChildWithName (Id::toType (Id::overlay)), [] { return ENDLookAndFeel::getInstance()->getOverlayFont(); })
 {
     setOpaque (false);
     toFront (true);
@@ -24,19 +20,12 @@ ENDView::ENDView()
 
     createAndAttachParameters();
 
-    focusedPane.addListener (this);
     config.addListener (this);
     model.addListener (this);
 
     juce::MessageManager::callAsync (
         [this]
         {
-            auto display { config.getChildWithName (Id::toType (Id::display)) };
-            auto alwaysOnTopRow { display.getChildWithName (Id::alwaysOnTop) };
-            auto titleBarButtonsRow { display.getChildWithName (Id::titleBarButtons) };
-
-            events.get (Id::alwaysOnTop, alwaysOnTopRow);
-            events.get (Id::titleBarButtons, titleBarButtonsRow);
             events.get (Id::enabled, config.state);
 
             actions.run (Id::newSession);
@@ -50,7 +39,6 @@ ENDView::~ENDView()
 {
     model.removeListener (this);
     config.removeListener (this);
-    focusedPane.removeListener (this);
 }
 
 void ENDView::resized()
@@ -68,7 +56,7 @@ void ENDView::resized()
 
 bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return commandManager->getKeyMappings()->keyPressed (key, this) or commandManager->invokeKey (key, state);
+    return commandManager->invokeKey (key, state);
 }
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
@@ -85,15 +73,6 @@ void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
     {
         commandManager->setKeyPresses (tree.getParent());
     }
-}
-
-void ENDView::valueChanged (juce::Value&)
-{
-    // focusedPane currently refers to whichever TAB row's focusedPane the
-    // Id::focusedPane event last pointed it at — mirrors that value onto
-    // the SESSIONS-level focusedPane parameter, a valid registered parameter
-    // throughout.
-    model.setValue (Id::toType (Id::sessions), Id::focusedPane, focusedPane.getValue());
 }
 
 juce::ApplicationCommandTarget* ENDView::getNextCommandTarget()
@@ -168,6 +147,7 @@ void ENDView::registerSessionActions()
                      sessionView->toBehind (&messageOverlay);
                      attachments.try_emplace (sessionUuid,
                                               std::make_unique<jam::Model::Attachment> (*sessionView));
+                     sessionView->getValueTree().setProperty (Id::focus, sessionView.get() == getActiveSessionView() ? 1 : 0, nullptr);
                      resized();
 
                      actions.run (Id::newTab);
@@ -212,8 +192,7 @@ void ENDView::registerTabActions()
                      {
                          if (sessionView->getChildCount() > 1)
                          {
-                             std::function<void (const juce::ValueTree&)> removePanes;
-                             removePanes = [this, &removePanes] (const juce::ValueTree& row)
+                             std::function<void (const juce::ValueTree&)> removePanes { [this, &removePanes] (const juce::ValueTree& row)
                              {
                                  if (row.hasType (Id::toType (Id::pane)))
                                      nexus.getActiveSession().removePlugin (
@@ -221,10 +200,13 @@ void ENDView::registerTabActions()
 
                                  for (const auto& child : row)
                                      removePanes (child);
-                             };
+                             } };
 
-                             removePanes (sessionView->get (sessionView->getFocusedChild()).state);
-                             sessionView->remove (sessionView->getFocusedChild());
+                             const auto focusedTab { sessionView->getFocusedChild() };
+                             const auto tabState { sessionView->get (focusedTab).state };
+
+                             sessionView->remove (focusedTab);
+                             removePanes (tabState);
                          }
                          else
                          {
@@ -294,63 +276,29 @@ void ENDView::registerTabActions()
                  });
 }
 
-static void registerZoomAction (ENDActions& actionRegistry,
-                                jam::Model& model,
-                                ConfigModel& config,
-                                Nexus& nexus,
-                                const juce::Identifier& actionId,
-                                const std::function<float (const juce::AudioProcessorParameter&, float)>& computeZoom)
-{
-    actionRegistry.add (actionId,
-                        [&model, &config, &nexus, computeZoom]
-                        {
-                            const float step { config.getRowValue (Id::toType (Id::display), Id::zoomStep) };
-                            static const juce::String zoomName { jam::Format::toParameterName (Id::master.toString(), Id::zoom.toString()) };
-                            const auto applyZoom { [&computeZoom, step] (juce::AudioProcessor& plugin)
-                                                   {
-                                                       if (auto* parameter { EditorView::getParameter (plugin, zoomName) })
-                                                       {
-                                                           parameter->beginChangeGesture();
-                                                           parameter->setValueNotifyingHost (computeZoom (*parameter, step));
-                                                           parameter->endChangeGesture();
-                                                       }
-                                                   } };
-                            auto& session { nexus.getActiveSession() };
-
-                            if (static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::exclusiveZoom)))
-                            {
-                                const jam::UUID id { static_cast<int64_t> (
-                                    model.getValue (Id::toType (Id::sessions), Id::focusedPane)) };
-
-                                if (session.contains (id))
-                                    applyZoom (session.getPlugin (id));
-                            }
-                            else
-                            {
-                                session.applyToPlugins (applyZoom);
-                            }
-                        });
-}
-
 void ENDView::registerZoomActions()
 {
-    registerZoomAction (actions, model, config, nexus, Id::zoomIn,
-        [] (const juce::AudioProcessorParameter& parameter, float step)
-        {
-            return juce::jlimit (0.0f, 1.0f, parameter.getValue() + step);
-        });
+    for (const auto& command : { Id::zoomIn, Id::zoomOut, Id::zoomReset })
+    {
+        actions.add (command,
+                     [this, command]
+                     {
+                         const float step { config.getRowValue (Id::toType (Id::display), Id::zoomStep) };
 
-    registerZoomAction (actions, model, config, nexus, Id::zoomOut,
-        [] (const juce::AudioProcessorParameter& parameter, float step)
-        {
-            return juce::jlimit (0.0f, 1.0f, parameter.getValue() - step);
-        });
-
-    registerZoomAction (actions, model, config, nexus, Id::zoomReset,
-        [] (const juce::AudioProcessorParameter& parameter, float)
-        {
-            return parameter.getDefaultValue();
-        });
+                         if (auto* sessionView { getActiveSessionView() })
+                         {
+                             if (static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::exclusiveZoom)))
+                             {
+                                 if (auto* tabView { sessionView->getActiveTabView() })
+                                     tabView->get (tabView->getFocusedChild()).setZoom (command, step);
+                             }
+                             else
+                             {
+                                 sessionView->setZoom (command, step);
+                             }
+                         }
+                     });
+    }
 }
 
 void ENDView::registerPaneActions()
@@ -442,48 +390,10 @@ void ENDView::registerPaneActions()
     actions.add (Id::normal,
                  [this]
                  {
-                     static const juce::String modeName { jam::Format::toParameterName (Id::master.toString(), Id::mode.toString()) };
-                     const jam::UUID id { static_cast<int64_t> (
-                         model.getValue (Id::toType (Id::sessions), Id::focusedPane)) };
-                     auto& session { nexus.getActiveSession() };
-
-                     if (session.contains (id))
-                     {
-                         if (auto* parameter { EditorView::getParameter (session.getPlugin (id), modeName) })
-                         {
-                             parameter->beginChangeGesture();
-                             parameter->setValueNotifyingHost (juce::NormalisableRange<float> { static_cast<float> (map::EditorMode::normal), static_cast<float> (map::EditorMode::terminal) }.convertTo0to1 (static_cast<float> (map::EditorMode::normal)));
-                             parameter->endChangeGesture();
-                         }
-                     }
+                     if (auto* sessionView { getActiveSessionView() })
+                         if (auto* tabView { sessionView->getActiveTabView() })
+                             tabView->get (tabView->getFocusedChild()).setMode (map::EditorMode::normal);
                  });
-}
-
-void ENDView::registerWindowActions()
-{
-    for (const auto& [key, id] : map::Position::getInstance()->get())
-    {
-        const int positionKey { key };
-
-        actions.add (
-            juce::Identifier { map::Position::getInstance()->get (key) },
-            [this, positionKey]
-            {
-                if (positionKey != map::Position::center)
-                {
-                    auto leaf { state.getChildWithProperty (
-                        Id::position, map::Position::getInstance()->get (positionKey)) };
-
-                    if (leaf.isValid())
-                    {
-                        const bool visible { jam::toBool (leaf.getProperty (Id::visible)) };
-
-                        leaf.setProperty (
-                            Id::visible, static_cast<int> (not visible), nullptr);
-                    }
-                }
-            });
-    }
 }
 
 void ENDView::registerActions()
@@ -492,133 +402,39 @@ void ENDView::registerActions()
     registerTabActions();
     registerZoomActions();
     registerPaneActions();
-    registerWindowActions();
 }
 
 void ENDView::registerGraphicsEvents()
 {
-    events.add<juce::ValueTree&> (Id::backgroundOpacity,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackgroundParams();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::frameRate,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackgroundParams();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::backgroundResolution,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackgroundParams();
-                                  });
-}
-
-void ENDView::registerWindowEvents()
-{
-    events.add<juce::ValueTree&> (
-        Id::alwaysOnTop,
-        [this] (juce::ValueTree& row)
-        {
-            if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setAlwaysOnTop (row.getProperty (Id::value));
-        });
-
-    events.add<juce::ValueTree&> (
-        Id::titleBarButtons,
-        [this] (juce::ValueTree& row)
-        {
-            if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                window->setWindowButtons (row.getProperty (Id::value));
-        });
+    for (const auto& id : { Id::backgroundOpacity, Id::frameRate, Id::backgroundResolution })
+        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
 }
 
 void ENDView::registerMouseEvents()
 {
-    events.add<juce::ValueTree&> (Id::enabled,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setMouseConfig();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::imouse,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setMouseConfig();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::orbit,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setMouseConfig();
-                                  });
-
-    events.add<juce::ValueTree&> (Id::reset,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setMouseConfig();
-                                  });
+    for (const auto& id : { Id::enabled, Id::imouse, Id::orbit, Id::reset })
+        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setMouseConfig(); });
 }
 
 void ENDView::registerEvents()
 {
-    events.add<juce::ValueTree&> (
-        Id::focusedPane,
-        [this] (juce::ValueTree& tree)
-        {
-            // Re-points the conduit to whichever TAB row last wrote its own
-            // focusedPane — valueChanged() below then mirrors that value
-            // onto the SESSIONS-level parameter, last change wins.
-            if (tree.getType() == Id::toType (Id::tab))
-                focusedPane.referTo (tree.getPropertyAsValue (Id::focusedPane, nullptr));
-        });
-
-    events.add<juce::ValueTree&> (Id::theme,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      getTopLevelComponent()->sendLookAndFeelChange();
-                                  });
-
     registerGraphicsEvents();
-    registerWindowEvents();
     registerMouseEvents();
-
-    // WINDOW leaf visibility toggles (ENDActions.cpp's own
-    // Position-bimap loop) relayout the dormant dock-pane machinery — one
-    // registration on the shared Id::visible property key serves all
-    // five leaves, no per-leaf type fallback needed (every WINDOW leaf now
-    // shares Id::toType (Id::pane), so a type-keyed fallback could no longer
-    // distinguish them the way the four old Position-keyed ValueTree TYPES did).
-    events.add<juce::ValueTree&> (Id::visible,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      resized();
-                                  });
-}
-
-static std::tuple<float, float, int> getBackgroundRenderParams (ConfigModel& config)
-{
-    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity) };
-    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution) };
-    const int frameRate { config.getRowValue (Id::toType (Id::graphics), Id::frameRate) };
-
-    return { opacity, resolutionScale, frameRate };
 }
 
 void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)
 {
-    const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
-
-    background.setShader (std::move (shader), opacity, resolutionScale, frameRate);
+    background.setShader (std::move (shader),
+                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity)),
+                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution)),
+                          static_cast<int> (config.getRowValue (Id::toType (Id::graphics), Id::frameRate)));
 }
 
 void ENDView::setBackgroundParams()
 {
-    const auto [opacity, resolutionScale, frameRate] { getBackgroundRenderParams (config) };
-
-    background.setParams (opacity, resolutionScale, frameRate);
+    background.setParams (static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity)),
+                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution)),
+                          static_cast<int> (config.getRowValue (Id::toType (Id::graphics), Id::frameRate)));
 }
 
 void ENDView::setMouseConfig()

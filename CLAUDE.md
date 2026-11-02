@@ -6,11 +6,9 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 91: Model::Component Binds a Node — END Conforms ✅ (2026-10-24). Since then: the EVE-hosted-at-END work is in the 2026-10-31 handoffs (`carol/SPRINT-LOG.md:5-201`), not yet logged.
+- **Last sprint:** Sprint 95: Prefix Layer in jam CommandManager, One-Way Focus Told by the Owner, Audit Sweep, Lane → TextBlock ✅ (2026-11-02).
 - **Active debts (`DEBT.md`):**
-  - `DEBT-20261025T214955` — Action List replaced by CommandManager (paid; receipt at `/log`)
   - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
-  - `DEBT-20261009T112447` — END keys through `jam::CommandManager` (paid: `ENDView.h:69`; receipt at `/log`)
   - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
 - **Open PLANs:**
   - `PLAN-enax-plugin-host-type.md` — Plan 1: `jam::PluginHostType`, the ENAX channel and rules, transparency, focus, AU registration
@@ -19,10 +17,10 @@
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)`  
-Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus.cpp:13-19`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
+Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus.cpp:42-48`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
 Graphics: JAM `jam_graphics` + `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; owned by Application: `jam::CpuGraphicsEngine` — Typeface, GlyphAtlas, GlyphArrangement, ImageLoader, CPU image operations, CPU-lane context; `jam::VulkanGraphicsEngine` — Device, per-window Graphics, GPU forms of the image operations)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
-UI: `Source/end/` — ENDView, Window, SessionView, TabView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows)  
+UI: `Source/ui/` — ENDView, SessionView, TabView, EditorView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows); `Source/end/` — ENDModel; `Source/plugins/` — Nexus, Session  
 Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,Files,Generated}.h` (global `Id::`, `map::`, `files::`)
 
 ## Key Docs
@@ -33,13 +31,16 @@ Constants: `cast/*.md` (project-info, identifiers, bimaps, files) → `cast cast
 | `DEBT.md` | Active debt ledger |
 | `SHADERS.md` | Shader system guide — Shadertoy, RetroArch Slang, OBJ mesh + iMouse |
 | `carol/SPRINT-LOG.md` | Cross-session memory (last 5 sprints) |
-| `PLAN-cast-migration.md` | Cast-toolchain + markdown-config migration plan |
 
 ## Doxygen (mandatory before any code task)
 - Project: `docs/xml/index.xml`
 - JAM: `~/Documents/Poems/dev/jam/docs/xml/index.xml`
 - JUCE: `~/Documents/Poems/JUCE/docs/xml/index.xml`
 - KANJUT / CIUM: not used in this project
+
+## Version Rule (ARCHITECT only — agents never change)
+- NEVER change the `version:` field of a config file, a view layout (`ViewLayout.md`), or any other versioned document. The version is always `0.0.1`.
+- Only ARCHITECT changes a version, and only by an explicit instruction that names the version.
 
 ## Build (ARCHITECT only — agents never run)
 `cast cast/spell.md` regenerates `CMakeLists.txt` + `Source/generated/*` · `ninja` via `Builds/` · `ninja doxygen` to regenerate docs

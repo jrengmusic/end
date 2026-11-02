@@ -61,17 +61,13 @@ Most importantly, it is the only font that works out of the box without installa
 
 I have always liked tmux — the consistent UX, portability, reliability, and of course session persistence. But its configurable flexibility also comes with a huge pain in the ass to set up.
 
-END ships with a limitless number of tabs. Each tab can be split into multiple panes, each with an isolated terminal instance, with zero setup.
+END ships with a limitless number of tabs. Each tab can be split into multiple panes, each with its own hosted plugin instance — EVE, the terminal, by default — with zero setup.
 
 Don't like the tab button image? Drop in an SVG you like by following the convention of active/inactive state — left/right groups are the edge anchors, center is the stretchable area.
 
-Fancy automation with split layouts? The example is in `action.lua` itself. The config is the documentation. A single keypress or a modal prefix shortcut à la tmux will bring you home. Modal keybinding is native — not scripted on top.
+The config is the documentation. A single keypress or a prefix layer à la tmux will bring you home: press \` to enter the prefix layer, then the key of the action. Press \` twice to send it to the pane. The prefix layer is native — not scripted on top.
 
-END also ships an action list and keybinder. Every action is discoverable and rebindable in one place.
-
-Popup is one of the most underutilized tmux features — spawning a temporary terminal instance with any shell process you need: CLI, TUI, any shell script. END implements this as a modal window. After your process exits and returns to the normal screen, the popup dismisses itself automatically.
-
-Do you really need session persistence? Keep terminal processes alive even after you quit the application, and resume whatever state was running when you left — enable the Nexus daemon server. END has you covered.
+Every action is rebindable in one place, `keys.md`.
 
 ### Visuals
 
@@ -91,7 +87,7 @@ If that is not enough:
 
 The ricing on the cake. Most terminals with custom shader support stop at a single pass. END has two layers — a multi-pass background with ABCD buffers and opacity control, and a single-pass post-processing overlay on top of everything. Both respond to mouse input. It is a minified Shadertoy running inside your terminal.
 
-Everything is hot-reloaded. Changes take effect the moment you save any Lua file.
+Everything is hot-reloaded. Changes take effect the moment you save any config file.
 
 ### Markdown & Mermaid
 
@@ -103,18 +99,16 @@ Headers, tokenized code blocks, bullet lists, tables, and Mermaid diagrams — a
 
 ## How
 
-**Requirements:** C++17 compiler, CMake, JUCE 8, Ninja, jam
+**Requirements:** C++17 compiler, CMake, JUCE 8, Ninja, jam, cast
 
 ```bash
-./builds.sh          # Release
-./builds.sh debug    # Debug
-./builds.sh clean    # clean + rebuild Release
-./builds.sh install  # clean build + install to system
+cast cast/spell.md   # generate CMakeLists.txt and Source/generated/*
+ninja                # build, in Builds/
 ```
 
 Works identically on macOS, Linux, and Windows via MSYS2. On Windows, MSVC is located and configured automatically.
 
-Config lives in `~/.config/end/`. Both files are auto-generated with documented defaults on first launch. Every value has inline comments. Changes are picked up automatically — no restart needed.
+Config lives in `~/.config/end/`. Both markdown files, `display.md` and `keys.md`, are auto-generated with documented defaults on first launch. Every value has inline comments. Changes are picked up automatically — no restart needed.
 
 ---
 

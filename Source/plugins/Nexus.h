@@ -19,6 +19,8 @@ struct Nexus : jam::Instance<Nexus>
     /**
      * @brief Registers the host extensions, builds the model, the plugin formats and the audio graph,
      *        then offloads the plugins of the binary data.
+     *
+     * On macOS, the constructor registers the Audio Unit of the EVE plugin when that plugin is a component.
      */
     Nexus();
 
@@ -63,8 +65,7 @@ struct Nexus : jam::Instance<Nexus>
 
 private:
     /**
-     * @brief Unpacks the plugin archives of the binary data into the plugins folder once per plugin hash,
-     *        then, on macOS, registers the Audio Unit of the EVE plugin when the plugin is a component.
+     * @brief Unpacks the plugin archives of the binary data into the plugins folder once per plugin hash.
      */
     void offloadPlugins();
 
@@ -84,7 +85,7 @@ private:
     std::vector<std::unique_ptr<std::remove_pointer_t<CFBundleRef>, decltype (&CFRelease)>> bundles;
 #endif
 
-    /** @brief Model that holds the window row, the sessions tree, and the focused session and pane parameters. */
+    /** @brief Model that holds the window row and the sessions tree. The sessions tree holds the focusedSession parameter. */
     ENDModel model;
 
     /** @brief Sessions keyed by identity. Each session is owned here. */
@@ -97,11 +98,11 @@ private:
     /** @brief Audio graph that holds the input and output processors and every hosted plugin. */
     juce::AudioProcessorGraph graph;
     /** @brief Identity of the audio input processor in the graph. */
-    juce::AudioProcessorGraph::NodeID audioInputNodeId;
+    juce::AudioProcessorGraph::NodeID audioInputId;
     /** @brief Identity of the audio output processor in the graph. */
-    juce::AudioProcessorGraph::NodeID audioOutputNodeId;
+    juce::AudioProcessorGraph::NodeID audioOutputId;
     /** @brief Identity of the MIDI input processor in the graph. */
-    juce::AudioProcessorGraph::NodeID midiInputNodeId;
+    juce::AudioProcessorGraph::NodeID midiInputId;
     /** @brief Audio callback that plays the graph on the device. */
     juce::AudioProcessorPlayer player;
     /** @brief Audio device manager. It opens the default devices with two inputs and two outputs. */
