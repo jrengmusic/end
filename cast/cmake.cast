@@ -303,7 +303,7 @@ foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
 endforeach()
 string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE CAST_PLUGINS_HASH="${CAST_PLUGINS_HASH}")
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"")
 
 juce_add_binary_data(${PROJECT_NAME}_BinaryData
     NAMESPACE "BinaryData"

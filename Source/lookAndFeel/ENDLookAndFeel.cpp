@@ -174,10 +174,9 @@ juce::Font ENDLookAndFeel::getCodeFont() const
     return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
 }
 
-ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics (float zoom) const
+ENDLookAndFeel::CodeMetrics ENDLookAndFeel::getCodeMetrics() const
 {
-    const auto baseFont { getCodeFont() };
-    const juce::Font font { baseFont.withPointHeight (baseFont.getHeight() * zoom) };
+    const auto font { getCodeFont() };
 
     auto resolvedTypeface { font.getTypefacePtr() };
 
@@ -509,6 +508,8 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
 
 void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
 {
+    jassert (dynamic_cast<jam::OwnedComponent*> (&pane) != nullptr);
+
     g.setColour (findColour (static_cast<int> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus)) == 1
                                  ? jam::PaneComponent::focusedOutlineColourId
                                  : jam::PaneComponent::outlineColourId));

@@ -14,8 +14,8 @@ CLAP"*.
 
 END is a **JUCE GUI application** that hosts audio plugins in a tabbed, splittable
 pane workspace, rendered by the JAM Vulkan engine. The formats are VST2, VST3 and AU
-through JUCE (`Nexus.cpp:28`), and CLAP through jam_clap (`Nexus.cpp:29-34`). Each new
-pane loads EVE (`Session.cpp:39-90`, `cast/files.md:31`). EVE is checked in one format
+through JUCE (`Nexus.cpp:44`), and CLAP through jam_clap (`Nexus.cpp:45-50`). Each new
+pane loads EVE (`Session.cpp:39-88`, `cast/files.md:31`). EVE is checked in one format
 at a time. ARCHITECT: *"ALL formats means ONE at a time, for EVE. any valid audio format
 SHOULD WORK. any 3rd audio plugin with "ALL FORMAT" must be able to be loaded in END."*
 
@@ -63,13 +63,13 @@ Application → Config → Nexus → Session → hosted audio plugins (EditorVie
 - **Config** (`Source/config/`) — ConfigDirectory, ConfigModel and its per-domain
   subclasses (theme, shader). Four-phase lifecycle. Data source is markdown.
 - **Nexus** (`Source/plugins/Nexus.h`) — host singleton. Owns the sessions Model
-  state (`Id::sessions` tree: `focused_session`, `focused_pane` parameters), the
+  state (`Id::sessions` tree: `focusedSession`, `focusedPane` parameters), the
   plugin format manager, the one audio graph, and the ENAX extensions
   (`Nexus.h:41`). Offloads the plugins from BinaryData to `~/.config/end/plugins/`
   (`Nexus.cpp` `offloadPlugins`).
 - **Session** — uuid-keyed container of hosted plugin instances for one window's
   session. A new PANE row runs `newPlugin (uuid)`; `removePlugin (uuid)` removes the
-  node (`Session.cpp:31-99`).
+  node (`Session.cpp:31-97`).
 - **EditorView panes** — each pane hosts one plugin editor
   (`juce::AudioProcessorEditor` from the hosted instance). A pane with no loaded
   plugin renders bare (outline only).
@@ -90,9 +90,11 @@ The Owner/Owned composite is jam's layout law:
 
 - `jam::OwnedComponent` self-reports keyboard focus onto its own row's
   `Id::focus`; it publishes its own bounds. The child stays dumb.
-- `jam::OwnerComponent` aggregates: a direct child row's `Id::focus` becoming 1
-  writes that child's identity into the owner's focused-child parameter. Focus is
-  event-driven; there is no manual focus bookkeeping anywhere above the owner.
+- `jam::OwnerComponent` aggregates: an owned child row's `Id::focus` becoming 1
+  (an owned row can sit under EDGE rows, so membership is the owner's child
+  registry, not direct parenthood) writes that child's identity into the owner's
+  focused-child parameter, and tells the previously focused child's row
+  `Id::focus` 0 (`OwnerComponent::valueTreePropertyChanged`). Focus is event-driven.
 - `jam::MatrixComponent` (TabView base) mutates the binary-space graph: `split`
   targets the focused child, EDGE rows name head/tail spaces by uuid.
 
@@ -109,10 +111,10 @@ Contract points that bind END:
   config Model. No config values on the runtime tree, no runtime state on the
   config tree.
 - Focus lane (verified end to end): click → pane takes keyboard focus →
-  `Id::focus = 1` on the pane row → owner aggregates into `focused_pane` →
-  actions and splits read `focused_pane`. Creation (`OwnerComponent::add`) stamps
-  the new child as focused — a state update at creation, not a manual override of
-  the event lane.
+  `Id::focus = 1` on the pane row → owner aggregates into `focusedPane` →
+  actions and splits read `focusedPane`. `OwnerComponent::add` never writes the
+  focused-child parameter: the new child's own focus gain reports `Id::focus = 1`,
+  and the owner aggregates it.
 
 ### 1.3 Config — Markdown Tables, Cast Toolchain
 
@@ -134,10 +136,12 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   Files,Generated}.h` (global `Id::`, `map::`, `files::`). The generated lexicon
   defines only what jam's lexicon does not — shared identifiers have exactly one
   owner: jam.
-- **Key bindings** (`keys.md`): direct bindings (cmd/ctrl) fire immediately;
-  modal bindings require the prefix key first. `ENDActions::buildKeyMap` reads
-  the KEYS tree via `juce::KeyPress::createFromDescription`; rebuilt on any
-  config change.
+- **Key bindings** (`keys.md`): each row names a command and its key. The row never
+  names a parameter or a command id. `ENDView` is END's one binder: it registers its
+  commands and gives the KEYS tree to `jam::CommandManager::setKeyPresses`
+  (`ENDView.cpp:17-18`), again on each KEYS change (`:84-87`). A key description longer
+  than two characters fires through JUCE's key mappings. A one- or two-character value
+  is a text chord, resolved by `jam::CommandManager::invokeKey` (`ENDView.cpp:69-72`).
 
 ### 1.4 Rendering — First-Class Vulkan Architecture
 
@@ -162,14 +166,18 @@ teardown.
 ### 1.5 Plugin Hosting — JUCE Formats, jam_clap and ENAX
 
 - Formats: JUCE's default formats (VST2, VST3, AU) and `jam::ClapPluginFormat`
-  (`Nexus.cpp:28-34`).
+  (`Nexus.cpp:44-50`).
 - Plugins live in `~/.config/end/plugins/`. `Nexus::offloadPlugins` writes them from
-  BinaryData. On macOS, when `files::evePlugin` names a `.component`, it registers
-  that one bundle in the process (`Nexus::registerAudioUnit`, `Nexus.cpp:138-143`).
-  Formats are tested one at a time, so no other bundle loads. ARCHITECT: *"i dont
-  want to put "END's in-house plugin" into system audio plugins path"*.
+  BinaryData when the build-time hash of the archives differs from the stamp file
+  (`Nexus.cpp:123-150`). On macOS, when `files::evePlugin` names a `.component`, it
+  registers that one bundle in the process (`Nexus::registerAudioUnit`,
+  `Nexus.cpp:152-157`, `:189-210`). Formats are tested one at a time, so no other
+  bundle loads. ARCHITECT: *"i dont want to put "END's in-house plugin" into system
+  audio plugins path"*.
 - A new PANE row makes `Session::newPlugin` create the plugin synchronously and add
-  it as a node of the one graph (`Session.cpp:31-90`). Each plugin owns its clock.
+  it as a node of the one graph (`Session.cpp:31-88`). The format is the first
+  registered format whose `fileMightContainThisPluginType` accepts the plugin file
+  (`Session.cpp:44-54`). Each plugin owns its clock.
 - `EditorView::createProcessorEditor` hosts the instance's `AudioProcessorEditor`.
   Resizable editors track the pane bounds.
 - **Host identity.** END is a known JUCE host: `juce::PluginHostType::END` and
@@ -177,14 +185,22 @@ teardown.
   as one of the KNOWN type, this is the SSOT seam"*.
 - **ENAX channel.** END exports one function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-40`). It returns the `Nexus::extensions` entry for the id, or
-  nullptr (`Nexus.cpp:96-105`). The ids are `enax.context-factory`,
-  `enax.peer-deleted` and `enax.key-pressed` (`jam/cast/core.md:74-76`).
+  nullptr (`Nexus.cpp:112-121`). The ids are the context factory, the peer-deleted
+  callback, the key hook, the mouse hook and the display bounds
+  (`Nexus.cpp:30-34`, `jam/cast/core.md:74-78`).
 - **ENAX rules.** The plugin side, `jam::ENAXClientExtensions`, holds the END-only
   rules in one table, selected by one `isEND()` probe. Outside END, the plugin keeps
   its standalone contract. ARCHITECT: *"as standalone, plugins that loaded into
   whatever known hosts other than END, EVE SPEC CONTRACT must stands as is"*.
+- **Keys.** The key hook gives END every key before the plugin's components
+  (`jam/patch/juce-key-pressed-hook.patch:21-23`, `Nexus.cpp:6-15`). Under END, the
+  plugin's `keys` rule also removes the default key of the plugin's own `normal`
+  command, because END's `normal` command drives that mode
+  (`jam_ENAXClientExtensions.cpp:15-23`). ARCHITECT: *"when EVE (with its TextEditor)
+  hosted in END, it SHOULD NOT register any keyboard shortcut for any state-command,
+  BUT we KEPT the state machine"*.
 - **Focus.** END owns focus. The focused pane gives keyboard focus to its plugin
-  editor (`EditorView.cpp:46-50`). The plugin never grabs focus. ARCHITECT: *"so END
+  editor (`EditorView.cpp:59-66`). The plugin never grabs focus. ARCHITECT: *"so END
   pane focus management actually only need to forward, focused PANE give the keyboard
   focus to its loaded plugin"*.
 
@@ -194,21 +210,36 @@ Hosted plugin instances share the host's Vulkan engine: one device for host chro
 and plugin content. Under END, the ENAX `engine` rule gives the plugin END's context
 factory and peer-deleted callback, so the plugin paints through END's engine. Outside
 END, the plugin creates its own `VulkanGraphicsEngine`
-(`jam_PluginEditorLayout.h:119-125`). Each binary keeps its own CPU engine
-(`jam_PluginEditorLayout.h:119`).
+(`jam_PluginEditorLayout.h:124-128`). Each binary keeps its own CPU engine
+(`jam_PluginEditorLayout.h:122`).
 
 ---
 
 ## 2. Actions and Input
 
-- `ENDActions` — key-to-action dispatch. Direct map (cmd/ctrl bindings) and modal
-  map (prefix + key), timer-gated modal window. Actions registry
-  (`jam::Function::Map`) keyed by generated identifiers.
-- Workspace verbs: `new_tab`, `new_pane` (split by edge or append), `close_pane`
-  (pane → tab → window cascade), `split_vertical`/`split_horizontal`,
-  pane navigation/join/swap, pane resize by `pane_step`, zoom per-pane
-  (`zoom` parameter on the pane group), tab rename/next/prev.
-- Splits and pane verbs act on the Model's `focused_pane` — never on positional
+- **Commands.** A command id is a callback id, owned by the owner of the state that
+  its callback changes. END's ids are `map::CommandId` (`cast/bimaps.md:56-99`).
+  `ENDView::perform` runs the action of the command name (`ENDView.cpp:116-119`).
+  `ENDActions` is the action map, keyed by `juce::Identifier` (`ENDActions.h:42-47`).
+  The actions are registered by `ENDView` (`ENDView.cpp:153-496`).
+- Workspace verbs: `newTab`, `newPane` (split by edge or append), `closePane`
+  (pane → tab → window cascade), `splitVertical`/`splitHorizontal`, pane
+  navigation/join/swap, pane resize by `paneStep`, tab next/prev. `closePane`,
+  `join` and `closeTab` remove the plugin of every pane they close
+  (`Session::removePlugin`).
+- **END drives a hosted plugin through its host parameters.** END finds a parameter
+  by its host-visible name, `jam::Format::toParameterName (group, name)`
+  (`EditorView::getParameter`, `EditorView.cpp:98-108`), and works in normalised
+  values only. END keeps no copy of a plugin's value. The ranges END uses are its
+  own: the size range is END's display bounds, which END also gives the plugin
+  through ENAX; the mode keys are jam's `map::EditorMode`.
+  - `zoomIn` / `zoomOut` add or subtract `zoomStep` (`display.md`) to the plugin's
+    `Zoom` value, inside 0 to 1. `zoomReset` sets its default value. Each change is
+    one host gesture. The targets are every pane of the session, or the focused pane
+    only when `exclusiveZoom` is true (`ENDView.cpp:297-354`, `Session.h:46-51`).
+  - `normal` sets the focused plugin's `Mode` parameter to `map::EditorMode::normal`
+    (`ENDView.cpp:442-460`). A plugin without the parameter is left as it is.
+- Splits and pane verbs act on the Model's `focusedPane` — never on positional
   or last-created assumptions.
 
 ---
@@ -228,9 +259,9 @@ Iteration proceeds both ways between host and plugins:
 5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
    through the host's engine.
 
-Grand-scheme step tracking: `PLAN-END-plugin-host.md` (plugin-host phases),
-`PLAN-terminal-editor.md` (eve, gated), `PLAN-cast-migration.md` (landed; Step 9
-doxygen regen open).
+Step tracking: `PLAN-enax-plugin-host-type.md` (Plan 1, ENAX host contract),
+`PLAN-enax-command-id.md` (Plan 2, command ids and host parameters),
+`PLAN-cast-migration.md` (landed; Step 9 doxygen regen open).
 
 ---
 

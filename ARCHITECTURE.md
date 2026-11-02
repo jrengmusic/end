@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). END is now a CLAP plugin host: `Nexus` owns `end::Session` instances, each hosting `juce::AudioPluginInstance`s created through `jam::ClapPluginFormat`; `EditorView` panes host each plugin's own `AudioProcessorEditor` (see "Session Layer — Landed Contract"). The terminal-emulator pipeline (CellFifo, `terminal::Processor`, `jam::CodeView`) has moved out of this repository — END builds no `jam_terminal` module.
+**Status:** ACTIVE — MVP pattern formalized. Vulkan dual-engine rendering complete (never-null context factory, GPU + CPU fallback). END is an audio plugin host: `Nexus` owns `Session` instances, each hosting `juce::AudioPluginInstance`s created through the registered format that accepts the plugin file (`Session.cpp:44-54`); `EditorView` panes host each plugin's own `AudioProcessorEditor` (see "Session Layer — Landed Contract"). The terminal-emulator pipeline (CellFifo, `terminal::Processor`, `jam::CodeView`) has moved out of this repository — END builds no `jam_terminal` module.
 
 **Last Updated:** 2026-09-12
 
@@ -10,7 +10,7 @@
 
 ## Identity
 
-END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:28-34`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
+END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:44-50`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
 
 ---
 
@@ -77,14 +77,14 @@ window (end::View, depends on all above)
     — gui-less, a juce::ValueTree::Listener on its own state. A PANE row
       added runs newPlugin (uuid): the plugin is created synchronously and
       added as a node of Nexus's graph, keyed by uuid; removePlugin (uuid)
-      removes the node (Session.cpp:31-99).
+      removes the node (Session.cpp:31-97).
     |
     v
  Pane / EditorView (jam::PaneComponent)
-    — message thread. Listens on its own PANE row's Id::pluginId; on change,
-      resolves the owning Session via Nexus::getSession() and calls
-      juce::AudioPluginInstance::createEditorAndMakeActive(), parenting the
-      returned juce::AudioProcessorEditor as its sole child.
+    — message thread. Its constructor resolves the owning Session via
+      Nexus::getSession() and calls createEditorAndMakeActive(), parenting
+      the returned juce::AudioProcessorEditor as its sole child
+      (EditorView.cpp:4-10, :68-88). The pane is complete at creation.
 ```
 
 **Header inclusion rules:**
@@ -122,17 +122,19 @@ ConfigModel (Id::config)                    ENDModel (Id::end)
     POST_PROCESSING (ConfigShader tree)         SESSION (jam::ID::id — SessionView adopts)
   mouse                                           TAB[N] (TabView row, jam::ID::name,
   keys (prefix, prefixTimeout, bindings)                 jam::ID::focus, jam::ID::focusedPane)
-  actions (macro tables)                            PANE (jam::ID::id, Id::pluginId, Id::name,
-  THEMES (ConfigTheme tree, appended as a                 Id::zoom, jam::ID::focus — EditorView row)
+  actions (macro tables)                            PANE (jam::ID::id, Id::name,
+  THEMES (ConfigTheme tree, appended as a                 jam::ID::focus — EditorView row)
     direct CONFIG child — window, style,            EDGE (jam::ID::id, jam::ID::head,
     code, scrollbar, tab, button, overlay,                jam::ID::tail, jam::ID::orientation,
     pane, status_bar, hint, menu,                         jam::ID::proportions — jam::PaneEdge row)
     action_list, flex — flat siblings)          OVERLAY
                                                    ID::message (ParameterText)
 ```
-\* PANE and EDGE rows are flat TAB siblings — nesting is pure metadata:
-each EDGE's head/tail names a SPACE (a PANE row or another EDGE row) by
-UUID; the root space is derived — the one row no EDGE references.
+\* PANE and EDGE rows live under their TAB row. A split re-parents the split
+pane's row under its new EDGE row (`jam_MatrixComponent.cpp:85-94`), so a PANE
+row can sit under EDGE rows. Each EDGE's head/tail names a SPACE (a PANE row or
+another EDGE row) by UUID; the root space is derived — the one row no EDGE
+references.
 
 - **ConfigModel** (globally-owned instance via `jam::Instance<T>`) — config constants. Changes on reload only. Markdown files on disk (`~/.config/end/*.md`) are the SSOT, read through `jam::ConfigDocument`/`jam::ConfigValidator` — see "Config Chain" below. Config tree is derived state, rebuilt from disk on every reload (same code path as init). `BACKGROUND`/`POST_PROCESSING` are first-class `GRAPHICS` children, each a `ConfigShader` (`ConfigDirectory` subclass) holding one shader project's parsed source tree. Font rasterization values (`graphics.font_rasterizer` / `font_gamma` / `font_contrast`) are validated config and hot-reload live.
 - **ENDModel** (globally-owned instance via `jam::Instance<T>`) — app-lifetime runtime state, owned by `Nexus`. Changes during app lifetime. State placement follows the Attachment Contract below — placement tokens exist only at the engine tier, never on views.
@@ -172,9 +174,9 @@ dead). Describes the landed code:
   ↔ `SessionView : jam::TabbedComponent` (adopts the SESSION row), `TAB` ↔
   `TabView : jam::MatrixComponent` (build-or-adopts its TAB row; sits
   directly in SessionView's children — owner-as-owned), `PANE` ↔
-  `EditorView : jam::PaneComponent` (build-or-adopts its PANE row; on
-  Id::pluginId change, resolves the owning Session and parents that
-  plugin's own `juce::AudioProcessorEditor`).
+  `EditorView : jam::PaneComponent` (build-or-adopts its PANE row; its
+  constructor resolves the owning Session and parents that plugin's own
+  `juce::AudioProcessorEditor`, `EditorView.cpp:4-10`).
 - **`jam::Model::Component<Derived>` (jam_Model.h) — CRTP build-or-adopt.**
   The 4-param ctor `(model, parentState, type, uuid)` searches
   `parentState`'s direct children for `type` + matching `jam::ID::id`:
@@ -199,31 +201,35 @@ dead). Describes the landed code:
 - **`end::Session` = engine (P).** SESSION row carries its `jam::ID::id`
   parameter only — zero UI vocabulary, no TABS authoring. Owns the
   uuid-keyed graph node ids of the plugins created for its own PANE rows
-  (`Session.cpp:63-66`). `newPlugin` also stamps the row's `Id::name` and
-  `Id::pluginId` (`Session.cpp:69`, `:87`).
+  (`Session.cpp:64-68`). `newPlugin` also stamps the row's `Id::name`
+  (`Session.cpp:70`). `applyToPlugins` gives each plugin of the session to a
+  caller's function (`Session.h:46-51`).
 - **Nexus = host.** Owns `ENDModel`, every `Session`
   (`createSession`/`getSession`/`removeSession`/`getActiveSession`), the
   `juce::AudioPluginFormatManager` with JUCE's default formats and
-  `jam::ClapPluginFormat` (`Nexus.cpp:28-34`), the one
+  `jam::ClapPluginFormat` (`Nexus.cpp:44-50`), the one
   `juce::AudioProcessorGraph`, and the ENAX extensions. SESSION row
   placement under SESSIONS happens in `createSession` — engine-side
   authorship, the host verb.
 - **Plugin lifecycle is one flow:** a PANE row added → `Session::valueTreeChildAdded`
-  → `Session::newPlugin (uuid)`: find the type for `files::evePlugin`, create
-  the instance, add it to the graph, connect audio and MIDI, write
-  `Id::pluginId` (`Session.cpp:31-90`). `EditorView` reacts to the
-  `Id::pluginId` write by hosting the plugin's own editor.
-  `Session::removePlugin (uuid)` removes the node (`Session.cpp:92-99`).
+  → `Session::newPlugin (uuid)`: a `juce::PluginDescription` of
+  `files::evePlugin` with the format that accepts the file, one
+  `createPluginInstance`, the node in the graph, audio and MIDI connections
+  (`Session.cpp:31-88`). No type scan runs, so no throw-away instance exists.
+  The pane's `EditorView` hosts the plugin's editor when it is built.
+  `Session::removePlugin (uuid)` removes the node (`Session.cpp:90-97`).
 
 **Singular focus:** `focused_pane`/`focused_tab`/`focused_session` are
 SINGULAR uuid-valued parameters — the value IS the identity,
 `parameterChanged (id, value)` is fully self-describing downstream. The
-chain: each `OwnedComponent` self-reports on its OWN row (`jam::ID::focus`
-via focusGained/focusLost — the report channel); each `OwnerComponent` is
-the SOLE AUTHOR of its own row's focused-child parameter (its
-`valueTreePropertyChanged` sees a direct-child row's focus become 1 →
-writes that child's uuid — TabView authors `TAB.focused_pane`, SessionView
-authors `SESSION.focused_tab`); ENDView's `jam::ID::focusedPane` events-map
+chain: each `OwnedComponent` self-reports focus 1 on its OWN row
+(`jam::ID::focus`, from `focusGained` and `focusOfChildComponentChanged` — the
+report channel); each `OwnerComponent` is the sole author of its own row's
+focused-child parameter (its `valueTreePropertyChanged` sees an owned child's
+row focus become 1 — membership is the child registry, because a row can sit
+under EDGE rows — writes that child's uuid, and writes focus 0 to the previously
+focused child's row — TabView authors `TAB.focusedPane`, SessionView authors
+`SESSION.focusedTab`); ENDView's `jam::ID::focusedPane` events-map
 reaction re-points a `juce::Value` (`referTo`) at the reporting TAB row's
 `focused_pane` property (type-filtered — the SESSIONS write re-fires the
 same key); its `Value::Listener::valueChanged` writes the app-level
@@ -711,12 +717,13 @@ literal hosting relationship:
 |---|---|
 | Host (DAW) | `Nexus` (owns `ENDModel`, all Sessions, the `juce::AudioPluginFormatManager` and the one `juce::AudioProcessorGraph`) |
 | Project / session state | `end::Session` (gui-less: uuid-keyed graph node ids under one SESSION row) |
-| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`, created by `Session::newPlugin` and owned by the graph node (`Session.cpp:56-63`) |
+| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`, created by `Session::newPlugin` and owned by the graph node (`Session.cpp:56-68`) |
 | Host-side APVTS analog | `jam::Model` (`ENDModel`, `ConfigModel`) — the hosted plugin owns its own parameter state internally |
 | APVTS::Listener | `jam::Model::Listener` |
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | Plugin's audio clock | The plugin's own clock |
-| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` and parented by `EditorView` (`EditorView.cpp:66`) |
+| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` and parented by `EditorView` (`EditorView.cpp:68-88`) |
+| Host automation | END tells a plugin through its host parameters, found by host-visible name (`jam::Format::toParameterName`, `EditorView::getParameter`, `EditorView.cpp:98-108`): `Width` / `Height` on resize (`EditorView.cpp:20-51`), `Zoom` (`ENDView.cpp:297-354`), `Mode` (`ENDView.cpp:442-460`) |
 
 ### ENAX — END Native API eXtension
 
@@ -732,34 +739,48 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`jam_PluginHostType.cpp:6-39`).
 - **Channel.** END exports one C function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-40`). It returns `Nexus::getExtension (id)`: the
-  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:96-105`).
-  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:29-30`).
-- **Ids** (`jam/cast/core.md:74-76`) and their values (`Nexus.cpp:16-18`), each
-  the address of a host variable of the matching `juce::ComponentPeer` hook type:
-  - `enax.context-factory` → `&juce::ComponentPeer::externalContextFactory`
-  - `enax.peer-deleted` → `&juce::ComponentPeer::externalPeerDeletedCallback`
-  - `enax.key-pressed` → `&keyPressedCallback`, which forwards the key to the
-    active top-level window's peer (`Nexus.cpp:3-12`).
+  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:112-121`).
+  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:45-46`).
+- **Ids** (`jam/cast/core.md:74-78`) and their values (`Nexus.cpp:30-34`), each
+  the address of a host variable of the matching type:
+  - `Id::enaxContextFactory` → `&juce::ComponentPeer::externalContextFactory`
+  - `Id::enaxPeerDeleted` → `&juce::ComponentPeer::externalPeerDeletedCallback`
+  - `Id::enaxKeyPressed` → `&keyPressedCallback`, which forwards the key to the
+    active top-level window's peer (`Nexus.cpp:6-15`).
+  - `Id::enaxMouseEvent` → `&mouseEventCallback`, which forwards the mouse event to
+    the active top-level window's peer (`Nexus.cpp:17-24`).
+  - `Id::enaxDisplayBounds` → `&displayBoundsGetter`, the total bounds of the
+    displays (`Nexus.cpp:26`).
 - **Rules.** `jam::ENAXClientExtensions` is a mixin of the plugin's processor
   (`EVEProcessor.h:9`). Its constructor calls `PluginHostType().isEND()` once and,
   only under END, registers the END callback of each rule in
   `jam::Function::Map<juce::Identifier, void> rules`
-  (`jam_ENAXClientExtensions.cpp:5-21`, `.h:24`). `set (rule, callback)` runs the
+  (`jam_ENAXClientExtensions.cpp:5-48`, `.h:24`). `set (rule, callback)` runs the
   END callback, or else the caller's `callback` (`jam_ENAXClientExtensions.h:12-19`).
   `getExtension` finds `enax_get_extension` in the host executable
-  (`jam_ENAXClientExtensions.cpp:22-34`).
+  (`jam_ENAXClientExtensions.cpp:50-62`). Each hook reads END's variable through
+  its address at each call, so the plugin keeps no copy of END's value
+  (`jam_ENAXClientExtensions.cpp:11-18`, `:25-35`).
   - `Id::engine`: under END, the plugin reads END's context factory and
     peer-deleted callback. Elsewhere, it creates its own `VulkanGraphicsEngine`.
-    The CPU engine is created in every host (`jam_PluginEditorLayout.h:119-125`).
-  - `Id::keys`: under END, the plugin's peer key hook forwards to END; elsewhere
-    nothing (`jam_PluginEditorLayout.h:127`).
+    The CPU engine is created in every host (`jam_PluginEditorLayout.h:122-128`).
+  - `Id::keys`: under END, the plugin's peer key and mouse hooks forward to END, and
+    the default key of the plugin's `normal` command leaves the default key sheet;
+    elsewhere nothing (`jam_ENAXClientExtensions.cpp:21-38`,
+    `jam_PluginEditorLayout.h:116`, `:130`). The hook gives END every key before the
+    plugin's components (`jam/patch/juce-key-pressed-hook.patch:21-23`).
+  - `Id::size`: under END, the plugin's `width` and `height` parameter ranges run from
+    `jam::PaneComponent::minimumPaneExtent` to END's display bounds
+    (`jam_ENAXClientExtensions.cpp:40-46`).
 - **Transparency.** The VST2 and VST3 plugin editor wrappers are opaque, as JUCE
   ships them, except under END
   (`jam/patch/juce-plugin-transparency-hook.patch`:
-  `setOpaque (! detail::PluginUtilities::getHostType().isEND())`). END's VST3 and
-  AU host windows and `NSViewComponentWithParent` are not opaque (same patch).
+  `setOpaque (! detail::PluginUtilities::getHostType().isEND())`). END's VST2, VST3
+  and AU host windows and `NSViewComponentWithParent` are not opaque (same patch,
+  `juce_VSTPluginFormat.cpp`, `juce_VST3PluginFormat.cpp`,
+  `juce_AudioUnitPluginFormat.mm` hunks).
 - **Focus.** END owns focus. A pane whose row gets `Id::focus` 1 tells its editor
-  `grabKeyboardFocus()` (`EditorView.cpp:46-50`). On macOS, the VST2 and AU host
+  `grabKeyboardFocus()` (`EditorView.cpp:59-66`). On macOS, the VST2 and AU host
   windows want keyboard focus, and their `focusGained` makes the plugin view the
   first responder (`jam/patch/juce-plugin-window-focus-hook.patch`). The VST3 host
   window forwards with `view->onFocus (true)` (JUCE). EVE never grabs focus
@@ -769,13 +790,40 @@ hardcoded to END. The contract is formalised and enforced at run time.
   `Nexus::offloadPlugins` registers that one bundle in the process:
   `CFBundleCreate`, the plist `AudioComponents` entries,
   `CFBundleGetFunctionPointerForName` with `factoryFunction`, then
-  `AudioComponentRegister` (`Nexus.cpp:138-143`, `:147-196`). No other bundle
+  `AudioComponentRegister` (`Nexus.cpp:152-157`, `:161-210`). No other bundle
   loads. Nexus owns each bundle for the process (`Nexus.h:34-36`).
 
-The View is detachable. `EditorView::createProcessorEditor()` re-creates the
-hosted editor whenever its own PANE row's `Id::pluginId` changes; `Session`
-(and its plugin instances) survives `EditorView` destruction — its subtree
-in `ENDModel` is complete with zero Views. (See "Session Layer" above.)
+The View is detachable. `EditorView` creates the hosted editor once, in its
+constructor (`EditorView.cpp:4-10`); `Session` (and its plugin instances)
+survives `EditorView` destruction — its subtree in `ENDModel` is complete with
+zero Views. (See "Session Layer" above.)
+
+### Commands — Ids Owned by the State Owner
+
+A command id is a callback id, owned by the owner of the state that its callback
+changes. Each owner's table carries its default keys. Config only overrides keys by
+command name, and a widget never reads config.
+
+- **END.** `map::CommandId` (`cast/bimaps.md:56-99`). `ENDView` is the one binder
+  (`ENDView.cpp:17-18`, `:84-87`) and `perform` runs the `ENDActions` entry of the
+  command name (`ENDView.cpp:116-119`).
+- **jam `TextEditor`.** `map::TextEditorCommandId` with the default keys
+  `map::textEditorKeys` (per platform) and the modes `map::textEditorModes`, one row
+  per command in table order (`jam/cast/gui.md:253-435`). `TextEditor::getDefaultKeys()`
+  builds the default key sheet (`jam_TextEditor.cpp:170-188`).
+- **jam `PluginEditor`.** `map::PluginEditorCommandId` and `map::pluginEditorKeys`
+  (`jam/cast/plugin_bootstrap.md`), `PluginEditor::getDefaultKeys()`
+  (`jam_PluginEditor.cpp:26-37`).
+- **Plugin binder.** `PluginEditor::addCommands` joins the layout's default sheet
+  (the hosted rule already applied) and the PluginEditor defaults, lets each config
+  row replace the default rows of its name, registers every command target in the
+  view, then sets the key presses (`jam_PluginEditor.cpp:292-314`).
+- **Mode is per instance.** `jam::CommandManager::setKeyPresses` builds the sheet once:
+  one row per key and mode, with the command id and the mode key
+  (`jam_CommandManager.cpp:5-37`). `invokeKey` compares a row's mode with the
+  caller's own state (`:39-69`). Only rows with no mode enter JUCE's shared key
+  mappings (`:25-26`). The TextEditor mode is the host parameter
+  `Mode`, attached to the editor's node (`jam_TextEditor.cpp:144-157`).
 
 ---
 

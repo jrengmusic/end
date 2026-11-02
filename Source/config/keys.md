@@ -21,11 +21,14 @@ are two-character chords typed in sequence (e.g. \`\\ to split).
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | reload             | string | cmd+r     |         | Reload all configuration files.              |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoomIn             | string | cmd+=     |         | Increase font size.                          |
+| zoomIn             | string | cmd+=     |         | Zoom in the panes (exclusiveZoom,            |
+|                    |        |           |         | display.md).                                 |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoomOut            | string | cmd+-     |         | Decrease font size.                          |
+| zoomOut            | string | cmd+-     |         | Zoom out the panes (exclusiveZoom,           |
+|                    |        |           |         | display.md).                                 |
 +--------------------+--------+-----------+---------+----------------------------------------------+
-| zoomReset          | string | cmd+0     |         | Reset font size to configured default.       |
+| zoomReset          | string | cmd+0     |         | Reset the zoom of the panes (exclusiveZoom,  |
+|                    |        |           |         | display.md).                                 |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | newWindow          | string | cmd+n     |         | Open a new window.                           |
 +--------------------+--------+-----------+---------+----------------------------------------------+
@@ -86,5 +89,8 @@ are two-character chords typed in sequence (e.g. \`\\ to split).
 |                    |        |           |         | right.                                       |
 +--------------------+--------+-----------+---------+----------------------------------------------+
 | actionList         | string | \`?       |         | Open the action list (command palette).      |
+|                    |        |           |         |                                              |
++--------------------+--------+-----------+---------+----------------------------------------------+
+| normal             | string | \`]       |         | Enter normal mode in the focused pane.       |
 |                    |        |           |         |                                              |
 +--------------------+--------+-----------+---------+----------------------------------------------+

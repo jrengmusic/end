@@ -4,16 +4,14 @@
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
     : jam::PaneComponent (model, tabState, Id::toType (Id::pane), uuid)
 {
-    model.createAndAddParameter<jam::Parameter<float>> (state, Id::zoom, defaultZoom);
-
-    model.addListener (this);
+    state.addListener (this);
 
     createProcessorEditor();
 }
 
 EditorView::~EditorView()
 {
-    model.removeListener (this);
+    state.removeListener (this);
 
     if (editor != nullptr)
         editor->processor.editorBeingDeleted (editor.get());
@@ -30,27 +28,25 @@ void EditorView::resized()
         else
             editor->setTopLeftPosition (0, 0);
 
-        static constexpr int maximumNameLength { 128 };
         const auto bounds { (*static_cast<juce::Rectangle<int> (* const*)()> (Nexus::getInstance()->getExtension (Id::enaxDisplayBounds.toRawUTF8())))() };
         const juce::NormalisableRange<float> widthRange { static_cast<float> (jam::PaneComponent::minimumPaneExtent), static_cast<float> (bounds.getWidth()) };
         const juce::NormalisableRange<float> heightRange { static_cast<float> (jam::PaneComponent::minimumPaneExtent), static_cast<float> (bounds.getHeight()) };
 
-        for (auto* parameter : editor->processor.getParameters())
-        {
-            if (juce::Identifier { parameter->getName (maximumNameLength) } == juce::Identifier { jam::Format::toTitleCase (Id::width.toString()) })
-            {
-                parameter->beginChangeGesture();
-                parameter->setValueNotifyingHost (widthRange.convertTo0to1 (widthRange.snapToLegalValue (static_cast<float> (getWidth()))));
-                parameter->endChangeGesture();
-            }
+        static const juce::String widthName { jam::Format::toParameterName (Id::master.toString(), Id::width.toString()) };
+        static const juce::String heightName { jam::Format::toParameterName (Id::master.toString(), Id::height.toString()) };
 
-            if (juce::Identifier { parameter->getName (maximumNameLength) } == juce::Identifier { jam::Format::toTitleCase (Id::height.toString()) })
-            {
-                parameter->beginChangeGesture();
-                parameter->setValueNotifyingHost (heightRange.convertTo0to1 (heightRange.snapToLegalValue (static_cast<float> (getHeight()))));
-                parameter->endChangeGesture();
-            }
-        }
+        const auto setNormalised { [] (juce::AudioProcessorParameter* parameter, float value)
+                                   {
+                                       if (parameter != nullptr)
+                                       {
+                                           parameter->beginChangeGesture();
+                                           parameter->setValueNotifyingHost (value);
+                                           parameter->endChangeGesture();
+                                       }
+                                   } };
+
+        setNormalised (getParameter (editor->processor, widthName), widthRange.convertTo0to1 (widthRange.snapToLegalValue (static_cast<float> (getWidth()))));
+        setNormalised (getParameter (editor->processor, heightName), heightRange.convertTo0to1 (heightRange.snapToLegalValue (static_cast<float> (getHeight()))));
     }
 }
 
@@ -62,7 +58,7 @@ void EditorView::childBoundsChanged (juce::Component* child)
 
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (tree == state and property == Id::focus and static_cast<int> (tree.getProperty (Id::focus)) == 1)
+    if (property == Id::focus and static_cast<int> (tree.getProperty (Id::focus)) == 1)
     {
         if (editor != nullptr)
             editor->grabKeyboardFocus();
@@ -97,4 +93,17 @@ juce::ValueTree EditorView::findAncestorRow (juce::ValueTree tree, const juce::I
         tree = tree.getParent();
 
     return tree;
+}
+
+juce::AudioProcessorParameter* EditorView::getParameter (juce::AudioProcessor& plugin, const juce::String& name)
+{
+    const auto& parameters { plugin.getParameters() };
+    const auto found { std::find_if (parameters.begin(), parameters.end(),
+                                     [&name] (const juce::AudioProcessorParameter* parameter)
+                                     {
+                                         return parameter->getName (maximumNameLength).compare (name) == 0;
+                                     }) };
+
+    if (found != parameters.end()) return *found;
+    return nullptr;
 }

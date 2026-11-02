@@ -7,17 +7,22 @@
 
 //==============================================================================
 /** @class ENDActions
- *  @brief Registry of void() callables keyed by juce::Identifier.
+ *  @brief Registry of the application actions. Each action is a callable that
+ *         is keyed by its juce::Identifier. The commands of ENDView run them by name.
  */
 class ENDActions
     : public jam::Instance<ENDActions>
 {
 public:
+    /** @brief Default constructor. The registry starts with no action. */
     ENDActions() = default;
 
-    /** @brief Registers a callable under actionId, forwarding to the action map.
-     *  @param actionId    Identifier the callable is registered under.
-     *  @param newFunction Callable to register.
+    /**
+     * @brief Registers a callable under actionId, forwarding to the action map.
+     * @tparam Args          Argument types that the callable takes.
+     * @tparam FunctionType  Type of the callable.
+     * @param actionId       Identifier the callable is registered under.
+     * @param newFunction    Callable to register.
      */
     template <typename... Args, typename FunctionType>
     void add (const juce::Identifier& actionId, FunctionType&& newFunction)
@@ -25,9 +30,11 @@ public:
         actions.add<Args...> (actionId, std::forward<FunctionType> (newFunction));
     }
 
-    /** @brief Invokes the callable registered under actionId, forwarding args to it.
-     *  @param actionId Identifier of a previously registered callable.
-     *  @param args     Arguments forwarded to the callable.
+    /**
+     * @brief Invokes the callable registered under actionId, forwarding args to it.
+     * @tparam Args  Argument types forwarded to the callable.
+     * @param actionId Identifier of a previously registered callable.
+     * @param args     Arguments forwarded to the callable.
      */
     template <typename... Args>
     void get (const juce::Identifier& actionId, Args&&... args)
@@ -35,20 +42,12 @@ public:
         actions.get (actionId, std::forward<Args> (args)...);
     }
 
-    /** @brief Runs the action registered under the given identifier.
-     *  @param action Identifier of a previously registered action.
-     *  @return True when a matching action was found and run, false otherwise.
+    /**
+     * @brief Runs the action registered under the given identifier.
+     * @param action Identifier of a previously registered action.
+     * @return True when a matching action was found and run, false otherwise.
      */
-    bool run (const juce::Identifier& action)
-    {
-        if (actions.contains (action))
-        {
-            actions.get (action);
-            return true;
-        }
-
-        return false;
-    }
+    bool run (const juce::Identifier& action);
 
     //==============================================================================
 private:
