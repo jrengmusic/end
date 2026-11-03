@@ -38,20 +38,17 @@ public:
     };
 
     /**
-     * @brief Constructs the tab's pane graph, registering the tab's name parameter on state.
+     * @brief Constructs the tab's pane graph over an existing tab row, registering the tab's name parameter on state.
      *
-     * @param uuid         Identity of this tab.
-     * @param newModel     Owning model; source of registered parameters.
-     * @param sessionState Session's own tree to adopt/append this tab's row under.
+     * @param newModel      Owning model; source of registered parameters.
+     * @param existingState The tab's own row, already in the Model.
      */
-    TabView (jam::UUID uuid, jam::Model& newModel, juce::ValueTree sessionState);
+    TabView (jam::Model& newModel, juce::ValueTree existingState);
     /** @brief Default destructor. */
     ~TabView() override = default;
 
-    /** @brief Mints a new pane and mounts it as a child of the graph.
-     *  @return Identity of the newly minted pane.
-     */
-    jam::UUID add();
+    /** @brief Mints a new pane and mounts it as a child of the graph. */
+    void add();
 
     /** @brief Sets the focused child to the neighbouring pane in direction, when one exists.
      *  @param direction Edge to look across — Id::left/right/top/bottom.
@@ -96,8 +93,9 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * A split cuts the pane at the cursor proportion along the edge axis. A join runs the joinLeft, joinRight, joinUp or
-     * joinDown action of ENDActions. The pane surface repaints after the gesture.
+     * An inward drag splits the pane at the cursor proportion along the edge axis, then runs the loadPlugin action with
+     * files::evePlugin, which loads EVE into the new pane. An outward drag runs the action that getJoinAction() returns
+     * for the edge. The pane surface repaints after the gesture.
      *
      * @param event Mouse event that ends the gesture.
      */
@@ -112,6 +110,22 @@ public:
      * @param g Graphics context for this paint pass.
      */
     void paintOverChildren (juce::Graphics& g) override;
+
+    /**
+     * @brief Returns the four join actions, each paired with the edge that it joins across.
+     *
+     * registerJoinActions() reads this table to register one action per join direction. mouseUp() reads it through getJoinAction().
+     *
+     * @return The pairs of join action and edge: joinLeft with left, joinDown with bottom, joinUp with top and joinRight with right.
+     */
+    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4>& getJoinDirections();
+
+    /**
+     * @brief Returns the join action that joins across an edge.
+     * @param edge  Edge to join across: Id::left, Id::right, Id::top or Id::bottom.
+     * @return The join action, or an invalid identifier when no join action joins across that edge.
+     */
+    static juce::Identifier getJoinAction (const juce::Identifier& edge);
 
     /** @brief Minimum drag distance in pixels, either axis, before a corner
      *  drag arms a split/join preview.

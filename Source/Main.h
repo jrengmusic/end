@@ -22,7 +22,6 @@ public:
 
 private:
     //==============================================================================
-#if JUCE_DEBUG
     static inline const char* const debugLogFileExtension { ".ode" };
 
     /** @brief Diagnostic log sink — canonical location: ConfigDirectory::Config::path
@@ -35,12 +34,14 @@ private:
         ConfigDirectory::Config::path
             .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, debugLogFileExtension))
     };
-#endif
 
     //==============================================================================
     // Owned global registry aggregate — jam::Bimap<T> owner. Declared before any consumer so the
     // single-global-pointer Instance<T> slot is populated before first use.
     Generated generated;
+#if JAM_USING_PROFILER
+    jam::Profiler profiler { jam::Profiler::defaultCapacity };
+#endif
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
     jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
@@ -56,6 +57,13 @@ private:
 
     //==============================================================================
     ENDLookAndFeel lookAndFeel;
+
+    /**
+     * @brief Window state file of END in the config directory, END.settings.
+     *
+     * initialise() restores the window from the window key of this file, and shutdown() writes the window state to it.
+     */
+    juce::PropertiesFile settings { ConfigDirectory::Config::getPath (files::settingsFileName), juce::PropertiesFile::Options {} };
 
     std::unique_ptr<jam::Window> window;
 

@@ -35,7 +35,6 @@ namespace Id
     const juce::Identifier backgroundOpacity        { juce::String::fromUTF8 ("backgroundOpacity") };
     const juce::Identifier backgroundResolution     { juce::String::fromUTF8 ("backgroundResolution") };
     const juce::Identifier blurRadius               { juce::String::fromUTF8 ("blurRadius") };
-    const juce::Identifier bottom                   { juce::String::fromUTF8 ("bottom") };
     const juce::Identifier button                   { juce::String::fromUTF8 ("button") };
     const juce::Identifier buttonOn                 { juce::String::fromUTF8 ("buttonOn") };
     const juce::Identifier caret                    { juce::String::fromUTF8 ("caret") };
@@ -55,6 +54,7 @@ namespace Id
     const juce::Identifier fontGamma                { juce::String::fromUTF8 ("fontGamma") };
     const juce::Identifier fontRasterizer           { juce::String::fromUTF8 ("fontRasterizer") };
     const juce::Identifier frameRate                { juce::String::fromUTF8 ("frameRate") };
+    const juce::Identifier graphNode                { juce::String::fromUTF8 ("graphNode") };
     const juce::Identifier graphics                 { juce::String::fromUTF8 ("graphics") };
     const juce::Identifier highlight                { juce::String::fromUTF8 ("highlight") };
     const juce::Identifier imouse                   { juce::String::fromUTF8 ("imouse") };
@@ -63,6 +63,7 @@ namespace Id
     const juce::Identifier joinRight                { juce::String::fromUTF8 ("joinRight") };
     const juce::Identifier joinUp                   { juce::String::fromUTF8 ("joinUp") };
     const juce::Identifier kerningFactor            { juce::String::fromUTF8 ("kerningFactor") };
+    const juce::Identifier loadPlugin               { juce::String::fromUTF8 ("loadPlugin") };
     const juce::Identifier menu                     { juce::String::fromUTF8 ("menu") };
     const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse") };
     const juce::Identifier newPane                  { juce::String::fromUTF8 ("newPane") };
@@ -74,15 +75,20 @@ namespace Id
     const juce::Identifier overlay                  { juce::String::fromUTF8 ("overlay") };
     const juce::Identifier pane                     { juce::String::fromUTF8 ("pane") };
     const juce::Identifier paneDown                 { juce::String::fromUTF8 ("paneDown") };
+    const juce::Identifier paneEditor               { juce::String::fromUTF8 ("paneEditor") };
     const juce::Identifier paneLeft                 { juce::String::fromUTF8 ("paneLeft") };
+    const juce::Identifier panePrompt               { juce::String::fromUTF8 ("panePrompt") };
     const juce::Identifier paneRight                { juce::String::fromUTF8 ("paneRight") };
+    const juce::Identifier panes                    { juce::String::fromUTF8 ("panes") };
     const juce::Identifier paneStep                 { juce::String::fromUTF8 ("paneStep") };
     const juce::Identifier paneUp                   { juce::String::fromUTF8 ("paneUp") };
+    const juce::Identifier plugin                   { juce::String::fromUTF8 ("plugin") };
     const juce::Identifier plugins                  { juce::String::fromUTF8 ("plugins") };
     const juce::Identifier postProcessing           { juce::String::fromUTF8 ("postProcessing") };
     const juce::Identifier postProcessingOpacity    { juce::String::fromUTF8 ("postProcessingOpacity") };
     const juce::Identifier postProcessingResolution { juce::String::fromUTF8 ("postProcessingResolution") };
     const juce::Identifier prevTab                  { juce::String::fromUTF8 ("prevTab") };
+    const juce::Identifier profiler                 { juce::String::fromUTF8 ("profiler") };
     const juce::Identifier quit                     { juce::String::fromUTF8 ("quit") };
     const juce::Identifier reducePaneHeight         { juce::String::fromUTF8 ("reducePaneHeight") };
     const juce::Identifier reducePaneWidth          { juce::String::fromUTF8 ("reducePaneWidth") };
@@ -94,6 +100,7 @@ namespace Id
     const juce::Identifier resizerBar               { juce::String::fromUTF8 ("resizerBar") };
     const juce::Identifier scrollbar                { juce::String::fromUTF8 ("scrollbar") };
     const juce::Identifier session                  { juce::String::fromUTF8 ("session") };
+    const juce::Identifier sessionPlugin            { juce::String::fromUTF8 ("sessionPlugin") };
     const juce::Identifier sessions                 { juce::String::fromUTF8 ("sessions") };
     const juce::Identifier shaderFormat             { juce::String::fromUTF8 ("shaderFormat") };
     const juce::Identifier splitHorizontal          { juce::String::fromUTF8 ("splitHorizontal") };

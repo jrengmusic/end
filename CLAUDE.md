@@ -6,13 +6,16 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 96: END and EVE Config — Named Light/Dark Palette, One Load Path, Pane Padding, Canon Settings Lane, Keyword Key Form ✅ (2026-11-03).
+- **Last sprint:** Sprint 97: One Load Path, Async Instance, Drop Target in Front, EVE Known, Editor Once, OMP Race, Model-Driven Tabs ✅ (2026-11-04).
 - **Active debts (`DEBT.md`):**
+  - `DEBT-20261103T195500` — fit of plugin editors to the pane (deferred by ARCHITECT)
   - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
   - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
 - **Open PLANs:**
   - `PLAN-end-eve-config.md` — END and EVE config: lower-case keys, named light/dark palette, one jam load path, pane padding
   - Contract record: `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md` §4.3 `[AMENDED 2026-11-01 — ENAX]`
+- **Related projects:** END, EVE, jam, JFS, KANJUT. ARCHITECT: *"JFS with KANJUT should not break. no runtime changes, possibly no code change either. only at framework details implementation synced"*.
+- **WHELMED is not a plugin and not a jam consumer.** Never read it. ARCHITECT: *"whelmed dev will not be developed as plugin. it will absorbed to EVE as EVE native markdown renderer, only with MarkdownComponent."*
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)`  

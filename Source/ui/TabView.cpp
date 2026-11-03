@@ -1,21 +1,19 @@
 #include "ui/TabView.h"
 #include "action/ENDActions.h"
 
-TabView::TabView (jam::UUID uuid, jam::Model& newModel, juce::ValueTree sessionState)
-    : jam::MatrixComponent (newModel, sessionState, Id::toType (Id::tab), uuid)
+TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
+    : jam::MatrixComponent (newModel, existingState)
 {
     setName (Id::toType (Id::tab).toString());
     model.createAndAddParameter<jam::ParameterText> (state, Id::name, juce::String {});
 }
 
 //==============================================================================
-jam::UUID TabView::add()
+void TabView::add()
 {
     jam::UUID uuid {};
 
     MatrixComponent::add (uuid, createChild (uuid));
-
-    return uuid;
 }
 
 //==============================================================================
@@ -90,6 +88,36 @@ bool TabView::isInward (const juce::Identifier& edge, juce::Point<int> offset) c
     return isLow (map::Position::getInstance()->get (edge.toString())) == ((horizontal ? offset.getX() : offset.getY()) > 0);
 }
 
+const std::array<std::pair<juce::Identifier, juce::Identifier>, 4>& TabView::getJoinDirections()
+{
+    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4> joinDirections {{
+        { Id::joinLeft, Id::left },
+        { Id::joinDown, Id::bottom },
+        { Id::joinUp, Id::top },
+        { Id::joinRight, Id::right },
+    }};
+
+    return joinDirections;
+}
+
+juce::Identifier TabView::getJoinAction (const juce::Identifier& edge)
+{
+    const auto& joinDirections { getJoinDirections() };
+    const auto found { std::find_if (joinDirections.begin(), joinDirections.end(), [&edge] (const auto& entry)
+                                     {
+                                         const auto& [action, direction] { entry };
+                                         return direction == edge;
+                                     }) };
+
+    if (found != joinDirections.end())
+    {
+        const auto& [action, direction] { *found };
+        return action;
+    }
+
+    return {};
+}
+
 //==============================================================================
 void TabView::mouseDrag (const juce::MouseEvent& event)
 {
@@ -116,22 +144,15 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 
                 split (edge, horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
                                         : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
+                ENDActions::getInstance()->get (Id::loadPlugin, files::evePlugin);
             }
             else
             {
-                static const auto joinActions {
-                    []
-                    {
-                        jam::HashMap<int, juce::Identifier> actions;
-                        actions.try_emplace (map::Position::left, Id::joinLeft);
-                        actions.try_emplace (map::Position::right, Id::joinRight);
-                        actions.try_emplace (map::Position::top, Id::joinUp);
-                        actions.try_emplace (map::Position::bottom, Id::joinDown);
-                        return actions;
-                    }()
-                };
+                const auto action { getJoinAction (edge) };
+                jassert (action.isValid());
 
-                ENDActions::getInstance()->run (joinActions.at (map::Position::getInstance()->get (edge.toString())));
+                if (action.isValid())
+                    ENDActions::getInstance()->run (action);
             }
 
             repaint();

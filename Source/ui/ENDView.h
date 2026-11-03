@@ -112,13 +112,25 @@ private:
     /** @brief Registers the view's own Id::size parameter and the message overlay's, then sets the window size from the display config. */
     void createAndAttachParameters();
 
-    /** @brief Registers the session, tab, zoom and pane action families. */
+    /**
+     * @brief Registers every action family: session, application, tab, zoom, pane, focus, join, swap and resize.
+     *
+     * The profiler family is registered too when JAM_USING_PROFILER is set.
+     */
     void registerActions();
 
     /** @brief Registers Id::newSession, which creates a session with a view, then runs the new-tab action. */
     void registerSessionActions();
 
-    /** @brief Registers the tab, pane and split actions, tab navigation, close, reload and quit. */
+    /** @brief Registers Id::quit, which quits the application, and Id::reload, which reloads the config from its path. */
+    void registerApplicationActions();
+
+    /**
+     * @brief Registers newTab, closeTab, nextTab and prevTab.
+     *
+     * newTab adds a tab row, then runs newPane without an edge, and loads EVE into the new pane.
+     * closeTab removes the focused tab row of the focused session. nextTab and prevTab move between the tabs of the focused session.
+     */
     void registerTabActions();
 
     /**
@@ -130,11 +142,44 @@ private:
     void registerZoomActions();
 
     /**
-     * @brief Registers the pane focus, join, swap and resize actions, and the normal action.
+     * @brief Registers normal, newPane, loadPlugin, splitHorizontal, splitVertical and closePane.
      *
-     * The normal action sets the mode of the hosted plugin of the focused pane to the normal mode.
+     * normal sets the mode of the hosted plugin of the focused pane to the normal mode.
+     * newPane splits the focused pane at the given edge, or adds a pane when the edge is invalid.
+     * loadPlugin writes the plugin file of the focused pane.
+     * splitHorizontal and splitVertical split toward the bottom or the right, and load EVE into the new pane.
+     * closePane removes the focused pane and its plugin. With one pane left, it closes the tab.
      */
     void registerPaneActions();
+
+    /** @brief Registers paneLeft, paneRight, paneUp and paneDown, which move the focus to the neighbour pane in that direction. */
+    void registerFocusActions();
+
+    /**
+     * @brief Registers one join action per join direction of TabView::getJoinDirections().
+     *
+     * A join absorbs the neighbour pane. The plugin of the absorbed pane is removed from the focused session.
+     */
+    void registerJoinActions();
+
+    /** @brief Registers swapLeft, swapDown, swapUp and swapRight, which swap the focused pane with its neighbour in that direction. */
+    void registerSwapActions();
+
+    /**
+     * @brief Registers reducePaneWidth, reducePaneHeight, expandPaneWidth and expandPaneHeight.
+     *
+     * Each resizes the focused pane along the width or the height, by the paneStep of the display config.
+     */
+    void registerResizeActions();
+
+#if JAM_USING_PROFILER
+    /**
+     * @brief Registers promptPainted, which splits the active tab while it has fewer panes than the profiler table of the manifest file.
+     *
+     * When the tab has the full count, the action quits the application.
+     */
+    void registerProfilerActions();
+#endif
 
     /** @brief Registers the graphics events and the mouse events. */
     void registerEvents();
@@ -161,6 +206,12 @@ private:
      */
     SessionView* getActiveSessionView() noexcept;
 
+    /**
+     * @brief Returns the focused tab of the focused session.
+     * @return The focused TabView, or nullptr when no session is focused, or when no tab of that session is focused.
+     */
+    TabView* getActiveTabView() noexcept;
+
     //==============================================================================
     /** @brief Background that draws the shader behind the sessions. */
     jam::VulkanShaderComponent background;
@@ -174,6 +225,10 @@ private:
 
     /** @brief Message overlay, shown above the sessions. */
     jam::MessageOverlay messageOverlay;
+
+#if JAM_USING_PROFILER
+    std::optional<jam::Profiler::Zone> panePrompt;
+#endif
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDView)

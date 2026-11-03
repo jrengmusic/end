@@ -701,13 +701,24 @@ literal hosting relationship:
 |---|---|
 | Host (DAW) | `Nexus` (owns `ENDModel`, all Sessions, the `juce::AudioPluginFormatManager` and the one `juce::AudioProcessorGraph`) |
 | Project / session state | `end::Session` (gui-less: uuid-keyed graph node ids under one SESSION row) |
-| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`, created by `Session::addPlugin` and owned by the graph node (`Session.cpp:55-67`) |
+| PluginProcessor | The hosted plugin's own `juce::AudioPluginInstance`. `Session::loadPlugin` creates it asynchronously when the pane row's `Id::plugin` changes, and `Session::addPlugin` adds it to the graph, which owns it |
 | Host-side APVTS analog | `jam::Model` (`ENDModel`, `ConfigModel`) — the hosted plugin owns its own parameter state internally |
 | APVTS::Listener | `jam::Model::Listener` |
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | Plugin's audio clock | The plugin's own clock |
-| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` and parented by `EditorView` (`EditorView::createProcessorEditor`) |
-| Host automation | The pane tells its own plugin through its host parameters, found by host-visible name (`jam::Format::toParameterName`, private `EditorView::getParameter`) and written as one gesture (private `EditorView::setParameter`): `width` / `height` on resize (`EditorView::resized`), `focus` from its row (`EditorView::valueTreePropertyChanged`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), `mode` (`EditorView::setMode`, told by the `normal` action) |
+| PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` when the pane row receives `Id::name`, after layout, and parented by `EditorView` (`EditorView::createProcessorEditor`) |
+| Host automation | ENAX lane only: the pane tells EVE through its host parameters, found by host-visible name only when the pane row's `Id::plugin` is the EVE file (private `EditorView::getParameter`) and written as one gesture (private `EditorView::setParameter`): `width` / `height` on resize (`EditorView::resized`), `focus` from its row (`EditorView::valueTreePropertyChanged`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), `mode` (`EditorView::setMode`, told by the `normal` action) |
+
+### Hosting Contract
+
+- END hosts any VST2, VST3 or AU plugin. CLAP follows later.
+- One load path: the `loadPlugin (plugin)` action writes the plugin file into `Id::plugin` of the focused pane row. `files::evePlugin` is the default argument. A dropped plugin file is the override. `Session` reacts to that Model event.
+- One split path: `newPane (edge)` splits the focused pane in half, or adds a pane. The split keys, `newTab`, the corner drag and a file drop each run `newPane`, then `loadPlugin`.
+- EVE is known: `Nexus::registerEVE` lists EVE's description at construction, so the first EVE load runs no scan.
+- `EditorView::DropTarget` sits in front of every child of a pane. A file drag that enters it focuses the pane. A plugin file dropped on it runs `newPane (pane.getEdge (point))`, then `loadPlugin (path)`.
+- A resizable editor takes the inner pane area. Any other editor sits at the inset position. Fitting a fixed-size editor into its pane is open debt (`DEBT.md`).
+- Tabs follow the Model: `SessionView` creates and destroys a `TabView` from the add and remove events of its tab rows. The last tab removed runs `quit`. `Session` listens on the parent `sessions` row, so JUCE destroys a closed tab's editors before `Session` removes its plugins.
+- An instance can later move to its own window (undocked editor) without a new instance, because `Session` owns the instance and the pane owns only the editor.
 
 ### ENAX — END Native API eXtension
 

@@ -29,13 +29,12 @@ public:
     /** @brief Default destructor. */
     ~SessionView() override = default;
 
-    /** @brief Mints and mounts a new tab, wiring its tab-bar label to state.
+    /** @brief Appends a tab row to the session's state. The tab mounts from the child-added event.
      *  @param uuid Identity of the new tab.
-     *  @return The newly constructed TabView.
      */
-    TabView& add (jam::UUID uuid);
+    void add (jam::UUID uuid);
 
-    /** @brief Removes a tab's state row, then its component.
+    /** @brief Removes a tab's state row. The tab unmounts from the child-removed event.
      *  @param uuid Identity of the tab to remove.
      */
     void remove (jam::UUID uuid);
@@ -68,6 +67,27 @@ private:
      */
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /**
+     * @brief Mounts a TabView for each tab row added to the session row.
+     *
+     * The tab bar label writes its text to the Id::name of the tab row. The tab then takes its displayed name, and the
+     * tab bar takes its depth and position from the theme.
+     *
+     * @param parentTree  Tree that gained the child. Only the session row mounts tabs.
+     * @param child       Added child. A tab row is mounted.
+     */
+    void valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child) override;
+
+    /**
+     * @brief Unmounts the TabView of each tab row removed from the session row.
+     *
+     * The tab bar takes its depth and position from the theme again. When no tab remains, the quit action runs.
+     *
+     * @param parentTree  Tree that lost the child. Only the session row unmounts tabs.
+     * @param child       Removed child. A tab row is unmounted.
+     */
+    void valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int) override;
 
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;

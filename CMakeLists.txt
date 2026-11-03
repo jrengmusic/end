@@ -64,7 +64,7 @@ if(APPLE)
 -Wno-shadow;-Wno-unused-parameter;-Wno-float-equal;-Wno-sign-conversion;-Wno-switch-enum;-Wno-implicit-float-conversion;-O3;-flto=thin
     )
     set(CAST_RELEASE_LINK_FLAGS
--dead_strip
+-dead_strip;-Wl,-export_dynamic
     )
     set(CAST_DEBUG_COMPILE_FLAGS
 -Wno-shadow;-Wno-unused-parameter;-Wno-float-equal;-Wno-sign-conversion;-Wno-switch-enum;-Wno-implicit-float-conversion;-O0;-g
@@ -111,6 +111,7 @@ set(CAST_JUCE_PATCHES
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-host-type-hook.patch"           # END registered as a known PluginHostType host: HostType END, isEND(), description, host file name detection
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-window-focus-hook.patch"        # VST2 and AU host plugin windows take keyboard focus and make the plugin view first responder; applies after juce-plugin-transparency-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-mouse-event-hook.patch"                # Host mouse event callback before a peer's components; applies after juce-key-pressed-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-editor-once-hook.patch"         # VST2 plugin client opens the editor that effEditGetRect created, so the editor is built once; applies after juce-plugin-transparency-hook.patch
 )
 
 if(WIN32)
@@ -220,6 +221,7 @@ juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_web")            # HTML 
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_clap")           # JAM CLAP Plugin Hosting
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_audio_devices")  # JAM Audio Device Abstractions
 juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_terminal")       # VT read-side engine, TTY, protocol
+juce_add_module("${CMAKE_CURRENT_SOURCE_DIR}/../jam/jam_profiler")       # Profiler zones — per-thread rings drained to durations per zone
 
 message(STATUS "CAST: user modules added from ${CAST_USER_MODULE_PATH}")
 
@@ -227,11 +229,17 @@ message(STATUS "CAST: user modules added from ${CAST_USER_MODULE_PATH}")
 # TARGET — the application declaration
 # ==============================================================================
 
+set(CAST_BUNDLE_ID "com.JRENG.END")
+
+if(CAST_PROFILE)
+    string(APPEND CAST_BUNDLE_ID ".scout")
+endif()
+
 juce_add_gui_app(${PROJECT_NAME}
     PRODUCT_NAME "END"
     VERSION "0.0.1"
     BUILD_VERSION "0.0.1"
-    BUNDLE_ID "com.JRENG.END"
+    BUNDLE_ID ${CAST_BUNDLE_ID}
     COMPANY_NAME "JRENG"
     COMPANY_COPYRIGHT "(c) 2025 JRENG. All rights reserved."
     COMPANY_WEBSITE "https://jrengmusic.com"
@@ -278,6 +286,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     HAVE_FREETYPE                                                        # FreeType font backend, consumed by juce_graphics_Harfbuzz.cpp
     "$<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>"                     # POSIX unistd.h present, non-Windows
     "$<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>"                      # POSIX fcntl.h present, non-Windows
+    "$<$<BOOL:${CAST_PROFILE}>:JAM_USING_PROFILER=1>"                    # Profiler zones, profile builds only
 )
 
 # ==============================================================================
@@ -326,6 +335,7 @@ target_link_libraries(${PROJECT_NAME}
         jam_clap
         jam_audio_devices
         jam_terminal
+        jam_profiler
     PUBLIC
         juce::juce_recommended_config_flags
 )
@@ -484,6 +494,15 @@ file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
 
 set(CAST_PLUGIN_FILES ${CAST_LAYOUT_FILES})
 list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX "[.]zip$")
+list(FILTER CAST_LAYOUT_FILES EXCLUDE REGEX "[.]zip$")
+
+if(CAST_PROFILE)
+    list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX " scout[.]zip$")
+else()
+    list(FILTER CAST_PLUGIN_FILES EXCLUDE REGEX " scout[.]zip$")
+endif()
+
+list(APPEND CAST_LAYOUT_FILES ${CAST_PLUGIN_FILES})
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CAST_PLUGIN_FILES})
 
 set(CAST_PLUGINS_HASH_CONCAT "")
@@ -558,7 +577,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 
     set(CAST_PACK_ARCHIVE "${CMAKE_SOURCE_DIR}/${CAST_PACK_folder}/END v${PROJECT_VERSION} ${CAST_PACK_platform}.${CAST_PACK_format}")
 
-    if(APPLE AND CAST_SIGN)
+    if(APPLE AND CAST_SIGN AND NOT CAST_PROFILE)
         string(REPLACE ";" "," CAST_HOST_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
         configure_file("${CMAKE_SOURCE_DIR}/cast/installer/mac/distribution.xml" "${CMAKE_BINARY_DIR}/distribution.xml" @ONLY)
         add_custom_command(TARGET post-build POST_BUILD
@@ -577,7 +596,7 @@ COMMAND xcrun stapler staple "${CAST_PACK_ARCHIVE}"
             COMMENT "CAST: installer ${CAST_PACK_ARCHIVE}"
             USES_TERMINAL
         )
-    elseif(WIN32 AND CAST_SIGN)
+    elseif(WIN32 AND CAST_SIGN AND NOT CAST_PROFILE)
         cmake_host_system_information(RESULT CAST_INSTALLER_KITS_ROOT QUERY WINDOWS_REGISTRY "HKLM/SOFTWARE/Microsoft/Windows Kits/Installed Roots" VALUE KitsRoot10 VIEW 64_32)
         file(GLOB CAST_INSTALLER_KITS_VERSIONS LIST_DIRECTORIES true "${CAST_INSTALLER_KITS_ROOT}bin/10.*")
         list(SORT CAST_INSTALLER_KITS_VERSIONS COMPARE NATURAL ORDER DESCENDING)

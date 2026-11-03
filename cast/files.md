@@ -36,3 +36,5 @@ bundle or its offload stamp in the plugins folder, or of a file extension.
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | audio unit extension         | toCamel | component                        | toLiteral | Extension of an Audio Unit bundle.                   |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
+| @string | settings file name           | toCamel | END.settings                     | toLiteral | Window state file of END in the config directory.    |
++---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+

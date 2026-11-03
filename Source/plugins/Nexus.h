@@ -42,12 +42,6 @@ struct Nexus : jam::Instance<Nexus>
     Session& getSession (jam::UUID sessionUuid);
 
     /**
-     * @brief Removes the row of a session from the sessions tree and erases the session.
-     * @param sessionUuid  Identity of the session to remove. The session must exist.
-     */
-    void removeSession (jam::UUID sessionUuid);
-
-    /**
      * @brief Returns the focused session, which the `focusedSession` parameter names.
      *
      * The parameter must hold a session identity. It is zero only before the first session is created.
@@ -63,6 +57,10 @@ struct Nexus : jam::Instance<Nexus>
      */
     const void* getExtension (const char* id) const;
 
+#if JAM_USING_PROFILER
+    static juce::File getManifestFile();
+#endif
+
 private:
     /**
      * @brief Unpacks the plugin archives of the binary data into the plugins folder once per plugin hash.
@@ -76,6 +74,30 @@ private:
      */
     void registerAudioUnit (const juce::File& componentFile);
 #endif
+
+    /**
+     * @brief Registers the host callbacks and getters that the hosted plugins read through the host extensions.
+     *
+     * The registry holds the context factory, the peer deleted callback, the key press and mouse event callbacks, and
+     * the display bounds getter. With the profiler, it also holds the prompt-painted callback and the manifest file getter.
+     */
+    void registerExtensions();
+
+    /**
+     * @brief Adds the default JUCE plugin formats and the CLAP format to the format manager.
+     *
+     * The CLAP format receives the extensions, the product name, the company name, the host URL and the version.
+     */
+    void addFormats();
+
+    /**
+     * @brief Lists the EVE plugin in the known plugin list, so that its first load runs no scan.
+     *
+     * The listed description carries the modification time of the EVE file. A file that is listed with an unchanged
+     * modification time is not tested again. On macOS, an EVE bundle with the Audio Unit extension is also registered
+     * as an audio component.
+     */
+    void registerEVE();
 
     /** @brief Website of the product. The CLAP format receives it as the host URL. */
     static constexpr const char* hostUrl { ProjectInfo::productWebsite };
@@ -95,6 +117,8 @@ private:
 
     /** @brief Plugin formats: the default JUCE formats and the CLAP format. */
     juce::AudioPluginFormatManager formatManager;
+    /** @brief Known plugin list. Each session scans its plugin file into it, and registerEVE() lists the EVE plugin in it at construction. */
+    juce::KnownPluginList knownPluginList;
     /** @brief Audio graph that holds the input and output processors and every hosted plugin. */
     juce::AudioProcessorGraph graph;
     /** @brief Identity of the audio input processor in the graph. */
