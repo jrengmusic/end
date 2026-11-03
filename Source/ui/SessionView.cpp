@@ -1,4 +1,5 @@
 #include "ui/SessionView.h"
+#include "action/ENDActions.h"
 
 SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
     : jam::TabbedComponent { newModel, sessionState }
@@ -6,32 +7,51 @@ SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
     setTabBarDepth (0);
 }
 
-TabView& SessionView::add (jam::UUID uuid)
+void SessionView::add (jam::UUID uuid)
 {
-    OwnerComponent::add (uuid, std::make_unique<TabView> (uuid, model, state));
+    juce::ValueTree row { Id::toType (Id::tab) };
+    row.setProperty (Id::id, uuid.value, nullptr);
+    state.appendChild (row, nullptr);
+}
 
-    auto* tabView { &get (uuid) };
-
-    if (auto* tab { getBar().getTabButton (uuid) })
+void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child)
+{
+    if (parentTree == state and child.hasType (Id::toType (Id::tab)))
     {
-        tab->label.onTextChange = [tabView, tab]
+        const jam::UUID uuid { static_cast<int64_t> (child.getProperty (Id::id)) };
+
+        OwnerComponent::add (uuid, std::make_unique<TabView> (model, child));
+
+        auto* tabView { &get (uuid) };
+
+        if (auto* tab { getBar().getTabButton (uuid) })
         {
-            tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
-        };
+            tab->label.onTextChange = [tabView, tab]
+            {
+                tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
+            };
+        }
+
+        applyTabName (uuid);
+        lookAndFeelChanged();
     }
-
-    applyTabName (uuid);
-    lookAndFeelChanged();
-
-    return *tabView;
 }
 
 void SessionView::remove (jam::UUID uuid)
 {
-    auto& tabView { get (uuid) };
-    state.removeChild (tabView.state, nullptr);
-    OwnerComponent::remove (uuid);
-    lookAndFeelChanged();
+    state.removeChild (get (uuid).state, nullptr);
+}
+
+void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int)
+{
+    if (parentTree == state and child.hasType (Id::toType (Id::tab)))
+    {
+        OwnerComponent::remove (jam::UUID { static_cast<int64_t> (child.getProperty (Id::id)) });
+        lookAndFeelChanged();
+
+        if (getChildCount() == 0)
+            ENDActions::getInstance()->run (Id::quit);
+    }
 }
 
 TabView& SessionView::get (jam::UUID uuid)

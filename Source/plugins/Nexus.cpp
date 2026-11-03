@@ -1,4 +1,5 @@
 #include "plugins/Nexus.h"
+#include "action/ENDActions.h"
 #if JUCE_MAC
 #include <AudioToolbox/AudioToolbox.h>
 #endif
@@ -25,13 +26,14 @@ static decltype (juce::ComponentPeer::externalMouseEventCallback) mouseEventCall
 
 static juce::Rectangle<int> (*displayBoundsGetter)() { [] { return juce::Desktop::getInstance().getDisplays().getTotalBounds (false); } };
 
+#if JAM_USING_PROFILER
+static void (*promptPaintedCallback)() { [] { ENDActions::getInstance()->run (Id::promptPainted); } };
+static juce::File (*manifestFileGetter)() { [] { return Nexus::getManifestFile(); } };
+#endif
+
 Nexus::Nexus()
 {
-    extensions.try_emplace (Id::enaxContextFactory, &juce::ComponentPeer::externalContextFactory);
-    extensions.try_emplace (Id::enaxPeerDeleted, &juce::ComponentPeer::externalPeerDeletedCallback);
-    extensions.try_emplace (Id::enaxKeyPressed, &keyPressedCallback);
-    extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback);
-    extensions.try_emplace (Id::enaxDisplayBounds, &displayBoundsGetter);
+    registerExtensions();
 
     model.getOrCreateChildWithName (Id::toType (Id::window));
 
@@ -39,13 +41,7 @@ Nexus::Nexus()
     model.createAndAddParameter<jam::Parameter<int64_t>> (
         sessionsTree, Id::focusedSession, jam::UUID::none().value);
 
-    juce::addDefaultFormatsToManager (formatManager);
-    formatManager.addFormat (std::make_unique<jam::ClapPluginFormat> (
-        extensions,
-        juce::String { ProjectInfo::projectName },
-        juce::String { ProjectInfo::companyName },
-        juce::String { hostUrl },
-        juce::String { ProjectInfo::versionString }));
+    addFormats();
     deviceManager.initialiseWithDefaultDevices (2, 2);
     player.setProcessor (&graph);
     audioInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
@@ -56,12 +52,49 @@ Nexus::Nexus()
         juce::AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode))->nodeID;
     deviceManager.addAudioCallback (&player);
     offloadPlugins();
+    registerEVE();
+}
+
+void Nexus::registerExtensions()
+{
+    extensions.try_emplace (Id::enaxContextFactory, &juce::ComponentPeer::externalContextFactory);
+    extensions.try_emplace (Id::enaxPeerDeleted, &juce::ComponentPeer::externalPeerDeletedCallback);
+    extensions.try_emplace (Id::enaxKeyPressed, &keyPressedCallback);
+    extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback);
+    extensions.try_emplace (Id::enaxDisplayBounds, &displayBoundsGetter);
+#if JAM_USING_PROFILER
+    extensions.try_emplace (Id::enaxPromptPainted, &promptPaintedCallback);
+    extensions.try_emplace (Id::enaxManifestFile, &manifestFileGetter);
+#endif
+}
+
+void Nexus::addFormats()
+{
+    juce::addDefaultFormatsToManager (formatManager);
+    formatManager.addFormat (std::make_unique<jam::ClapPluginFormat> (
+        extensions,
+        juce::String { ProjectInfo::projectName },
+        juce::String { ProjectInfo::companyName },
+        juce::String { hostUrl },
+        juce::String { ProjectInfo::versionString }));
+}
+
+void Nexus::registerEVE()
+{
+    const auto eve { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
+
+    if (auto* format { Session::getPluginFormat (formatManager, eve) })
+    {
+        juce::PluginDescription description {};
+        description.pluginFormatName = format->getName();
+        description.fileOrIdentifier = eve.getFullPathName();
+        description.lastFileModTime = eve.getLastModificationTime();
+        knownPluginList.addType (description);
+    }
 
 #if JUCE_MAC
-    const auto pluginFile { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
-
-    if (pluginFile.hasFileExtension (files::audioUnitExtension))
-        registerAudioUnit (pluginFile);
+    if (eve.hasFileExtension (files::audioUnitExtension))
+        registerAudioUnit (eve);
 #endif
 }
 
@@ -75,7 +108,7 @@ Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, graph, audioInputId, audioOutputId, midiInputId, formatManager));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (Id::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
     jassert (inserted);
     auto& [key, session] = *entry;
 
@@ -93,13 +126,6 @@ Session& Nexus::createSession()
 }
 
 Session& Nexus::getSession (jam::UUID sessionUuid) { return *sessions.at (sessionUuid); }
-
-void Nexus::removeSession (jam::UUID sessionUuid)
-{
-    auto sessionsTree { model.getChildWithName (Id::toType (Id::sessions)) };
-    sessionsTree.removeChild (sessions.at (sessionUuid)->state, nullptr);
-    sessions.erase (sessionUuid);
-}
 
 Session& Nexus::getActiveSession()
 {
@@ -124,6 +150,13 @@ const void* Nexus::getExtension (const char* id) const
 
     return nullptr;
 }
+
+#if JAM_USING_PROFILER
+juce::File Nexus::getManifestFile()
+{
+    return juce::File::getCurrentWorkingDirectory().getChildFile (juce::JUCEApplicationBase::getCommandLineParameterArray().getReference (0));
+}
+#endif
 
 void Nexus::offloadPlugins()
 {

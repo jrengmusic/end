@@ -196,9 +196,15 @@ void ENDApplication::setPostProcessParams()
                                   static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution)));
 }
 
-// juce::JUCEApplicationBase::shutdown() is pure virtual — an override must
-// exist even though its body is empty.
-void ENDApplication::shutdown() {}
+void ENDApplication::shutdown()
+{
+    settings.setValue (Id::window.toString(), window->getWindowStateAsString());
+
+#if JAM_USING_PROFILER
+    profiler.drain();
+    profiler.writeSamples (Nexus::getManifestFile(), Id::toType (juce::Identifier { ProjectInfo::projectName }));
+#endif
+}
 
 void ENDApplication::systemRequestedQuit() { quit(); }
 const juce::String ENDApplication::getApplicationName() { return ProjectInfo::projectName; }
@@ -229,6 +235,9 @@ void ENDApplication::initialise (const juce::String& commandLine)
                                             static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::alwaysOnTop)),
                                             static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::titleBarButtons)));
     window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
+
+    window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
+
     window->setVisible (true);
 
     registerEvents();

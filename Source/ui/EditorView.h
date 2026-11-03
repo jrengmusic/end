@@ -5,15 +5,22 @@
 #pragma once
 #include <JuceHeader.h>
 #include "generated/Generated.h"
+#include "plugins/Session.h"
 
 /**
  * @class EditorView
  * @brief One pane in a TabView's graph, wrapping a hosted plugin's own
  *        juce::AudioProcessorEditor.
  *
- * The editor is created once, in the constructor, from the plugin that the
- * session holds for this pane. When the Id::focus of the own row changes, the
- * focus parameter of the hosted plugin takes that value.
+ * The editor is created when the pane row receives Id::name. It is not created in
+ * the constructor. The name branch lays out the pane, creates the editor, and lays
+ * out the pane again. addPlugin() sets Id::name after it binds the plugin, so the
+ * session holds the plugin at that time. When the Id::plugin of the pane row changes,
+ * the editor is destroyed. When the Id::focus of the own row changes, the focus
+ * parameter of the hosted plugin takes that value.
+ *
+ * A DropTarget covers the pane. A plugin file dropped on the pane splits the pane
+ * at the drop edge, and the file loads into the new pane.
  */
 class EditorView
     : public jam::PaneComponent
@@ -21,7 +28,10 @@ class EditorView
 {
 public:
     /**
-     * @brief Creates the pane row under the tab, listens to it, and creates the hosted editor.
+     * @brief Builds or adopts the pane row under the tab, listens to it, and mounts the drop target.
+     *
+     * The editor is not created here.
+     *
      * @param model     Model that owns the pane parameters.
      * @param tabState  Tree of the tab that holds the pane row.
      * @param uuid      Identity of the pane row.
@@ -35,7 +45,7 @@ public:
     static constexpr int maximumNameLength { 128 };
 
     /**
-     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin.
+     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin when it is EVE.
      *
      * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
      * Any other editor sits at the inset position from the top left corner.
@@ -83,12 +93,53 @@ public:
 
 private:
     /**
-     * @brief Returns the parameter of a plugin whose name equals a name.
+     * @brief Drop target that covers a pane and accepts one plugin file.
+     *
+     * A drag over the pane focuses the pane. A drop splits the focused pane at the drop edge, then loads the file into the new pane.
+     */
+    class DropTarget : public juce::Component,
+                       public juce::FileDragAndDropTarget
+    {
+    public:
+        /**
+         * @brief Accepts a drag of one file that a plugin format of the focused session can read.
+         * @param files  Files dragged over the target.
+         * @return True when exactly one file is dragged, and a plugin format reads it.
+         */
+        bool isInterestedInFileDrag (const juce::StringArray& files) override;
+
+        /**
+         * @brief Focuses the pane under the drag, because a split divides the focused pane.
+         * @param files  Files dragged over the target.
+         * @param x      Horizontal drag position in the target.
+         * @param y      Vertical drag position in the target.
+         */
+        void fileDragEnter (const juce::StringArray& files, int x, int y) override;
+
+        /**
+         * @brief Splits the pane at the drop edge, then loads the first dropped file into the new pane.
+         *
+         * The drop edge is the edge of the pane triangle that holds the drop point, from PaneComponent::getEdge().
+         * The split focuses the new pane, so the file loads into it.
+         *
+         * @param files  Dropped files. The first file is loaded.
+         * @param x      Horizontal drop position in the target.
+         * @param y      Vertical drop position in the target.
+         */
+        void filesDropped (const juce::StringArray& files, int x, int y) override;
+    };
+
+    /**
+     * @brief Returns the parameter of a plugin whose name equals a name, compared without case.
+     *
+     * The search runs only when the Id::plugin of the pane row is the EVE file in the plugins folder. The ENAX lane reads
+     * the width, height, zoom, mode and focus parameters of EVE only, so the call returns nullptr for any other plugin.
+     *
      * @param plugin  Plugin whose parameters are searched.
      * @param name    Name to match, compared with the first `maximumNameLength` characters of each parameter name.
-     * @return The first parameter with that name, or nullptr when none has it.
+     * @return The first parameter with that name, or nullptr when none has it or the pane does not hold EVE.
      */
-    static juce::AudioProcessorParameter* getParameter (juce::AudioProcessor& plugin, const juce::String& name);
+    juce::AudioProcessorParameter* getParameter (juce::AudioProcessor& plugin, const juce::String& name) const;
 
     /**
      * @brief Sets the normalised value of a parameter in a change gesture, which notifies the host.
@@ -106,24 +157,53 @@ private:
      */
     void setEditorBounds (int inset);
 
-    void setSizeParameters (juce::Rectangle<int> inner);
+    /**
+     * @brief Writes the inner size of the pane to the width and height parameters of a plugin, snapped to the legal range.
+     *
+     * The width range runs from PaneComponent::minimumPaneExtent to the total display width. The height range runs from
+     * the same minimum to the total display height. The display bounds come from the enaxDisplayBounds host extension.
+     * A parameter is written only when getParameter() finds it.
+     *
+     * @param plugin  Plugin whose width and height parameters are written.
+     * @param inner   Inner size of the pane, in pixels.
+     */
+    void setSizeParameters (juce::AudioProcessor& plugin, juce::Rectangle<int> inner);
 
     /**
-     * @brief Writes the Id::focus value of the own row to the focus parameter of the hosted plugin.
+     * @brief Returns the session that holds the plugin of this pane.
+     *
+     * The session is found through the ancestor session row of the pane row, and its identity selects it in Nexus.
+     * The call asserts that the pane lies under a session row.
+     *
+     * @return The session of this pane.
+     */
+    Session& getSession();
+
+    /**
+     * @brief Applies a changed property of the pane row to the hosted plugin and to the editor.
+     *
+     * Id::focus writes the focus value of the tree to the focus parameter of the plugin, when an editor exists.
+     * Id::plugin destroys the editor, because the session reloads the plugin.
+     * Id::name, when the tree holds it, lays out the pane, creates the editor, and lays out the pane again.
+     *
      * @param tree      The ValueTree whose property changed.
-     * @param property  The identifier of the changed property. Only Id::focus writes the parameter.
+     * @param property  The identifier of the changed property. Id::focus, Id::plugin and Id::name have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
-     * @brief Finds the plugin of this pane through the ancestor session row and the pane identity, then creates its editor and mounts it.
+     * @brief Creates the editor of the plugin that the session holds for this pane, and mounts it in the pane.
      *
-     * The call creates no editor when the session does not hold the plugin of this pane.
+     * The session must hold the plugin. Session::getPlugin() throws std::out_of_range when it does not.
+     * When the plugin returns no editor, the pane mounts none. The drop target moves to the front, above the editor.
      */
     void createProcessorEditor();
 
     /** The hosted plugin editor. It is nullptr when the session does not hold the plugin of this pane. */
     std::unique_ptr<juce::AudioProcessorEditor> editor;
+
+    /** @brief Drop target that covers the pane. It stays above the hosted editor. */
+    DropTarget dropTarget;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorView)

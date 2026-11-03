@@ -1,7 +1,7 @@
 /**
  * @file Session.h
- * @brief One session's hosted-plugin registry — owns every plugin instance
- *        bound to the session's own panes.
+ * @brief One session's hosted-plugin registry — keeps the graph node of each
+ *        plugin instance bound to the session's own panes.
  */
 #pragma once
 #include <JuceHeader.h>
@@ -13,29 +13,40 @@
  * @brief Holds the hosted juce::AudioPluginInstance of each pane in one
  *        session, keyed by the pane's own identity. The audio graph owns the
  *        instances. The session keeps the `juce::AudioProcessorGraph::NodeID` of each instance.
+ *
+ * A plugin loads asynchronously. A change of the Id::plugin property of a pane row
+ * starts the load of that file, and the instance joins the graph when it is created.
+ * The session listens to the sessions row, the parent of the session row. JUCE
+ * notifies the listeners of a row before the listeners of its parent. The listeners
+ * of the session row unmount a removed tab and its editors first. Then the session
+ * removes the plugins of that tab.
  */
 class Session : private juce::ValueTree::Listener
 {
 public:
     /**
-     * @brief Creates the session row with its identity parameter, and listens to it.
-     * @param newUuid                     Identity of the session.
-     * @param newModel                    Model that creates the identity parameter.
-     * @param newGraph                    Audio graph that owns the plugin instances.
-     * @param newAudioInputId         Identity of the audio input processor in the graph.
-     * @param newAudioOutputId        Identity of the audio output processor in the graph.
-     * @param newMidiInputId          Identity of the MIDI input processor in the graph.
-     * @param newFormatManager            Format manager that creates the plugin instances.
+     * @brief Adds the identity parameter to the session row, and listens to the sessions row that holds it.
+     * @param newUuid                  Identity of the session.
+     * @param newModel                 Model that creates the identity parameter.
+     * @param newSessionsState         Sessions row, the parent of the session row. The session listens to it.
+     * @param newGraph                 Audio graph that owns the plugin instances.
+     * @param newAudioInputId          Identity of the audio input processor in the graph.
+     * @param newAudioOutputId         Identity of the audio output processor in the graph.
+     * @param newMidiInputId           Identity of the MIDI input processor in the graph.
+     * @param newFormatManager         Format manager that creates the plugin instances.
+     * @param newKnownPluginList       Known plugin list that receives each scanned plugin file.
      */
     Session (jam::UUID newUuid,
              ENDModel& newModel,
+             juce::ValueTree newSessionsState,
              juce::AudioProcessorGraph& newGraph,
              juce::AudioProcessorGraph::NodeID newAudioInputId,
              juce::AudioProcessorGraph::NodeID newAudioOutputId,
              juce::AudioProcessorGraph::NodeID newMidiInputId,
-             juce::AudioPluginFormatManager& newFormatManager);
+             juce::AudioPluginFormatManager& newFormatManager,
+             juce::KnownPluginList& newKnownPluginList);
 
-    /** @brief Stops listening to the session row. */
+    /** @brief Stops listening to the sessions row. */
     ~Session();
 
     /**
@@ -63,30 +74,86 @@ public:
      */
     void removePlugin (jam::UUID uuid);
 
+    /**
+     * @brief Returns the first plugin format of a manager that can read a plugin file.
+     * @param formatManager  Manager whose formats are asked, in their order.
+     * @param file           Plugin file to match.
+     * @return The first format whose fileMightContainThisPluginType() accepts the file path, or nullptr when none does.
+     */
+    static juce::AudioPluginFormat* getPluginFormat (const juce::AudioPluginFormatManager& formatManager, const juce::File& file);
+
+    /**
+     * @brief Returns the first plugin format of the session's format manager that can read a plugin file.
+     * @param file  Plugin file to match.
+     * @return The format, or nullptr when none reads the file.
+     */
+    juce::AudioPluginFormat* getPluginFormat (const juce::File& file) const;
+
     /** @brief Tree of the session row. Its identity parameter holds the session identity. */
     juce::ValueTree state { Id::toType (Id::session) };
 
 private:
     /**
-     * @brief Creates the hosted plugin of a pane and connects it to the graph.
-     *
-     * The plugin file is `files::evePlugin` in the plugins folder. The first format of the format manager that accepts the file creates the instance.
-     * The plugin takes the audio input and output channels that both sides have, and the MIDI input when it accepts MIDI.
-     * The name of the plugin is written to the pane row.
-     *
-     * @param paneRow  Pane row that receives the plugin. The row gets the name of the plugin.
+     * @brief Removes the plugin instance of each pane row in the subtree of a row, the row included.
+     * @param row  Root of the subtree.
      */
-    void addPlugin (juce::ValueTree& paneRow);
+    void removePlugins (const juce::ValueTree& row);
 
     /**
-     * @brief Creates the hosted plugin of each pane row that is added to the session.
+     * @brief Removes the plugins of a tab row when the tab row leaves the session row.
      *
-     * A pane that the session already holds gets no new plugin.
+     * A removal from any other row has no effect.
      *
-     * @param parent  Parent of the added child. Not used.
-     * @param child   Added child row.
+     * @param parentTree  Tree that lost the child.
+     * @param child       Removed child. Its pane rows lose their plugin instances.
      */
-    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
+    void valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int) override;
+
+    /**
+     * @brief Adds a created plugin instance to the graph, and binds it to its pane.
+     *
+     * The instance enables all its buses, joins the graph, and connects to the audio and MIDI processors.
+     * The graph node is stored under the identity of the pane. The name of the processor is then written to
+     * Id::name of the pane row. The pane creates its editor when that property arrives.
+     *
+     * @param paneRow   Pane row that receives the instance.
+     * @param instance  Created plugin instance. The graph takes ownership.
+     */
+    void addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPluginInstance> instance);
+
+    /**
+     * @brief Connects a plugin node to the audio and MIDI processors of the graph.
+     *
+     * Each audio side connects the lower of the two channel counts. The MIDI input connects only when the plugin accepts MIDI.
+     *
+     * @param pluginId  Graph node of the plugin.
+     */
+    void addConnections (juce::AudioProcessorGraph::NodeID pluginId);
+
+    /**
+     * @brief Starts the load of the plugin file that a pane row names.
+     *
+     * The file is scanned into the known plugin list. A file that is listed with an unchanged modification time is not tested again.
+     * The instance is created asynchronously. addPlugin() runs when it arrives, and only when the pane row still belongs to
+     * the session and still names the same file. The call asserts when no plugin format reads the file.
+     *
+     * @param paneRow  Pane row whose Id::plugin property names the file.
+     */
+    void loadPlugin (const juce::ValueTree& paneRow);
+
+    /**
+     * @brief Reloads the plugin of a pane when the pane row names another file.
+     *
+     * The old instance leaves the graph, and the Id::name property of the pane row is removed. The pane creates its
+     * editor again when the new instance is added. A change of any other property has no effect.
+     *
+     * @param tree      Tree whose property changed. Only a descendant of the session row is handled.
+     * @param property  Identifier of the changed property. Only Id::plugin has an effect.
+     */
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /** @brief Sessions row, the parent of the session row. The session listens to it. */
+    juce::ValueTree sessionsState;
 
     /** @brief Model that creates the identity parameter of the session row. */
     ENDModel& model;
@@ -105,6 +172,9 @@ private:
 
     /** @brief Format manager that creates the plugin instances. */
     juce::AudioPluginFormatManager& formatManager;
+
+    /** @brief Known plugin list that loadPlugin() scans each plugin file into. Nexus owns it. */
+    juce::KnownPluginList& knownPluginList;
 
     /** @brief Identity of each hosted plugin in the graph, keyed by the identity of its pane. */
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;

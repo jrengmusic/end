@@ -2,6 +2,73 @@
 
 ---
 
+## Sprint 97: One Load Path, Async Instance, Drop Target in Front, EVE Known, Editor Once, OMP Race, Model-Driven Tabs ✅
+
+**Date:** 2026-11-04
+**Duration:** several sessions (compactions). The start and end times are not recorded.
+**Scope (ARCHITECT):** `PLAN-load-plugin.md` (parent `PLAN-instant-plugin-loading.md` rows 5 and 6, Step 12). *"loading plugin, ANY PLUGIN including EVE is ONE PATH. one SSOT unique commandId"*; *"files::evePlugin is default args"*; *"drop file is override"*; *"blank component to front. always in front of everything, this is the FileDragAndDropTarget"*; *"split with direction should be command. load plugin is command. drag and mouse up call the chain"*; *"EVE is a plugin binary carried by END itself. it is KNOWN"*; *"editor must be created only ONCE"*; *"fix the OMP bug (init race)"*; *"remove all ode instrumentation"*; *"isn't tab could be fully event driven from Model?"*; *"proceed until /log no gate."* Fit of plugin editors deferred to DEBT.
+
+### Agents Participated
+- COUNSELOR — PLAN and its amendments, every validation read, the DCF triage of the audit, small edits named below, scout manifests, `ARCHITECTURE.md`, `DEBT.md`, this log.
+- Pathfinder (haiku) — discovery reads (JUCE drag path, hosted-editor scale path, VST2 editor build, jam TTY, ENAX size path, layout listener order), whatdbg trace, two scout runs, the doxygen pass.
+- Librarian (haiku) — AppKit drag destination routing.
+- Engineer (sonnet) — every code change below.
+- Auditor (opus) — one pass, 28 findings.
+
+### Files Modified
+**end:**
+- `Source/plugins/Nexus.h` / `.cpp` — `knownPluginList`; `registerExtensions`, `addFormats`, `registerEVE` (EVE description listed at construction: `pluginFormatName`, `fileOrIdentifier`, `lastFileModTime`); `removeSession` deleted (no caller); `createSession` passes the sessions row.
+- `Source/plugins/Session.h` / `.cpp` — load from the pane row event `Id::plugin` (`loadPlugin`, async `createPluginInstanceAsync`, the Model decides a late instance); `addPlugin` / `addConnections`; static `getPluginFormat (formatManager, file)` plus the member; `removePlugins (row)`; listens on the parent sessions row, `valueTreeChildRemoved` removes a closed tab's plugins after its editors; `jassert` on missing format, empty scan, null instance.
+- `Source/ui/ENDView.h` / `.cpp` — `newPane (edge)` splits in half or adds; `loadPlugin (plugin)` writes `Id::plugin` of the focused pane from `getPath (Id::plugins).getChildFile (plugin)`; `newTab` and the split keys run `newPane` then `loadPlugin (files::evePlugin)`; `closeTab` removes the focused tab row only; actions split by responsibility (`registerApplicationActions`, `registerFocusActions`, `registerJoinActions`, `registerSwapActions`, `registerResizeActions`, `registerProfilerActions`); `getActiveTabView`.
+- `Source/ui/EditorView.h` / `.cpp` — editor created on `Id::name` after layout; `DropTarget` (nested `juce::Component` + `juce::FileDragAndDropTarget`) in front of every child, focuses its pane on drag enter, drop runs `newPane (getEdge)` then `loadPlugin (path)`; `setEditorBounds` two branches (transform removed); `getParameter` const, ENAX lane only (pane row `Id::plugin` is the EVE file), `compareIgnoreCase`; master formatting and `getWidthName` deleted.
+- `Source/ui/TabView.h` / `.cpp` — adopt constructor; `add` void; no longer a drop target; corner split runs `loadPlugin (files::evePlugin)`; `getJoinDirections`, `getJoinAction` (one join table).
+- `Source/ui/SessionView.h` / `.cpp` — tabs follow the Model: `add` appends a tab row, `remove` removes it, `valueTreeChildAdded` / `valueTreeChildRemoved` mount and unmount `TabView`, last tab runs `quit`.
+- `Source/Main.h` / `.cpp` — `settings` (`END.settings`): window state restored before show, saved at shutdown.
+- `cast/identifiers.md` (`loadPlugin`, `plugin`; `bottom` moved to jam), `cast/files.md` (`settings file name`); `benchmark/pane.md`, `split.md` (cast rows for EVE and END, baselines); `ARCHITECTURE.md` (Hosting Contract); `DEBT.md`; `PLAN-load-plugin.md`.
+
+**jam:**
+- `jam_gui/layout/jam_PaneComponent.h` / `.cpp` — `getEdge (point)` through `juce::Line::isPointAbove`.
+- `jam_gui/widgets/jam_TextEditor.cpp` — `bindToModel` no longer writes the winsize (OMP race).
+- `jam_core/text/jam_Format.cpp` — an empty group yields the name alone. `jam_plugin_bootstrap/parameter/jam_ParameterLayout.cpp` — groups only for non-empty cells.
+- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.cpp` — instrumentation removed (memo of `PLAN-settings-once.md` in place).
+- `patch/juce-plugin-editor-once-hook.patch` (new: `handleOpenEditor` keeps the editor that `effEditGetRect` built); `patch/juce-plugin-view-scale-hook.patch` deleted; `user-modules-info.md:1371`; `cast/data_structures.md` (`bottom`).
+- Doxygen on every changed header.
+
+**eve:**
+- `Source/layout/parameters.md` — empty group cells (no master). `EVEProcessor.cpp`, `EVETerminalProcessor.cpp`, `EVEView.cpp` — instrumentation removed.
+
+### Alignment Check
+- [x] BLESSED principles followed — one load path, one split path, the Model decides late instances, tabs follow the Model, JUCE gives the close order.
+- [x] NAMES.md adhered — new names from established families, recorded in the PLAN.
+- [x] MANIFESTO.md principles applied
+- [ ] Doxygen not regenerated; ARCHITECT regenerates and reads the warning count.
+
+### Problems Solved
+- **Cold start.** The first EVE load scanned EVE (339 ms). EVE is now listed at startup: `new pane` 308.9 ms → 0.030 ms, `session plugin` 244.6 ms → 0.020 ms (`benchmark/pane-load-report.md`).
+- **Editor built twice** by the JUCE VST2 client (`effEditGetRect` then `effEditOpen`): one-line jam patch.
+- **OMP help and `%`.** The bind wrote a 110×37 winsize before the pane size; the second restart sent `SIGWINCH` into the user's `TRAPWINCH` before OMP's first `precmd`. Fix ruled by ARCHITECT: no write at bind.
+- **Drop over a plugin.** A drop target in front of each pane, from ARCHITECT's design.
+- **Close crash** (`HashMap::at`) gone after the command chain; ARCHITECT confirmed.
+- **Audit.** 28 findings: resolved 2, 3, 4, 7, 8, 9, 10, 11, 16, 18, 19, 20, 21, 22, 27, 28 (tabs); rejected 1, 12 (ARCHITECT's `toFront`), 5, 6, 13, 14, 15, 17, 23, 24, 25, 26, each with its clause or ruling in this session. Doxygen pass finding C1 rejected (MANIFESTO D).
+- **Mistakes owned.** Claims from training data about AppKit drag routing and overlays; a z-order chosen against *"always in front of everything"*; `setTransform` on a hosted editor against JUCE's contract; a scout run from the wrong folder; a position argument raised as a blocker; a Model-driven pane design that the row moves of `MatrixComponent` forbid, corrected to tabs.
+
+### State for Continuation
+- Run `cast` in jam, eve and end (patch list changed: `juce-plugin-editor-once-hook.patch` in, scale patch out), then build.
+- Runtime check: no OMP help and no `%` above the first prompt (Debug too); one EVE view build per pane; drop on a pane centre; tab close order (editor before plugin); last tab quits.
+- Regenerate doxygen (`ninja doxygen`; jam `<leader>bd`).
+- Panes stay imperative: `MatrixComponent` moves live pane rows by detach and re-add, so `closePane` keeps `getChildCount() > 1` → `closeTab`.
+- Known gap (ARCHITECT chose it): when a terminal's final bounds equal the default layout, no winsize is written.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261103T195500` — fit of plugin editors to the pane (ARCHITECT, 2026-11-04).
+- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
+
+---
+
 ## Sprint 96: END and EVE Config — Named Light/Dark Palette, One Load Path, Pane Padding, Canon Settings Lane, Keyword Key Form ✅
 
 **Date:** 2026-11-03
