@@ -3,7 +3,7 @@
 #include "action/ENDActions.h"
 
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
-    : jam::PaneComponent (model, tabState, Id::toType (Id::pane), uuid)
+    : jam::PaneComponent (model, tabState, jam::Format::toType (Id::pane), uuid)
 {
     state.addListener (this);
     addAndMakeVisible (dropTarget);
@@ -199,7 +199,7 @@ void EditorView::createProcessorEditor()
 
 Session& EditorView::getSession()
 {
-    const auto sessionState { findAncestorRow (state, Id::toType (Id::session)) };
+    const auto sessionState { findAncestorRow (state, jam::Format::toType (Id::session)) };
     jassert (sessionState.isValid());
 
     const jam::UUID sessionUuid { sessionState.getProperty (Id::id) };

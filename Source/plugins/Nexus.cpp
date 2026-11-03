@@ -35,9 +35,9 @@ Nexus::Nexus()
 {
     registerExtensions();
 
-    model.getOrCreateChildWithName (Id::toType (Id::window));
+    model.getOrCreateChildWithName (jam::Format::toType (Id::window));
 
-    auto sessionsTree { model.getOrCreateChildWithName (Id::toType (Id::sessions)) };
+    auto sessionsTree { model.getOrCreateChildWithName (jam::Format::toType (Id::sessions)) };
     model.createAndAddParameter<jam::Parameter<int64_t>> (
         sessionsTree, Id::focusedSession, jam::UUID::none().value);
 
@@ -108,15 +108,15 @@ Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (Id::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
     jassert (inserted);
     auto& [key, session] = *entry;
 
-    auto sessionsTree { model.getChildWithName (Id::toType (Id::sessions)) };
+    auto sessionsTree { model.getChildWithName (jam::Format::toType (Id::sessions)) };
     sessionsTree.appendChild (session->state, nullptr);
 
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-        Id::toType (Id::sessions), Id::focusedSession) };
+        jam::Format::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
     if (jam::UUID { focusedSessionParameter->getValue() } == jam::UUID::none())
@@ -130,7 +130,7 @@ Session& Nexus::getSession (jam::UUID sessionUuid) { return *sessions.at (sessio
 Session& Nexus::getActiveSession()
 {
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-        Id::toType (Id::sessions), Id::focusedSession) };
+        jam::Format::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
     // Threat: called before ENDApplication's bootstrap createSession() —

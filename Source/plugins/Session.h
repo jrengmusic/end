@@ -90,7 +90,7 @@ public:
     juce::AudioPluginFormat* getPluginFormat (const juce::File& file) const;
 
     /** @brief Tree of the session row. Its identity parameter holds the session identity. */
-    juce::ValueTree state { Id::toType (Id::session) };
+    juce::ValueTree state { jam::Format::toType (Id::session) };
 
 private:
     /**

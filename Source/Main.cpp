@@ -13,7 +13,7 @@ static map::ImageResample::value getImageResampleFilter (ConfigModel& config)
 {
     static const jam::SharedInstance<map::ImageResample> imageResample { std::in_place };
 
-    const auto filterName { config.getRowValue (Id::toType (Id::graphics), Id::filter).toString() };
+    const auto filterName { config.getRowValue (jam::Format::toType (Id::graphics), Id::filter).toString() };
 
     return static_cast<map::ImageResample::value> (map::ImageResample::getInstance()->get (filterName));
 }
@@ -46,67 +46,67 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
 
 void ENDApplication::registerEvents()
 {
-    for (const auto& id : { Id::toType (Id::fontRasterizer), Id::toType (Id::fontGamma), Id::toType (Id::fontContrast) })
+    for (const auto& id : { jam::Format::toType (Id::fontRasterizer), jam::Format::toType (Id::fontGamma), jam::Format::toType (Id::fontContrast) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setFontRasterization(); });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::alwaysOnTop),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::alwaysOnTop),
                                   [this] (juce::ValueTree& row)
                                   {
                                       window->setAlwaysOnTop (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::titleBarButtons),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::titleBarButtons),
                                   [this] (juce::ValueTree& row)
                                   {
                                       window->setWindowButtons (row.getProperty (Id::value));
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::theme),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::theme),
                                   [] (juce::ValueTree&)
                                   {
                                       cascadeLookAndFeelChange();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::embolden),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::embolden),
                                   [this] (juce::ValueTree&)
                                   {
                                       setEmbolden();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::useGpu),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::useGpu),
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackground();
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::background),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::background),
                                   [this] (juce::ValueTree& row)
                                   {
-                                      if (row.getParent().getType() == Id::toType (Id::graphics))
+                                      if (row.getParent().getType() == jam::Format::toType (Id::graphics))
                                           setBackground();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::filter),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::filter),
                                   [this] (juce::ValueTree&)
                                   {
                                       setBackground();
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::postProcessing),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessing),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcess();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::postProcessingOpacity),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessingOpacity),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
                                   });
 
-    events.add<juce::ValueTree&> (Id::toType (Id::postProcessingResolution),
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessingResolution),
                                   [this] (juce::ValueTree&)
                                   {
                                       setPostProcessParams();
@@ -115,10 +115,10 @@ void ENDApplication::registerEvents()
 
 void ENDApplication::setFontRasterization()
 {
-    const auto backendName { config.getRowValue (Id::toType (Id::graphics), Id::fontRasterizer).toString() };
+    const auto backendName { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontRasterizer).toString() };
     const auto backend { static_cast<map::FontRasterizerBackend::value> (map::FontRasterizerBackend::getInstance()->get (backendName)) };
-    const float gamma { config.getRowValue (Id::toType (Id::graphics), Id::fontGamma) };
-    const float contrast { config.getRowValue (Id::toType (Id::graphics), Id::fontContrast) };
+    const float gamma { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontGamma) };
+    const float contrast { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontContrast) };
 
     jam::CpuGraphicsEngine::getInstance()->setRasterization (backend, gamma, contrast);
 
@@ -127,7 +127,7 @@ void ENDApplication::setFontRasterization()
 
 void ENDApplication::setEmbolden()
 {
-    const bool embolden { config.getRowValue (Id::toType (Id::font), Id::embolden) };
+    const bool embolden { config.getRowValue (jam::Format::toType (Id::font), Id::embolden) };
 
     jam::CpuGraphicsEngine::getInstance()->setEmbolden (embolden);
 
@@ -139,11 +139,11 @@ void ENDApplication::setBackground()
     auto* engine { jam::VulkanGraphicsEngine::getInstance() };
     const bool gpuEnabled { engine->isGpuAvailable() };
 
-    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::background).toString() };
+    const auto projectName { config.getRowValue (jam::Format::toType (Id::graphics), Id::background).toString() };
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
-        const auto shaderState { jam::Model::getChildWithName (config.state, Id::toType (Id::background)) };
+        const auto shaderState { jam::Model::getChildWithName (config.state, jam::Format::toType (Id::background)) };
         const auto filter { getImageResampleFilter (config) };
 
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
@@ -165,14 +165,14 @@ void ENDApplication::setPostProcess()
     auto* engine { jam::VulkanGraphicsEngine::getInstance() };
     const bool gpuEnabled { engine->isGpuAvailable() };
 
-    const auto projectName { config.getRowValue (Id::toType (Id::graphics), Id::postProcessing).toString() };
-    const float opacity { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity) };
-    const float resolutionScale { config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution) };
+    const auto projectName { config.getRowValue (jam::Format::toType (Id::graphics), Id::postProcessing).toString() };
+    const float opacity { config.getRowValue (jam::Format::toType (Id::graphics), Id::postProcessingOpacity) };
+    const float resolutionScale { config.getRowValue (jam::Format::toType (Id::graphics), Id::postProcessingResolution) };
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
         const auto shaderState { jam::Model::getChildWithName (
-            config.state, Id::toType (Id::postProcessing)) };
+            config.state, jam::Format::toType (Id::postProcessing)) };
         const auto filter { getImageResampleFilter (config) };
 
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
@@ -192,8 +192,8 @@ void ENDApplication::setPostProcess()
 void ENDApplication::setPostProcessParams()
 {
     auto* engine { jam::VulkanGraphicsEngine::getInstance() };
-    engine->setPostProcessParams (static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::postProcessingOpacity)),
-                                  static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::postProcessingResolution)));
+    engine->setPostProcessParams (static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::postProcessingOpacity)),
+                                  static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::postProcessingResolution)));
 }
 
 void ENDApplication::shutdown()
@@ -202,7 +202,7 @@ void ENDApplication::shutdown()
 
 #if JAM_USING_PROFILER
     profiler.drain();
-    profiler.writeSamples (Nexus::getManifestFile(), Id::toType (juce::Identifier { ProjectInfo::projectName }));
+    profiler.writeSamples (Nexus::getManifestFile(), jam::Format::toType (juce::Identifier { ProjectInfo::projectName }));
 #endif
 }
 
@@ -232,8 +232,8 @@ void ENDApplication::initialise (const juce::String& commandLine)
 
     window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
                                             ProjectInfo::projectName,
-                                            static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::alwaysOnTop)),
-                                            static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::titleBarButtons)));
+                                            static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::alwaysOnTop)),
+                                            static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::titleBarButtons)));
     window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
 
     window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
@@ -254,7 +254,7 @@ void ENDApplication::initialiseVulkan()
     const auto cacheDir { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::cache) };
     const juce::File cacheFile { cacheDir.getChildFile (
         jam::Format::toFileName (ProjectInfo::projectName, Id::cache)) };
-    const bool canUseGpu { static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::useGpu)) };
+    const bool canUseGpu { static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::useGpu)) };
 
     const auto maxImageExtent { jam::VulkanGraphicsEngine::getPrimaryDisplayExtent() };
 

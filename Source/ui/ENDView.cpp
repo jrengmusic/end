@@ -1,8 +1,8 @@
 #include "ui/ENDView.h"
 
 ENDView::ENDView()
-    : jam::Model::Component<ENDView> (ENDModel::getInstance()->getChildWithName (Id::toType (Id::window)))
-    , messageOverlay (model.getChildWithName (Id::toType (Id::overlay)), [] { return ENDLookAndFeel::getInstance()->getOverlayFont(); })
+    : jam::Model::Component<ENDView> (ENDModel::getInstance()->getChildWithName (jam::Format::toType (Id::window)))
+    , messageOverlay (model.getChildWithName (jam::Format::toType (Id::overlay)), [] { return ENDLookAndFeel::getInstance()->getOverlayFont(); })
 {
     setOpaque (false);
     toFront (true);
@@ -11,7 +11,7 @@ ENDView::ENDView()
     registerEvents();
 
     commandManager->registerAllCommandsForTarget (this);
-    commandManager->setKeyPresses (config.getChildWithName (Id::toType (Id::keys)));
+    commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
 
     addAndMakeVisible (background);
     addMouseListener (&background, true);
@@ -26,7 +26,7 @@ ENDView::ENDView()
     juce::MessageManager::callAsync (
         [this]
         {
-            events.get (Id::toType (Id::enabled), config.state);
+            events.get (jam::Format::toType (Id::enabled), config.state);
 
             actions.run (Id::newSession);
             grabKeyboardFocus();
@@ -91,7 +91,7 @@ bool ENDView::perform (const InvocationInfo& info)
 
 void ENDView::createAndAttachParameters()
 {
-    const auto windowSize { config.getRowValue (Id::toType (Id::display), Id::size) };
+    const auto windowSize { config.getRowValue (jam::Format::toType (Id::display), Id::size) };
     const int width { windowSize[0] };
     const int height { windowSize[1] };
 
@@ -113,7 +113,7 @@ void ENDView::setViewState (jam::Size<int16_t> size)
 SessionView* ENDView::getActiveSessionView() noexcept
 {
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
-        Id::toType (Id::sessions), Id::focusedSession) };
+        jam::Format::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
     const jam::UUID sessionUuid { focusedSessionParameter->getValue() };
@@ -212,8 +212,8 @@ void ENDView::registerProfilerActions()
 {
     const auto manifestFile { Nexus::getManifestFile() };
     const auto manifest { jam::ConfigDocument::parse (manifestFile.loadFileAsString(), manifestFile.getFullPathName()).getValueTree (Id::manifest) };
-    const auto profilerTable { manifest.getChildWithName (Id::toType (Id::profiler)) };
-    const int panes { static_cast<int> (profilerTable[Id::toType (Id::panes)]) };
+    const auto profilerTable { manifest.getChildWithName (jam::Format::toType (Id::profiler)) };
+    const int panes { static_cast<int> (profilerTable[jam::Format::toType (Id::panes)]) };
 
     actions.add (Id::promptPainted,
                  [this, panes]
@@ -238,11 +238,11 @@ void ENDView::registerZoomActions()
         actions.add (command,
                      [this, command]
                      {
-                         const float step { config.getRowValue (Id::toType (Id::display), Id::zoomStep) };
+                         const float step { config.getRowValue (jam::Format::toType (Id::display), Id::zoomStep) };
 
                          if (auto* sessionView { getActiveSessionView() })
                          {
-                             if (static_cast<bool> (config.getRowValue (Id::toType (Id::display), Id::exclusiveZoom)))
+                             if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::exclusiveZoom)))
                              {
                                  if (auto* tabView { sessionView->getActiveTabView() })
                                      tabView->get (tabView->getFocusedChild()).setZoom (command, step);
@@ -334,7 +334,7 @@ void ENDView::registerResizeActions()
                      {
                          if (auto* tabView { getActiveTabView() })
                          {
-                             const float step { config.getRowValue (Id::toType (Id::display), Id::paneStep) };
+                             const float step { config.getRowValue (jam::Format::toType (Id::display), Id::paneStep) };
                              (tabView->*resize) (tabView->getFocusedChild(), axis, step);
                          }
                      });
@@ -427,13 +427,13 @@ void ENDView::registerActions()
 
 void ENDView::registerGraphicsEvents()
 {
-    for (const auto& id : { Id::toType (Id::backgroundOpacity), Id::toType (Id::frameRate), Id::toType (Id::backgroundResolution) })
+    for (const auto& id : { jam::Format::toType (Id::backgroundOpacity), jam::Format::toType (Id::frameRate), jam::Format::toType (Id::backgroundResolution) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
 }
 
 void ENDView::registerMouseEvents()
 {
-    for (const auto& id : { Id::toType (Id::enabled), Id::toType (Id::imouse), Id::toType (Id::orbit), Id::toType (Id::reset) })
+    for (const auto& id : { jam::Format::toType (Id::enabled), jam::Format::toType (Id::imouse), jam::Format::toType (Id::orbit), jam::Format::toType (Id::reset) })
         events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setMouseConfig(); });
 }
 
@@ -442,33 +442,33 @@ void ENDView::registerEvents()
     registerGraphicsEvents();
     registerMouseEvents();
 
-    events.add<juce::ValueTree&> (Id::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
 }
 
 void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)
 {
     background.setShader (std::move (shader),
-                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity)),
-                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution)),
-                          static_cast<int> (config.getRowValue (Id::toType (Id::graphics), Id::frameRate)));
+                          static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::backgroundOpacity)),
+                          static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::backgroundResolution)),
+                          static_cast<int> (config.getRowValue (jam::Format::toType (Id::graphics), Id::frameRate)));
 }
 
 void ENDView::setBackgroundParams()
 {
-    background.setParams (static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundOpacity)),
-                          static_cast<float> (config.getRowValue (Id::toType (Id::graphics), Id::backgroundResolution)),
-                          static_cast<int> (config.getRowValue (Id::toType (Id::graphics), Id::frameRate)));
+    background.setParams (static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::backgroundOpacity)),
+                          static_cast<float> (config.getRowValue (jam::Format::toType (Id::graphics), Id::backgroundResolution)),
+                          static_cast<int> (config.getRowValue (jam::Format::toType (Id::graphics), Id::frameRate)));
 }
 
 void ENDView::setMouseConfig()
 {
-    const bool enabled { config.getRowValue (Id::toType (Id::mouse), Id::enabled) };
+    const bool enabled { config.getRowValue (jam::Format::toType (Id::mouse), Id::enabled) };
     const auto imouseButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getRowValue (Id::toType (Id::mouse), Id::imouse).toString())) };
+        config.getRowValue (jam::Format::toType (Id::mouse), Id::imouse).toString())) };
     const auto orbitButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getRowValue (Id::toType (Id::mouse), Id::orbit).toString())) };
+        config.getRowValue (jam::Format::toType (Id::mouse), Id::orbit).toString())) };
     const auto resetButton { static_cast<map::MouseButton::value> (map::MouseButton::getInstance()->get (
-        config.getRowValue (Id::toType (Id::mouse), Id::reset).toString())) };
+        config.getRowValue (jam::Format::toType (Id::mouse), Id::reset).toString())) };
 
     background.setMouseConfig (enabled, imouseButton, orbitButton, resetButton);
 }

@@ -9,14 +9,14 @@ SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
 
 void SessionView::add (jam::UUID uuid)
 {
-    juce::ValueTree row { Id::toType (Id::tab) };
+    juce::ValueTree row { jam::Format::toType (Id::tab) };
     row.setProperty (Id::id, uuid.value, nullptr);
     state.appendChild (row, nullptr);
 }
 
 void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child)
 {
-    if (parentTree == state and child.hasType (Id::toType (Id::tab)))
+    if (parentTree == state and child.hasType (jam::Format::toType (Id::tab)))
     {
         const jam::UUID uuid { static_cast<int64_t> (child.getProperty (Id::id)) };
 
@@ -44,7 +44,7 @@ void SessionView::remove (jam::UUID uuid)
 
 void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int)
 {
-    if (parentTree == state and child.hasType (Id::toType (Id::tab)))
+    if (parentTree == state and child.hasType (jam::Format::toType (Id::tab)))
     {
         OwnerComponent::remove (jam::UUID { static_cast<int64_t> (child.getProperty (Id::id)) });
         lookAndFeelChanged();
@@ -80,7 +80,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == Id::name or property == Id::focusedPane)
     {
-        const auto tabState { EditorView::findAncestorRow (tree, Id::toType (Id::tab)) };
+        const auto tabState { EditorView::findAncestorRow (tree, jam::Format::toType (Id::tab)) };
 
         if (tabState.isValid())
         {
