@@ -4,7 +4,7 @@
 TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
     : jam::MatrixComponent (newModel, existingState)
 {
-    setName (Id::toType (Id::tab).toString());
+    setName (jam::Format::toType (Id::tab).toString());
     model.createAndAddParameter<jam::ParameterText> (state, Id::name, juce::String {});
 }
 
@@ -207,7 +207,7 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, fl
                                  + juce::String (tail.getWidth()) + sizeSeparator + juce::String (tail.getHeight()) };
 
     jam::drawMessageOverlay (g, *this, preview, message, ENDLookAndFeel::getInstance()->getOverlayFont(), splitLine, splitVertical,
-                             ConfigModel::getInstance()->getRowValue (Id::toType (Id::pane), Id::splitLine).toString());
+                             ConfigModel::getInstance()->getRowValue (jam::Format::toType (Id::pane), Id::splitLine).toString());
 }
 
 void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)

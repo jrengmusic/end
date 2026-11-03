@@ -26,7 +26,7 @@ juce::String ConfigShader::loadFromPath (const juce::var& path)
     state.setProperty (Id::shaderFormat, format, nullptr);
     state.setProperty (Id::path, dir.getFullPathName(), nullptr);
 
-    state.sendPropertyChangeMessage (Id::toType (Id::graphics));
+    state.sendPropertyChangeMessage (jam::Format::toType (Id::graphics));
 
     return {};
 }
@@ -64,7 +64,7 @@ static juce::String addFileTables (juce::ValueTree target,
 ConfigTheme::ConfigTheme()
     : ConfigDirectory ([]
       {
-          juce::ValueTree themes { Id::toType (Id::themes) };
+          juce::ValueTree themes { jam::Format::toType (Id::themes) };
           const auto errors { addFileTables (themes,
               *map::FileThemes::getInstance(),
               ConfigDirectory::Themes::getName,
@@ -78,7 +78,7 @@ ConfigTheme::ConfigTheme()
           return themes;
       }())
 {
-    auto flex { jam::Model::fromFiles (Id::toType (Id::flex),
+    auto flex { jam::Model::fromFiles (jam::Format::toType (Id::flex),
                                        map::FileFlex::getInstance()->get(),
                                        [] (int key)
                                        {
@@ -124,7 +124,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
 
     if (dir.isDirectory())
     {
-        juce::ValueTree disk { Id::toType (Id::themes) };
+        juce::ValueTree disk { jam::Format::toType (Id::themes) };
 
         errors << addFileTables (disk,
             *map::FileThemes::getInstance(),
@@ -133,7 +133,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
 
         const juce::File flexDir { dir.getChildFile (Id::flex) };
         auto flexDisk { jam::Model::fromFiles (
-            Id::toType (Id::flex),
+            jam::Format::toType (Id::flex),
             map::FileFlex::getInstance()->get(),
             [flexDir] (int key)
             {
@@ -150,7 +150,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
                << juce::String::charToString (Chars::newline);
     }
 
-    state.sendPropertyChangeMessage (Id::toType (Id::theme));
+    state.sendPropertyChangeMessage (jam::Format::toType (Id::theme));
 
     return errors;
 }
@@ -162,7 +162,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
 ConfigModel::ConfigModel()
     : jam::Model ([]
       {
-          juce::ValueTree config { Id::toType (Id::config) };
+          juce::ValueTree config { jam::Format::toType (Id::config) };
           const auto errors { addFileTables (config,
               *map::FileConfig::getInstance(),
               ConfigDirectory::Config::getName,
@@ -179,7 +179,7 @@ ConfigModel::ConfigModel()
     // theme, background, and postProcessing members are now constructed — attach their subtrees.
     state.appendChild (theme.state, nullptr);
 
-    auto graphics { jam::Model::getChildWithName (state, Id::toType (Id::graphics)) };
+    auto graphics { jam::Model::getChildWithName (state, jam::Format::toType (Id::graphics)) };
     graphics.appendChild (background.state, nullptr);
     graphics.appendChild (postProcessing.state, nullptr);
 
@@ -192,16 +192,16 @@ juce::var ConfigModel::getRowValue (const juce::Identifier& type, const juce::Id
 {
     const auto table { getChildWithName (type) };
 
-    const auto row { table.getChildWithName (Id::toType (name)) };
+    const auto row { table.getChildWithName (jam::Format::toType (name)) };
 
     jassert (row.isValid());
 
-    const auto appearanceText { jam::Model::getValue<juce::var> (getChildWithName (Id::toType (Id::display)),
-                                                                  Id::toType (Id::appearance)).toString() };
+    const auto appearanceText { jam::Model::getValue<juce::var> (getChildWithName (jam::Format::toType (Id::display)),
+                                                                  jam::Format::toType (Id::appearance)).toString() };
 
     return row.hasProperty (Id::dark) and jam::StyleManager::isDark (appearanceText)
                ? row.getProperty (Id::dark)
-               : jam::Model::getValue<juce::var> (table, Id::toType (name));
+               : jam::Model::getValue<juce::var> (table, jam::Format::toType (name));
 }
 
 void ConfigModel::saveToPath()
@@ -218,12 +218,12 @@ void ConfigModel::saveToPath()
                                                          BinaryData::getString (fileName));
     }
 
-    theme.saveToPath (getRowValue (Id::toType (Id::display), Id::theme));
+    theme.saveToPath (getRowValue (jam::Format::toType (Id::display), Id::theme));
 }
 
 void ConfigModel::loadFromPath()
 {
-    juce::ValueTree disk { Id::toType (Id::config) };
+    juce::ValueTree disk { jam::Format::toType (Id::config) };
     juce::String errors { addFileTables (disk,
         *map::FileConfig::getInstance(),
         ConfigDirectory::Config::getName,
@@ -240,14 +240,14 @@ void ConfigModel::loadFromPath()
         return jam::Model::getValue<juce::var> (sourceTable, rowType);
     } };
 
-    errors << theme.loadFromPath (getMergedValue (Id::toType (Id::display), Id::toType (Id::theme)));
-    errors << background.loadFromPath (getMergedValue (Id::toType (Id::graphics), Id::toType (Id::background)));
-    errors << postProcessing.loadFromPath (getMergedValue (Id::toType (Id::graphics), Id::toType (Id::postProcessing)));
+    errors << theme.loadFromPath (getMergedValue (jam::Format::toType (Id::display), jam::Format::toType (Id::theme)));
+    errors << background.loadFromPath (getMergedValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::background)));
+    errors << postProcessing.loadFromPath (getMergedValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::postProcessing)));
 
     setValuesFrom (disk);
 
     const juce::String message { errors.isEmpty()
-                                     ? getRowValue (Id::toType (Id::display), Id::successMessage).toString()
+                                     ? getRowValue (jam::Format::toType (Id::display), Id::successMessage).toString()
                                      : errors };
     appModel.setMessage (message);
 }

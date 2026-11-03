@@ -145,7 +145,7 @@ void Session::removePlugin (jam::UUID uuid)
 
 void Session::removePlugins (const juce::ValueTree& row)
 {
-    if (row.hasType (Id::toType (Id::pane)))
+    if (row.hasType (jam::Format::toType (Id::pane)))
         removePlugin (jam::UUID { static_cast<int64_t> (row.getProperty (Id::id)) });
 
     for (const auto& child : row)

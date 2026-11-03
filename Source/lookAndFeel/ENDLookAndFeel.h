@@ -141,7 +141,7 @@ public:
     /**
      * @brief Returns tab font constructed from theme config (family, size, kerning).
      *
-     * Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
+     * Reads jam::Format::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
      */
     juce::FontOptions getTabFont() const override;
 
@@ -199,13 +199,13 @@ public:
 
     /** @brief Derives and applies the window's tint colour, blur radius, WindowFX
      *  style, and title-bar-button visibility onto @p window — reads
-     *  Id::toType (Id::window), Id::toType (Id::style), and
-     *  Id::toType (Id::display) directly from config.
+     *  jam::Format::toType (Id::window), jam::Format::toType (Id::style), and
+     *  jam::Format::toType (Id::display) directly from config.
      *  @param window  The top-level window component to style.
      */
     void prepareWindow (juce::Component& window) override;
 
-    /** @brief Blur radius from the active theme (Id::toType (Id::window), Id::blurRadius). */
+    /** @brief Blur radius from the active theme (jam::Format::toType (Id::window), Id::blurRadius). */
     float getWindowBlur() const noexcept override;
 
     /**
@@ -317,12 +317,12 @@ private:
      * Populated by registerEvents(). A row child of a config table has no entry of its own,
      * so valueTreePropertyChanged() looks up the type of its parent table. Handles:
      * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
-     * - Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
-     *   Id::toType (Id::overlay), Id::toType (Id::pane)
+     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::tab), jam::Format::toType (Id::button),
+     *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
      *                     — per-component colour refresh via setColours()
-     * - Id::toType (Id::appearance)
+     * - jam::Format::toType (Id::appearance)
      *                     — colour refresh via initialiseColours()
-     * - Id::toType (Id::menu)
+     * - jam::Format::toType (Id::menu)
      *                     — popup menu colour refresh via setPopupMenuColours()
      */
     jam::Function::Map<juce::Identifier, void> events;
@@ -355,13 +355,13 @@ private:
     getVerticalTextTransform (int position, float width, float height) const noexcept;
 
     /** @brief Display font constructed from theme config (family, size), no kerning.
-     *  Reads Id::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize — same source
+     *  Reads jam::Format::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize — same source
      *  as getTabFont() minus the kerning factor.
      */
     juce::Font getCommonFont() const;
 
     /** @brief WindowFX ordinal from the active theme's platform style name
-     *  (Id::toType (Id::style), Id::mac on macOS / Id::win on Windows),
+     *  (jam::Format::toType (Id::style), Id::mac on macOS / Id::win on Windows),
      *  resolved through map::WindowFX. Zero when the style name has no entry.
      *  Consumed by prepareWindow() and preparePopupMenuWindow().
      */
@@ -404,9 +404,9 @@ private:
      * @brief Applies window background, opacity, text, and highlight colours
      *        to the juce::PopupMenu colour IDs.
      *
-     * Reads Id::toType (Id::menu) properties against the window background colour
-     * (Id::toType (Id::window)). Called by initialiseColours(), and on the
-     * Id::toType (Id::menu) colour-refresh event. Defined in ENDLookAndFeel.cpp.
+     * Reads jam::Format::toType (Id::menu) properties against the window background colour
+     * (jam::Format::toType (Id::window)). Called by initialiseColours(), and on the
+     * jam::Format::toType (Id::menu) colour-refresh event. Defined in ENDLookAndFeel.cpp.
      */
     void setPopupMenuColours();
 
@@ -415,12 +415,12 @@ private:
      *
      * Registers callbacks for:
      * - Id::theme         → initialiseColours() + loadGraphics()
-     * - Id::toType (Id::scrollbar), Id::toType (Id::tab), Id::toType (Id::button),
-     *   Id::toType (Id::overlay), Id::toType (Id::pane)
+     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::tab), jam::Format::toType (Id::button),
+     *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
      *                     → setColours()
-     * - Id::toType (Id::appearance)
+     * - jam::Format::toType (Id::appearance)
      *                     → initialiseColours()
-     * - Id::toType (Id::menu)
+     * - jam::Format::toType (Id::menu)
      *                     → setPopupMenuColours()
      *
      * The font events (Id::fontRasterizer, Id::fontGamma, Id::fontContrast,

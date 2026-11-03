@@ -35,7 +35,7 @@ namespace files
     extern const juce::String pluginsStamp;             ///< Hash stamp of the plugin archives last offloaded.
     extern const juce::String archiveExtension;         ///< Extension of the plugin archives in the binary data.
     extern const juce::String audioUnitExtension;       ///< Extension of an Audio Unit bundle.
-    extern const juce::String settingsFileName;
+    extern const juce::String settingsFileName;         ///< Window state file of END in the config directory.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

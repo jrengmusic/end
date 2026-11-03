@@ -30,7 +30,7 @@ class ConfigShader : public ConfigDirectory
 {
 public:
     /** @brief Constructs with an empty shader tree of the given type.
-     *  @param treeType  Tree type identifier (Id::toType (Id::background) or Id::toType (Id::postProcessing)).
+     *  @param treeType  Tree type identifier (jam::Format::toType (Id::background) or jam::Format::toType (Id::postProcessing)).
      */
     explicit ConfigShader (juce::Identifier treeType);
 
@@ -50,7 +50,7 @@ public:
      *  Overlays the loaded tree on @c state with @c setValuesFrom. Stamps
      *  @c Id::shaderFormat with the resolved format, and @c Id::path with the
      *  full path of the directory, on @c state. Sends a property change for
-     *  @c Id::toType (Id::graphics).
+     *  @c jam::Format::toType (Id::graphics).
      *
      *  @param path  Active shader project name from ConfigModel.
      *  @return      Always empty. This method reports no error.
@@ -95,7 +95,7 @@ public:
      *  Locates the theme directory via @c ConfigDirectory::Themes::getPath. Builds a disk tree of THEMES from
      *  its markdown files through @c jam::ConfigDocument, and of FLEX from its flex/ files through @c fromFiles.
      *  Overlays the disk tree on @c state with one @c setValuesFrom call. When the directory is missing, adds a
-     *  missing-directory error and overlays nothing. Sends a property change for @c Id::toType (Id::theme) in both cases.
+     *  missing-directory error and overlays nothing. Sends a property change for @c jam::Format::toType (Id::theme) in both cases.
      *
      *  @param path  Active theme name from ConfigModel.
      *  @return      The validation errors and the missing-directory error. Empty when successful.
@@ -191,12 +191,12 @@ public:
     /**
         @brief Returns the value of one config row.
 
-        Finds the row child @c Id::toType (name) in the table child @p type of this tree.
+        Finds the row child @c jam::Format::toType (name) in the table child @p type of this tree.
         Returns the dark cell when the row has one and the display appearance is dark.
         Otherwise returns the value cell. The table and the row must exist.
 
-        @param type  The table type of the config file, as @c Id::toType gives it.
-        @param name  The key of the row. @c Id::toType gives the row child name.
+        @param type  The table type of the config file, as @c jam::Format::toType gives it.
+        @param name  The key of the row. @c jam::Format::toType gives the row child name.
         @return The value of the row.
     */
     juce::var getRowValue (const juce::Identifier& type, const juce::Identifier& name) const noexcept;
@@ -255,8 +255,8 @@ private:
     static constexpr int coalesceMs { 300 };
 
     ConfigTheme theme;
-    ConfigShader background { Id::toType (Id::background) };
-    ConfigShader postProcessing { Id::toType (Id::postProcessing) };
+    ConfigShader background { jam::Format::toType (Id::background) };
+    ConfigShader postProcessing { jam::Format::toType (Id::postProcessing) };
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigModel)
