@@ -33,4 +33,4 @@ _preprocess.bat
 docs/
 
 # Unpacked hosted plugin bundles (binaries over the GitHub file size limit)
-Source/plugins/EVE v0.1.0 macOS/
+Source/plugins/EVE v0.0.1 macOS/
