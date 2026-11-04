@@ -78,14 +78,10 @@ extern const juce::Identifier orbit;
 extern const juce::Identifier outline;
 extern const juce::Identifier overlay;                 ///< Transient message-overlay row.
 extern const juce::Identifier pane;
-extern const juce::Identifier paneDown;
 extern const juce::Identifier paneEditor;
-extern const juce::Identifier paneLeft;
 extern const juce::Identifier panePrompt;
-extern const juce::Identifier paneRight;
 extern const juce::Identifier panes;
 extern const juce::Identifier paneStep;
-extern const juce::Identifier paneUp;
 extern const juce::Identifier plugin;
 extern const juce::Identifier plugins;
 extern const juce::Identifier postProcessing;

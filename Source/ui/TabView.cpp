@@ -35,14 +35,6 @@ void TabView::childRemoved (jam::UUID uuid)
 }
 
 //==============================================================================
-void TabView::focusPane (const juce::Identifier& direction)
-{
-    const auto target { getNeighbour (getFocusedChild(), direction) };
-
-    if (target != jam::UUID::none())
-        setFocusedChild (target);
-}
-
 jam::UUID TabView::join (const juce::Identifier& direction)
 {
     return MatrixComponent::join (getFocusedChild(), direction);

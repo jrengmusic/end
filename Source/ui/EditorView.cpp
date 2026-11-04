@@ -160,12 +160,7 @@ void EditorView::setMode (int newMode)
 
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == Id::focus and editor != nullptr)
-    {
-        if (auto* parameter { getParameter (editor->processor, Id::focus.toString()) })
-            setParameter (
-                *parameter, static_cast<float> (static_cast<int> (tree.getProperty (Id::focus))));
-    }
+    const auto isPluginLoaded { property == Id::name and tree.hasProperty (Id::name) };
 
     if (property == Id::plugin and editor != nullptr)
     {
@@ -173,11 +168,18 @@ void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Id
         editor.reset();
     }
 
-    if (property == Id::name and tree.hasProperty (Id::name))
+    if (isPluginLoaded)
     {
         resized();
         createProcessorEditor();
         resized();
+    }
+
+    if ((property == Id::focus or isPluginLoaded) and editor != nullptr)
+    {
+        if (auto* parameter { getParameter (editor->processor, Id::focus.toString()) })
+            setParameter (
+                *parameter, static_cast<float> (static_cast<int> (tree.getProperty (Id::focus))));
     }
 }
 

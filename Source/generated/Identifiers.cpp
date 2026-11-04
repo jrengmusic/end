@@ -74,14 +74,10 @@ namespace Id
     const juce::Identifier outline                  { juce::String::fromUTF8 ("outline") };
     const juce::Identifier overlay                  { juce::String::fromUTF8 ("overlay") };
     const juce::Identifier pane                     { juce::String::fromUTF8 ("pane") };
-    const juce::Identifier paneDown                 { juce::String::fromUTF8 ("paneDown") };
     const juce::Identifier paneEditor               { juce::String::fromUTF8 ("paneEditor") };
-    const juce::Identifier paneLeft                 { juce::String::fromUTF8 ("paneLeft") };
     const juce::Identifier panePrompt               { juce::String::fromUTF8 ("panePrompt") };
-    const juce::Identifier paneRight                { juce::String::fromUTF8 ("paneRight") };
     const juce::Identifier panes                    { juce::String::fromUTF8 ("panes") };
     const juce::Identifier paneStep                 { juce::String::fromUTF8 ("paneStep") };
-    const juce::Identifier paneUp                   { juce::String::fromUTF8 ("paneUp") };
     const juce::Identifier plugin                   { juce::String::fromUTF8 ("plugin") };
     const juce::Identifier plugins                  { juce::String::fromUTF8 ("plugins") };
     const juce::Identifier postProcessing           { juce::String::fromUTF8 ("postProcessing") };

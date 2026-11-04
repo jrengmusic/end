@@ -273,6 +273,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     VMA_VULKAN_VERSION=1002000                                           # Vulkan version for Vulkan Memory Allocator
     "$<$<CONFIG:Debug>:DEBUG=1>"                                         # Debug configuration
     "$<$<CONFIG:Release>:NDEBUG=1>"                                      # Release configuration
+    "CAST_CONFIG_DIRECTORY=.config/$<IF:$<CONFIG:Debug>,dev,end>"        # Config root relative to home, by build type
     "$<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN=1>"                    # Exclude rarely used Windows headers
     "$<$<PLATFORM_ID:Windows>:NOMINMAX=1>"                               # No Windows min/max macros
     "$<$<PLATFORM_ID:Windows>:_WIN32_IE=0x0A00>"                         # Windows IE platform version

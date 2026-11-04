@@ -50,11 +50,6 @@ public:
     /** @brief Mints a new pane and mounts it as a child of the graph. */
     void add();
 
-    /** @brief Sets the focused child to the neighbouring pane in direction, when one exists.
-     *  @param direction Edge to look across — Id::left/right/top/bottom.
-     */
-    void focusPane (const juce::Identifier& direction);
-
     /** @brief Joins the focused pane with its neighbour across direction.
      *  @param direction Edge to join across — Id::left/right/top/bottom.
      *  @return Identity of the pane absorbed into the surviving pane, or jam::UUID::none() when no neighbour exists.
