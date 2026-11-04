@@ -24,11 +24,14 @@ static decltype (juce::ComponentPeer::externalMouseEventCallback) mouseEventCall
     }
 } };
 
-static juce::Rectangle<int> (*displayBoundsGetter)() { [] { return juce::Desktop::getInstance().getDisplays().getTotalBounds (false); } };
+static juce::Rectangle<int> (*displayBoundsGetter)() { [] { return Nexus::getDisplayBounds(); } };
+static juce::int64 (*paneUuidGetter)() { [] { return Nexus::getInstance()->getLoadingPane(); } };
+static void (*terminalReportCallback) (juce::int64, const char*, const char*) { [] (juce::int64 pane, const char* name, const char* value) { ENDActions::getInstance()->get (juce::Identifier { name }, juce::int64 { pane }, static_cast<const char*> (value)); } };
+static void (*startDirectoryGetter) (juce::int64, char*, size_t) { [] (juce::int64 pane, char* hostDirectory, size_t numBytes) { ENDActions::getInstance()->get (Id::startDirectory, juce::int64 { pane }, static_cast<char*> (hostDirectory), size_t { numBytes }); } };
 
 #if JAM_USING_PROFILER
 static void (*promptPaintedCallback)() { [] { ENDActions::getInstance()->run (Id::promptPainted); } };
-static juce::File (*manifestFileGetter)() { [] { return Nexus::getManifestFile(); } };
+static void (*manifestFileGetter) (char*, size_t) { [] (char* hostFile, size_t numBytes) { Nexus::getManifestFile().getFullPathName().copyToUTF8 (hostFile, numBytes); } };
 #endif
 
 Nexus::Nexus()
@@ -62,6 +65,9 @@ void Nexus::registerExtensions()
     extensions.try_emplace (Id::enaxKeyPressed, &keyPressedCallback);
     extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback);
     extensions.try_emplace (Id::enaxDisplayBounds, &displayBoundsGetter);
+    extensions.try_emplace (Id::enaxPaneUuid, &paneUuidGetter);
+    extensions.try_emplace (Id::enaxStartDirectory, &startDirectoryGetter);
+    extensions.try_emplace (Id::enaxTerminalReport, &terminalReportCallback);
 #if JAM_USING_PROFILER
     extensions.try_emplace (Id::enaxPromptPainted, &promptPaintedCallback);
     extensions.try_emplace (Id::enaxManifestFile, &manifestFileGetter);
@@ -95,8 +101,22 @@ void Nexus::registerEVE()
 
 #if JUCE_MAC
     if (eve.hasFileExtension (files::audioUnitExtension))
-        registerAudioUnit (eve);
+        registerAudioUnit (addBundle (eve));
 #endif
+}
+
+void Nexus::addPluginModule (const juce::File& file)
+{
+    if (pluginModules.addIfNotAlreadyThere (file.getFullPathName()))
+    {
+#if JUCE_MAC
+        addBundle (file);
+#endif
+
+#if JUCE_WINDOWS
+        libraries.add (std::make_unique<juce::DynamicLibrary> (file.getFullPathName()));
+#endif
+    }
 }
 
 Nexus::~Nexus()
@@ -109,7 +129,7 @@ Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList, loadingPanes));
     jassert (inserted);
     auto& [key, session] = *entry;
 
@@ -134,11 +154,21 @@ Session& Nexus::getActiveSession()
         jam::Format::toType (Id::sessions), Id::focusedSession) };
     jassert (focusedSessionParameter != nullptr);
 
-    // Threat: called before ENDApplication's bootstrap createSession() —
-    // Id::focusedSession is still its 0 (no-session) seed value.
+    // Threat: called before the first session exists, while Id::focusedSession holds its 0 default.
     jassert (jam::UUID { focusedSessionParameter->getValue() } != jam::UUID::none());
 
     return getSession (jam::UUID (focusedSessionParameter->getValue()));
+}
+
+juce::int64 Nexus::getLoadingPane() const noexcept
+{
+    if (loadingPanes.isEmpty()) return jam::UUID::none().value;
+    return loadingPanes.first();
+}
+
+juce::Rectangle<int> Nexus::getDisplayBounds()
+{
+    return juce::Desktop::getInstance().getDisplays().getTotalBounds (false);
 }
 
 const void* Nexus::getExtension (const char* id) const
@@ -218,21 +248,25 @@ static void registerAudioComponent (CFBundleRef bundle, CFDictionaryRef entry)
     AudioComponentRegister (&description, name, version, factory);
 }
 
-void Nexus::registerAudioUnit (const juce::File& componentFile)
+CFBundleRef Nexus::addBundle (const juce::File& pluginFile)
 {
     const std::unique_ptr<std::remove_pointer_t<CFURLRef>, decltype (&CFRelease)> url {
         CFURLCreateFromFileSystemRepresentation (
             kCFAllocatorDefault,
-            reinterpret_cast<const UInt8*> (componentFile.getFullPathName().toRawUTF8()),
-            static_cast<CFIndex> (componentFile.getFullPathName().getNumBytesAsUTF8()),
+            reinterpret_cast<const UInt8*> (pluginFile.getFullPathName().toRawUTF8()),
+            static_cast<CFIndex> (pluginFile.getFullPathName().getNumBytesAsUTF8()),
             true),
         CFRelease };
     jassert (url != nullptr);
 
     bundles.emplace_back (CFBundleCreate (kCFAllocatorDefault, url.get()), CFRelease);
-    auto* bundle { bundles.back().get() };
-    jassert (bundle != nullptr);
+    jassert (bundles.back() != nullptr);
 
+    return bundles.back().get();
+}
+
+void Nexus::registerAudioUnit (CFBundleRef bundle)
+{
     const auto audioComponents { static_cast<CFArrayRef> (
         CFBundleGetValueForInfoDictionaryKey (bundle, CFSTR ("AudioComponents"))) };
     jassert (audioComponents != nullptr);

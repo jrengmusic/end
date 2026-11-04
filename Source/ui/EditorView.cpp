@@ -2,9 +2,21 @@
 #include "plugins/Nexus.h"
 #include "action/ENDActions.h"
 
+static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
+{
+    const auto tabRow { EditorView::findAncestorRow (tabState, jam::Format::toType (Id::tab)) };
+    const jam::UUID focusedUuid { static_cast<int64_t> (tabRow.getProperty (Id::focusedPane)) };
+    const auto focusedPane { jam::Model::getChildWithID (tabRow, juce::var (focusedUuid.value)) };
+
+    return focusedPane.getProperty (Id::cwd).toString();
+}
+
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
     : jam::PaneComponent (model, tabState, jam::Format::toType (Id::pane), uuid)
 {
+    for (const auto& id : jam::TerminalProcessor::getReports())
+        model.createAndAddParameter<jam::ParameterText> (state, id, id == Id::cwd ? getInheritedDirectory (tabState) : juce::String {}, jam::ParameterText::maxTextLength);
+
     state.addListener (this);
     addAndMakeVisible (dropTarget);
 }
@@ -82,8 +94,7 @@ void EditorView::setEditorBounds (int inset)
 
 void EditorView::setSizeParameters (juce::AudioProcessor& plugin, juce::Rectangle<int> inner)
 {
-    const auto bounds { (*static_cast<juce::Rectangle<int> (*const*)()> (
-        Nexus::getInstance()->getExtension (Id::enaxDisplayBounds.toRawUTF8())))() };
+    const auto bounds { Nexus::getDisplayBounds() };
     const juce::NormalisableRange<float> widthRange { static_cast<float> (
                                                           jam::PaneComponent::minimumPaneExtent),
                                                       static_cast<float> (bounds.getWidth()) };
@@ -170,6 +181,11 @@ void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Id
 
     if (isPluginLoaded)
     {
+        if (isENAX())
+            Nexus::getInstance()->addPluginModule (juce::File { tree.getProperty (Id::plugin).toString() });
+        else
+            tree.setProperty (Id::cwd, juce::String {}, nullptr);
+
         resized();
         createProcessorEditor();
         resized();
@@ -216,11 +232,17 @@ juce::ValueTree EditorView::findAncestorRow (juce::ValueTree tree, const juce::I
     return tree;
 }
 
+bool EditorView::isENAX() const
+{
+    return static_cast<bool> (state.getProperty (Id::enax));
+}
+
 juce::AudioProcessorParameter*
 EditorView::getParameter (juce::AudioProcessor& plugin, const juce::String& name) const
 {
-    if (juce::File { state.getProperty (Id::plugin).toString() }
-        == ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin))
+    static constexpr int maximumNameLength { 128 };
+
+    if (isENAX())
     {
         const auto& parameters { plugin.getParameters() };
         const auto found { std::find_if (

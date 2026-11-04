@@ -41,11 +41,8 @@ public:
     /** @brief Stops listening to the pane row and tells the processor that its editor is being deleted. */
     ~EditorView() override;
 
-    /** @brief Longest parameter name that `getParameter()` compares. */
-    static constexpr int maximumNameLength { 128 };
-
     /**
-     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin when it is EVE.
+     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin when the pane holds the ENAX mark.
      *
      * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
      * Any other editor sits at the inset position from the top left corner.
@@ -132,14 +129,20 @@ private:
     /**
      * @brief Returns the parameter of a plugin whose name equals a name, compared without case.
      *
-     * The search runs only when the Id::plugin of the pane row is the EVE file in the plugins folder. The ENAX lane reads
-     * the width, height, zoom, mode and focus parameters of EVE only, so the call returns nullptr for any other plugin.
+     * The search runs only when the pane row holds the Id::enax mark. The ENAX lane reads the width, height,
+     * zoom, mode and focus parameters through this search. A pane without the mark has no parameter to return.
      *
      * @param plugin  Plugin whose parameters are searched.
-     * @param name    Name to match, compared with the first `maximumNameLength` characters of each parameter name.
-     * @return The first parameter with that name, or nullptr when none has it or the pane does not hold EVE.
+     * @param name    Name to match. The match reads each parameter name up to a fixed length limit.
+     * @return The first parameter with that name, or nullptr when none has it or the pane does not hold the mark.
      */
     juce::AudioProcessorParameter* getParameter (juce::AudioProcessor& plugin, const juce::String& name) const;
+
+    /**
+     * @brief Answers whether the pane row holds the Id::enax mark, which marks the pane as an ENAX client.
+     * @return True when the pane row holds the mark.
+     */
+    bool isENAX() const;
 
     /**
      * @brief Sets the normalised value of a parameter in a change gesture, which notifies the host.
@@ -161,7 +164,8 @@ private:
      * @brief Writes the inner size of the pane to the width and height parameters of a plugin, snapped to the legal range.
      *
      * The width range runs from PaneComponent::minimumPaneExtent to the total display width. The height range runs from
-     * the same minimum to the total display height. The display bounds come from the enaxDisplayBounds host extension.
+     * the same minimum to the total display height. The display bounds come from Nexus::getDisplayBounds(), the getter that
+     * the enaxDisplayBounds host extension also returns.
      * A parameter is written only when getParameter() finds it.
      *
      * @param plugin  Plugin whose width and height parameters are written.
@@ -182,9 +186,11 @@ private:
     /**
      * @brief Applies a changed property of the pane row to the hosted plugin and to the editor.
      *
-     * Id::focus writes the focus value of the tree to the focus parameter of the plugin, when an editor exists.
      * Id::plugin destroys the editor, because the session reloads the plugin.
-     * Id::name, when the tree holds it, lays out the pane, creates the editor, and lays out the pane again.
+     * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the pane holds the
+     * ENAX mark, and clears the cwd property otherwise. Then the pane lays out, creates the editor, and lays out again.
+     * Id::focus writes the focus value of the row to the focus parameter of the plugin, when an editor exists. Id::name,
+     * when the row holds it, does the same after the editor is created.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property. Id::focus, Id::plugin and Id::name have an effect.

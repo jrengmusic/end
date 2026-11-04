@@ -18,9 +18,10 @@ struct Nexus : jam::Instance<Nexus>
 {
     /**
      * @brief Registers the host extensions, builds the model, the plugin formats and the audio graph,
-     *        then offloads the plugins of the binary data.
+     *        offloads the plugins of the binary data, then lists the EVE plugin.
      *
-     * On macOS, the constructor registers the Audio Unit of the EVE plugin when that plugin is a component.
+     * The constructor calls registerEVE(). On macOS, registerEVE() registers the EVE bundle as an Audio Unit
+     * component when the EVE file has the component extension.
      */
     Nexus();
 
@@ -57,6 +58,36 @@ struct Nexus : jam::Instance<Nexus>
      */
     const void* getExtension (const char* id) const;
 
+    /**
+     * @brief Holds the bundle or the library of an ENAX plugin module for the lifetime of Nexus, once per file.
+     *
+     * A file that pluginModules already lists is ignored. On macOS, the bundle is created and held in bundles.
+     * On Windows, the library is opened and held in libraries. EditorView calls this when the plugin of an
+     * ENAX pane loads.
+     *
+     * @param file  Plugin module file.
+     */
+    void addPluginModule (const juce::File& file);
+
+    /**
+     * @brief Returns the identity of the pane whose plugin is loading, so that the plugin reads its own pane.
+     *
+     * The plugin reads the identity while its constructor runs. The identity is the first entry of loadingPanes.
+     *
+     * @return The identity of the first pending pane, or the zero identity when no plugin loads.
+     */
+    juce::int64 getLoadingPane() const noexcept;
+
+    /**
+     * @brief Returns the bounds that contain all displays, in logical pixels.
+     *
+     * The full display area is used, not the user area. The panes limit their width and height to these bounds.
+     * The hosted plugins read the same bounds through the enaxDisplayBounds host extension.
+     *
+     * @return The bounds of all displays together.
+     */
+    static juce::Rectangle<int> getDisplayBounds();
+
 #if JAM_USING_PROFILER
     static juce::File getManifestFile();
 #endif
@@ -69,17 +100,28 @@ private:
 
 #if JUCE_MAC
     /**
-     * @brief Loads the bundle of an Audio Unit component and registers each audio component that the bundle declares.
-     * @param componentFile  Component bundle file.
+     * @brief Registers each audio component that the bundle of an Audio Unit component declares.
+     * @param bundle  Bundle of the component. The bundle is owned by `bundles`.
      */
-    void registerAudioUnit (const juce::File& componentFile);
+    void registerAudioUnit (CFBundleRef bundle);
+
+    /**
+     * @brief Creates the bundle of a plugin file and holds it for the lifetime of Nexus.
+     *
+     * The bundle is owned by bundles. The call asserts when the bundle cannot be created.
+     *
+     * @param pluginFile  Plugin bundle file.
+     * @return The bundle, owned by bundles.
+     */
+    CFBundleRef addBundle (const juce::File& pluginFile);
 #endif
 
     /**
      * @brief Registers the host callbacks and getters that the hosted plugins read through the host extensions.
      *
-     * The registry holds the context factory, the peer deleted callback, the key press and mouse event callbacks, and
-     * the display bounds getter. With the profiler, it also holds the prompt-painted callback and the manifest file getter.
+     * The registry holds the context factory, the peer deleted callback, the key press and mouse event callbacks,
+     * the display bounds getter, the pane identity getter, the start directory getter and the terminal report callback.
+     * With the profiler, it also holds the prompt-painted callback and the manifest file getter.
      */
     void registerExtensions();
 
@@ -103,12 +145,32 @@ private:
     static constexpr const char* hostUrl { ProjectInfo::productWebsite };
 
 #if JUCE_MAC
-    /** @brief Bundles of the registered Audio Unit components. They stay alive as long as Nexus exists. Each is released with CFRelease. */
+    /**
+     * @brief Bundles of the registered Audio Unit components and of the ENAX plugin modules.
+     *
+     * The bundles stay alive as long as Nexus exists. Each is released with CFRelease.
+     */
     std::vector<std::unique_ptr<std::remove_pointer_t<CFBundleRef>, decltype (&CFRelease)>> bundles;
 #endif
 
+#if JUCE_WINDOWS
+    /** @brief Libraries of the ENAX plugin modules, opened by addPluginModule() and held for the lifetime of Nexus. */
+    juce::OwnedArray<juce::DynamicLibrary> libraries;
+#endif
+
+    /** @brief Paths of the ENAX plugin modules that addPluginModule() has taken. Each path is held once. */
+    juce::StringArray pluginModules;
+
     /** @brief Model that holds the window row and the sessions tree. The sessions tree holds the focusedSession parameter. */
     ENDModel model;
+
+    /**
+     * @brief Identities of the panes whose plugin is loading, the oldest first.
+     *
+     * Session appends an identity when a load starts, and removes the first identity when a load ends. The first
+     * identity is the one that getLoadingPane() returns.
+     */
+    jam::Array<juce::int64> loadingPanes;
 
     /** @brief Sessions keyed by identity. Each session is owned here. */
     jam::HashMap<jam::UUID, std::unique_ptr<Session>> sessions;

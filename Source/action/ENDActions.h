@@ -51,7 +51,11 @@ public:
 
     //==============================================================================
 private:
-    /** @brief Action map — callers register void() callables keyed by Identifier. */
+    /**
+     * @brief Action map. Callers register callables keyed by Identifier.
+     *
+     * run() invokes a callable that takes no arguments. get() forwards its arguments to the callable.
+     */
     jam::Function::Map<juce::Identifier, void> actions;
 
     //==============================================================================
