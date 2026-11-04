@@ -31,7 +31,6 @@ namespace Id
 
     const juce::Identifier alwaysOnTop              { juce::String::fromUTF8 ("alwaysOnTop") };
     const juce::Identifier alwaysVisible            { juce::String::fromUTF8 ("alwaysVisible") };
-    const juce::Identifier background               { juce::String::fromUTF8 ("background") };
     const juce::Identifier backgroundOpacity        { juce::String::fromUTF8 ("backgroundOpacity") };
     const juce::Identifier backgroundResolution     { juce::String::fromUTF8 ("backgroundResolution") };
     const juce::Identifier blurRadius               { juce::String::fromUTF8 ("blurRadius") };

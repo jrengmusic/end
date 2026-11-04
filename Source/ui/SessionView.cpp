@@ -78,7 +78,10 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == Id::name or property == Id::focusedPane)
+    const auto& terminalReports { jam::TerminalProcessor::getReports() };
+
+    if (property == Id::name or property == Id::focusedPane
+        or std::find (terminalReports.begin(), terminalReports.end(), property) != terminalReports.end())
     {
         const auto tabState { EditorView::findAncestorRow (tree, jam::Format::toType (Id::tab)) };
 
@@ -103,7 +106,22 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
         jam::Model::getChildWithID (tabState, juce::var (sourceUuid.value))
     };
 
-    return sourcePane.isValid() ? sourcePane.getProperty (Id::name).toString() : juce::String {};
+    if (sourcePane.isValid())
+    {
+        for (const auto& id : { Id::title, Id::foregroundProcess })
+        {
+            const juce::String report { sourcePane.getProperty (id).toString() };
+
+            if (report.isNotEmpty())
+                return report;
+        }
+
+        const juce::String directoryName { juce::File { sourcePane.getProperty (Id::cwd).toString() }.getFileName() };
+
+        return directoryName.isNotEmpty() ? directoryName : sourcePane.getProperty (Id::name).toString();
+    }
+
+    return juce::String {};
 }
 
 void SessionView::applyTabName (jam::UUID uuid)

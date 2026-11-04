@@ -35,7 +35,6 @@ namespace Id
 
 extern const juce::Identifier alwaysOnTop;
 extern const juce::Identifier alwaysVisible;
-extern const juce::Identifier background;
 extern const juce::Identifier backgroundOpacity;
 extern const juce::Identifier backgroundResolution;
 extern const juce::Identifier blurRadius;

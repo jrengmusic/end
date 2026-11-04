@@ -27,10 +27,7 @@ public:
     /** @brief Constructs by adopting a pre-built subtree as @c state.
      *  @param initialState  The tree to adopt (forwarded to jam::Model).
      */
-    explicit ConfigDirectory (juce::ValueTree initialState)
-        : jam::Model (std::move (initialState))
-    {
-    }
+    explicit ConfigDirectory (juce::ValueTree initialState);
 
     /** @brief Defaulted — lifetime is bound to the owning @c ConfigModel. */
     ~ConfigDirectory() override = default;
@@ -57,27 +54,19 @@ public:
          *  @return     @p key's stem, extensioned via @c jam::Format::toFileName
          *              with @c Extensions::md.
          */
-        static juce::String getName (int key) noexcept
-        {
-            return jam::Format::toFileName (map::FileConfig::getInstance()->get (key), Extensions::md);
-        }
+        static juce::String getName (int key) noexcept;
 
         /** @brief Resolves @p child relative to @c Config::path.
          *  @param child  Child file or directory name.
          *  @return       @c path with @p child appended.
          */
-        static juce::File getPath (juce::StringRef child) noexcept
-        {
-            return path.getChildFile (child);
-        }
+        static juce::File getPath (juce::StringRef child) noexcept;
 
         /** @brief Config directory name, relative to the user home directory. */
         static inline const char* const configDirectoryName { JUCE_STRINGIFY (CAST_CONFIG_DIRECTORY) };
 
         /** @brief The resolved root config directory: user home directory + @c configDirectoryName. */
-        static inline const juce::File path {
-            juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (configDirectoryName)
-        };
+        static const juce::File path;
     };
 
     /** @brief The @c themes/ subdirectory and its per-theme markdown files. */
@@ -88,19 +77,13 @@ public:
          *  @return     @p key's stem, extensioned via @c jam::Format::toFileName
          *              with @c Extensions::md.
          */
-        static juce::String getName (int key) noexcept
-        {
-            return jam::Format::toFileName (map::FileThemes::getInstance()->get (key), Extensions::md);
-        }
+        static juce::String getName (int key) noexcept;
 
         /** @brief Resolves @p themeName's directory under @c themes/.
          *  @param themeName  Theme directory name.
          *  @return           @c themes/@p themeName under @c Config::path.
          */
-        static juce::File getPath (const juce::String& themeName) noexcept
-        {
-            return Config::getPath (Id::themes).getChildFile (themeName);
-        }
+        static juce::File getPath (const juce::String& themeName) noexcept;
     };
 
     /** @brief FLEX SVG asset filenames, seeded per theme under @c themes/\<name\>/flex/. */
@@ -111,10 +94,7 @@ public:
          *  @return     @p key's stem, extensioned via @c jam::Format::toFileName
          *              with @c Extensions::svg.
          */
-        static juce::String getName (int key) noexcept
-        {
-            return jam::Format::toFileName (map::FileFlex::getInstance()->get (key), Extensions::svg);
-        }
+        static juce::String getName (int key) noexcept;
     };
 
     /** @brief The @c shaders/ subdirectory holding per-project shader trees. */
@@ -124,10 +104,7 @@ public:
          *  @param shadersName  Shader project directory name.
          *  @return             @c shaders/@p shadersName under @c Config::path.
          */
-        static juce::File getPath (const juce::String& shadersName) noexcept
-        {
-            return Config::getPath (Id::shaders).getChildFile (shadersName);
-        }
+        static juce::File getPath (const juce::String& shadersName) noexcept;
     };
 
     //==========================================================================

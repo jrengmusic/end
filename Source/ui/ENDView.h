@@ -60,7 +60,10 @@ public:
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
-    /** @brief Returns no next command target. The view is the root of the command targets. */
+    /**
+     * @brief Returns the active tab view as the next command target of the view.
+     * @return The active tab view, or nullptr when no tab is active.
+     */
     juce::ApplicationCommandTarget* getNextCommandTarget() override;
 
     /**
@@ -113,7 +116,7 @@ private:
     void createAndAttachParameters();
 
     /**
-     * @brief Registers every action family: session, application, tab, zoom, pane, focus, join, swap and resize.
+     * @brief Registers every action family: session, application, tab, zoom, pane, join, swap, resize and terminal.
      *
      * The profiler family is registered too when JAM_USING_PROFILER is set.
      */
@@ -128,7 +131,8 @@ private:
     /**
      * @brief Registers newTab, closeTab, nextTab and prevTab.
      *
-     * newTab adds a tab row, then runs newPane without an edge, and loads EVE into the new pane.
+     * newTab adds a tab row, then runs newPane without an edge. The new pane receives the directory of the focused
+     * pane of the previously active tab as its cwd. newTab then loads EVE into the new pane.
      * closeTab removes the focused tab row of the focused session. nextTab and prevTab move between the tabs of the focused session.
      */
     void registerTabActions();
@@ -169,6 +173,30 @@ private:
      */
     void registerResizeActions();
 
+    /**
+     * @brief Registers the terminal reports of the panes, the ENAX mark and the start directory getter.
+     *
+     * Each terminal report writes its value to the row of its pane. The enax report sets the Id::enax property of the
+     * row to true. The start directory getter copies the cwd of the row into the host buffer.
+     */
+    void registerTerminalActions();
+
+    /**
+     * @brief Returns the cwd of the focused pane of the active tab.
+     * @return The directory, or an empty string when no tab is active.
+     */
+    juce::String getFocusedDirectory() const;
+
+    /**
+     * @brief Returns the row of a pane under the sessions row.
+     *
+     * The terminal reports and the host extensions pass the pane identity. The row must exist. The call asserts otherwise.
+     *
+     * @param pane  Identity of the pane.
+     * @return The pane row.
+     */
+    juce::ValueTree getPaneRow (juce::int64 pane) const;
+
 #if JAM_USING_PROFILER
     /**
      * @brief Registers promptPainted, which splits the active tab while it has fewer panes than the profiler table of the manifest file.
@@ -201,13 +229,13 @@ private:
     /** @brief Returns the view of the focused session.
      *  @return The focused SessionView, or nullptr when none is focused.
      */
-    SessionView* getActiveSessionView() noexcept;
+    SessionView* getActiveSessionView() const noexcept;
 
     /**
      * @brief Returns the focused tab of the focused session.
      * @return The focused TabView, or nullptr when no session is focused, or when no tab of that session is focused.
      */
-    TabView* getActiveTabView() noexcept;
+    TabView* getActiveTabView() const noexcept;
 
     //==============================================================================
     /** @brief Background that draws the shader behind the sessions. */

@@ -74,14 +74,12 @@ juce::ApplicationCommandTarget* ENDView::getNextCommandTarget()
 
 void ENDView::getAllCommands (juce::Array<juce::CommandID>& commands)
 {
-    for (const auto& [command, name] : map::CommandId::getInstance()->get())
-        commands.add (command);
+    jam::CommandManager::addCommands (commands, *commandId);
 }
 
 void ENDView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
 {
-    const auto name { map::CommandId::getInstance()->get (commandID).toString() };
-    result.setInfo (name, name, {}, result.flags & ~ juce::ApplicationCommandInfo::isDisabled);
+    jam::CommandManager::setInfo (result, commandId->get (commandID).toString());
 }
 
 bool ENDView::perform (const InvocationInfo& info)
@@ -110,7 +108,7 @@ void ENDView::setViewState (jam::Size<int16_t> size)
     state.setProperty (Id::size, size.toInt(), nullptr);
 }
 
-SessionView* ENDView::getActiveSessionView() noexcept
+SessionView* ENDView::getActiveSessionView() const noexcept
 {
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
         jam::Format::toType (Id::sessions), Id::focusedSession) };
@@ -121,7 +119,7 @@ SessionView* ENDView::getActiveSessionView() noexcept
     return sessions.contains (sessionUuid) ? sessions.at (sessionUuid).get() : nullptr;
 }
 
-TabView* ENDView::getActiveTabView() noexcept
+TabView* ENDView::getActiveTabView() const noexcept
 {
     if (auto* sessionView { getActiveSessionView() })
         return sessionView->getActiveTabView();
@@ -176,11 +174,13 @@ void ENDView::registerTabActions()
                  {
                      if (auto* sessionView { getActiveSessionView() })
                      {
+                         const auto directory { getFocusedDirectory() };
                          jam::UUID uuid {};
                          sessionView->add (uuid);
 
                          const juce::Identifier edge {};
                          actions.get (Id::newPane, edge);
+                         getActiveTabView()->getFocusedPane().getValueTree().setProperty (Id::cwd, directory, nullptr);
                          actions.get (Id::loadPlugin, files::evePlugin);
                      }
                  });
@@ -245,7 +245,7 @@ void ENDView::registerZoomActions()
                              if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::exclusiveZoom)))
                              {
                                  if (auto* tabView { sessionView->getActiveTabView() })
-                                     tabView->get (tabView->getFocusedChild()).setZoom (command, step);
+                                     tabView->getFocusedPane().setZoom (command, step);
                              }
                              else
                              {
@@ -327,7 +327,7 @@ void ENDView::registerPaneActions()
                  [this]
                  {
                      if (auto* tabView { getActiveTabView() })
-                         tabView->get (tabView->getFocusedChild()).setMode (map::EditorMode::normal);
+                         tabView->getFocusedPane().setMode (map::EditorMode::normal);
                  });
 
     actions.add<const juce::Identifier&> (
@@ -352,22 +352,23 @@ void ENDView::registerPaneActions()
         [this] (const juce::String& plugin)
         {
             if (auto* tabView { getActiveTabView() })
-                tabView->get (tabView->getFocusedChild()).getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (plugin).getFullPathName(), nullptr);
+                tabView->getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (plugin).getFullPathName(), nullptr);
         });
 
-    actions.add (Id::splitHorizontal,
-                 [this]
-                 {
-                     actions.get (Id::newPane, Id::bottom);
-                     actions.get (Id::loadPlugin, files::evePlugin);
-                 });
+    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 2> splitEdges {{
+        { Id::splitHorizontal, Id::bottom },
+        { Id::splitVertical, Id::right },
+    }};
 
-    actions.add (Id::splitVertical,
-                 [this]
-                 {
-                     actions.get (Id::newPane, Id::right);
-                     actions.get (Id::loadPlugin, files::evePlugin);
-                 });
+    for (const auto& [actionId, edge] : splitEdges)
+    {
+        actions.add (actionId,
+                     [this, edge = edge]
+                     {
+                         actions.get (Id::newPane, edge);
+                         actions.get (Id::loadPlugin, files::evePlugin);
+                     });
+    }
 
     actions.add (Id::closePane,
                  [this]
@@ -389,6 +390,42 @@ void ENDView::registerPaneActions()
                  });
 }
 
+void ENDView::registerTerminalActions()
+{
+    for (const auto& id : jam::TerminalProcessor::getReports())
+    {
+        actions.add<juce::int64, const char*> (id,
+                                               [this, id] (juce::int64 pane, const char* value)
+                                               {
+                                                   getPaneRow (pane).setProperty (id, juce::String::fromUTF8 (value), nullptr);
+                                               });
+    }
+
+    actions.add<juce::int64, const char*> (Id::enax, [this] (juce::int64 pane, const char*) { getPaneRow (pane).setProperty (Id::enax, true, nullptr); });
+
+    actions.add<juce::int64, char*, size_t> (Id::startDirectory,
+                                             [this] (juce::int64 pane, char* directory, size_t numBytes)
+                                             {
+                                                 getPaneRow (pane).getProperty (Id::cwd).toString().copyToUTF8 (directory, numBytes);
+                                             });
+}
+
+juce::String ENDView::getFocusedDirectory() const
+{
+    if (auto* tabView { getActiveTabView() })
+        return tabView->getFocusedPane().getValueTree().getProperty (Id::cwd).toString();
+
+    return juce::String {};
+}
+
+juce::ValueTree ENDView::getPaneRow (juce::int64 pane) const
+{
+    const auto paneRow { jam::Model::getChildWithID (model.getChildWithName (jam::Format::toType (Id::sessions)), juce::var (pane)) };
+    jassert (paneRow.isValid());
+
+    return paneRow;
+}
+
 void ENDView::registerActions()
 {
     registerSessionActions();
@@ -399,6 +436,7 @@ void ENDView::registerActions()
     registerJoinActions();
     registerSwapActions();
     registerResizeActions();
+    registerTerminalActions();
 #if JAM_USING_PROFILER
     registerProfilerActions();
 #endif

@@ -61,7 +61,7 @@ private:
     /** @brief Application look and feel. It gives the tab bar depth and position. */
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
-    /** @brief Reapplies a tab's displayed name when its Id::name or Id::focusedPane changes.
+    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a terminal report of a pane changes.
      *  @param tree     The ValueTree whose property changed.
      *  @param property The identifier of the changed property.
      */
@@ -92,10 +92,12 @@ private:
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;
 
-    /** @brief Resolves a tab's displayed name — the tab's own rename when set,
-     *  otherwise the name of the tab's currently focused pane.
+    /** @brief Resolves a tab's displayed name, so that the tab shows the work of its focused pane.
+     *
+     *  The tab's own rename wins when set. Otherwise the title of the focused pane wins, then its foreground process name,
+     *  then the file name of its cwd, then its own name. Each step is skipped when it is empty.
      *  @param tabState The tab's own ValueTree row.
-     *  @return The resolved name, or an empty string when neither is set.
+     *  @return The resolved name, or an empty string when no step holds a value.
      */
     juce::String getTabName (const juce::ValueTree& tabState) const;
 

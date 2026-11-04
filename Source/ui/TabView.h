@@ -68,6 +68,12 @@ public:
     EditorView& get (jam::UUID uuid);
 
     /**
+     * @brief Returns the focused pane of the tab. The pane actions, such as normal and loadPlugin, act on this pane.
+     * @return The focused EditorView.
+     */
+    EditorView& getFocusedPane();
+
+    /**
      * @brief Sets the zoom parameter of each pane of the tab with a zoom command.
      * @param command  Zoom command name.
      * @param step     Zoom step that the command uses.
@@ -198,6 +204,13 @@ private:
      * @return True when the drag points toward the centre, which makes a split.
      */
     bool isInward (const juce::Identifier& edge, juce::Point<int> offset) const;
+
+    /**
+     * @brief Answers whether an edge is crossed by a horizontal drag.
+     * @param edge  Edge to test.
+     * @return True for the left and the right edge.
+     */
+    static bool isHorizontal (const juce::Identifier& edge) noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabView)

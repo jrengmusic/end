@@ -19,7 +19,7 @@
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)`  
-Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus.cpp:42-48`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
+Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus::addFormats`, `Nexus.cpp:77-87`; the ENAX extensions: `Nexus::registerExtensions`, `Nexus.cpp:61-75`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
 Graphics: JAM `jam_graphics` + `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; owned by Application: `jam::CpuGraphicsEngine` — Typeface, GlyphAtlas, GlyphArrangement, ImageLoader, CPU image operations, CPU-lane context; `jam::VulkanGraphicsEngine` — Device, per-window Graphics, GPU forms of the image operations)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/ui/` — ENDView, SessionView, TabView, EditorView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows); `Source/end/` — ENDModel; `Source/plugins/` — Nexus, Session  

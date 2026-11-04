@@ -54,6 +54,11 @@ EditorView& TabView::get (jam::UUID uuid)
     return static_cast<EditorView&> (MatrixComponent::get (uuid));
 }
 
+EditorView& TabView::getFocusedPane()
+{
+    return get (getFocusedChild());
+}
+
 void TabView::setZoom (const juce::Identifier& command, float step)
 {
     for (const auto& [uuid, child] : getChildren())
@@ -73,9 +78,14 @@ juce::Identifier TabView::getEdge (const jam::PaneComponent& pane, juce::Point<i
     return {};
 }
 
+bool TabView::isHorizontal (const juce::Identifier& edge) noexcept
+{
+    return edge == Id::left or edge == Id::right;
+}
+
 bool TabView::isInward (const juce::Identifier& edge, juce::Point<int> offset) const
 {
-    const bool horizontal { edge == Id::left or edge == Id::right };
+    const bool horizontal { isHorizontal (edge) };
 
     return isLow (map::Position::getInstance()->get (edge.toString())) == ((horizontal ? offset.getX() : offset.getY()) > 0);
 }
@@ -132,7 +142,7 @@ void TabView::mouseUp (const juce::MouseEvent& event)
         {
             if (isInward (edge, offset))
             {
-                const bool horizontal { edge == Id::left or edge == Id::right };
+                const bool horizontal { isHorizontal (edge) };
 
                 split (edge, horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
                                         : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
@@ -167,7 +177,7 @@ void TabView::paintOverChildren (juce::Graphics& g)
 
             if (edge.isValid())
             {
-                const bool horizontal { edge == Id::left or edge == Id::right };
+                const bool horizontal { isHorizontal (edge) };
 
                 if (isInward (edge, cursor - mouseDownPosition))
                     paintSplitPreview (g, edge.toString(), horizontal ? static_cast<float> (cursor.x) / static_cast<float> (pane->getWidth())
@@ -244,23 +254,28 @@ juce::PopupMenu TabView::buildAreaOptionsMenu()
 
 void TabView::handleAreaOptionsResult (int result)
 {
-    static const auto areaOptions {
-        []
-        {
-            jam::Function::Map<AreaOption, void> options;
-            options.add<TabView&> (AreaOption::splitVertical, [] (TabView&) { ENDActions::getInstance()->run (Id::splitVertical); });
-            options.add<TabView&> (AreaOption::splitHorizontal, [] (TabView&) { ENDActions::getInstance()->run (Id::splitHorizontal); });
-            options.add<TabView&> (AreaOption::joinLeft, [] (TabView&) { ENDActions::getInstance()->run (Id::joinLeft); });
-            options.add<TabView&> (AreaOption::joinRight, [] (TabView&) { ENDActions::getInstance()->run (Id::joinRight); });
-            options.add<TabView&> (AreaOption::joinUp, [] (TabView&) { ENDActions::getInstance()->run (Id::joinUp); });
-            options.add<TabView&> (AreaOption::joinDown, [] (TabView&) { ENDActions::getInstance()->run (Id::joinDown); });
-            options.add<TabView&> (AreaOption::swapLeft, [] (TabView&) { ENDActions::getInstance()->run (Id::swapLeft); });
-            options.add<TabView&> (AreaOption::swapRight, [] (TabView&) { ENDActions::getInstance()->run (Id::swapRight); });
-            options.add<TabView&> (AreaOption::swapUp, [] (TabView&) { ENDActions::getInstance()->run (Id::swapUp); });
-            options.add<TabView&> (AreaOption::swapDown, [] (TabView&) { ENDActions::getInstance()->run (Id::swapDown); });
-            return options;
-        }()
-    };
+    static const std::array<std::pair<AreaOption, juce::Identifier>, 10> areaOptions {{
+        { AreaOption::splitVertical, Id::splitVertical },
+        { AreaOption::splitHorizontal, Id::splitHorizontal },
+        { AreaOption::joinLeft, Id::joinLeft },
+        { AreaOption::joinRight, Id::joinRight },
+        { AreaOption::joinUp, Id::joinUp },
+        { AreaOption::joinDown, Id::joinDown },
+        { AreaOption::swapLeft, Id::swapLeft },
+        { AreaOption::swapRight, Id::swapRight },
+        { AreaOption::swapUp, Id::swapUp },
+        { AreaOption::swapDown, Id::swapDown },
+    }};
 
-    areaOptions.get (static_cast<AreaOption> (result), *this);
+    const auto found { std::find_if (areaOptions.begin(), areaOptions.end(), [result] (const auto& entry)
+                                     {
+                                         const auto& [option, action] { entry };
+                                         return static_cast<int> (option) == result;
+                                     }) };
+
+    if (found != areaOptions.end())
+    {
+        const auto& [option, action] { *found };
+        ENDActions::getInstance()->run (action);
+    }
 }

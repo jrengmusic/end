@@ -35,6 +35,8 @@ public:
      * @param newMidiInputId           Identity of the MIDI input processor in the graph.
      * @param newFormatManager         Format manager that creates the plugin instances.
      * @param newKnownPluginList       Known plugin list that receives each scanned plugin file.
+     * @param newLoadingPanes          Pending plugin loads, owned by Nexus. The session appends a pane identity when a load
+     *                                 starts, and removes the first identity when a load ends.
      */
     Session (jam::UUID newUuid,
              ENDModel& newModel,
@@ -44,7 +46,8 @@ public:
              juce::AudioProcessorGraph::NodeID newAudioOutputId,
              juce::AudioProcessorGraph::NodeID newMidiInputId,
              juce::AudioPluginFormatManager& newFormatManager,
-             juce::KnownPluginList& newKnownPluginList);
+             juce::KnownPluginList& newKnownPluginList,
+             jam::Array<juce::int64>& newLoadingPanes);
 
     /** @brief Stops listening to the sessions row. */
     ~Session();
@@ -144,8 +147,9 @@ private:
     /**
      * @brief Reloads the plugin of a pane when the pane row names another file.
      *
-     * The old instance leaves the graph, and the Id::name property of the pane row is removed. The pane creates its
-     * editor again when the new instance is added. A change of any other property has no effect.
+     * The old instance leaves the graph. The Id::name and the Id::enax properties of the pane row are removed. The pane
+     * creates its editor again when the new instance is added. The new plugin sets Id::enax again when it reports as an
+     * ENAX client. A change of any other property has no effect.
      *
      * @param tree      Tree whose property changed. Only a descendant of the session row is handled.
      * @param property  Identifier of the changed property. Only Id::plugin has an effect.
@@ -175,6 +179,9 @@ private:
 
     /** @brief Known plugin list that loadPlugin() scans each plugin file into. Nexus owns it. */
     juce::KnownPluginList& knownPluginList;
+
+    /** @brief Pending plugin loads, owned by Nexus. loadPlugin() appends a pane identity and removes the first one when the load ends. */
+    jam::Array<juce::int64>& loadingPanes;
 
     /** @brief Identity of each hosted plugin in the graph, keyed by the identity of its pane. */
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;

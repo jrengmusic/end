@@ -2,67 +2,66 @@
 version: 0.0.1
 ---
 
-This file is auto-generated with default values on first launch. Edit any
-value below to customise END. Invalid or missing values fall back
-to defaults and are reported in the message overlay with file:line. Reload
-with Cmd+R (no restart needed).
+This file is auto-generated with default values on first launch. Edit any value below to customise
+END. Invalid or missing values fall back to defaults and are reported in the message overlay with
+file:line. Reload with Cmd+R (no restart needed).
 
 ## display
 
 Active theme directory name and window chrome and lifecycle toggles.
 
-+----------------------+---------+----------+---------+--------------------------------------------+
-| key                  | type    | value    | choices | description                                |
-+======================+=========+==========+=========+============================================+
-| theme                | string  | gfx      |         | Active theme directory name. Themes live   |
-|                      |         |          |         | in ~/.config/end/themes/\<name\>/theme.md. |
-|                      |         |          |         | Changing this value reloads all visual     |
-|                      |         |          |         | properties (colours, fonts, metrics, SVGs) |
-|                      |         |          |         | from the named theme directory.            |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| size                 | numbers | 640, 480 |         | Initial window size in pixels {width,      |
-|                      |         |          |         | height}.                                   |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| zoom step            | float   | 0.1      |         | Normalised step of the plugin's zoom       |
-|                      |         |          |         | parameter that zoom in and zoom out add or |
-|                      |         |          |         | subtract (keys.md).                        |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| exclusive zoom       | bool    | false    |         | false zooms every pane; true zooms the     |
-|                      |         |          |         | focused pane only.                         |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| pane step            | float   | 0.05     |         | Proportion step applied by the reduce pane |
-|                      |         |          |         | width, reduce pane height, expand pane     |
-|                      |         |          |         | width and expand pane height actions       |
-|                      |         |          |         | (keys.md) to the focused pane's width or   |
-|                      |         |          |         | height.                                    |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| always on top        | bool    | true     |         | Keep window above all other windows.       |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| title bar buttons    | bool    | false    |         | Show native title bar buttons (close /     |
-|                      |         |          |         | minimise / maximise). macOS: hides/shows   |
-|                      |         |          |         | traffic-light buttons and the title bar    |
-|                      |         |          |         | together. Windows: toggles the native      |
-|                      |         |          |         | title bar. Close/min/max buttons are fixed |
-|                      |         |          |         | at construction and cannot be added/       |
-|                      |         |          |         | removed at runtime.                        |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| success message      | string  | RELOAD   |         | Message shown briefly after a successful   |
-|                      |         |          |         | config reload (Cmd+R).                     |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| gpu                  | bool    | true     |         | Enable GPU-accelerated rendering. When     |
-|                      |         |          |         | true, use GPU if available with CPU        |
-|                      |         |          |         | fallback. When false, force CPU rendering  |
-|                      |         |          |         | (no blur, no transparency).                |
-+----------------------+---------+----------+---------+--------------------------------------------+
-| appearance           | string  | AUTO     | AUTO,   | Which theme.md column END uses: light,     |
-|                      |         |          | LIGHT,  | dark, or AUTO to follow the OS.            |
-|                      |         |          | DARK    |                                            |
-+----------------------+---------+----------+---------+--------------------------------------------+
++-------------------+---------+----------+---------+--------------------------------------------+
+| key               | type    | value    | choices | description                                |
++===================+=========+==========+=========+============================================+
+| theme             | string  | gfx      |         | Active theme directory name. Themes live   |
+|                   |         |          |         | in ~/.config/end/themes/\<name\>/theme.md. |
+|                   |         |          |         | Changing this value reloads all visual     |
+|                   |         |          |         | properties (colours, fonts, metrics, SVGs) |
+|                   |         |          |         | from the named theme directory.            |
++-------------------+---------+----------+---------+--------------------------------------------+
+| size              | numbers | 640, 480 |         | Initial window size in pixels {width,      |
+|                   |         |          |         | height}.                                   |
++-------------------+---------+----------+---------+--------------------------------------------+
+| zoom step         | float   | 0.1      |         | Normalised step of the plugin's zoom       |
+|                   |         |          |         | parameter that zoom in and zoom out add or |
+|                   |         |          |         | subtract (keys.md).                        |
++-------------------+---------+----------+---------+--------------------------------------------+
+| exclusive zoom    | bool    | false    |         | false zooms every pane; true zooms the     |
+|                   |         |          |         | focused pane only.                         |
++-------------------+---------+----------+---------+--------------------------------------------+
+| pane step         | float   | 0.05     |         | Proportion step applied by the reduce pane |
+|                   |         |          |         | width, reduce pane height, expand pane     |
+|                   |         |          |         | width and expand pane height actions       |
+|                   |         |          |         | (keys.md) to the focused pane's width or   |
+|                   |         |          |         | height.                                    |
++-------------------+---------+----------+---------+--------------------------------------------+
+| always on top     | bool    | false    |         | Keep window above all other windows.       |
++-------------------+---------+----------+---------+--------------------------------------------+
+| title bar buttons | bool    | false    |         | Show native title bar buttons (close /     |
+|                   |         |          |         | minimise / maximise). macOS: hides/shows   |
+|                   |         |          |         | traffic-light buttons and the title bar    |
+|                   |         |          |         | together. Windows: toggles the native      |
+|                   |         |          |         | title bar. Close/min/max buttons are fixed |
+|                   |         |          |         | at construction and cannot be added/       |
+|                   |         |          |         | removed at runtime.                        |
++-------------------+---------+----------+---------+--------------------------------------------+
+| success message   | string  | RELOAD   |         | Message shown briefly after a successful   |
+|                   |         |          |         | config reload (Cmd+R).                     |
++-------------------+---------+----------+---------+--------------------------------------------+
+| gpu               | bool    | true     |         | Enable GPU-accelerated rendering. When     |
+|                   |         |          |         | true, use GPU if available with CPU        |
+|                   |         |          |         | fallback. When false, force CPU rendering  |
+|                   |         |          |         | (no blur, no transparency).                |
++-------------------+---------+----------+---------+--------------------------------------------+
+| appearance        | string  | AUTO     | AUTO,   | Which theme.md column END uses: light,     |
+|                   |         |          | LIGHT,  | dark, or AUTO to follow the OS.            |
+|                   |         |          | DARK    |                                            |
++-------------------+---------+----------+---------+--------------------------------------------+
 
 ## graphics
 
-Shader/graphics projects live in ~/.config/end/shaders/\<name\>/. Files:
-Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
+Shader/graphics projects live in ~/.config/end/shaders/<name>/. Files: Common, Image, BufferA,
+BufferB, BufferC, BufferD (Shadertoy convention).
 
 +----------------------------+--------+----------+------------+------------------------------------+
 | key                        | type   | value    | choices    | description                        |
@@ -149,30 +148,29 @@ Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
 
 ## mouse
 
-Mouse interaction: the Shadertoy iMouse uniform and, for shaders declaring
-a mesh, camera orbit/reset/zoom. Button values: "left", "middle", "right",
-or "none" (disables that one binding). The same button may be assigned to
-more than one field.
+Mouse interaction: the Shadertoy iMouse uniform and, for shaders declaring a mesh, camera orbit/
+reset/zoom. Button values: "left", "middle", "right", or "none" (disables that one binding). The
+same button may be assigned to more than one field.
 
-+---------+--------+--------+---------+------------------------------------------------------------+
-| key     | type   | value  | choices | description                                                |
-+=========+========+========+=========+============================================================+
-| enabled | bool   | true   |         | Master switch. false disables iMouse (always reads zero)   |
-|         |        |        |         | and every camera interaction below (orbit/reset/zoom),     |
-|         |        |        |         | regardless of the individual button choices.               |
-+---------+--------+--------+---------+------------------------------------------------------------+
-| imouse  | string | left   | left,   | Button that feeds the Shadertoy iMouse uniform.            |
-|         |        |        | middle, |                                                            |
-|         |        |        | right,  |                                                            |
-|         |        |        | none    |                                                            |
-+---------+--------+--------+---------+------------------------------------------------------------+
-| orbit   | string | middle | left,   | Drag this button to orbit the camera (mesh-declaring       |
-|         |        |        | middle, | shaders only).                                             |
-|         |        |        | right,  |                                                            |
-|         |        |        | none    |                                                            |
-+---------+--------+--------+---------+------------------------------------------------------------+
-| reset   | string | middle | left,   | Click (press+release, no drag) this button to reset the    |
-|         |        |        | middle, | camera to its defaults.                                    |
-|         |        |        | right,  |                                                            |
-|         |        |        | none    |                                                            |
-+---------+--------+--------+---------+------------------------------------------------------------+
++---------+--------+--------+---------+----------------------------------------------------------+
+| key     | type   | value  | choices | description                                              |
++=========+========+========+=========+==========================================================+
+| enabled | bool   | true   |         | Master switch. false disables iMouse (always reads zero) |
+|         |        |        |         | and every camera interaction below (orbit/reset/zoom),   |
+|         |        |        |         | regardless of the individual button choices.             |
++---------+--------+--------+---------+----------------------------------------------------------+
+| imouse  | string | left   | left,   | Button that feeds the Shadertoy iMouse uniform.          |
+|         |        |        | middle, |                                                          |
+|         |        |        | right,  |                                                          |
+|         |        |        | none    |                                                          |
++---------+--------+--------+---------+----------------------------------------------------------+
+| orbit   | string | middle | left,   | Drag this button to orbit the camera (mesh-declaring     |
+|         |        |        | middle, | shaders only).                                           |
+|         |        |        | right,  |                                                          |
+|         |        |        | none    |                                                          |
++---------+--------+--------+---------+----------------------------------------------------------+
+| reset   | string | middle | left,   | Click (press+release, no drag) this button to reset the  |
+|         |        |        | middle, | camera to its defaults.                                  |
+|         |        |        | right,  |                                                          |
+|         |        |        | none    |                                                          |
++---------+--------+--------+---------+----------------------------------------------------------+
