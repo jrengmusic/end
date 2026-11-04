@@ -244,8 +244,8 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
   (`jam_ENAXClientExtensions.cpp:9-31`). Under END, the plugin's `keys` rule removes
   the text editor's `normal` and `prefix` rows (`jam_ENAXClientExtensions.cpp:33-39`),
   so the hosted text editor holds no layer binding; END's prefix layer and `normal`
-  command drive the mode. The plugin's binder applies the rule to the text editor's
-  defaults before it binds (`PluginEditor::addCommands`). ARCHITECT: *"when EVE (with
+  command drive the mode. The plugin's concrete editor applies the rule to the text
+  editor's defaults before it binds (`EVEView::getViewDefaultKeys`). ARCHITECT: *"when EVE (with
   its TextEditor) hosted in END, it SHOULD NOT register any keyboard shortcut for any
   state-command, BUT we KEPT the state machine"*.
 - **Focus.** END owns focus. The focused pane sets its plugin's `focus` host

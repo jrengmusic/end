@@ -758,13 +758,15 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`jam_ENAXClientExtensions.cpp:9-31`).
   - `Id::engine`: under END, the plugin reads END's context factory, peer-deleted,
     key and mouse callbacks; its peer hooks forward to END. Elsewhere, it creates its
-    own `VulkanGraphicsEngine`. The CPU engine is created in every host
-    (`jam_PluginEditorLayout.h:137-143`). The key hook gives END every key before
+    own `VulkanGraphicsEngine`. The processor gives this rule to
+    `PluginEditorLayout::create` as its `engineRule` (`EVEProcessor.h:94`), so
+    `jam_plugin_bootstrap` names no host type. The CPU engine is created in every host
+    (`jam_PluginEditorLayout.h:141-147`). The key hook gives END every key before
     the plugin's components (`jam/patch/juce-key-pressed-hook.patch:21-23`).
   - `Id::keys`: under END, the text editor's `normal` and `prefix` rows leave the
     default key sheet, so the hosted text editor holds no layer binding; elsewhere
-    nothing (`jam_ENAXClientExtensions.cpp:33-39`). The plugin's binder applies the
-    rule to the text editor's defaults (`PluginEditor::addCommands`).
+    nothing (`jam_ENAXClientExtensions.cpp:33-39`). The plugin's concrete editor applies
+    the rule to the text editor's defaults (`EVEView::getViewDefaultKeys`).
   - `Id::size`: under END, the plugin's `width` and `height` parameter ranges run from
     `jam::PaneComponent::minimumPaneExtent` to END's display bounds
     (`jam_ENAXClientExtensions.cpp:40-50`).
@@ -807,13 +809,13 @@ command name, and a widget never reads config.
 - **jam `TextEditor`.** `map::TextEditorCommandId` with the default keys
   `map::textEditorKeys` (per platform), the modes `map::textEditorModes` and the
   layers `map::textEditorLayers`, one row per command in table order
-  (`jam/cast/gui.md`). `TextEditor::getDefaultKeys()` builds the default key sheet.
+  (`jam/cast/terminal.md`). `TextEditor::getDefaultKeys()` builds the default key sheet.
 - **jam `PluginEditor`.** `map::PluginEditorCommandId` and `map::pluginEditorKeys`
   (`jam/cast/plugin_bootstrap.md`), `PluginEditor::getDefaultKeys()`.
-- **Plugin binder.** `PluginEditor::addCommands` applies the host `keys` rule to
-  `TextEditor::getDefaultKeys()`, joins it with the PluginEditor defaults, lets each
-  config row replace the default rows of its name, registers every command target in
-  the view, then sets the key presses.
+- **Plugin binder.** `EVEView::getViewDefaultKeys` applies the host `keys` rule to
+  `TextEditor::getDefaultKeys()`. `PluginEditor::addCommands` joins that sheet with the
+  PluginEditor defaults, lets each config row replace the default rows of its name,
+  registers every command target in the view, then sets the key presses.
 - **Mode is per instance.** `jam::CommandManager::setKeyPresses` builds the sheet once:
   one row per key and mode, with the command id, the mode key and the layer; an
   unknown mode token asserts. `invokeKey` is the one key entry: it compares a row's
