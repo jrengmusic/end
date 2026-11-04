@@ -152,9 +152,6 @@ private:
      */
     void registerPaneActions();
 
-    /** @brief Registers paneLeft, paneRight, paneUp and paneDown, which move the focus to the neighbour pane in that direction. */
-    void registerFocusActions();
-
     /**
      * @brief Registers one join action per join direction of TabView::getJoinDirections().
      *

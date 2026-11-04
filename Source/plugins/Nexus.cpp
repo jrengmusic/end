@@ -76,7 +76,8 @@ void Nexus::addFormats()
         juce::String { ProjectInfo::projectName },
         juce::String { ProjectInfo::companyName },
         juce::String { hostUrl },
-        juce::String { ProjectInfo::versionString }));
+        juce::String { ProjectInfo::versionString },
+        ConfigDirectory::Config::getPath (Id::plugins).getFullPathName()));
 }
 
 void Nexus::registerEVE()

@@ -80,10 +80,6 @@ The key is the juce::CommandID; the value is the row key.
 | nextTab          | 0x470000e | `nextTab`          |
 | splitVertical    | 0x4700010 | `splitVertical`    |
 | splitHorizontal  | 0x4700011 | `splitHorizontal`  |
-| paneLeft         | 0x4700012 | `paneLeft`         |
-| paneDown         | 0x4700013 | `paneDown`         |
-| paneUp           | 0x4700014 | `paneUp`           |
-| paneRight        | 0x4700015 | `paneRight`        |
 | joinLeft         | 0x4700016 | `joinLeft`         |
 | joinDown         | 0x4700017 | `joinDown`         |
 | joinUp           | 0x4700018 | `joinUp`           |

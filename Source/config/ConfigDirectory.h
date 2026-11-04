@@ -72,7 +72,7 @@ public:
         }
 
         /** @brief Config directory name, relative to the user home directory. */
-        static inline const char* const configDirectoryName { ".config/end" };
+        static inline const char* const configDirectoryName { JUCE_STRINGIFY (CAST_CONFIG_DIRECTORY) };
 
         /** @brief The resolved root config directory: user home directory + @c configDirectoryName. */
         static inline const juce::File path {

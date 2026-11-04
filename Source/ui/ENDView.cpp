@@ -11,7 +11,6 @@ ENDView::ENDView()
     registerEvents();
 
     commandManager->registerAllCommandsForTarget (this);
-    commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
 
     addAndMakeVisible (background);
     addMouseListener (&background, true);
@@ -29,6 +28,7 @@ ENDView::ENDView()
             events.get (jam::Format::toType (Id::enabled), config.state);
 
             actions.run (Id::newSession);
+            commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
             grabKeyboardFocus();
         });
 
@@ -69,7 +69,7 @@ void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
 
 juce::ApplicationCommandTarget* ENDView::getNextCommandTarget()
 {
-    return nullptr;
+    return getActiveTabView();
 }
 
 void ENDView::getAllCommands (juce::Array<juce::CommandID>& commands)
@@ -256,26 +256,6 @@ void ENDView::registerZoomActions()
     }
 }
 
-void ENDView::registerFocusActions()
-{
-    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4> focusDirections {{
-        { Id::paneLeft, Id::left },
-        { Id::paneRight, Id::right },
-        { Id::paneUp, Id::top },
-        { Id::paneDown, Id::bottom },
-    }};
-
-    for (const auto& [actionId, direction] : focusDirections)
-    {
-        actions.add (actionId,
-                     [this, direction = direction]
-                     {
-                         if (auto* tabView { getActiveTabView() })
-                             tabView->focusPane (direction);
-                     });
-    }
-}
-
 void ENDView::registerJoinActions()
 {
     for (const auto& [actionId, direction] : TabView::getJoinDirections())
@@ -416,7 +396,6 @@ void ENDView::registerActions()
     registerTabActions();
     registerZoomActions();
     registerPaneActions();
-    registerFocusActions();
     registerJoinActions();
     registerSwapActions();
     registerResizeActions();
