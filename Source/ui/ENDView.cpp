@@ -222,7 +222,7 @@ void ENDView::registerProfilerActions()
 
                      if (auto* tabView { getActiveTabView() })
                      {
-                         if (tabView->getChildCount() < panes)
+                         if (tabView->getNumChildren() < panes)
                              actions.run (Id::splitVertical);
                          else
                              actions.run (Id::quit);
@@ -323,12 +323,21 @@ void ENDView::registerResizeActions()
 
 void ENDView::registerPaneActions()
 {
-    actions.add (Id::normal,
-                 [this]
-                 {
-                     if (auto* tabView { getActiveTabView() })
-                         tabView->getFocusedPane().setMode (map::EditorMode::normal);
-                 });
+    static const std::array<std::pair<juce::Identifier, int>, 3> paneModes {{
+        { Id::normal, map::EditorMode::normal },
+        { Id::open, map::EditorMode::open },
+        { Id::list, map::EditorMode::list },
+    }};
+
+    for (const auto& [actionId, mode] : paneModes)
+    {
+        actions.add (actionId,
+                     [this, mode = mode]
+                     {
+                         if (auto* tabView { getActiveTabView() })
+                             tabView->getFocusedPane().setMode (mode);
+                     });
+    }
 
     actions.add<const juce::Identifier&> (
         Id::newPane,
@@ -375,7 +384,7 @@ void ENDView::registerPaneActions()
                  {
                      if (auto* tabView { getActiveTabView() })
                      {
-                         if (tabView->getChildCount() > 1)
+                         if (tabView->getNumChildren() > 1)
                          {
                              const auto focusedUuid { tabView->getFocusedChild() };
 

@@ -526,7 +526,7 @@ Channel binding is name-based: an entry literally named `iChannel2` binds that r
 directly (`ShaderCompiler::channelMacros()` already emits one `#define` per texture name — the
 name IS the macro) — no explicit `channel` key, no `iChannelN` alias machinery for textures.
 Each `ShaderPreset::Texture`'s own push-constant `channels[]` slot is therefore pure
-declaration order — `bufferPassCount + index` into the `textures=` list, computed where
+declaration order — `numBufferPasses + index` into the `textures=` list, computed where
 consumed (`ShaderCompiler::channelMacros()`, `ShaderInstance::build()`) rather than carried as
 a field.
 
@@ -644,7 +644,7 @@ with per-`MaterialRange` diffuse as a fragment push constant.
 ### Frame Lifecycle (Per-Peer)
 
 Multiple `LowLevelGraphicsContext` instances can share one Vulkan frame (nested paint
-calls) — `Graphics::activeContextCount` tracks how many are live. `beginFrame()` is
+calls) — `Graphics::numActiveContexts` tracks how many are live. `beginFrame()` is
 idempotent; the first call of a new frame waits the in-flight fence, resets the descriptor
 pool, per-frame buffers, and staging arena. The LLGC destructor calls `endFrame()`, which
 submits + presents only when the count reaches zero.

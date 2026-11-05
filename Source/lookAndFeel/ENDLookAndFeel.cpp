@@ -155,7 +155,7 @@ int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noex
 {
     const float depth { config.getRowValue (jam::Format::toType (Id::tab), Id::depth) };
     const bool alwaysVisible { config.getRowValue (jam::Format::toType (Id::tab), Id::alwaysVisible) };
-    const bool shouldHide { tabs.getChildCount() <= 1 and not alwaysVisible };
+    const bool shouldHide { tabs.getNumChildren() <= 1 and not alwaysVisible };
     const int tabBarDepth { juce::roundToInt (juce::Font { getTabFont() }.getHeight() * depth) };
 
     return shouldHide ? 0 : tabBarDepth;
