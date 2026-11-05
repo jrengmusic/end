@@ -40,7 +40,7 @@ Same config, reload with `Cmd+R`.
 |--------|-----------|-------|
 | **Files** | Extensionless: `Image`, `BufferA`…`BufferU`, `Common` | Flexible: any `*.slangp` manifest + any source filenames |
 | **Detection** | Content-based (see below) | Content-based (see below) |
-| **Passes** | Up to 21 buffers (`ShaderUniforms::maxChannelCount`) + final Image | Same 21-buffer ceiling, named in the manifest |
+| **Passes** | Up to 21 buffers (`ShaderUniforms::maxNumChannels`) + final Image | Same 21-buffer ceiling, named in the manifest |
 | **Complexity** | Simple, paste-friendly | Advanced, explicit control |
 | **Use Case** | One-shot effects, prototypes | Multi-pass chains, RetroArch presets |
 
@@ -56,7 +56,7 @@ Same config, reload with `Cmd+R`.
 ├── Image              ← Final output (REQUIRED, no extension)
 ├── BufferA            ← Optional intermediate pass
 ├── BufferB            ← Optional intermediate pass
-├── …                  ← Up to BufferU (21 buffer passes total, ShaderUniforms::maxChannelCount)
+├── …                  ← Up to BufferU (21 buffer passes total, ShaderUniforms::maxNumChannels)
 └── Common             ← Optional shared code
 ```
 
@@ -794,7 +794,7 @@ uniform sampler2D iChannel3; // Last frame of BufferD
 uniform sampler2D BufferE;   // 5th buffer pass onward — referenced by name, no iChannelN alias exists
 ```
 
-Up to 21 buffer passes total (`ShaderUniforms::maxChannelCount`, derived from the 128-byte guaranteed Vulkan push-constant floor) — named `BufferA` through `BufferU` by a bijective base-26 scheme (the same one spreadsheet columns use).
+Up to 21 buffer passes total (`ShaderUniforms::maxNumChannels`, derived from the 128-byte guaranteed Vulkan push-constant floor) — named `BufferA` through `BufferU` by a bijective base-26 scheme (the same one spreadsheet columns use).
 
 ### Post-Process Only (Shadertoy)
 ```glsl

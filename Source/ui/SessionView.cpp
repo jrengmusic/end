@@ -49,7 +49,7 @@ void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::Valu
         OwnerComponent::remove (jam::UUID { static_cast<int64_t> (child.getProperty (Id::id)) });
         lookAndFeelChanged();
 
-        if (getChildCount() == 0)
+        if (getNumChildren() == 0)
             ENDActions::getInstance()->run (Id::quit);
     }
 }

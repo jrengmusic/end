@@ -159,7 +159,7 @@ void EditorView::setZoom (const juce::Identifier& command, float step)
 void EditorView::setMode (int newMode)
 {
     static const juce::NormalisableRange<float> modeRange {
-        static_cast<float> (map::EditorMode::normal), static_cast<float> (map::EditorMode::terminal)
+        static_cast<float> (map::EditorMode::normal), static_cast<float> (map::EditorMode::list)
     };
 
     if (editor != nullptr)
