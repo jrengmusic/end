@@ -69,27 +69,11 @@ struct Nexus : jam::Instance<Nexus>
      */
     void addPluginModule (const juce::File& file);
 
-    /**
-     * @brief Returns the identity of the pane whose plugin is loading, so that the plugin reads its own pane.
-     *
-     * The plugin reads the identity while its constructor runs. The identity is the first entry of loadingPanes.
-     *
-     * @return The identity of the first pending pane, or the zero identity when no plugin loads.
-     */
-    juce::int64 getLoadingPane() const noexcept;
-
-    /**
-     * @brief Returns the bounds that contain all displays, in logical pixels.
-     *
-     * The full display area is used, not the user area. The panes limit their width and height to these bounds.
-     * The hosted plugins read the same bounds through the enaxDisplayBounds host extension.
-     *
-     * @return The bounds of all displays together.
-     */
-    static juce::Rectangle<int> getDisplayBounds();
-
 #if JAM_USING_PROFILER
     static juce::File getManifestFile();
+
+    /** @brief Callback that the prompt-painted extension invokes when the profiler prompt is painted. ENDView sets it. */
+    std::function<void()> onPromptPainted;
 #endif
 
 private:
@@ -119,8 +103,7 @@ private:
     /**
      * @brief Registers the host callbacks and getters that the hosted plugins read through the host extensions.
      *
-     * The registry holds the context factory, the peer deleted callback, the key press and mouse event callbacks,
-     * the display bounds getter, the pane identity getter, the start directory getter and the terminal report callback.
+     * The registry holds the context factory, the peer deleted callback, the key press callback and the mouse event callback.
      * With the profiler, it also holds the prompt-painted callback and the manifest file getter.
      */
     void registerExtensions();
@@ -164,16 +147,6 @@ private:
     /** @brief Model that holds the window row and the sessions tree. The sessions tree holds the focusedSession parameter. */
     ENDModel model;
 
-    /**
-     * @brief Identities of the panes whose plugin is loading, the oldest first.
-     *
-     * Session appends an identity when a load starts, and removes the first identity when a load ends. The first
-     * identity is the one that getLoadingPane() returns.
-     */
-    jam::Array<juce::int64> loadingPanes;
-
-    /** @brief Sessions keyed by identity. Each session is owned here. */
-    jam::HashMap<jam::UUID, std::unique_ptr<Session>> sessions;
     /** @brief Host extensions keyed by identifier. Each value points to the callback or getter that the host reads. */
     jam::HashMap<juce::String, const void*> extensions;
 
@@ -193,6 +166,15 @@ private:
     juce::AudioProcessorPlayer player;
     /** @brief Audio device manager. It opens the default devices with two inputs and two outputs. */
     juce::AudioDeviceManager deviceManager;
+
+    /**
+     * @brief Sessions keyed by identity. Each session is owned here.
+     *
+     * The member is declared after `graph`. A session holds a PluginState that refers to a plugin instance the graph owns.
+     * Members are destroyed in the reverse order of their declaration, so the sessions and their PluginState states are
+     * released before the graph releases the instances.
+     */
+    jam::HashMap<jam::UUID, std::unique_ptr<Session>> sessions;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

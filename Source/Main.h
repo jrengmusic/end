@@ -1,6 +1,5 @@
 #pragma once
 #include <JuceHeader.h>
-#include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "end/ENDModel.h"
 #include "ui/ENDView.h"
@@ -53,7 +52,6 @@ private:
     // behaviour.
     Nexus nexus;
     ConfigModel config;
-    ENDActions actions;
 
     //==============================================================================
     ENDLookAndFeel lookAndFeel;

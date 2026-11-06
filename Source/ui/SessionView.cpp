@@ -1,5 +1,4 @@
 #include "ui/SessionView.h"
-#include "action/ENDActions.h"
 
 SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
     : jam::TabbedComponent { newModel, sessionState }
@@ -50,7 +49,7 @@ void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::Valu
         lookAndFeelChanged();
 
         if (getNumChildren() == 0)
-            ENDActions::getInstance()->run (Id::quit);
+            commandManager->invokeDirectly (map::CommandId::quit, false);
     }
 }
 
@@ -68,7 +67,7 @@ TabView* SessionView::getActiveTabView() noexcept
                : nullptr;
 }
 
-void SessionView::setZoom (const juce::Identifier& command, float step)
+void SessionView::setZoom (juce::CommandID command, float step)
 {
     for (const auto& [uuid, child] : getChildren())
         static_cast<TabView&> (*child).setZoom (command, step);
@@ -78,10 +77,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    const auto& terminalReports { jam::TerminalProcessor::getReports() };
-
-    if (property == Id::name or property == Id::focusedPane
-        or std::find (terminalReports.begin(), terminalReports.end(), property) != terminalReports.end())
+    if (property == Id::name or property == Id::focusedPane or tree.hasType (jam::Format::toType (Id::terminal)))
     {
         const auto tabState { EditorView::findAncestorRow (tree, jam::Format::toType (Id::tab)) };
 
@@ -108,15 +104,17 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
     if (sourcePane.isValid())
     {
+        const auto terminal { sourcePane.getChildWithName (jam::Format::toType (Id::terminal)) };
+
         for (const auto& id : { Id::title, Id::foregroundProcess })
         {
-            const juce::String report { sourcePane.getProperty (id).toString() };
+            const juce::String report { terminal.getProperty (id).toString() };
 
             if (report.isNotEmpty())
                 return report;
         }
 
-        const juce::String directoryName { juce::File { sourcePane.getProperty (Id::cwd).toString() }.getFileName() };
+        const juce::String directoryName { juce::File { terminal.getProperty (Id::cwd).toString() }.getFileName() };
 
         return directoryName.isNotEmpty() ? directoryName : sourcePane.getProperty (Id::name).toString();
     }

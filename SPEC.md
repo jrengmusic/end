@@ -155,12 +155,16 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   internally reserved and FORMATTED."* A value cell whose text collides with
   markdown block syntax is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser
   resolves the escape to the literal.
-- **Theme colours:** `theme.md` `## colours` names each opaque colour (JFS palette
-  name, else jam's nearest colour name) with a `0xAARRGGBB` value. Every other theme
-  table has `key | type | light | dark | choices | description`; a colour cell holds a
-  `## colours` key, a jam colour name, or a direct `0xAARRGGBB` (every alpha colour is
-  direct). An empty `dark` is the light value. `display.md` `appearance` (AUTO, LIGHT,
-  DARK) picks the column; AUTO follows the OS (`ConfigModel::getRowValue`).
+- **Theme colours:** `theme.md` `## colours` names every colour (JFS palette name,
+  else jam's nearest colour name) with a `0xAARRGGBB` value. An alpha variant takes a
+  word prefix on the base name: `clear`, `faint`, `glass`. Every other theme table has
+  `key | type | light | dark | choices | description`; a colour cell holds a
+  `## colours` key. The reader also takes a jam colour name or a direct `0xAARRGGBB`,
+  so a user theme can use them; the default gfx theme uses neither. ARCHITECT: *"using
+  direct AARRGGBB hex should work as is"*; *"no direct hex allowed in gfx theme.md, all
+  colours must be named, and all consumer only use named colour"*. An empty `dark` is
+  the light value. `display.md` `appearance` (AUTO, LIGHT, DARK) picks the column; AUTO
+  follows the OS (`ConfigModel::getRowValue`).
 - **Pane padding:** `theme.md` `## pane` `padding` is the one inset of the focused
   outline and of the hosted editor, which sits inside the outline stroke
   (`ENDLookAndFeel::getPanePadding`, `EditorView::resized`).
@@ -239,11 +243,18 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
   as one of the KNOWN type, this is the SSOT seam"*.
 - **ENAX channel.** END exports one function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-32`). It returns the `Nexus::extensions` entry for the id, or
-  nullptr (`Nexus.cpp:160-169`). The ids are the context factory, the peer-deleted
-  callback, the key hook, the mouse hook, the display bounds, the pane UUID
-  (`enax.pane-uuid`), the start directory (`enax.start-directory`) and the terminal
-  report (`enax.terminal-report`). A profiler build adds `enax.prompt-painted` and
-  `enax.manifest-file` (`Nexus.cpp:7-35`, `:61-75`, `jam/cast/core.md:74-83`).
+  nullptr. The ids are the context factory, the peer-deleted callback, the key hook and
+  the mouse hook. A profiler build adds `enax.prompt-painted` and `enax.manifest-file`.
+  State never crosses here. ARCHITECT: *"must be cross format. hence this is END's contract
+  as host to have ONE EXACT SEAM to handle all format, the only exceptions when there's a
+  format that legitimately could not adhere to design, then ENAX is the path"*.
+- **State seam.** `PluginState` (`plugins/PluginState.cpp`) is the one seam for the state of
+  a hosted instance, in every format. `Session` owns one for each instance from the same
+  company (`Session::addPlugin`). Its `juce::AudioProcessorListener` receives
+  `audioProcessorChanged`, reads the raw state through one format lookup, and copies the
+  `terminal` rows to the `terminal` child of the pane row. Each changed row gives one
+  `valueTreePropertyChanged`. `setRows` writes rows through the same lookup. VST2 uses the
+  chunk, VST3 the `IComponent` data, AU the `jucePluginState` key, CLAP the raw state.
 - **ENAX rules.** The plugin side, `jam::ENAXClientExtensions`, holds the END-only
   rules in one table, selected by one `isEND()` probe. Outside END, the plugin keeps
   its standalone contract. ARCHITECT: *"as standalone, plugins that loaded into
@@ -252,16 +263,16 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
   (`jam/patch/juce-key-pressed-hook.patch:21-23`, `Nexus.cpp:7-16`). The `engine` rule
   installs the key and mouse hooks with the other peer hooks
   (`jam_ENAXClientExtensions.cpp:15-37`). Under END, the plugin's `keys` rule removes
-  the text editor's `normal` and `prefix` rows (`jam_ENAXClientExtensions.cpp:39-45`),
-  so the hosted text editor holds no layer binding; END's prefix layer and `normal`
-  command drive the mode. The plugin's concrete editor applies the rule to the text
+  the text editor's `normal`, `prefix`, `open` and `list` rows
+  (`jam_ENAXClientExtensions.cpp:39-45`), so the hosted text editor holds no layer
+  binding; END's prefix layer and its `normal`, `open` and `list` commands drive the mode. The plugin's concrete editor applies the rule to the text
   editor's defaults before it binds (`EVEView::getViewDefaultKeys`). ARCHITECT: *"when EVE (with
   its TextEditor) hosted in END, it SHOULD NOT register any keyboard shortcut for any
   state-command, BUT we KEPT the state machine"*.
-- **Focus.** END owns focus. The focused pane sets its plugin's `focus` host
-  parameter from its row (`EditorView::valueTreePropertyChanged`). The plugin editor
-  grabs keyboard focus only when the parameter turns on (`PluginEditor::addCallbacks`);
-  EVE passes it to its default component (`EVEView::focusGained`). The plugin never
+- **Focus.** END owns focus. The focused pane writes the `focus` row of its plugin
+  from its pane row (`EditorView::valueTreePropertyChanged`). EVE grabs keyboard focus
+  only when the row turns on (`EVEView::registerTerminalEvents`), and
+  passes it to its default component (`EVEView::focusGained`). The plugin never
   decides focus itself. ARCHITECT: *"when hosted at END the FOCUS parameter always
   being told by END always sync with Pane focus … Plugin doesnt grab its own focus,
   only being told"*.
@@ -276,27 +287,19 @@ END, the plugin creates its own `VulkanGraphicsEngine`
 (`jam_PluginEditorLayout.h:139-143`). Each binary keeps its own CPU engine
 (`jam_PluginEditorLayout.h:137`).
 
-### 1.7 Pane Reports and Tab Names
+### 1.7 Plugin State and Tab Names
 
-Each pane row holds `title`, `foregroundProcess` and `cwd`. ARCHITECT: *"add field to
-ENAX, pane UUID == plugin UUID"*.
+END holds the state of its plugin in the `terminal` child of each pane row. ARCHITECT:
+*"END is the host. it holds its plugin instance stateInfo."*
 
-- `EditorView` creates the three parameters with its pane row. They are the names that
-  `jam::TerminalProcessor::getReports()` gives (`EditorView.cpp:17-18`).
-- The plugin tells a report through the ENAX terminal-report callback with its pane
-  UUID. END writes the text to the pane row (`Nexus.cpp:29`, `ENDView.cpp:393-402`).
-- A new pane takes the `cwd` of the focused pane of its tab
-  (`getInheritedDirectory`, `EditorView.cpp:5-12`, `:17-18`).
-- A new tab takes the `cwd` of the focused pane of the active tab. `ENDView` writes it
-  to the first pane of the new tab in `Id::newTab` (`ENDView.cpp:172-186`, `:411-417`).
-- The plugin reads the start directory of its shell through the ENAX start-directory
-  getter. END copies the `cwd` of the pane row (`Nexus.cpp:30`, `ENDView.cpp:404-408`).
-- An ENAX plugin tells END that it is one in its constructor, through the same callback
-  with the name `Id::enax`. END marks the pane row (`jam_ENAXClientExtensions.cpp`,
-  `ENDView::registerTerminalActions`). ARCHITECT: *"ENAX plugin is not only EVE"*.
-- A pane with no `Id::enax` mark clears its `cwd`, so its tab shows the plugin name
-  (`EditorView::valueTreePropertyChanged`).
-- END holds the module of each ENAX plugin until `Nexus` ends (`Nexus::addPluginModule`).
+- `PluginState` replaces the rows of that child from the plugin (section 1.5).
+- A new pane takes the `cwd` of the focused pane of its tab (`getInheritedDirectory`).
+- A new tab takes the `cwd` of the focused pane of the active tab (`ENDView`, the `newTab`
+  command).
+- `Session::addPlugin` writes the `terminal` child to the plugin before `graph.addNode`, so
+  the shell starts in that `cwd`.
+- A plugin from another company has no `PluginState`, and its pane holds no rows from it.
+- END holds the module of each plugin with a `PluginState` until `Nexus` ends (`Nexus::addPluginModule`).
   END's graphics context interns a typeface that the plugin built, and JUCE unloads a
   bundle whose retain count is 1 (`juce_VSTPluginFormatImpl.h:785-786`).
 - The tab name order is: rename, title, application name (`foregroundProcess`), last
@@ -309,40 +312,38 @@ ENAX, pane UUID == plugin UUID"*.
 ## 2. Actions and Input
 
 - **Commands.** A command id is a callback id, owned by the owner of the state that
-  its callback changes. END's ids are `map::CommandId` (`cast/bimaps.md:56-93`).
-  `ENDView::perform` runs the action of the command name (`ENDView.cpp:85-88`).
-  The pane focus commands are `map::MatrixCommandId` (`jam/cast/gui.md:226-242`).
-  `MatrixComponent::perform` runs them (`jam_MatrixComponent.cpp:385-398`).
-  `ENDActions` is the action map, keyed by `juce::Identifier` (`ENDActions.h:55`).
-  The actions are registered by `ENDView`. Every command of `map::CommandId` has an
-  action, except `prefix`: a layer-entry row enters its layer in `invokeKey` and is
-  never performed.
-- Workspace verbs: `newTab`, `newPane` (split by edge or append), `closePane`
+  its callback changes. `commandManager` is the one registry of operations. ARCHITECT:
+  *"commandManager is the SSOT of `operation`."* END's ids are `map::CommandId`
+  (`cast/bimaps.md:56-93`). `ENDView::perform` dispatches through its `commands` table,
+  keyed by `juce::CommandID`. Each operation goes through `invokeDirectly`, from a key, a menu,
+  a gesture or a Model row. The pane focus commands are `map::MatrixCommandId`
+  (`jam/cast/gui.md:226-242`), and `MatrixComponent::perform` runs them
+  (`jam_MatrixComponent.cpp:385-398`). Every command of `map::CommandId` has a table entry,
+  except `prefix`: a layer-entry row enters its layer in `invokeKey` and is never performed.
+- Workspace verbs: `newTab`, `addPane` (split by edge or append), `closePane`
   (pane → tab → window cascade), `splitVertical`/`splitHorizontal`, pane
-  join/swap, pane focus (`map::MatrixCommandId`), pane resize by `paneStep`, tab next/prev. `closePane`,
-  `join` and `closeTab` remove the plugin of every pane they close
-  (`Session::removePlugin`).
-- **END drives a hosted plugin through its host parameters.** The pane owns its
-  plugin's parameters: `EditorView` finds a parameter by its host-visible name, and the
-  comparison ignores case (private `EditorView::getParameter`, `EditorView.cpp:239-260`).
-  It finds one only when the pane row holds the `Id::enax` mark. It works in normalised
-  values only. Each write is one host gesture (private
-  `EditorView::setParameter`). END keeps no copy of a plugin's value. ENDView tells
-  the panes; it never reaches into a plugin. The ranges END uses are its own: the
-  size range is END's display bounds, which END also gives the plugin through ENAX;
-  the mode keys are jam's `map::EditorMode`.
-  - `zoomIn` / `zoomOut` add or subtract `zoomStep` (`display.md`) to the plugin's
-    `zoom` value, inside 0 to 1. `zoomReset` sets its default value
-    (`EditorView::setZoom`). The targets are every pane of the session
-    (`SessionView::setZoom` → `TabView::setZoom`), or the focused pane only when
-    `exclusiveZoom` is true (`ENDView::registerZoomActions`).
-  - `normal` sets the focused plugin's `mode` parameter to `map::EditorMode::normal`
-    (`EditorView::setMode`). A plugin without the parameter is left as it is.
-  - Each pane sets its plugin's `width` and `height` from its bounds
-    (`EditorView::resized`) and `focus` from its row.
+  join/swap, pane focus (`map::MatrixCommandId`), pane resize by `paneStep`, tab next/prev. `closePane`
+  and `join` remove the plugin of every pane they close (`Session::removePlugin`). The removal
+  of a tab row removes the plugins of that tab (`Session::valueTreeChildRemoved`).
+- **`EditorView` is the command target of `closePane`.** `perform` closes its own pane by
+  identity, focused or not. The key path asks the focused pane.
+- **A shell exit closes its pane.** The `shellExited` row reaches the `terminal` child of the
+  pane row. `EditorView` invokes `closePane` on itself asynchronously, so the removal runs
+  outside the plugin's call stack. ARCHITECT: *"`exit` should close END's pane (exit eve)"*.
+- **END tells a hosted plugin through rows.** ENDView tells the panes; it never reaches into a
+  plugin. `EditorView::setRows` builds a `terminal` tree with the one row, and `Session::setRows`
+  writes it through `PluginState`. The mode keys are jam's `map::EditorMode`.
+  - `zoomIn` / `zoomOut` add or subtract `zoomStep` (`display.md`) to the `zoom` row.
+    `zoomReset` sets its default value (`EditorView::setZoom`). EVE holds the limit. The targets
+    are every pane of the session (`SessionView::setZoom` → `TabView::setZoom`), or the focused
+    pane only when `exclusiveZoom` is true.
+  - `normal`, `open` and `list` set the `mode` row of the focused plugin to the matching key of
+    `map::EditorMode` (`EditorView::setMode`).
+  - `focus` follows the pane row. END writes no `width` or `height`: `EditorView::setEditorBounds`
+    sizes the editor, and EVE writes those rows at the final stop.
 - Splits and pane verbs act on the active tab's focused pane, the TAB row's
   `focusedPane` — never on positional or last-created assumptions.
-- The pane menu's splits run the same `splitVertical` and `splitHorizontal` actions
+- The pane menu's splits invoke the same `splitVertical` and `splitHorizontal` commands
   as the keys (`TabView.cpp`, `handleAreaOptionsResult`).
 
 ---
@@ -355,15 +356,12 @@ Iteration proceeds both ways between host and plugins:
    verified (this revision).
 2. **eve** — terminal as an audio plugin, END's default plugin under ENAX. Carries the VT engine, document model,
    CodeView rendering, PTY transport formerly specified here. The terminal-era
-   SPEC is preserved verbatim as eve's baseline: `dev/plugins/eve/SPEC.md`.
+   SPEC is preserved verbatim as eve's baseline: `dev/eve/SPEC.md`.
 3. **whelmed** — markdown editor/viewer as an audio plugin.
 4. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
    live editors, session persistence.
 5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
    through the host's engine.
-
-Step tracking: `PLAN-enax-plugin-host-type.md` (Plan 1, ENAX host contract),
-`PLAN-enax-command-id.md` (Plan 2, command ids and host parameters).
 
 ---
 

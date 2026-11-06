@@ -1,5 +1,4 @@
 #include "ui/TabView.h"
-#include "action/ENDActions.h"
 
 TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
     : jam::MatrixComponent (newModel, existingState)
@@ -14,6 +13,19 @@ void TabView::add()
     jam::UUID uuid {};
 
     MatrixComponent::add (uuid, createChild (uuid));
+}
+
+void TabView::addPane (const juce::Identifier& edge)
+{
+    if (edge.isValid())
+        split (edge);
+    else
+        add();
+}
+
+void TabView::loadPlugin (const juce::String& plugin)
+{
+    getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (plugin).getFullPathName(), nullptr);
 }
 
 //==============================================================================
@@ -59,7 +71,7 @@ EditorView& TabView::getFocusedPane()
     return get (getFocusedChild());
 }
 
-void TabView::setZoom (const juce::Identifier& command, float step)
+void TabView::setZoom (juce::CommandID command, float step)
 {
     for (const auto& [uuid, child] : getChildren())
         static_cast<EditorView&> (*child).setZoom (command, step);
@@ -90,19 +102,19 @@ bool TabView::isInward (const juce::Identifier& edge, juce::Point<int> offset) c
     return isLow (map::Position::getInstance()->get (edge.toString())) == ((horizontal ? offset.getX() : offset.getY()) > 0);
 }
 
-const std::array<std::pair<juce::Identifier, juce::Identifier>, 4>& TabView::getJoinDirections()
+const std::array<std::pair<juce::CommandID, juce::Identifier>, 4>& TabView::getJoinDirections()
 {
-    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4> joinDirections {{
-        { Id::joinLeft, Id::left },
-        { Id::joinDown, Id::bottom },
-        { Id::joinUp, Id::top },
-        { Id::joinRight, Id::right },
+    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 4> joinDirections {{
+        { map::CommandId::joinLeft, Id::left },
+        { map::CommandId::joinDown, Id::bottom },
+        { map::CommandId::joinUp, Id::top },
+        { map::CommandId::joinRight, Id::right },
     }};
 
     return joinDirections;
 }
 
-juce::Identifier TabView::getJoinAction (const juce::Identifier& edge)
+juce::CommandID TabView::getJoinAction (const juce::Identifier& edge)
 {
     const auto& joinDirections { getJoinDirections() };
     const auto found { std::find_if (joinDirections.begin(), joinDirections.end(), [&edge] (const auto& entry)
@@ -146,15 +158,11 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 
                 split (edge, horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
                                         : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
-                ENDActions::getInstance()->get (Id::loadPlugin, files::evePlugin);
+                loadPlugin (files::evePlugin);
             }
             else
             {
-                const auto action { getJoinAction (edge) };
-                jassert (action.isValid());
-
-                if (action.isValid())
-                    ENDActions::getInstance()->run (action);
+                commandManager->invokeDirectly (getJoinAction (edge), false);
             }
 
             repaint();
@@ -254,17 +262,17 @@ juce::PopupMenu TabView::buildAreaOptionsMenu()
 
 void TabView::handleAreaOptionsResult (int result)
 {
-    static const std::array<std::pair<AreaOption, juce::Identifier>, 10> areaOptions {{
-        { AreaOption::splitVertical, Id::splitVertical },
-        { AreaOption::splitHorizontal, Id::splitHorizontal },
-        { AreaOption::joinLeft, Id::joinLeft },
-        { AreaOption::joinRight, Id::joinRight },
-        { AreaOption::joinUp, Id::joinUp },
-        { AreaOption::joinDown, Id::joinDown },
-        { AreaOption::swapLeft, Id::swapLeft },
-        { AreaOption::swapRight, Id::swapRight },
-        { AreaOption::swapUp, Id::swapUp },
-        { AreaOption::swapDown, Id::swapDown },
+    static const std::array<std::pair<AreaOption, juce::CommandID>, 10> areaOptions {{
+        { AreaOption::splitVertical, map::CommandId::splitVertical },
+        { AreaOption::splitHorizontal, map::CommandId::splitHorizontal },
+        { AreaOption::joinLeft, map::CommandId::joinLeft },
+        { AreaOption::joinRight, map::CommandId::joinRight },
+        { AreaOption::joinUp, map::CommandId::joinUp },
+        { AreaOption::joinDown, map::CommandId::joinDown },
+        { AreaOption::swapLeft, map::CommandId::swapLeft },
+        { AreaOption::swapRight, map::CommandId::swapRight },
+        { AreaOption::swapUp, map::CommandId::swapUp },
+        { AreaOption::swapDown, map::CommandId::swapDown },
     }};
 
     const auto found { std::find_if (areaOptions.begin(), areaOptions.end(), [result] (const auto& entry)
@@ -276,6 +284,6 @@ void TabView::handleAreaOptionsResult (int result)
     if (found != areaOptions.end())
     {
         const auto& [option, action] { *found };
-        ENDActions::getInstance()->run (action);
+        commandManager->invokeDirectly (action, false);
     }
 }

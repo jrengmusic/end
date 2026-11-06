@@ -7,12 +7,14 @@
 #include <JuceHeader.h>
 #include "end/ENDModel.h"
 #include "generated/Generated.h"
+#include "plugins/PluginState.h"
 
 /**
  * @class Session
  * @brief Holds the hosted juce::AudioPluginInstance of each pane in one
  *        session, keyed by the pane's own identity. The audio graph owns the
  *        instances. The session keeps the `juce::AudioProcessorGraph::NodeID` of each instance.
+ *        For a plugin of the company, the session also keeps the `PluginState` of the pane, which holds the terminal rows of that pane.
  *
  * A plugin loads asynchronously. A change of the Id::plugin property of a pane row
  * starts the load of that file, and the instance joins the graph when it is created.
@@ -35,8 +37,6 @@ public:
      * @param newMidiInputId           Identity of the MIDI input processor in the graph.
      * @param newFormatManager         Format manager that creates the plugin instances.
      * @param newKnownPluginList       Known plugin list that receives each scanned plugin file.
-     * @param newLoadingPanes          Pending plugin loads, owned by Nexus. The session appends a pane identity when a load
-     *                                 starts, and removes the first identity when a load ends.
      */
     Session (jam::UUID newUuid,
              ENDModel& newModel,
@@ -46,8 +46,7 @@ public:
              juce::AudioProcessorGraph::NodeID newAudioOutputId,
              juce::AudioProcessorGraph::NodeID newMidiInputId,
              juce::AudioPluginFormatManager& newFormatManager,
-             juce::KnownPluginList& newKnownPluginList,
-             jam::Array<juce::int64>& newLoadingPanes);
+             juce::KnownPluginList& newKnownPluginList);
 
     /** @brief Stops listening to the sessions row. */
     ~Session();
@@ -69,9 +68,26 @@ public:
     bool contains (jam::UUID uuid) const;
 
     /**
-     * @brief Removes the plugin instance bound to a pane from the graph.
+     * @brief Answers whether a pane has a PluginState. Only a plugin of the company has one.
+     * @param uuid Identity of the pane.
+     * @return True when a PluginState is held for uuid.
+     */
+    bool hasPluginState (jam::UUID uuid) const;
+
+    /**
+     * @brief Writes the terminal rows to the PluginState of a pane.
      *
-     * The call does nothing when no plugin is bound to @p uuid.
+     * The call does nothing when the pane has no PluginState.
+     *
+     * @param uuid  Identity of the pane.
+     * @param rows  Tree whose properties are the terminal rows to write.
+     */
+    void setRows (jam::UUID uuid, const juce::ValueTree& rows);
+
+    /**
+     * @brief Erases the PluginState of a pane, then removes the plugin instance bound to the pane from the graph.
+     *
+     * The graph node is removed only when a plugin is bound to @p uuid.
      *
      * @param uuid Identity of the pane whose plugin instance is removed.
      */
@@ -115,7 +131,9 @@ private:
     /**
      * @brief Adds a created plugin instance to the graph, and binds it to its pane.
      *
-     * The instance enables all its buses, joins the graph, and connects to the audio and MIDI processors.
+     * The instance enables all its buses. For a plugin of the company, the call creates the PluginState of the pane and
+     * writes the terminal rows of the pane to the plugin before the instance joins the graph.
+     * The instance then joins the graph, and connects to the audio and MIDI processors.
      * The graph node is stored under the identity of the pane. The name of the processor is then written to
      * Id::name of the pane row. The pane creates its editor when that property arrives.
      *
@@ -147,9 +165,8 @@ private:
     /**
      * @brief Reloads the plugin of a pane when the pane row names another file.
      *
-     * The old instance leaves the graph. The Id::name and the Id::enax properties of the pane row are removed. The pane
-     * creates its editor again when the new instance is added. The new plugin sets Id::enax again when it reports as an
-     * ENAX client. A change of any other property has no effect.
+     * The old instance leaves the graph. The Id::name property of the pane row is removed. The pane
+     * creates its editor again when the new instance is added. A change of any other property has no effect.
      *
      * @param tree      Tree whose property changed. Only a descendant of the session row is handled.
      * @param property  Identifier of the changed property. Only Id::plugin has an effect.
@@ -180,11 +197,11 @@ private:
     /** @brief Known plugin list that loadPlugin() scans each plugin file into. Nexus owns it. */
     juce::KnownPluginList& knownPluginList;
 
-    /** @brief Pending plugin loads, owned by Nexus. loadPlugin() appends a pane identity and removes the first one when the load ends. */
-    jam::Array<juce::int64>& loadingPanes;
-
     /** @brief Identity of each hosted plugin in the graph, keyed by the identity of its pane. */
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;
+
+    /** @brief PluginState of each hosted plugin of the company, keyed by the identity of its pane. addPlugin() creates it and removePlugin() erases it. */
+    jam::HashMap<jam::UUID, std::unique_ptr<PluginState>> pluginStates;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

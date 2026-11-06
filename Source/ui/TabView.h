@@ -50,6 +50,18 @@ public:
     /** @brief Mints a new pane and mounts it as a child of the graph. */
     void add();
 
+    /**
+     * @brief Splits the pane graph at an edge, or adds a pane when the edge is invalid.
+     * @param edge  Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane.
+     */
+    void addPane (const juce::Identifier& edge);
+
+    /**
+     * @brief Sets the plugin property of the focused pane to the path of a plugin file in the plugins folder of the config.
+     * @param plugin  Name of the plugin file, relative to the plugins folder.
+     */
+    void loadPlugin (const juce::String& plugin);
+
     /** @brief Joins the focused pane with its neighbour across direction.
      *  @param direction Edge to join across — Id::left/right/top/bottom.
      *  @return Identity of the pane absorbed into the surviving pane, or jam::UUID::none() when no neighbour exists.
@@ -75,10 +87,10 @@ public:
 
     /**
      * @brief Sets the zoom parameter of each pane of the tab with a zoom command.
-     * @param command  Zoom command name.
+     * @param command  Zoom command id: zoomIn, zoomOut or zoomReset.
      * @param step     Zoom step that the command uses.
      */
-    void setZoom (const juce::Identifier& command, float step);
+    void setZoom (juce::CommandID command, float step);
 
     /**
      * @brief Repaints the pane surface while a corner drag passes splitDragThreshold, so that paintOverChildren() draws the preview.
@@ -94,9 +106,9 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * An inward drag splits the pane at the cursor proportion along the edge axis, then runs the loadPlugin action with
-     * files::evePlugin, which loads EVE into the new pane. An outward drag runs the action that getJoinAction() returns
-     * for the edge. The pane surface repaints after the gesture.
+         * An inward drag splits the pane graph at the cursor proportion along the edge axis, then calls loadPlugin() with
+     * files::evePlugin, which loads EVE into the new pane. An outward drag invokes the command that getJoinAction() returns
+     * for the edge. The tab repaints after a gesture that passes the threshold.
      *
      * @param event Mouse event that ends the gesture.
      */
@@ -113,20 +125,20 @@ public:
     void paintOverChildren (juce::Graphics& g) override;
 
     /**
-     * @brief Returns the four join actions, each paired with the edge that it joins across.
+     * @brief Returns the four join commands, each paired with the edge that it joins across.
      *
-     * registerJoinActions() reads this table to register one action per join direction. mouseUp() reads it through getJoinAction().
+     * ENDView::registerJoinActions() reads this table to register one command per join direction. getJoinAction() searches it by edge.
      *
-     * @return The pairs of join action and edge: joinLeft with left, joinDown with bottom, joinUp with top and joinRight with right.
+     * @return The pairs of join command and edge: joinLeft with left, joinDown with bottom, joinUp with top and joinRight with right.
      */
-    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4>& getJoinDirections();
+    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 4>& getJoinDirections();
 
     /**
-     * @brief Returns the join action that joins across an edge.
+     * @brief Returns the join command that joins across an edge.
      * @param edge  Edge to join across: Id::left, Id::right, Id::top or Id::bottom.
-     * @return The join action, or an invalid identifier when no join action joins across that edge.
+     * @return The join command, or a default-constructed CommandID when no join command joins across that edge.
      */
-    static juce::Identifier getJoinAction (const juce::Identifier& edge);
+    static juce::CommandID getJoinAction (const juce::Identifier& edge);
 
     /** @brief Minimum drag distance in pixels, either axis, before a corner
      *  drag arms a split/join preview.
@@ -160,14 +172,17 @@ protected:
     void childRemoved (jam::UUID uuid) override;
 
 private:
+    /** @brief Command manager that invokes the Area Options commands and the corner drag commands. */
+    jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
+
     /** @brief Builds the Area Options popup for the focused pane's corner menu. */
     juce::PopupMenu buildAreaOptionsMenu();
 
     /**
-     * @brief Dispatches an Area Options menu selection to the ENDActions action of the same name.
+     * @brief Invokes the command of the same name as the Area Options item that a menu result selects.
      *
-     * The action runs for splitVertical, splitHorizontal, joinLeft, joinRight, joinUp, joinDown,
-     * swapLeft, swapRight, swapUp and swapDown.
+     * The command is invoked through commandManager for splitVertical, splitHorizontal, joinLeft, joinRight, joinUp, joinDown,
+     * swapLeft, swapRight, swapUp and swapDown. A result that matches no item invokes nothing.
      *
      * @param result The chosen item ID from buildAreaOptionsMenu().
      */

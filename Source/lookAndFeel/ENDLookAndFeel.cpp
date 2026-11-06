@@ -1,5 +1,32 @@
 #include "ENDLookAndFeel.h"
 
+static bool isPaneFocused (juce::Component& pane)
+{
+    jassert (dynamic_cast<jam::OwnedComponent*> (&pane) != nullptr);
+
+    return static_cast<bool> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus));
+}
+
+static juce::Rectangle<float> getPaneArea (const juce::Component& pane, int padding)
+{
+    return pane.getLocalBounds().toFloat().reduced (static_cast<float> (padding) + jam::PaneComponent::lineThickness);
+}
+
+static juce::Rectangle<float> applyRotation (juce::Graphics& g, juce::Rectangle<float> bounds, const juce::AffineTransform& transform)
+{
+    g.addTransform (transform);
+
+    return { 0.0f, 0.0f, bounds.getHeight(), bounds.getWidth() };
+}
+
+static juce::FontOptions getTabFontOptions (ConfigModel& config)
+{
+    auto fontFamily { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontFamily) };
+    auto fontSize { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontSize) };
+
+    return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
+}
+
 ENDLookAndFeel::ENDLookAndFeel()
 {
     initialiseColours();
@@ -50,14 +77,7 @@ void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
     auto* parentBar { dynamic_cast<jam::ButtonBar*> (bar.getParentComponent()) };
 
     if (parentBar != nullptr and parentBar->isVertical())
-    {
-        const auto width { bounds.getWidth() };
-        const auto height { bounds.getHeight() };
-
-        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
-
-        bounds = { 0.0f, 0.0f, height, width };
-    }
+        bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
 
     if (graphics.contains (Id::tabBar))
         jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabBar), bounds);
@@ -69,14 +89,7 @@ void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highl
     auto* parentBar { dynamic_cast<jam::ButtonBar*> (highlight.getParentComponent()) };
 
     if (parentBar != nullptr and parentBar->isVertical())
-    {
-        const auto width { bounds.getWidth() };
-        const auto height { bounds.getHeight() };
-
-        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
-
-        bounds = { 0.0f, 0.0f, height, width };
-    }
+        bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
 
     if (graphics.contains (Id::tabHighlight))
         jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabHighlight), bounds);
@@ -89,17 +102,10 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
 {
     auto bounds { button.getLocalBounds().toFloat() };
     auto* parentBar { dynamic_cast<jam::ButtonBar*> (button.getParentComponent()) };
-    const bool vertical { parentBar != nullptr and parentBar->isVertical() };
+    const bool isVertical { parentBar != nullptr and parentBar->isVertical() };
 
-    if (vertical)
-    {
-        const auto width { bounds.getWidth() };
-        const auto height { bounds.getHeight() };
-
-        g.addTransform (getVerticalTextTransform (parentBar->getPosition(), width, height));
-
-        bounds = { 0.0f, 0.0f, height, width };
-    }
+    if (isVertical)
+        bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
 
     const auto state { jam::ButtonSVG::getState (button, isMouseOver, isMouseDown) };
     const juce::Identifier stateId { map::ButtonState::getInstance()->get (state) };
@@ -112,6 +118,7 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
 void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 {
     g.fillAll (label.findColour (juce::Label::backgroundColourId));
+
     if (not label.isBeingEdited())
     {
         g.setFont (juce::Font { getTabFont() });
@@ -124,14 +131,9 @@ void ENDLookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
 //==============================================================================
 juce::FontOptions ENDLookAndFeel::getTabFont() const
 {
-    auto fontFamily { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontFamily) };
-    auto fontSize { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontSize) };
     const float kerning { config.getRowValue (jam::Format::toType (Id::tab), Id::kerningFactor) };
 
-    return juce::FontOptions()
-        .withName (fontFamily)
-        .withPointHeight (fontSize)
-        .withKerningFactor (kerning);
+    return getTabFontOptions (config).withKerningFactor (kerning);
 }
 
 juce::FontOptions ENDLookAndFeel::getOverlayFont() const
@@ -143,10 +145,7 @@ juce::FontOptions ENDLookAndFeel::getOverlayFont() const
 
 juce::Font ENDLookAndFeel::getCommonFont() const
 {
-    auto fontFamily { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontFamily) };
-    auto fontSize { config.getRowValue (jam::Format::toType (Id::tab), Id::textFontSize) };
-
-    return juce::FontOptions().withName (fontFamily).withPointHeight (fontSize);
+    return getTabFontOptions (config);
 }
 
 juce::Font ENDLookAndFeel::getPopupMenuFont() { return getCommonFont(); }
@@ -162,6 +161,7 @@ int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noex
 }
 
 int ENDLookAndFeel::getTabPadding() const { return config.getRowValue (jam::Format::toType (Id::tab), Id::textPadding); }
+
 int ENDLookAndFeel::getTabPosition() const noexcept
 {
     const juce::String position { config.getRowValue (jam::Format::toType (Id::tab), Id::position) };
@@ -188,7 +188,7 @@ int ENDLookAndFeel::getPanePadding() const noexcept
 }
 
 //==============================================================================
-juce::String ENDLookAndFeel::typefaceKey (const juce::String& name, const juce::String& style)
+juce::String ENDLookAndFeel::getTypefaceKey (const juce::String& name, const juce::String& style)
 {
     static constexpr const char* styleSeparator { "/" };
 
@@ -199,7 +199,7 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
 {
     auto name { font.getTypefaceName() };
     auto style { font.getTypefaceStyle() };
-    auto key { typefaceKey (name, style) };
+    auto key { getTypefaceKey (name, style) };
 
     if (typefaces.contains (key))
         return typefaces.at (key);
@@ -208,7 +208,7 @@ juce::Typeface::Ptr ENDLookAndFeel::getTypefaceForFont (const juce::Font& font)
     // requests style "Regular" by default, which none of the six embedded
     // faces carry, so the exact key above misses on every unstyled Font.
     static constexpr const char* regularStyle { "Book" };
-    auto bookKey { typefaceKey (name, regularStyle) };
+    auto bookKey { getTypefaceKey (name, regularStyle) };
 
     if (typefaces.contains (bookKey))
         return typefaces.at (bookKey);
@@ -221,7 +221,12 @@ juce::BorderSize<int> ENDLookAndFeel::getTabBarPadding() const
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
     const auto padding { config.getRowValue (jam::Format::toType (Id::tab), Id::padding) };
 
-    return juce::BorderSize<int> { padding[0], padding[3], padding[2], padding[1] };
+    constexpr int top { 0 };
+    constexpr int right { 1 };
+    constexpr int bottom { 2 };
+    constexpr int left { 3 };
+
+    return juce::BorderSize<int> { padding[top], padding[left], padding[bottom], padding[right] };
 }
 
 int16_t ENDLookAndFeel::getWindowFX() const
@@ -473,59 +478,36 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
     auto bounds { paneEdge.getSeam().toFloat() };
 
     if (bounds.getWidth() < bounds.getHeight())
-    {
-        const auto width { bounds.getWidth() };
-        const auto height { bounds.getHeight() };
-
-        g.addTransform (getVerticalTextTransform (map::Position::left, width, height)
-                            .translated (bounds.getX(), bounds.getY()));
-
-        bounds = { 0.0f, 0.0f, height, width };
-    }
-
-    // Hover/pressed: swap bar colour to highlight
-    const bool hover { bar.isMouseOver() or bar.isMouseButtonDown() };
-    const auto savedColour { findColour (paneBarColourId) };
-
-    if (hover)
-        setColour (paneBarColourId, findColour (paneBarHighlightColourId));
+        bounds = applyRotation (g, bounds, getVerticalTextTransform (map::Position::left, bounds.getWidth(), bounds.getHeight())
+                                               .translated (bounds.getX(), bounds.getY()));
 
     if (graphics.contains (Id::resizerBar))
         jam::Svg::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
-
-    if (hover)
-        setColour (paneBarColourId, savedColour);
 }
 
 void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
 {
-    jassert (dynamic_cast<jam::OwnedComponent*> (&pane) != nullptr);
+    g.setColour (findColour (isPaneFocused (pane) ? jam::PaneComponent::focusedOutlineColourId
+                                                  : jam::PaneComponent::outlineColourId));
+    g.drawRoundedRectangle (getPaneArea (pane, getPanePadding()), jam::PaneComponent::cornerSize, jam::PaneComponent::lineThickness);
+}
 
-    const bool isFocused { static_cast<bool> (static_cast<jam::OwnedComponent&> (pane).getValueTree().getProperty (Id::focus)) };
-
-    g.setColour (findColour (isFocused ? jam::PaneComponent::focusedOutlineColourId
-                                       : jam::PaneComponent::outlineColourId));
-    g.drawRoundedRectangle (
-        pane.getLocalBounds().toFloat().reduced (static_cast<float> (getPanePadding())
-                                                 + jam::PaneComponent::lineThickness),
-        jam::PaneComponent::cornerSize,
-        jam::PaneComponent::lineThickness);
+void ENDLookAndFeel::drawPaneBackground (juce::Graphics& g, juce::Component& pane)
+{
+    g.setColour (findColour (isPaneFocused (pane) ? jam::PaneComponent::focusedBackgroundColourId
+                                                  : jam::PaneComponent::backgroundColourId));
+    g.fillRoundedRectangle (getPaneArea (pane, getPanePadding()), jam::PaneComponent::cornerSize);
 }
 
 //==============================================================================
 void ENDLookAndFeel::registerTypeface()
 {
-    auto getTypeface = [] (const void* data, int size)
+    auto registerFont = [this] (const void* data, int size)
     {
-        return juce::Typeface::createSystemTypefaceFor (data, size);
-    };
-
-    auto registerFont = [this, &getTypeface] (const void* data, int size)
-    {
-        auto ptr { getTypeface (data, size) };
-        auto key { typefaceKey (ptr->getName(), ptr->getStyle()) };
-        typefaces.addOrReplace (key, ptr);
-        jam::Typeface::getInstance()->registerTypeface (ptr, data, static_cast<size_t> (size));
+        auto typeface { juce::Typeface::createSystemTypefaceFor (data, size) };
+        auto key { getTypefaceKey (typeface->getName(), typeface->getStyle()) };
+        typefaces.addOrReplace (key, typeface);
+        jam::Typeface::getInstance()->registerTypeface (typeface, data, static_cast<size_t> (size));
     };
 
     registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
@@ -538,26 +520,20 @@ void ENDLookAndFeel::registerTypeface()
 
 void ENDLookAndFeel::setColours()
 {
-    static const std::vector<std::tuple<juce::Identifier, juce::Identifier, int>> colourIds
+    static const jam::Array<std::tuple<juce::Identifier, juce::Identifier, int>> colourIds
     {
-        { jam::Format::toType (Id::tab), Id::caret, juce::CaretComponent::caretColourId },
-        { jam::Format::toType (Id::tab), Id::editorBackground, juce::TextEditor::backgroundColourId },
-        { jam::Format::toType (Id::tab), Id::editorOutline, juce::TextEditor::outlineColourId },
         { jam::Format::toType (Id::scrollbar), Id::thumb, juce::ScrollBar::thumbColourId },
         { jam::Format::toType (Id::scrollbar), Id::track, juce::ScrollBar::trackColourId },
-        { jam::Format::toType (Id::tab), Id::background, jam::ButtonBar::backgroundColourId },
-        { jam::Format::toType (Id::tab), Id::highlight, jam::ButtonBar::highlightColourId },
-        { jam::Format::toType (Id::tab), Id::outline, jam::ButtonBar::outlineColourId },
         { jam::Format::toType (Id::button), Id::button, juce::TextButton::buttonColourId },
         { jam::Format::toType (Id::button), Id::buttonOn, juce::TextButton::buttonOnColourId },
         { jam::Format::toType (Id::button), Id::textOff, juce::TextButton::textColourOffId },
         { jam::Format::toType (Id::button), Id::textOn, juce::TextButton::textColourOnId },
         { jam::Format::toType (Id::overlay), Id::background, juce::Label::backgroundColourId },
         { jam::Format::toType (Id::overlay), Id::text, juce::Label::textColourId },
-        { jam::Format::toType (Id::pane), Id::resizeBar, paneBarColourId },
-        { jam::Format::toType (Id::pane), Id::resizeBarHighlight, paneBarHighlightColourId },
         { jam::Format::toType (Id::pane), Id::outline, jam::PaneComponent::outlineColourId },
-        { jam::Format::toType (Id::pane), Id::focusedOutline, jam::PaneComponent::focusedOutlineColourId }
+        { jam::Format::toType (Id::pane), Id::focusedOutline, jam::PaneComponent::focusedOutlineColourId },
+        { jam::Format::toType (Id::pane), Id::background, jam::PaneComponent::backgroundColourId },
+        { jam::Format::toType (Id::pane), Id::focusedBackground, jam::PaneComponent::focusedBackgroundColourId }
     };
 
     for (const auto& [tableType, rowKey, colourId] : colourIds)

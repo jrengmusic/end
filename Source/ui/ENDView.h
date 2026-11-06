@@ -1,13 +1,11 @@
 /**
  * @file ENDView.h
- * @brief Application's own root view — owns sessions, wires actions and
- *        config-driven graphics/window/mouse events, and hosts the message
- *        overlay and Vulkan background.
+ * @brief Application's root view: owns the sessions, registers the commands, and wires
+ *        the config-driven graphics, window and mouse events. Hosts the message overlay and the Vulkan background.
  */
 #pragma once
 #include <JuceHeader.h>
 #include "ui/SessionView.h"
-#include "action/ENDActions.h"
 #include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 #include "generated/Generated.h"
@@ -15,9 +13,8 @@
 
 /**
  * @class ENDView
- * @brief Root content component. It owns every SessionView, registers the
- *        ENDActions, and dispatches the changes of the model and the config
- *        to the graphics and mouse events.
+ * @brief Root content component. It owns every SessionView, registers the commands in the `commands` map,
+ *        and dispatches the changes of the model and the config to the graphics and mouse events.
  */
 class ENDView
     : public juce::Component
@@ -28,10 +25,10 @@ class ENDView
 {
 public:
     /**
-     * @brief Registers the actions, the events and the commands, creates the parameters and the message overlay.
+     * @brief Registers the commands and the events, adds the background and the message overlay, and creates the parameters.
      *
      * The constructor queues an asynchronous call. The call runs the event of the `enabled` key of the config,
-     * runs the new-session action, and takes the keyboard focus.
+     * adds the first session, sets the key presses of the `keys` config, and takes the keyboard focus.
      */
     ENDView();
 
@@ -83,9 +80,9 @@ public:
     void getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result) override;
 
     /**
-     * @brief Runs the action that has the name of the command.
+     * @brief Runs the callback that `commands` holds for the command id of the invocation.
      * @param info  Invocation that carries the command id.
-     * @return The result of the action run.
+     * @return True when `commands` holds the command id, and its callback has run.
      */
     bool perform (const InvocationInfo& info) override;
 
@@ -105,8 +102,6 @@ private:
 
     /** @brief Model that holds the window row, the sessions, and the overlay. */
     ENDModel& model { *ENDModel::getInstance() };
-    /** @brief Action registry that the commands and the events run. */
-    ENDActions& actions { *ENDActions::getInstance() };
     /** @brief Application root, which owns the sessions and the plugin graph. */
     Nexus& nexus { *Nexus::getInstance() };
     /** @brief Config of the application. */
@@ -116,24 +111,21 @@ private:
     void createAndAttachParameters();
 
     /**
-     * @brief Registers every action family: session, application, tab, zoom, pane, join, swap, resize and terminal.
+     * @brief Registers each family of commands into `commands`: application, tab, zoom, pane, join, swap and resize.
      *
      * The profiler family is registered too when JAM_USING_PROFILER is set.
      */
     void registerActions();
 
-    /** @brief Registers Id::newSession, which creates a session with a view, then runs the new-tab action. */
-    void registerSessionActions();
-
-    /** @brief Registers Id::quit, which quits the application, and Id::reload, which reloads the config from its path. */
+    /** @brief Registers map::CommandId::quit, which asks the JUCE application to quit, and map::CommandId::reload, which reloads the config from its path. */
     void registerApplicationActions();
 
     /**
-     * @brief Registers newTab, closeTab, nextTab and prevTab.
+     * @brief Registers newTab, nextTab and prevTab.
      *
-     * newTab adds a tab row, then runs newPane without an edge. The new pane receives the directory of the focused
-     * pane of the previously active tab as its cwd. newTab then loads EVE into the new pane.
-     * closeTab removes the focused tab row of the focused session. nextTab and prevTab move between the tabs of the focused session.
+     * newTab adds a tab row to the focused session, then adds a pane without an edge. It sets the cwd of the terminal row of the
+     * focused pane to the directory of the focused pane of the previously active tab, then loads EVE into the new pane.
+     * nextTab and prevTab move between the tabs of the focused session.
      */
     void registerTabActions();
 
@@ -141,29 +133,28 @@ private:
      * @brief Registers zoomIn, zoomOut and zoomReset. Each moves the zoom parameter of the hosted plugins.
      *
      * The step is the `zoomStep` of the display config. With `exclusiveZoom` in the display config, the
-     * focused pane of the active tab moves. Otherwise every pane of the active session moves.
+     * focused pane of the active tab moves. Otherwise the focused session view sets the zoom, through SessionView::setZoom().
      */
     void registerZoomActions();
 
     /**
-     * @brief Registers normal, newPane, loadPlugin, splitHorizontal, splitVertical and closePane.
+     * @brief Registers normal, open, list, splitHorizontal, splitVertical and closePane.
      *
-     * normal sets the mode of the hosted plugin of the focused pane to the normal mode.
-     * newPane splits the focused pane at the given edge, or adds a pane when the edge is invalid.
-     * loadPlugin writes the plugin file of the focused pane.
-     * splitHorizontal and splitVertical split toward the bottom or the right, and load EVE into the new pane.
-     * closePane removes the focused pane and its plugin. With one pane left, it closes the tab.
+     * normal, open and list set the mode of the focused pane of the active tab to the matching `map::EditorMode` entry.
+     * splitHorizontal and splitVertical add a pane at the bottom or the right edge, then load EVE into the new pane.
+     * closePane invokes the closePane command of the focused pane.
      */
     void registerPaneActions();
 
     /**
-     * @brief Registers one join action per join direction of TabView::getJoinDirections().
+     * @brief Registers one join command per join direction of TabView::getJoinDirections().
      *
-     * A join absorbs the neighbour pane. The plugin of the absorbed pane is removed from the focused session.
+     * A join calls TabView::join() on the active tab with the direction. When the call returns the identity of an absorbed pane,
+     * the plugin of that pane is removed from the active session of Nexus.
      */
     void registerJoinActions();
 
-    /** @brief Registers swapLeft, swapDown, swapUp and swapRight, which swap the focused pane with its neighbour in that direction. */
+    /** @brief Registers swapLeft, swapDown, swapUp and swapRight, which swap the focused pane with its neighbour in that direction, when one exists. */
     void registerSwapActions();
 
     /**
@@ -174,37 +165,35 @@ private:
     void registerResizeActions();
 
     /**
-     * @brief Registers the terminal reports of the panes, the ENAX mark and the start directory getter.
-     *
-     * Each terminal report writes its value to the row of its pane. The enax report sets the Id::enax property of the
-     * row to true. The start directory getter copies the cwd of the row into the host buffer.
-     */
-    void registerTerminalActions();
-
-    /**
      * @brief Returns the cwd of the focused pane of the active tab.
      * @return The directory, or an empty string when no tab is active.
      */
     juce::String getFocusedDirectory() const;
 
-    /**
-     * @brief Returns the row of a pane under the sessions row.
-     *
-     * The terminal reports and the host extensions pass the pane identity. The row must exist. The call asserts otherwise.
-     *
-     * @param pane  Identity of the pane.
-     * @return The pane row.
-     */
-    juce::ValueTree getPaneRow (juce::int64 pane) const;
-
 #if JAM_USING_PROFILER
     /**
-     * @brief Registers promptPainted, which splits the active tab while it has fewer panes than the profiler table of the manifest file.
+     * @brief Sets the onPromptPainted callback of Nexus. The callback splits the active tab while it has fewer panes than the profiler table of the manifest file.
      *
-     * When the tab has the full count, the action quits the application.
+     * The callback resets panePrompt first. Below the full count it invokes the splitVertical command. At the full count it invokes the quit command.
      */
     void registerProfilerActions();
 #endif
+
+    /**
+     * @brief Creates a session in Nexus, adds its view, and opens its first tab through the newTab command.
+     *
+     * The session view is attached to the model. Its focus property is 1 when the view is the focused session, and 0 otherwise.
+     */
+    void addSession();
+
+    /**
+     * @brief Passes an edge to the active tab, which splits at the edge or adds a pane.
+     *
+     * With JAM_USING_PROFILER, the call first starts a profiler zone and the pane prompt.
+     *
+     * @param edge  Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
+     */
+    void addPane (const juce::Identifier& edge);
 
     /** @brief Registers the graphics events and the mouse events. */
     void registerEvents();
@@ -247,6 +236,8 @@ private:
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
     /** @brief Event callbacks keyed by the property or the tree type that changed. */
     jam::Function::Map<juce::Identifier, void> events;
+    /** @brief Command callbacks keyed by command id. The register functions add them, and perform() runs them. */
+    jam::Function::Map<juce::CommandID, void> commands;
 
     /** @brief Message overlay, shown above the sessions. */
     jam::MessageOverlay messageOverlay;

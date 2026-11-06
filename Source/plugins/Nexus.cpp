@@ -1,5 +1,4 @@
 #include "plugins/Nexus.h"
-#include "action/ENDActions.h"
 #if JUCE_MAC
 #include <AudioToolbox/AudioToolbox.h>
 #endif
@@ -24,13 +23,8 @@ static decltype (juce::ComponentPeer::externalMouseEventCallback) mouseEventCall
     }
 } };
 
-static juce::Rectangle<int> (*displayBoundsGetter)() { [] { return Nexus::getDisplayBounds(); } };
-static juce::int64 (*paneUuidGetter)() { [] { return Nexus::getInstance()->getLoadingPane(); } };
-static void (*terminalReportCallback) (juce::int64, const char*, const char*) { [] (juce::int64 pane, const char* name, const char* value) { ENDActions::getInstance()->get (juce::Identifier { name }, juce::int64 { pane }, static_cast<const char*> (value)); } };
-static void (*startDirectoryGetter) (juce::int64, char*, size_t) { [] (juce::int64 pane, char* hostDirectory, size_t numBytes) { ENDActions::getInstance()->get (Id::startDirectory, juce::int64 { pane }, static_cast<char*> (hostDirectory), size_t { numBytes }); } };
-
 #if JAM_USING_PROFILER
-static void (*promptPaintedCallback)() { [] { ENDActions::getInstance()->run (Id::promptPainted); } };
+static void (*promptPaintedCallback)() { [] { Nexus::getInstance()->onPromptPainted(); } };
 static void (*manifestFileGetter) (char*, size_t) { [] (char* hostFile, size_t numBytes) { Nexus::getManifestFile().getFullPathName().copyToUTF8 (hostFile, numBytes); } };
 #endif
 
@@ -64,10 +58,6 @@ void Nexus::registerExtensions()
     extensions.try_emplace (Id::enaxPeerDeleted, &juce::ComponentPeer::externalPeerDeletedCallback);
     extensions.try_emplace (Id::enaxKeyPressed, &keyPressedCallback);
     extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback);
-    extensions.try_emplace (Id::enaxDisplayBounds, &displayBoundsGetter);
-    extensions.try_emplace (Id::enaxPaneUuid, &paneUuidGetter);
-    extensions.try_emplace (Id::enaxStartDirectory, &startDirectoryGetter);
-    extensions.try_emplace (Id::enaxTerminalReport, &terminalReportCallback);
 #if JAM_USING_PROFILER
     extensions.try_emplace (Id::enaxPromptPainted, &promptPaintedCallback);
     extensions.try_emplace (Id::enaxManifestFile, &manifestFileGetter);
@@ -129,7 +119,7 @@ Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList, loadingPanes));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
     jassert (inserted);
     auto& [key, session] = *entry;
 
@@ -158,17 +148,6 @@ Session& Nexus::getActiveSession()
     jassert (jam::UUID { focusedSessionParameter->getValue() } != jam::UUID::none());
 
     return getSession (jam::UUID (focusedSessionParameter->getValue()));
-}
-
-juce::int64 Nexus::getLoadingPane() const noexcept
-{
-    if (loadingPanes.isEmpty()) return jam::UUID::none().value;
-    return loadingPanes.first();
-}
-
-juce::Rectangle<int> Nexus::getDisplayBounds()
-{
-    return juce::Desktop::getInstance().getDisplays().getTotalBounds (false);
 }
 
 const void* Nexus::getExtension (const char* id) const
