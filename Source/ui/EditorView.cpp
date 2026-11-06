@@ -8,13 +8,16 @@ static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
     const jam::UUID focusedUuid { static_cast<int64_t> (tabRow.getProperty (Id::focusedPane)) };
     const auto focusedPane { jam::Model::getChildWithID (tabRow, juce::var (focusedUuid.value)) };
 
-    return focusedPane.getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString();
+    return focusedPane.getChildWithName (jam::Format::toType (Id::pluginState))
+        .getProperty (Id::cwd)
+        .toString();
 }
 
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
     : jam::PaneComponent (model, tabState, jam::Format::toType (Id::pane), uuid)
 {
-    state.getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
+    state.getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr)
+        .setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
     state.addListener (this);
     addAndMakeVisible (dropTarget);
 }
@@ -50,8 +53,11 @@ void EditorView::resized()
 
         const auto inner { getLocalBounds().reduced (inset) };
 
-        setRows (Id::width, inner.getWidth());
-        setRows (Id::height, inner.getHeight());
+        juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
+
+        rows.setProperty (Id::width, inner.getWidth(), nullptr);
+        rows.setProperty (Id::height, inner.getHeight(), nullptr);
+        session.setRows (uuid, rows);
     }
 }
 
@@ -111,7 +117,8 @@ void EditorView::getAllCommands (juce::Array<juce::CommandID>& commands)
 
 void EditorView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
 {
-    jam::CommandManager::setInfo (result, map::CommandId::getInstance()->get (commandID).toString());
+    jam::CommandManager::setInfo (
+        result, map::CommandId::getInstance()->get (commandID).toString());
 }
 
 bool EditorView::perform (const InvocationInfo& info)
@@ -121,21 +128,25 @@ bool EditorView::perform (const InvocationInfo& info)
         {
             jam::Function::Map<juce::CommandID, void> table;
 
-            table.add<EditorView&> (map::CommandId::closeTerminal, [] (EditorView& pane)
-            {
-                pane.state.removeProperty (Id::plugin, nullptr);
-            });
+            table.add<EditorView&> (map::CommandId::closeTerminal,
+                                    [] (EditorView& pane)
+                                    {
+                                        pane.state.removeProperty (Id::plugin, nullptr);
+                                    });
 
-            table.add<EditorView&> (map::CommandId::closePane, [] (EditorView& pane)
-            {
-                pane.findParentComponentOfClass<TabView>()->remove (jam::UUID { pane.state.getProperty (Id::id) });
-            });
+            table.add<EditorView&> (map::CommandId::closePane,
+                                    [] (EditorView& pane)
+                                    {
+                                        pane.findParentComponentOfClass<TabView>()->remove (
+                                            jam::UUID { pane.state.getProperty (Id::id) });
+                                    });
 
-            table.add<EditorView&> (map::CommandId::closeTerminalPane, [] (EditorView& pane)
-            {
-                pane.invokeDirectly (map::CommandId::closeTerminal, false);
-                pane.invokeDirectly (map::CommandId::closePane, false);
-            });
+            table.add<EditorView&> (map::CommandId::closeTerminalPane,
+                                    [] (EditorView& pane)
+                                    {
+                                        pane.invokeDirectly (map::CommandId::closeTerminal, false);
+                                        pane.invokeDirectly (map::CommandId::closePane, false);
+                                    });
 
             return table;
         }()
@@ -146,12 +157,6 @@ bool EditorView::perform (const InvocationInfo& info)
     return true;
 }
 
-void EditorView::childBoundsChanged (juce::Component* child)
-{
-    if (child == editor.get())
-        resized();
-}
-
 void EditorView::setZoom (juce::CommandID command, float step)
 {
     static constexpr float defaultZoom { 1.0f };
@@ -160,24 +165,35 @@ void EditorView::setZoom (juce::CommandID command, float step)
         []
         {
             jam::Function::Map<juce::CommandID, float> table;
-            table.add<float, float> (map::CommandId::zoomIn, [] (float zoom, float zoomStep) { return zoom + zoomStep; });
-            table.add<float, float> (map::CommandId::zoomOut, [] (float zoom, float zoomStep) { return zoom - zoomStep; });
-            table.add<float, float> (map::CommandId::zoomReset, [] (float, float) { return defaultZoom; });
+            table.add<float, float> (map::CommandId::zoomIn,
+                                     [] (float zoom, float zoomStep)
+                                     {
+                                         return zoom + zoomStep;
+                                     });
+            table.add<float, float> (map::CommandId::zoomOut,
+                                     [] (float zoom, float zoomStep)
+                                     {
+                                         return zoom - zoomStep;
+                                     });
+            table.add<float, float> (map::CommandId::zoomReset,
+                                     [] (float, float)
+                                     {
+                                         return defaultZoom;
+                                     });
             return table;
         }()
     };
 
-    const auto zoom { static_cast<float> (state.getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::zoom, defaultZoom)) };
+    const auto zoom { static_cast<float> (
+        state.getChildWithName (jam::Format::toType (Id::pluginState))
+            .getProperty (Id::zoom, defaultZoom)) };
 
-    setRows (Id::zoom, zoomValues.get (command, float { zoom }, float { step }));
+    setRow (Id::zoom, zoomValues.get (command, float { zoom }, float { step }));
 }
 
-void EditorView::setMode (int newMode)
-{
-    setRows (Id::mode, newMode);
-}
+void EditorView::setMode (int newMode) { setRow (Id::mode, newMode); }
 
-void EditorView::setRows (const juce::Identifier& row, const juce::var& value)
+void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
 {
     juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
 
@@ -201,14 +217,15 @@ void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Id
     if (isPluginLoaded)
     {
         if (getSession().hasPluginState (jam::UUID { tree.getProperty (Id::id) }))
-            Nexus::getInstance()->addPluginModule (juce::File { tree.getProperty (Id::plugin).toString() });
+            Nexus::getInstance()->addPluginModule (
+                juce::File { tree.getProperty (Id::plugin).toString() });
 
         createProcessorEditor();
         resized();
     }
 
     if (tree == state and (property == Id::focus or isPluginLoaded))
-        setRows (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
+        setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
 }
 
 void EditorView::createProcessorEditor()
@@ -220,14 +237,11 @@ void EditorView::createProcessorEditor()
     const jam::Profiler::Zone zone { Id::paneEditor };
 #endif
     editor.reset (session.getPlugin (uuid).createEditorAndMakeActive());
-
-    if (editor != nullptr)
-        addAndMakeVisible (*editor, 0);
-
+    addAndMakeVisible (editor.get());
     dropTarget.toFront (false);
 }
 
-Session& EditorView::getSession()
+Session& EditorView::getSession() const
 {
     const auto sessionState { findAncestorRow (state, jam::Format::toType (Id::session)) };
     jassert (sessionState.isValid());

@@ -6,13 +6,13 @@
     @brief Abstract base for per-directory config lifecycle — loadFromPath.
 
     ConfigDirectory is the ValueTree-adopting base for config sub-models. Each
-    subclass builds its own subtree in its constructor init-list (via
-    @c jam::ConfigDocument or @c jam::Model::fromFiles) and adopts it through
-    this constructor. The owner (@c ConfigModel) composes the resulting
-    subtrees after member construction.
+    subclass adopts its tree through this constructor. ConfigTheme adopts the
+    THEMES-rooted tree that getDefaultThemes() builds. ConfigShader adopts an empty
+    tree of its own type and fills it in loadFromPath(). The owner (@c ConfigModel)
+    composes the resulting subtrees after member construction.
 
-    The only remaining contract method is @c loadFromPath() — subclasses
-    implement disk-overlay behaviour there.
+    The contract methods are @c loadFromPath(), which is pure virtual, and @c saveToPath(),
+    which defaults to a no-op. Subclasses implement disk-overlay behaviour in @c loadFromPath().
 
     @c ConfigModel is the sole @c jam::File::Watcher::Listener. ConfigDirectory
     subclasses never watch files directly.
@@ -115,9 +115,14 @@ public:
      */
     virtual juce::String loadFromPath (const juce::var& path) = 0;
 
-    /** @brief Write default assets to disk when missing.
+    /** @brief Writes the default assets of the directory to disk.
+     *
+     *  The base implementation writes nothing. ConfigTheme overrides it: it creates the theme directory and its
+     *  flex/ subdirectory when absent, writes each theme markdown default through
+     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which replaces a file whose version is older, and writes
+     *  each flex SVG default only when its file is absent. ConfigShader does not override it, so it inherits the no-op.
+     *
      *  @param path  Active config value passed by the owning ConfigModel.
-     *  Default no-op — override in subclasses that seed assets (ConfigTheme).
      */
     virtual void saveToPath (const juce::var& path) {}
 

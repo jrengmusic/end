@@ -44,6 +44,7 @@ private:
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
     jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
+    jam::SharedInstance<jam::SharedDocuments> documents { std::in_place };
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
     // ENDModel& bound via *ENDModel::getInstance() in its own member

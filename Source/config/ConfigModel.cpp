@@ -45,7 +45,7 @@ static juce::String addFileTables (juce::ValueTree target,
     for (auto& [key, stem] : files.get())
     {
         const auto fileName { getName (key) };
-        const auto defaultDocument { jam::ConfigDocument::parse (BinaryData::getString (fileName), fileName) };
+        const auto& defaultDocument { jam::ConfigDocument::getOrCreate (juce::Identifier { fileName }) };
         const auto readDocument { jam::ConfigDocument::parse (read (fileName), fileName) };
         const auto failures { jam::ConfigDocument::addTables (target, defaultDocument, readDocument,
                                                               jam::ConfigValidator {}.getRules()) };
@@ -57,35 +57,67 @@ static juce::String addFileTables (juce::ValueTree target,
     return errors;
 }
 
+static juce::String addDefaultTables (juce::ValueTree target,
+                                      const jam::Bimap<int>& files,
+                                      const std::function<juce::String (int)>& getName)
+{
+    juce::String errors;
+
+    for (auto& [key, stem] : files.get())
+    {
+        const auto fileName { getName (key) };
+        const auto& document { jam::ConfigDocument::getOrCreate (juce::Identifier { fileName }) };
+        const auto failures { jam::ConfigDocument::addTables (target, document, document,
+                                                              jam::ConfigValidator {}.getRules()) };
+
+        if (failures.isNotEmpty())
+            errors << failures << juce::String::charToString (Chars::newline);
+    }
+
+    return errors;
+}
+
+static juce::ValueTree getDefaultThemes()
+{
+    juce::ValueTree themes { jam::Format::toType (Id::themes) };
+    const auto errors { addDefaultTables (themes, *map::FileThemes::getInstance(), ConfigDirectory::Themes::getName) };
+
+    jassert (errors.isEmpty());
+
+    if (errors.isNotEmpty())
+        ENDModel::getInstance()->setMessage (errors);
+
+    themes.appendChild (jam::Model::fromFiles (jam::Format::toType (Id::flex),
+                                               map::FileFlex::getInstance()->get(),
+                                               [] (int key)
+                                               {
+                                                   return BinaryData::getString (ConfigDirectory::Flex::getName (key));
+                                               }),
+                        nullptr);
+
+    return themes;
+}
+
+static juce::ValueTree getDefaultConfig()
+{
+    juce::ValueTree config { jam::Format::toType (Id::config) };
+    const auto errors { addDefaultTables (config, *map::FileConfig::getInstance(), ConfigDirectory::Config::getName) };
+
+    jassert (errors.isEmpty());
+
+    if (errors.isNotEmpty())
+        ENDModel::getInstance()->setMessage (errors);
+
+    return config;
+}
+
 //==============================================================================
 // ConfigTheme
 //==============================================================================
 
 ConfigTheme::ConfigTheme()
-    : ConfigDirectory ([]
-      {
-          juce::ValueTree themes { jam::Format::toType (Id::themes) };
-          const auto errors { addFileTables (themes,
-              *map::FileThemes::getInstance(),
-              ConfigDirectory::Themes::getName,
-              [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
-
-          jassert (errors.isEmpty());
-
-          if (errors.isNotEmpty())
-              ENDModel::getInstance()->setMessage (errors);
-
-          return themes;
-      }())
+    : ConfigDirectory (getDefaultThemes())
 {
-    auto flex { jam::Model::fromFiles (jam::Format::toType (Id::flex),
-                                       map::FileFlex::getInstance()->get(),
-                                       [] (int key)
-                                       {
-                                           return BinaryData::getString (ConfigDirectory::Flex::getName (key));
-                                       }) };
-
-    state.appendChild (flex, nullptr);
 }
 
 void ConfigTheme::saveToPath (const juce::var& path)
@@ -120,6 +152,7 @@ void ConfigTheme::saveToPath (const juce::var& path)
 juce::String ConfigTheme::loadFromPath (const juce::var& path)
 {
     const juce::File dir { ConfigDirectory::Themes::getPath (path.toString()) };
+    auto themes { getDefaultThemes() };
     juce::String errors;
 
     if (dir.isDirectory())
@@ -132,17 +165,27 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
             [dir] (const juce::String& fileName) { return dir.getChildFile (fileName).loadFileAsString(); });
 
         const juce::File flexDir { dir.getChildFile (Id::flex) };
-        auto flexDisk { jam::Model::fromFiles (
+
+        disk.appendChild (jam::Model::fromFiles (
             jam::Format::toType (Id::flex),
             map::FileFlex::getInstance()->get(),
-            [flexDir] (int key)
+            [flexDir, &errors] (int key) -> juce::String
             {
-                return flexDir.getChildFile (ConfigDirectory::Flex::getName (key)).loadFileAsString();
-            }) };
+                const auto file { flexDir.getChildFile (ConfigDirectory::Flex::getName (key)) };
+                const auto text { file.loadFileAsString() };
+                const auto validation { jam::XmlValidator {}.isValid (jam::XmlDocument::parse (text)) };
 
-        disk.appendChild (flexDisk, nullptr);
+                if (validation.wasOk())
+                    return text;
 
-        setValuesFrom (disk);
+                errors << file.getFullPathName() + Id::diagnosticSeparator + validation.getErrorMessage()
+                       << juce::String::charToString (Chars::newline);
+
+                return BinaryData::getString (ConfigDirectory::Flex::getName (key));
+            }),
+            nullptr);
+
+        setValuesFrom (themes, disk);
     }
     else
     {
@@ -150,6 +193,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
                << juce::String::charToString (Chars::newline);
     }
 
+    setValuesFrom (themes);
     state.sendPropertyChangeMessage (jam::Format::toType (Id::theme));
 
     return errors;
@@ -160,30 +204,14 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
 //==============================================================================
 
 ConfigModel::ConfigModel()
-    : jam::Model ([]
-      {
-          juce::ValueTree config { jam::Format::toType (Id::config) };
-          const auto errors { addFileTables (config,
-              *map::FileConfig::getInstance(),
-              ConfigDirectory::Config::getName,
-              [] (const juce::String& fileName) { return BinaryData::getString (fileName); }) };
-
-          jassert (errors.isEmpty());
-
-          if (errors.isNotEmpty())
-              ENDModel::getInstance()->setMessage (errors);
-
-          return config;
-      }())
+    : jam::Model (getDefaultConfig())
 {
-    // theme, background, and postProcessing members are now constructed — attach their subtrees.
     state.appendChild (theme.state, nullptr);
 
     auto graphics { jam::Model::getChildWithName (state, jam::Format::toType (Id::graphics)) };
     graphics.appendChild (background.state, nullptr);
     graphics.appendChild (postProcessing.state, nullptr);
 
-    saveToPath();
     loadFromPath();
     startWatcher();
 }
@@ -217,34 +245,38 @@ void ConfigModel::saveToPath()
             jam::ConfigDocument::getOrCreateDefaultFile (ConfigDirectory::Config::path.getChildFile (fileName),
                                                          BinaryData::getString (fileName));
     }
-
-    theme.saveToPath (getRowValue (jam::Format::toType (Id::display), Id::theme));
 }
 
 void ConfigModel::loadFromPath()
 {
+    saveToPath();
+
     juce::ValueTree disk { jam::Format::toType (Id::config) };
     juce::String errors { addFileTables (disk,
         *map::FileConfig::getInstance(),
         ConfigDirectory::Config::getName,
         [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); }) };
 
-    // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
-    // notifications and consumers must read fresh source at that point.
-    const auto getMergedValue { [this, &disk] (const juce::Identifier& tableType, const juce::Identifier& rowType)
-    {
-        const auto diskTable { jam::Model::getChildWithName (disk, tableType) };
-        const auto sourceTable { diskTable.getChildWithName (rowType).isValid() ? diskTable
-                                                                               : jam::Model::getChildWithName (state, tableType) };
+    auto config { getDefaultConfig() };
 
-        return jam::Model::getValue<juce::var> (sourceTable, rowType);
+    setValuesFrom (config, disk);
+
+    const auto getConfigValue { [&config] (const juce::Identifier& tableType, const juce::Identifier& rowType)
+    {
+        return jam::Model::getValue<juce::var> (jam::Model::getChildWithName (config, tableType), rowType);
     } };
 
-    errors << theme.loadFromPath (getMergedValue (jam::Format::toType (Id::display), jam::Format::toType (Id::theme)));
-    errors << background.loadFromPath (getMergedValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::background)));
-    errors << postProcessing.loadFromPath (getMergedValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::postProcessing)));
+    const auto themeName { getConfigValue (jam::Format::toType (Id::display), jam::Format::toType (Id::theme)) };
 
-    setValuesFrom (disk);
+    theme.saveToPath (themeName);
+
+    // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
+    // notifications and consumers must read fresh source at that point.
+    errors << theme.loadFromPath (themeName);
+    errors << background.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::background)));
+    errors << postProcessing.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::postProcessing)));
+
+    setValuesFrom (config);
 
     const juce::String message { errors.isEmpty()
                                      ? getRowValue (jam::Format::toType (Id::display), Id::successMessage).toString()
@@ -269,9 +301,8 @@ void ConfigModel::startWatcher()
     watcher.addListener (this);
 }
 
-void ConfigModel::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
+void ConfigModel::fileChanged (const juce::File& file, jam::File::Watcher::Event)
 {
-    if (event == jam::File::Watcher::Event::fileUpdated
-        and file.hasFileExtension (Extensions::md))
+    if (file.hasFileExtension (Extensions::md) or file.hasFileExtension (Extensions::svg))
         loadFromPath();
 }

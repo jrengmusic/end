@@ -113,10 +113,10 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
         for (const auto& id : { Id::title, Id::foregroundProcess })
         {
-            const juce::String report { pluginState.getProperty (id).toString() };
+            const juce::String paneTitle { pluginState.getProperty (id).toString() };
 
-            if (report.isNotEmpty())
-                return report;
+            if (paneTitle.isNotEmpty())
+                return paneTitle;
         }
 
         const juce::String directoryName { juce::File { pluginState.getProperty (Id::cwd).toString() }.getFileName() };

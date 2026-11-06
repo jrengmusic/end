@@ -112,8 +112,8 @@ ConfigModel (Id::config)                    ENDModel (Id::end)
   mouse                                           TAB[N] (TabView row, jam::ID::name,
   keys (one row per command: key, description)          jam::ID::focus, jam::ID::focusedPane)
                                                     PANE (jam::ID::id, Id::name, Id::plugin,
-  THEMES (ConfigTheme tree, appended as a                 Id::title, Id::foregroundProcess, Id::cwd,
-                                                          jam::ID::focus — EditorView row)
+  THEMES (ConfigTheme tree, appended as a                 pluginState (Id::title, Id::foregroundProcess,
+                                                          Id::cwd), jam::ID::focus — EditorView row)
     direct CONFIG child — window, style,            EDGE (jam::ID::id, jam::ID::head,
     code, scrollbar, tab, button, overlay,                jam::ID::tail, jam::ID::orientation,
     pane, status_bar, hint, menu,                         jam::ID::proportions — jam::PaneEdge row)

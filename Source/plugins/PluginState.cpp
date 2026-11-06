@@ -157,9 +157,10 @@ PluginState::~PluginState()
 
 void PluginState::setRows (const juce::ValueTree& rows)
 {
-    juce::MemoryOutputStream stream;
+    juce::MemoryBlock block;
+    juce::MemoryOutputStream stream { block, false };
     rows.writeToStream (stream);
-    const auto block { stream.getMemoryBlock() };
+    stream.flush();
 
     getStateWrites().get (instance.getPluginDescription().pluginFormatName, instance, block);
 }

@@ -11,6 +11,7 @@ ENDView::ENDView()
     registerEvents();
 
     commandManager->registerAllCommandsForTarget (this);
+    commandManager->setFirstCommandTarget (this);
 
     addAndMakeVisible (background);
     addMouseListener (&background, true);
@@ -39,6 +40,7 @@ ENDView::~ENDView()
 {
     model.removeListener (this);
     config.removeListener (this);
+    commandManager->setFirstCommandTarget (nullptr);
 }
 
 void ENDView::resized()
@@ -191,9 +193,7 @@ void ENDView::registerTabActions()
                           const juce::Identifier edge {};
                           addPane (edge);
                           getActiveTabView()->getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, directory, nullptr);
-
-                          if (auto* tabView { getActiveTabView() })
-                              tabView->loadPlugin();
+                          getActiveTabView()->loadPlugin();
                       }
                   });
 
