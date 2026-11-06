@@ -143,12 +143,16 @@ void TabView::mouseDrag (const juce::MouseEvent& event)
     if (auto* pane { event.originalComponent->findParentComponentOfClass<jam::PaneComponent>() })
     {
         if (getEdge (*pane, event.getEventRelativeTo (pane).getMouseDownPosition(), event.getOffsetFromDragStart()).isValid())
-            repaint();
+            showPreview();
+        else
+            preview.setVisible (false);
     }
 }
 
 void TabView::mouseUp (const juce::MouseEvent& event)
 {
+    preview.setVisible (false);
+
     if (auto* pane { event.originalComponent->findParentComponentOfClass<jam::PaneComponent>() })
     {
         const auto relative { event.getEventRelativeTo (pane) };
@@ -169,14 +173,38 @@ void TabView::mouseUp (const juce::MouseEvent& event)
             {
                 commandManager->invokeDirectly (getJoinAction (edge), false);
             }
-
-            repaint();
         }
     }
 }
 
 //==============================================================================
-void TabView::paintOverChildren (juce::Graphics& g)
+TabView::Preview::Preview (TabView& newOwner)
+    : owner (newOwner)
+{
+    setOpaque (false);
+    setInterceptsMouseClicks (false, false);
+}
+
+void TabView::Preview::paint (juce::Graphics& g)
+{
+    owner.paintPreview (g);
+}
+
+void TabView::showPreview()
+{
+    if (auto* peer { getPeer() })
+    {
+        if (not preview.isOnDesktop())
+            preview.addToDesktop (juce::ComponentPeer::windowIgnoresMouseClicks | juce::ComponentPeer::windowIgnoresKeyPresses, peer->getNativeHandle());
+
+        preview.setBounds (peer->getAreaCoveredBy (*this));
+        preview.setVisible (true);
+        preview.toFront (false);
+        preview.repaint();
+    }
+}
+
+void TabView::paintPreview (juce::Graphics& g)
 {
     const auto& source { juce::Desktop::getInstance().getMainMouseSource() };
 
@@ -193,10 +221,10 @@ void TabView::paintOverChildren (juce::Graphics& g)
                 const bool horizontal { isHorizontal (edge) };
 
                 if (isInward (edge, cursor - mouseDownPosition))
-                    paintSplitPreview (g, edge.toString(), horizontal ? static_cast<float> (cursor.x) / static_cast<float> (pane->getWidth())
+                    paintSplitPreview (g, edge, horizontal ? static_cast<float> (cursor.x) / static_cast<float> (pane->getWidth())
                                                                       : static_cast<float> (cursor.y) / static_cast<float> (pane->getHeight()));
                 else
-                    paintJoinPreview (g, edge.toString());
+                    paintJoinPreview (g, edge);
             }
         }
     }
@@ -204,16 +232,15 @@ void TabView::paintOverChildren (juce::Graphics& g)
 
 static const juce::String sizeSeparator { " x " };
 
-void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, float position)
+void TabView::paintSplitPreview (juce::Graphics& g, const juce::Identifier& edge, float position)
 {
-    const auto preview { get (getFocusedChild()).getBounds() };
-    const auto edgeKey { map::Position::getInstance()->get (edge) };
-    const bool splitVertical { edgeKey == map::Position::right or edgeKey == map::Position::left };
+    const auto focusedBounds { get (getFocusedChild()).getBounds() };
+    const bool splitVertical { isHorizontal (edge) };
     const int splitLine { splitVertical
-                              ? preview.getX() + static_cast<int> (position * static_cast<float> (preview.getWidth()))
-                              : preview.getY() + static_cast<int> (position * static_cast<float> (preview.getHeight())) };
-    const auto head { splitVertical ? preview.withRight (splitLine) : preview.withBottom (splitLine) };
-    const auto tail { splitVertical ? preview.withLeft (splitLine) : preview.withTop (splitLine) };
+                              ? focusedBounds.getX() + static_cast<int> (position * static_cast<float> (focusedBounds.getWidth()))
+                              : focusedBounds.getY() + static_cast<int> (position * static_cast<float> (focusedBounds.getHeight())) };
+    const auto head { splitVertical ? focusedBounds.withRight (splitLine) : focusedBounds.withBottom (splitLine) };
+    const auto tail { splitVertical ? focusedBounds.withLeft (splitLine) : focusedBounds.withTop (splitLine) };
 
     static const juce::String regionSeparator { " | " };
 
@@ -221,19 +248,19 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::String& edge, fl
                                  + regionSeparator
                                  + juce::String (tail.getWidth()) + sizeSeparator + juce::String (tail.getHeight()) };
 
-    jam::drawMessageOverlay (g, *this, preview, message, ENDLookAndFeel::getInstance()->getOverlayFont(), splitLine, splitVertical,
+    jam::drawMessageOverlay (g, *this, focusedBounds, message, ENDLookAndFeel::getInstance()->getOverlayFont(), splitLine, splitVertical,
                              ConfigModel::getInstance()->getRowValue (jam::Format::toType (Id::pane), Id::splitLine).toString());
 }
 
-void TabView::paintJoinPreview (juce::Graphics& g, const juce::String& edge)
+void TabView::paintJoinPreview (juce::Graphics& g, const juce::Identifier& edge)
 {
-    const auto preview { get (getFocusedChild()).getBounds() };
-    const auto target { getNeighbour (getFocusedChild(), juce::Identifier { edge }) };
+    const auto focusedBounds { get (getFocusedChild()).getBounds() };
+    const auto target { getNeighbour (getFocusedChild(), edge) };
 
     if (target != jam::UUID::none())
     {
         const auto targetBounds { get (target).getBounds() };
-        const auto merged { preview.getUnion (targetBounds) };
+        const auto merged { focusedBounds.getUnion (targetBounds) };
 
         const juce::String message { juce::String (merged.getWidth()) + sizeSeparator + juce::String (merged.getHeight()) };
 

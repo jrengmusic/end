@@ -49,15 +49,10 @@ public:
      * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
      * Any other editor sits at the inset position from the top left corner.
      * The function writes the width and the height rows of the pluginState from the pane bounds, reduced by the inset.
-     * The rows are written when the session holds the pane, because an editor that is not resizable only moves.
+     * Both rows are written in one pluginState tree, passed by one call to Session::setRows. The rows are written only when
+     * Session::contains() reports the pane.
      */
     void resized() override;
-
-    /**
-     * @brief Lays out the pane again when the hosted editor changes its bounds.
-     * @param child  Component whose bounds changed.
-     */
-    void childBoundsChanged (juce::Component* child) override;
 
     void lookAndFeelChanged() override;
 
@@ -171,11 +166,12 @@ private:
      * @brief Writes one row of the pluginState to the session of the pane.
      *
      * The call builds a `pluginState` tree with one property, then gives it to the session, which passes it to the PluginState of the pane.
+     * The session does nothing when the pane has no PluginState.
      *
      * @param row    Identifier of the row to write.
      * @param value  Value of the row.
      */
-    void setRows (const juce::Identifier& row, const juce::var& value);
+    void setRow (const juce::Identifier& row, const juce::var& value);
 
     /**
      * @brief Returns the session that holds the plugin of this pane.
@@ -185,7 +181,7 @@ private:
      *
      * @return The session of this pane.
      */
-    Session& getSession();
+    Session& getSession() const;
 
     /**
      * @brief Applies a changed property of the pane row or of its pluginState to the hosted plugin and to the editor.
@@ -194,7 +190,7 @@ private:
      * Id::plugin destroys the editor, because the session removes the old instance.
      * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the session holds a PluginState
      * for the pane. Then the pane creates the editor and lays out.
-     * Id::focus on the pane row writes the focus value of the row to the pluginState of the plugin through setRows().
+     * Id::focus on the pane row writes the focus value of the row to the pluginState of the plugin through setRow().
      * Id::name, when the row holds it, also writes the focus value after the editor is created.
      *
      * @param tree      The ValueTree whose property changed.

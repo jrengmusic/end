@@ -96,11 +96,11 @@ public:
     void setZoom (juce::CommandID command, float step);
 
     /**
-     * @brief Repaints the pane surface while a corner drag passes splitDragThreshold, so that paintOverChildren() draws the preview.
+     * @brief Shows the split or join preview while a corner drag passes splitDragThreshold, and hides it otherwise.
      *
      * The dragged corner's dominant axis (larger of |dx|, |dy|) selects horizontal or vertical. The sign of the drag
-     * relative to the side of the corner selects a split (inward) or a join (outward). No preview is drawn until the
-     * threshold is crossed.
+     * relative to the side of the corner selects a split (inward) or a join (outward). The preview is shown by
+     * showPreview() when getEdge() returns an edge. When it returns no edge, the preview is hidden.
      *
      * @param event Mouse event. It is handled only when its original component is inside a jam::PaneComponent.
      */
@@ -110,21 +110,11 @@ public:
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
      * An inward drag splits the pane graph at the cursor proportion along the edge axis, then calls loadPlugin() with its default plugin.
-     * An outward drag invokes the command that getJoinAction() returns for the edge. The tab repaints after a gesture that passes the threshold.
+     * An outward drag invokes the command that getJoinAction() returns for the edge.
      *
      * @param event Mouse event that ends the gesture.
      */
     void mouseUp (const juce::MouseEvent& event) override;
-
-    /**
-     * @brief Paints the split or join preview of the corner drag that the main mouse source holds.
-     *
-     * While the main mouse source drags over a pane, an inward edge paints the split preview at the cursor position, and an
-     * outward edge paints the join preview. The function paints nothing when no edge is valid.
-     *
-     * @param g Graphics context for this paint pass.
-     */
-    void paintOverChildren (juce::Graphics& g) override;
 
     /**
      * @brief Returns the four join commands, each paired with the edge that it joins across.
@@ -173,6 +163,51 @@ private:
     /** @brief Command manager that invokes the Area Options commands and the corner drag commands. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
 
+    /**
+     * @brief Overlay that paints the corner-drag preview of its owner tab.
+     *
+     * The overlay is non-opaque and does not intercept mouse clicks. showPreview() adds it to the desktop.
+     */
+    struct Preview : public juce::Component
+    {
+        /**
+         * @brief Makes the overlay non-opaque and stops it from intercepting mouse clicks.
+         * @param newOwner  Tab whose corner drag the overlay paints.
+         */
+        explicit Preview (TabView& newOwner);
+
+        /**
+         * @brief Paints the preview of the owner through TabView::paintPreview().
+         * @param g  Graphics context of the paint pass.
+         */
+        void paint (juce::Graphics& g) override;
+
+        /** @brief Tab whose corner drag the overlay paints. */
+        TabView& owner;
+    };
+
+    /** @brief Corner-drag preview overlay of this tab. It is added to the desktop by the first showPreview() call. */
+    Preview preview { *this };
+
+    /**
+     * @brief Shows the preview overlay over this tab, and adds the overlay to the desktop on the first call.
+     *
+     * The first call adds the overlay to the desktop with windowIgnoresMouseClicks and windowIgnoresKeyPresses, attached to
+     * the native handle of the peer of this tab. Each call sets the overlay bounds to the area of the peer that covers this
+     * tab, shows the overlay, brings it to front and repaints it. The call does nothing when this tab has no peer.
+     */
+    void showPreview();
+
+    /**
+     * @brief Paints the split or join preview of the corner drag in progress.
+     *
+     * The main mouse source must be dragging over a pane, and nothing is painted otherwise. The edge comes from getEdge().
+     * An inward drag paints the split preview, and an outward drag paints the join preview.
+     *
+     * @param g  Graphics context of the overlay paint pass.
+     */
+    void paintPreview (juce::Graphics& g);
+
     /** @brief Builds the Area Options popup for the focused pane's corner menu. */
     juce::PopupMenu buildAreaOptionsMenu();
 
@@ -189,17 +224,17 @@ private:
     /**
      * @brief Paints the split preview: the cell size of each pane that the split would make, in a message overlay at the split line.
      * @param g         Graphics context for this paint pass.
-     * @param edge      Edge name of the split: the key of map::Position.
+     * @param edge      Edge to split across: Id::left, Id::right, Id::top or Id::bottom.
      * @param position  Split position along the axis of the edge, as a proportion of the focused pane.
      */
-    void paintSplitPreview (juce::Graphics& g, const juce::String& edge, float position);
+    void paintSplitPreview (juce::Graphics& g, const juce::Identifier& edge, float position);
 
     /**
      * @brief Paints the join preview: the cell size of the union of the focused pane and its neighbour across an edge.
      * @param g     Graphics context for this paint pass.
-     * @param edge  Edge name across which the join looks for the neighbour: the key of map::Position.
+     * @param edge  Edge across which the join looks for the neighbour: Id::left, Id::right, Id::top or Id::bottom.
      */
-    void paintJoinPreview (juce::Graphics& g, const juce::String& edge);
+    void paintJoinPreview (juce::Graphics& g, const juce::Identifier& edge);
 
     /**
      * @brief Returns the edge that a corner drag starts across.
