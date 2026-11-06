@@ -190,9 +190,9 @@ public:
         @brief Reads each root markdown config file from disk and overlays @c state.
 
         Calls saveToPath() first. Builds a CONFIG-rooted disk tree from the config files through addFileTables, and
-        overlays it on the binary defaults of getDefaultConfig(). Calls ConfigTheme::saveToPath() for the theme of the
-        display table. Then loads the theme, the background shader and the post-processing shader, and collects their
-        errors. Overlays the merged config on @c state with @c setValuesFrom, after the three loads.
+        overlays it on the binary defaults of getDefaultConfig(). Calls loadResources() with the merged config. It loads
+        the theme, the background shader and the post-processing shader, and collects their errors. Then overlays the
+        merged config on @c state with @c setValuesFrom.
         Sets the message of ENDModel to the successMessage row of the display table when no error exists. Otherwise sets
         it to the collected errors.
     */
@@ -235,10 +235,22 @@ private:
 
         Each file that has a BinaryData default goes through @c jam::ConfigDocument::getOrCreateDefaultFile, which writes
         the default text when @c jam::Format::isVersionOld reports the file's version as older than the default's version.
-        An empty file version counts as older. The theme is not saved here: loadFromPath() saves it through
+        An empty file version counts as older. The theme is not saved here: loadResources() saves it through
         ConfigTheme::saveToPath().
     */
     void saveToPath();
+
+    /**
+        @brief Loads the theme, the background shader and the post-processing shader that the config names.
+
+        Reads the theme name from the display table, and the background and post-processing names from the graphics table
+        of @p config. Calls ConfigTheme::saveToPath() with the theme name, then ConfigTheme::loadFromPath() with the same name.
+        Then calls ConfigShader::loadFromPath() for the background and for the post-processing shader.
+
+        @param config  Config tree that holds the display and graphics tables.
+        @return        The errors of the three loads, joined in that order. Empty when no load fails.
+    */
+    juce::String loadResources (const juce::ValueTree& config);
 
     /**
         @brief Installs @c watcher on @c ConfigDirectory::Config::path with @c coalesceMs

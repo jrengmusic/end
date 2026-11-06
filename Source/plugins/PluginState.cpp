@@ -162,7 +162,7 @@ void PluginState::setRows (const juce::ValueTree& rows)
     rows.writeToStream (stream);
     stream.flush();
 
-    getStateWrites().get (instance.getPluginDescription().pluginFormatName, instance, block);
+    getStateWrites().get (instance.getPluginDescription().pluginFormatName, instance, std::as_const (block));
 }
 
 void PluginState::audioProcessorParameterChanged (juce::AudioProcessor*, int, float) {}

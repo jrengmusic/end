@@ -57,13 +57,9 @@ public:
     void addPane (const juce::Identifier& edge);
 
     /**
-     * @brief Sets the plugin property of the focused pane to the path of a plugin file in the plugins folder of the config.
-     *
-     * The default is `files::evePlugin`, because the default pane holds EVE. A plugin name replaces the default.
-     *
-     * @param plugin  Name of the plugin file relative to the plugins folder, or an absolute path.
+     * @brief Sets the plugin property of the focused pane to the full path of files::evePlugin in the plugins folder of the config.
      */
-    void loadPlugin (const juce::String& plugin = files::evePlugin);
+    void loadPlugin();
 
     /** @brief Joins the focused pane with its neighbour across direction.
      *  @param direction Edge to join across — Id::left/right/top/bottom.
@@ -109,28 +105,22 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * An inward drag splits the pane graph at the cursor proportion along the edge axis, then calls loadPlugin() with its default plugin.
-     * An outward drag invokes the command that getJoinAction() returns for the edge.
+     * An inward drag splits the pane graph at the cursor position. The position is a proportion of the pane width for a left
+     * or right edge, and of the pane height for a top or bottom edge. Then it calls loadPlugin().
+     * An outward drag invokes the command that `getJoinDirections().at (edge)` returns for the edge.
      *
      * @param event Mouse event that ends the gesture.
      */
     void mouseUp (const juce::MouseEvent& event) override;
 
     /**
-     * @brief Returns the four join commands, each paired with the edge that it joins across.
+     * @brief Returns the join command of each edge.
      *
-     * ENDView::registerJoinActions() reads this table to register one command per join direction. getJoinAction() searches it by edge.
+     * ENDView::registerJoinActions() iterates this table to register one command per edge. mouseUp() reads it with `at (edge)`.
      *
-     * @return The pairs of join command and edge: joinLeft with left, joinDown with bottom, joinUp with top and joinRight with right.
+     * @return The table, keyed by edge. Id::left maps to joinLeft, Id::bottom to joinDown, Id::top to joinUp and Id::right to joinRight.
      */
-    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 4>& getJoinDirections();
-
-    /**
-     * @brief Returns the join command that joins across an edge.
-     * @param edge  Edge to join across: Id::left, Id::right, Id::top or Id::bottom.
-     * @return The join command, or a default-constructed CommandID when no join command joins across that edge.
-     */
-    static juce::CommandID getJoinAction (const juce::Identifier& edge);
+    static const jam::HashMap<juce::Identifier, juce::CommandID>& getJoinDirections();
 
     /** @brief Minimum drag distance in pixels, either axis, before a corner
      *  drag arms a split/join preview.
@@ -151,8 +141,9 @@ protected:
      * @brief Collapses the pane graph, removes the plugin of the pane, and removes the tab when no pane remains.
      *
      * The editor of the pane is already destroyed when this hook runs.
-     * The matrix collapses the graph first. The session then removes the plugin of the pane.
-     * When no pane remains, the call removes this tab from its session view. That call destroys this tab, so nothing follows it.
+     * The matrix collapses the graph first. The Nexus session then removes the plugin of the pane.
+     * When no pane remains, the call removes the tab row from the session state. SessionView::valueTreeChildRemoved() then removes the tab.
+     * That removal destroys this tab, so nothing may follow the call in this function.
      *
      * @param uuid  Identity of the pane being removed.
      * @param row   Pane row of the removed pane. The matrix reads it to collapse the graph.

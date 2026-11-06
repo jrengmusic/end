@@ -17,11 +17,11 @@
  * addPlugin() sets Id::name after it binds the plugin, so the
  * session holds the plugin at that time. When the Id::plugin of the pane row changes,
  * the editor is destroyed. When the Id::focus of the own row changes, the focus
- * row of the pluginState is written to the hosted plugin through the session.
- * When the shellExited row of the pluginState becomes true, the pane closes itself.
+ * value is written to the pluginState and passed to the hosted plugin through the session.
+ * When the shellExited property of the pluginState changes to true, the pane closes itself.
  *
- * A DropTarget covers the pane. A plugin file dropped on the pane splits the pane
- * at the drop edge, and the file loads into the new pane.
+ * A DropTarget covers the pane. A drag over the pane focuses it. A plugin file dropped on the pane
+ * splits the focused pane at the drop edge, and the file loads into the new pane.
  */
 class EditorView
     : public jam::PaneComponent
@@ -80,8 +80,8 @@ public:
     /**
      * @brief Runs the close command of the invocation on this pane.
      *
-     * `closeTerminal` removes the `plugin` row of the pane. The session then removes the plugin.
-     * `closePane` removes the pane from its tab.
+     * `closeTerminal` removes the `plugin` property of the pane row. The session then removes the plugin.
+     * `closePane` removes the pane from its tab. It uses the nearest jam::OwnerComponent parent.
      * `closeTerminalPane` invokes `closeTerminal`, then `closePane`.
      *
      * @param info  Invocation that carries the command id.
@@ -105,15 +105,6 @@ public:
      * @param newMode  Editor mode, a constant of `map::EditorMode`.
      */
     void setMode (int newMode);
-
-    /** @brief Walks tree's own ancestor chain up to and including the first
-     *  row of the given type.
-     *  @param tree Starting ValueTree; walked upward through getParent().
-     *  @param type Row type to stop at.
-     *  @return The first ancestor row (or tree itself) matching type, or
-     *          an invalid ValueTree when no ancestor of that type exists.
-     */
-    static juce::ValueTree findAncestorRow (juce::ValueTree tree, const juce::Identifier& type);
 
 private:
     /**
@@ -141,10 +132,11 @@ private:
         void fileDragEnter (const juce::StringArray& files, int x, int y) override;
 
         /**
-         * @brief Splits the pane at the drop edge, then loads the first dropped file into the new pane.
+         * @brief Splits the focused pane of the matrix at the drop edge, then writes the first dropped file to the plugin property of the new pane.
          *
-         * The drop edge is the edge of the pane triangle that holds the drop point, from PaneComponent::getEdge().
-         * The split focuses the new pane, so the file loads into it.
+         * The drop edge comes from PaneComponent::getEdge(). The pane is divided by its two diagonals into four triangles,
+         * and the drop edge is the triangle that holds the drop point. The matrix splits its focused pane, and
+         * fileDragEnter() focuses the pane under the drag.
          *
          * @param files  Dropped files. The first file is loaded.
          * @param x      Horizontal drop position in the target.
@@ -184,14 +176,21 @@ private:
     Session& getSession() const;
 
     /**
-     * @brief Applies a changed property of the pane row or of its pluginState to the hosted plugin and to the editor.
+     * @brief Fills events with one handler for each of Id::shellExited, Id::plugin, Id::name and Id::focus.
      *
-     * A shellExited property that becomes true invokes the closeTerminalPane command on this pane.
-     * Id::plugin destroys the editor, because the session removes the old instance.
-     * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the session holds a PluginState
-     * for the pane. Then the pane creates the editor and lays out.
-     * Id::focus on the pane row writes the focus value of the row to the pluginState of the plugin through setRow().
-     * Id::name, when the row holds it, also writes the focus value after the editor is created.
+     * The Id::shellExited handler invokes closeTerminalPane on this pane, asynchronously, when the value is true.
+     * The Id::plugin handler destroys the editor.
+     * The Id::name handler runs when the changed tree holds Id::name. When the session holds a PluginState for that pane,
+     * it adds the plugin file to the ENAX plugin modules of Nexus. Then it creates the editor and lays out the pane.
+     * When the changed tree is the pane row, it also writes the focus value to the pluginState through setRow().
+     * The Id::focus handler writes the focus value to the pluginState through setRow(), when the changed tree is the pane row.
+     */
+    void registerEvents();
+
+    /**
+     * @brief Runs the handler that registerEvents() stored for the changed property.
+     *
+     * A property with no handler does nothing.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property. Id::shellExited, Id::focus, Id::plugin and Id::name have an effect.
@@ -208,6 +207,9 @@ private:
 
     /** The hosted plugin editor. It is nullptr until createProcessorEditor() creates one. It is also nullptr after a change of the plugin row, and when the plugin returns no editor. */
     std::unique_ptr<juce::AudioProcessorEditor> editor;
+
+    /** @brief Handlers of the pane row, keyed by the changed property. registerEvents() fills them, and valueTreePropertyChanged() runs them. */
+    jam::Function::Map<juce::Identifier, void> events;
 
     /** @brief Drop target that covers the pane. It stays above the hosted editor. */
     DropTarget dropTarget;

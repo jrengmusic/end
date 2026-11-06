@@ -36,11 +36,6 @@ void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueT
     }
 }
 
-void SessionView::remove (jam::UUID uuid)
-{
-    state.removeChild (get (uuid).state, nullptr);
-}
-
 void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int)
 {
     if (parentTree == state and child.hasType (jam::Format::toType (Id::tab)))
@@ -84,13 +79,9 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == Id::name or property == Id::focusedPane or tree.hasType (jam::Format::toType (Id::pluginState)))
     {
-        const auto tabState { EditorView::findAncestorRow (tree, jam::Format::toType (Id::tab)) };
-
-        if (tabState.isValid())
-        {
-            const jam::UUID uuid { static_cast<int64_t> (tabState.getProperty (Id::id)) };
-            applyTabName (uuid);
-        }
+        for (const auto& [uuid, child] : getChildren())
+            if (tree == child->state or tree.isAChildOf (child->state))
+                applyTabName (uuid);
     }
 }
 

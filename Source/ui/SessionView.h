@@ -34,11 +34,6 @@ public:
      */
     void add (jam::UUID uuid);
 
-    /** @brief Removes a tab's state row. The tab unmounts from the child-removed event.
-     *  @param uuid Identity of the tab to remove.
-     */
-    void remove (jam::UUID uuid);
-
     /** @brief Resolves a child tab by identity.
      *  @param uuid Identity of the tab.
      *  @return The matching TabView.
@@ -64,9 +59,14 @@ private:
     /** @brief Application look and feel. It gives the tab bar depth and position. */
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
-    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a pluginState row of a pane changes.
-     *  @param tree     The ValueTree whose property changed.
-     *  @param property The identifier of the changed property.
+    /**
+     * @brief Reapplies the displayed name of each tab that holds the changed tree.
+     *
+     * A tab holds the tree when the tree is its row or a row under it. The name is reapplied when the property is
+     * Id::name or Id::focusedPane, or when the tree is a pluginState row.
+     *
+     * @param tree      The ValueTree whose property changed.
+     * @param property  The identifier of the changed property.
      */
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
