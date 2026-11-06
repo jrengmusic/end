@@ -31,10 +31,6 @@ juce::String ConfigShader::loadFromPath (const juce::var& path)
     return {};
 }
 
-//==============================================================================
-// addFileTables — per-file loop over a bimap-keyed markdown table set
-//==============================================================================
-
 static juce::String addFileTables (juce::ValueTree target,
                                    const jam::Bimap<int>& files,
                                    const std::function<juce::String (int)>& getName,
@@ -247,6 +243,24 @@ void ConfigModel::saveToPath()
     }
 }
 
+juce::String ConfigModel::loadResources (const juce::ValueTree& config)
+{
+    const auto getConfigValue { [&config] (const juce::Identifier& tableType, const juce::Identifier& rowType)
+    {
+        return jam::Model::getValue<juce::var> (jam::Model::getChildWithName (config, tableType), rowType);
+    } };
+
+    const auto themeName { getConfigValue (jam::Format::toType (Id::display), jam::Format::toType (Id::theme)) };
+
+    theme.saveToPath (themeName);
+
+    juce::String errors { theme.loadFromPath (themeName) };
+    errors << background.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::background)));
+    errors << postProcessing.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::postProcessing)));
+
+    return errors;
+}
+
 void ConfigModel::loadFromPath()
 {
     saveToPath();
@@ -261,20 +275,9 @@ void ConfigModel::loadFromPath()
 
     setValuesFrom (config, disk);
 
-    const auto getConfigValue { [&config] (const juce::Identifier& tableType, const juce::Identifier& rowType)
-    {
-        return jam::Model::getValue<juce::var> (jam::Model::getChildWithName (config, tableType), rowType);
-    } };
-
-    const auto themeName { getConfigValue (jam::Format::toType (Id::display), jam::Format::toType (Id::theme)) };
-
-    theme.saveToPath (themeName);
-
     // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
     // notifications and consumers must read fresh source at that point.
-    errors << theme.loadFromPath (themeName);
-    errors << background.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::background)));
-    errors << postProcessing.loadFromPath (getConfigValue (jam::Format::toType (Id::graphics), jam::Format::toType (Id::postProcessing)));
+    errors << loadResources (config);
 
     setValuesFrom (config);
 

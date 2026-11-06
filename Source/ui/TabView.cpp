@@ -1,6 +1,5 @@
 #include "ui/TabView.h"
 #include "plugins/Nexus.h"
-#include "ui/SessionView.h"
 
 TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
     : jam::MatrixComponent (newModel, existingState)
@@ -25,9 +24,9 @@ void TabView::addPane (const juce::Identifier& edge)
         add();
 }
 
-void TabView::loadPlugin (const juce::String& plugin)
+void TabView::loadPlugin()
 {
-    getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (plugin).getFullPathName(), nullptr);
+    getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin).getFullPathName(), nullptr);
 }
 
 //==============================================================================
@@ -48,7 +47,7 @@ void TabView::childRemoved (jam::UUID uuid, const juce::ValueTree& row)
     Nexus::getInstance()->getSession (jam::UUID { state.getParent().getProperty (Id::id) }).removePlugin (uuid);
 
     if (getNumChildren() == 0)
-        findParentComponentOfClass<SessionView>()->remove (jam::UUID { static_cast<int64_t> (state.getProperty (Id::id)) });
+        state.getParent().removeChild (state, nullptr);
 }
 
 //==============================================================================
@@ -107,34 +106,17 @@ bool TabView::isInward (const juce::Identifier& edge, juce::Point<int> offset) c
     return isLow (map::Position::getInstance()->get (edge.toString())) == ((horizontal ? offset.getX() : offset.getY()) > 0);
 }
 
-const std::array<std::pair<juce::CommandID, juce::Identifier>, 4>& TabView::getJoinDirections()
+const jam::HashMap<juce::Identifier, juce::CommandID>& TabView::getJoinDirections()
 {
-    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 4> joinDirections {{
-        { map::CommandId::joinLeft, Id::left },
-        { map::CommandId::joinDown, Id::bottom },
-        { map::CommandId::joinUp, Id::top },
-        { map::CommandId::joinRight, Id::right },
-    }};
+    static const jam::HashMap<juce::Identifier, juce::CommandID> joinDirections
+    {
+        { Id::left, map::CommandId::joinLeft },
+        { Id::bottom, map::CommandId::joinDown },
+        { Id::top, map::CommandId::joinUp },
+        { Id::right, map::CommandId::joinRight }
+    };
 
     return joinDirections;
-}
-
-juce::CommandID TabView::getJoinAction (const juce::Identifier& edge)
-{
-    const auto& joinDirections { getJoinDirections() };
-    const auto found { std::find_if (joinDirections.begin(), joinDirections.end(), [&edge] (const auto& entry)
-                                     {
-                                         const auto& [action, direction] { entry };
-                                         return direction == edge;
-                                     }) };
-
-    if (found != joinDirections.end())
-    {
-        const auto& [action, direction] { *found };
-        return action;
-    }
-
-    return {};
 }
 
 //==============================================================================
@@ -171,7 +153,7 @@ void TabView::mouseUp (const juce::MouseEvent& event)
             }
             else
             {
-                commandManager->invokeDirectly (getJoinAction (edge), false);
+                commandManager->invokeDirectly (getJoinDirections().at (edge), false);
             }
         }
     }
@@ -294,24 +276,21 @@ juce::PopupMenu TabView::buildAreaOptionsMenu()
 
 void TabView::handleAreaOptionsResult (int result)
 {
-    static const std::array<std::pair<AreaOption, juce::CommandID>, 10> areaOptions {{
-        { AreaOption::splitVertical, map::CommandId::splitVertical },
-        { AreaOption::splitHorizontal, map::CommandId::splitHorizontal },
-        { AreaOption::joinLeft, map::CommandId::joinLeft },
-        { AreaOption::joinRight, map::CommandId::joinRight },
-        { AreaOption::joinUp, map::CommandId::joinUp },
-        { AreaOption::joinDown, map::CommandId::joinDown },
-        { AreaOption::swapLeft, map::CommandId::swapLeft },
-        { AreaOption::swapRight, map::CommandId::swapRight },
-        { AreaOption::swapUp, map::CommandId::swapUp },
-        { AreaOption::swapDown, map::CommandId::swapDown },
-    }};
+    static const jam::HashMap<int, juce::CommandID> areaOptions
+    {
+        { static_cast<int> (AreaOption::splitVertical), map::CommandId::splitVertical },
+        { static_cast<int> (AreaOption::splitHorizontal), map::CommandId::splitHorizontal },
+        { static_cast<int> (AreaOption::joinLeft), map::CommandId::joinLeft },
+        { static_cast<int> (AreaOption::joinRight), map::CommandId::joinRight },
+        { static_cast<int> (AreaOption::joinUp), map::CommandId::joinUp },
+        { static_cast<int> (AreaOption::joinDown), map::CommandId::joinDown },
+        { static_cast<int> (AreaOption::swapLeft), map::CommandId::swapLeft },
+        { static_cast<int> (AreaOption::swapRight), map::CommandId::swapRight },
+        { static_cast<int> (AreaOption::swapUp), map::CommandId::swapUp },
+        { static_cast<int> (AreaOption::swapDown), map::CommandId::swapDown }
+    };
 
-    const auto found { std::find_if (areaOptions.begin(), areaOptions.end(), [result] (const auto& entry)
-                                     {
-                                         const auto& [option, action] { entry };
-                                         return static_cast<int> (option) == result;
-                                     }) };
+    const auto found { areaOptions.find (result) };
 
     if (found != areaOptions.end())
     {

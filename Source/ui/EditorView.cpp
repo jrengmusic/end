@@ -1,10 +1,17 @@
 #include "ui/EditorView.h"
 #include "plugins/Nexus.h"
-#include "ui/TabView.h"
+
+static juce::ValueTree findAncestorRow (juce::ValueTree tree, const juce::Identifier& type)
+{
+    while (tree.isValid() and tree.getType() != type)
+        tree = tree.getParent();
+
+    return tree;
+}
 
 static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
 {
-    const auto tabRow { EditorView::findAncestorRow (tabState, jam::Format::toType (Id::tab)) };
+    const auto tabRow { findAncestorRow (tabState, jam::Format::toType (Id::tab)) };
     const jam::UUID focusedUuid { static_cast<int64_t> (tabRow.getProperty (Id::focusedPane)) };
     const auto focusedPane { jam::Model::getChildWithID (tabRow, juce::var (focusedUuid.value)) };
 
@@ -18,6 +25,7 @@ EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID u
 {
     state.getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr)
         .setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
+    registerEvents();
     state.addListener (this);
     addAndMakeVisible (dropTarget);
 }
@@ -85,11 +93,8 @@ void EditorView::DropTarget::filesDropped (const juce::StringArray& files, int x
         const juce::Identifier edge { pane->getEdge (
             pane->getLocalPoint (this, juce::Point<int> { x, y })) };
 
-        if (auto* tabView { findParentComponentOfClass<TabView>() })
-        {
-            tabView->addPane (edge);
-            tabView->loadPlugin (files[0]);
-        }
+        if (auto* matrix { findParentComponentOfClass<jam::MatrixComponent>() })
+            matrix->get (matrix->split (edge)).getValueTree().setProperty (Id::plugin, juce::File { files[0] }.getFullPathName(), nullptr);
     }
 }
 
@@ -137,7 +142,7 @@ bool EditorView::perform (const InvocationInfo& info)
             table.add<EditorView&> (map::CommandId::closePane,
                                     [] (EditorView& pane)
                                     {
-                                        pane.findParentComponentOfClass<TabView>()->remove (
+                                        pane.findParentComponentOfClass<jam::OwnerComponent>()->remove (
                                             jam::UUID { pane.state.getProperty (Id::id) });
                                     });
 
@@ -201,31 +206,50 @@ void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
     getSession().setRows (jam::UUID { state.getProperty (Id::id) }, rows);
 }
 
+void EditorView::registerEvents()
+{
+    events.add<juce::ValueTree&> (Id::shellExited, [this] (juce::ValueTree& tree)
+    {
+        if (static_cast<bool> (tree.getProperty (Id::shellExited)))
+            invokeDirectly (map::CommandId::closeTerminalPane, true);
+    });
+
+    events.add<juce::ValueTree&> (Id::plugin, [this] (juce::ValueTree&)
+    {
+        if (editor != nullptr)
+        {
+            editor->processor.editorBeingDeleted (editor.get());
+            editor.reset();
+        }
+    });
+
+    events.add<juce::ValueTree&> (Id::name, [this] (juce::ValueTree& tree)
+    {
+        if (tree.hasProperty (Id::name))
+        {
+            if (getSession().hasPluginState (jam::UUID { tree.getProperty (Id::id) }))
+                Nexus::getInstance()->addPluginModule (
+                    juce::File { tree.getProperty (Id::plugin).toString() });
+
+            createProcessorEditor();
+            resized();
+
+            if (tree == state)
+                setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
+        }
+    });
+
+    events.add<juce::ValueTree&> (Id::focus, [this] (juce::ValueTree& tree)
+    {
+        if (tree == state)
+            setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
+    });
+}
+
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == Id::shellExited and static_cast<bool> (tree.getProperty (property)))
-        invokeDirectly (map::CommandId::closeTerminalPane, true);
-
-    const auto isPluginLoaded { property == Id::name and tree.hasProperty (Id::name) };
-
-    if (property == Id::plugin and editor != nullptr)
-    {
-        editor->processor.editorBeingDeleted (editor.get());
-        editor.reset();
-    }
-
-    if (isPluginLoaded)
-    {
-        if (getSession().hasPluginState (jam::UUID { tree.getProperty (Id::id) }))
-            Nexus::getInstance()->addPluginModule (
-                juce::File { tree.getProperty (Id::plugin).toString() });
-
-        createProcessorEditor();
-        resized();
-    }
-
-    if (tree == state and (property == Id::focus or isPluginLoaded))
-        setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
+    if (events.contains (property))
+        events.get (property, tree);
 }
 
 void EditorView::createProcessorEditor()
@@ -248,12 +272,4 @@ Session& EditorView::getSession() const
 
     const jam::UUID sessionUuid { sessionState.getProperty (Id::id) };
     return Nexus::getInstance()->getSession (sessionUuid);
-}
-
-juce::ValueTree EditorView::findAncestorRow (juce::ValueTree tree, const juce::Identifier& type)
-{
-    while (tree.isValid() and tree.getType() != type)
-        tree = tree.getParent();
-
-    return tree;
 }

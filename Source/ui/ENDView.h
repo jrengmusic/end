@@ -111,7 +111,7 @@ private:
     void createAndAttachParameters();
 
     /**
-     * @brief Registers each family of commands into `commands`: application, tab, zoom, pane, join, swap and resize.
+     * @brief Registers each family of commands into `commands`: application, tab, zoom, mode, split, load plugin, close, join, swap and resize.
      *
      * The profiler family is registered too when JAM_USING_PROFILER is set.
      */
@@ -138,14 +138,28 @@ private:
     void registerZoomActions();
 
     /**
-     * @brief Registers normal, open, list, splitHorizontal, splitVertical, loadPlugin, closeTerminal, closePane and closeTerminalPane.
-     *
-     * normal, open and list set the mode of the focused pane of the active tab to the matching `map::EditorMode` entry.
-     * splitHorizontal and splitVertical add a pane at the bottom or the right edge, then load the default plugin into the new pane.
-     * loadPlugin loads the default plugin into the focused pane.
-     * closeTerminal, closePane and closeTerminalPane invoke the same command on the focused pane.
+     * @brief Registers normal, open and list. Each sets the mode of the focused pane of the active tab through EditorView::setMode().
      */
-    void registerPaneActions();
+    void registerModeActions();
+
+    /**
+     * @brief Registers splitHorizontal and splitVertical. Each splits the focused pane of the active tab, then calls TabView::loadPlugin().
+     *
+     * splitHorizontal splits at the bottom edge. splitVertical splits at the right edge.
+     */
+    void registerSplitActions();
+
+    /**
+     * @brief Registers loadPlugin. The command calls TabView::loadPlugin() on the active tab.
+     */
+    void registerLoadPluginActions();
+
+    /**
+     * @brief Registers closeTerminal, closePane and closeTerminalPane. Each invokes the command on the focused pane of the active tab.
+     *
+     * The pane lists these commands in EditorView::getAllCommands(), and EditorView::perform() runs them.
+     */
+    void registerCloseActions();
 
     /**
      * @brief Registers one join command per join direction of TabView::getJoinDirections().

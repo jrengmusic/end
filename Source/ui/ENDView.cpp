@@ -32,8 +32,6 @@ ENDView::ENDView()
             commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
             grabKeyboardFocus();
         });
-
-    //==============================================================================
 }
 
 ENDView::~ENDView()
@@ -50,9 +48,7 @@ void ENDView::resized()
     background.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
 
-    auto* sessionView { getActiveSessionView() };
-
-    if (sessionView != nullptr)
+    if (auto* sessionView { getActiveSessionView() })
         sessionView->setBounds (getLocalBounds());
 }
 
@@ -262,7 +258,7 @@ void ENDView::registerZoomActions()
 
 void ENDView::registerJoinActions()
 {
-    for (const auto& [actionId, direction] : TabView::getJoinDirections())
+    for (const auto& [direction, actionId] : TabView::getJoinDirections())
     {
         commands.add (actionId,
                       [this, direction = direction]
@@ -318,7 +314,7 @@ void ENDView::registerResizeActions()
     }
 }
 
-void ENDView::registerPaneActions()
+void ENDView::registerModeActions()
 {
     static const std::array<std::pair<juce::CommandID, int>, 3> paneModes {{
         { map::CommandId::normal, map::EditorMode::normal },
@@ -335,7 +331,10 @@ void ENDView::registerPaneActions()
                               tabView->getFocusedPane().setMode (mode);
                       });
     }
+}
 
+void ENDView::registerSplitActions()
+{
     static const std::array<std::pair<juce::CommandID, juce::Identifier>, 2> splitEdges {{
         { map::CommandId::splitHorizontal, Id::bottom },
         { map::CommandId::splitVertical, Id::right },
@@ -352,14 +351,20 @@ void ENDView::registerPaneActions()
                               tabView->loadPlugin();
                       });
     }
+}
 
+void ENDView::registerLoadPluginActions()
+{
     commands.add (map::CommandId::loadPlugin,
                   [this]
                   {
                       if (auto* tabView { getActiveTabView() })
                           tabView->loadPlugin();
                   });
+}
 
+void ENDView::registerCloseActions()
+{
     for (const juce::CommandID command : { map::CommandId::closeTerminal, map::CommandId::closePane, map::CommandId::closeTerminalPane })
     {
         commands.add (command,
@@ -384,7 +389,10 @@ void ENDView::registerActions()
     registerApplicationActions();
     registerTabActions();
     registerZoomActions();
-    registerPaneActions();
+    registerModeActions();
+    registerSplitActions();
+    registerLoadPluginActions();
+    registerCloseActions();
     registerJoinActions();
     registerSwapActions();
     registerResizeActions();
