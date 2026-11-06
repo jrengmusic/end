@@ -1,6 +1,6 @@
 #include "ui/EditorView.h"
 #include "plugins/Nexus.h"
-#include "action/ENDActions.h"
+#include "ui/SessionView.h"
 
 static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
 {
@@ -8,15 +8,13 @@ static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
     const jam::UUID focusedUuid { static_cast<int64_t> (tabRow.getProperty (Id::focusedPane)) };
     const auto focusedPane { jam::Model::getChildWithID (tabRow, juce::var (focusedUuid.value)) };
 
-    return focusedPane.getProperty (Id::cwd).toString();
+    return focusedPane.getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::cwd).toString();
 }
 
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
     : jam::PaneComponent (model, tabState, jam::Format::toType (Id::pane), uuid)
 {
-    for (const auto& id : jam::TerminalProcessor::getReports())
-        model.createAndAddParameter<jam::ParameterText> (state, id, id == Id::cwd ? getInheritedDirectory (tabState) : juce::String {}, jam::ParameterText::maxTextLength);
-
+    state.getOrCreateChildWithName (jam::Format::toType (Id::terminal), nullptr).setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
     state.addListener (this);
     addAndMakeVisible (dropTarget);
 }
@@ -49,8 +47,6 @@ void EditorView::resized()
 
         if (editor != nullptr)
             setEditorBounds (inset);
-
-        setSizeParameters (session.getPlugin (uuid), getLocalBounds().reduced (inset));
     }
 }
 
@@ -77,10 +73,12 @@ void EditorView::DropTarget::filesDropped (const juce::StringArray& files, int x
     {
         const juce::Identifier edge { pane->getEdge (
             pane->getLocalPoint (this, juce::Point<int> { x, y })) };
-        const juce::String plugin { files[0] };
 
-        ENDActions::getInstance()->get (Id::newPane, edge);
-        ENDActions::getInstance()->get (Id::loadPlugin, plugin);
+        if (auto* tabView { findParentComponentOfClass<TabView>() })
+        {
+            tabView->addPane (edge);
+            tabView->loadPlugin (files[0]);
+        }
     }
 }
 
@@ -92,28 +90,41 @@ void EditorView::setEditorBounds (int inset)
         editor->setTopLeftPosition (inset, inset);
 }
 
-void EditorView::setSizeParameters (juce::AudioProcessor& plugin, juce::Rectangle<int> inner)
+void EditorView::lookAndFeelChanged() { resized(); }
+
+juce::ApplicationCommandTarget* EditorView::getNextCommandTarget()
 {
-    const auto bounds { Nexus::getDisplayBounds() };
-    const juce::NormalisableRange<float> widthRange { static_cast<float> (
-                                                          jam::PaneComponent::minimumPaneExtent),
-                                                      static_cast<float> (bounds.getWidth()) };
-    const juce::NormalisableRange<float> heightRange { static_cast<float> (
-                                                           jam::PaneComponent::minimumPaneExtent),
-                                                       static_cast<float> (bounds.getHeight()) };
-
-    if (auto* parameter { getParameter (plugin, Id::width.toString()) })
-        setParameter (*parameter,
-                      widthRange.convertTo0to1 (
-                          widthRange.snapToLegalValue (static_cast<float> (inner.getWidth()))));
-
-    if (auto* parameter { getParameter (plugin, Id::height.toString()) })
-        setParameter (*parameter,
-                      heightRange.convertTo0to1 (
-                          heightRange.snapToLegalValue (static_cast<float> (inner.getHeight()))));
+    return findFirstTargetParentComponent();
 }
 
-void EditorView::lookAndFeelChanged() { resized(); }
+void EditorView::getAllCommands (juce::Array<juce::CommandID>& commands)
+{
+    commands.add (map::CommandId::closePane);
+}
+
+void EditorView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
+{
+    jam::CommandManager::setInfo (result, map::CommandId::getInstance()->get (commandID).toString());
+}
+
+bool EditorView::perform (const InvocationInfo&)
+{
+    const jam::UUID uuid { state.getProperty (Id::id) };
+    auto& session { getSession() };
+    auto* tabView { findParentComponentOfClass<TabView>() };
+
+    if (tabView->getNumChildren() > 1)
+    {
+        tabView->remove (uuid);
+        session.removePlugin (uuid);
+    }
+    else
+    {
+        tabView->findParentComponentOfClass<SessionView>()->remove (jam::UUID { static_cast<int64_t> (tabView->getValueTree().getProperty (Id::id)) });
+    }
+
+    return true;
+}
 
 void EditorView::childBoundsChanged (juce::Component* child)
 {
@@ -121,56 +132,44 @@ void EditorView::childBoundsChanged (juce::Component* child)
         resized();
 }
 
-void EditorView::setZoom (const juce::Identifier& command, float step)
+void EditorView::setZoom (juce::CommandID command, float step)
 {
-    static const jam::Function::Map<juce::Identifier, float> zoomValues {
+    static constexpr float defaultZoom { 1.0f };
+
+    static const jam::Function::Map<juce::CommandID, float> zoomValues {
         []
         {
-            jam::Function::Map<juce::Identifier, float> table;
-            table.add<const juce::AudioProcessorParameter&, const float&> (
-                Id::zoomIn,
-                [] (const juce::AudioProcessorParameter& parameter, const float& zoomStep)
-                {
-                    return juce::jlimit (0.0f, 1.0f, parameter.getValue() + zoomStep);
-                });
-            table.add<const juce::AudioProcessorParameter&, const float&> (
-                Id::zoomOut,
-                [] (const juce::AudioProcessorParameter& parameter, const float& zoomStep)
-                {
-                    return juce::jlimit (0.0f, 1.0f, parameter.getValue() - zoomStep);
-                });
-            table.add<const juce::AudioProcessorParameter&, const float&> (
-                Id::zoomReset,
-                [] (const juce::AudioProcessorParameter& parameter, const float&)
-                {
-                    return parameter.getDefaultValue();
-                });
+            jam::Function::Map<juce::CommandID, float> table;
+            table.add<float, float> (map::CommandId::zoomIn, [] (float zoom, float zoomStep) { return zoom + zoomStep; });
+            table.add<float, float> (map::CommandId::zoomOut, [] (float zoom, float zoomStep) { return zoom - zoomStep; });
+            table.add<float, float> (map::CommandId::zoomReset, [] (float, float) { return defaultZoom; });
             return table;
         }()
     };
 
-    if (editor != nullptr)
-    {
-        if (auto* parameter { getParameter (editor->processor, Id::zoom.toString()) })
-            setParameter (*parameter, zoomValues.get (command, std::as_const (*parameter), step));
-    }
+    const auto zoom { static_cast<float> (state.getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::zoom, defaultZoom)) };
+
+    setRows (Id::zoom, zoomValues.get (command, float { zoom }, float { step }));
 }
 
 void EditorView::setMode (int newMode)
 {
-    static const juce::NormalisableRange<float> modeRange {
-        static_cast<float> (map::EditorMode::normal), static_cast<float> (map::EditorMode::list)
-    };
+    setRows (Id::mode, newMode);
+}
 
-    if (editor != nullptr)
-    {
-        if (auto* parameter { getParameter (editor->processor, Id::mode.toString()) })
-            setParameter (*parameter, modeRange.convertTo0to1 (static_cast<float> (newMode)));
-    }
+void EditorView::setRows (const juce::Identifier& row, const juce::var& value)
+{
+    juce::ValueTree rows { jam::Format::toType (Id::terminal) };
+
+    rows.setProperty (row, value, nullptr);
+    getSession().setRows (jam::UUID { state.getProperty (Id::id) }, rows);
 }
 
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
+    if (property == Id::shellExited and static_cast<bool> (tree.getProperty (property)))
+        invokeDirectly (map::CommandId::closePane, true);
+
     const auto isPluginLoaded { property == Id::name and tree.hasProperty (Id::name) };
 
     if (property == Id::plugin and editor != nullptr)
@@ -181,22 +180,16 @@ void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Id
 
     if (isPluginLoaded)
     {
-        if (isENAX())
+        if (getSession().hasPluginState (jam::UUID { tree.getProperty (Id::id) }))
             Nexus::getInstance()->addPluginModule (juce::File { tree.getProperty (Id::plugin).toString() });
-        else
-            tree.setProperty (Id::cwd, juce::String {}, nullptr);
 
         resized();
         createProcessorEditor();
         resized();
     }
 
-    if ((property == Id::focus or isPluginLoaded) and editor != nullptr)
-    {
-        if (auto* parameter { getParameter (editor->processor, Id::focus.toString()) })
-            setParameter (
-                *parameter, static_cast<float> (static_cast<int> (tree.getProperty (Id::focus))));
-    }
+    if (tree == state and (property == Id::focus or isPluginLoaded))
+        setRows (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
 }
 
 void EditorView::createProcessorEditor()
@@ -230,39 +223,4 @@ juce::ValueTree EditorView::findAncestorRow (juce::ValueTree tree, const juce::I
         tree = tree.getParent();
 
     return tree;
-}
-
-bool EditorView::isENAX() const
-{
-    return static_cast<bool> (state.getProperty (Id::enax));
-}
-
-juce::AudioProcessorParameter*
-EditorView::getParameter (juce::AudioProcessor& plugin, const juce::String& name) const
-{
-    static constexpr int maximumNameLength { 128 };
-
-    if (isENAX())
-    {
-        const auto& parameters { plugin.getParameters() };
-        const auto found { std::find_if (
-            parameters.begin(),
-            parameters.end(),
-            [&name] (const juce::AudioProcessorParameter* parameter)
-            {
-                return parameter->getName (maximumNameLength).compareIgnoreCase (name) == 0;
-            }) };
-
-        if (found != parameters.end())
-            return *found;
-    }
-
-    return nullptr;
-}
-
-void EditorView::setParameter (juce::AudioProcessorParameter& parameter, float normalisedValue)
-{
-    parameter.beginChangeGesture();
-    parameter.setValueNotifyingHost (normalisedValue);
-    parameter.endChangeGesture();
 }

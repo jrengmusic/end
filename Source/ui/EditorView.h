@@ -17,7 +17,8 @@
  * out the pane again. addPlugin() sets Id::name after it binds the plugin, so the
  * session holds the plugin at that time. When the Id::plugin of the pane row changes,
  * the editor is destroyed. When the Id::focus of the own row changes, the focus
- * parameter of the hosted plugin takes that value.
+ * row of the terminal state is written to the hosted plugin through the session.
+ * When the shellExited row of the terminal state becomes true, the pane closes itself.
  *
  * A DropTarget covers the pane. A plugin file dropped on the pane splits the pane
  * at the drop edge, and the file loads into the new pane.
@@ -25,6 +26,7 @@
 class EditorView
     : public jam::PaneComponent
     , public juce::ValueTree::Listener
+    , public juce::ApplicationCommandTarget
 {
 public:
     /**
@@ -42,12 +44,11 @@ public:
     ~EditorView() override;
 
     /**
-     * @brief Lays out the hosted editor in the pane, then writes the inner size to the width and height parameters of the plugin when the pane holds the ENAX mark.
+     * @brief Lays out the pane, then places the hosted editor inside it when the session holds the plugin of the pane.
      *
      * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
      * Any other editor sits at the inset position from the top left corner.
-     * The inner size is the pane bounds reduced by the inset. The width and the height parameters take the inner size,
-     * snapped to the legal values of their ranges.
+     * The function writes no row and no parameter.
      */
     void resized() override;
 
@@ -60,21 +61,48 @@ public:
     void lookAndFeelChanged() override;
 
     /**
-     * @brief Moves the zoom parameter of the hosted plugin by a zoom command.
-     *
-     * Zoom in adds @p step to the value and zoom out subtracts it, both clamped to 0..1. Zoom reset sets the default value.
-     * The function does nothing when the pane holds no editor, or when the plugin has no zoom parameter.
-     *
-     * @param command  Zoom command name: zoomIn, zoomOut or zoomReset.
-     * @param step     Zoom step, in normalised units.
+     * @brief Returns the first command target among the parent components of this pane.
+     * @return The parent command target, or nullptr when no parent is a command target.
      */
-    void setZoom (const juce::Identifier& command, float step);
+    juce::ApplicationCommandTarget* getNextCommandTarget() override;
 
     /**
-     * @brief Writes the editor mode to the mode parameter of the hosted plugin.
+     * @brief Adds the id of the one command of the pane, `map::CommandId::closePane`.
+     * @param commands  Array that receives the id.
+     */
+    void getAllCommands (juce::Array<juce::CommandID>& commands) override;
+
+    /**
+     * @brief Describes the command by the name of its `map::CommandId` entry.
+     * @param commandID  Command to describe.
+     * @param result     Info to fill.
+     */
+    void getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result) override;
+
+    /**
+     * @brief Closes this pane.
      *
-     * The function does nothing when the pane holds no editor, or when the plugin has no mode parameter.
+     * When the tab holds more than one pane, the call removes the pane from the tab, then removes its plugin from the session.
+     * When the pane is the only pane, the call removes the tab from its session view.
      *
+     * @param info  Invocation that carries the command id. Not used.
+     * @return Always true.
+     */
+    bool perform (const InvocationInfo& info) override;
+
+    /**
+     * @brief Writes the zoom row of the terminal state of the pane, which the session passes to the plugin.
+     *
+     * zoomIn adds @p step to the zoom row, zoomOut subtracts it, and zoomReset sets it to 1.0. The row is not clamped.
+     * A zoom row of the terminal state that is absent reads as 1.0.
+     *
+     * @param command  Zoom command: zoomIn, zoomOut or zoomReset.
+     * @param step     Zoom step, in normalised units.
+     */
+    void setZoom (juce::CommandID command, float step);
+
+    /**
+     * @brief Writes the mode row of the terminal state of the pane, which the session passes to the plugin.
      * @param newMode  Editor mode, a constant of `map::EditorMode`.
      */
     void setMode (int newMode);
@@ -127,31 +155,6 @@ private:
     };
 
     /**
-     * @brief Returns the parameter of a plugin whose name equals a name, compared without case.
-     *
-     * The search runs only when the pane row holds the Id::enax mark. The ENAX lane reads the width, height,
-     * zoom, mode and focus parameters through this search. A pane without the mark has no parameter to return.
-     *
-     * @param plugin  Plugin whose parameters are searched.
-     * @param name    Name to match. The match reads each parameter name up to a fixed length limit.
-     * @return The first parameter with that name, or nullptr when none has it or the pane does not hold the mark.
-     */
-    juce::AudioProcessorParameter* getParameter (juce::AudioProcessor& plugin, const juce::String& name) const;
-
-    /**
-     * @brief Answers whether the pane row holds the Id::enax mark, which marks the pane as an ENAX client.
-     * @return True when the pane row holds the mark.
-     */
-    bool isENAX() const;
-
-    /**
-     * @brief Sets the normalised value of a parameter in a change gesture, which notifies the host.
-     * @param parameter        Parameter to set.
-     * @param normalisedValue  Value in the range 0 to 1.
-     */
-    static void setParameter (juce::AudioProcessorParameter& parameter, float normalisedValue);
-
-    /**
      * @brief Places the hosted editor inside the pane outline.
      *
      * A resizable editor takes the pane bounds reduced by @p inset on each side. Any other editor moves to (inset, inset).
@@ -161,17 +164,14 @@ private:
     void setEditorBounds (int inset);
 
     /**
-     * @brief Writes the inner size of the pane to the width and height parameters of a plugin, snapped to the legal range.
+     * @brief Writes one row of the terminal state to the session of the pane.
      *
-     * The width range runs from PaneComponent::minimumPaneExtent to the total display width. The height range runs from
-     * the same minimum to the total display height. The display bounds come from Nexus::getDisplayBounds(), the getter that
-     * the enaxDisplayBounds host extension also returns.
-     * A parameter is written only when getParameter() finds it.
+     * The call builds a `terminal` tree with one property, then gives it to the session, which passes it to the PluginState of the pane.
      *
-     * @param plugin  Plugin whose width and height parameters are written.
-     * @param inner   Inner size of the pane, in pixels.
+     * @param row    Identifier of the row to write.
+     * @param value  Value of the row.
      */
-    void setSizeParameters (juce::AudioProcessor& plugin, juce::Rectangle<int> inner);
+    void setRows (const juce::Identifier& row, const juce::var& value);
 
     /**
      * @brief Returns the session that holds the plugin of this pane.
@@ -184,16 +184,17 @@ private:
     Session& getSession();
 
     /**
-     * @brief Applies a changed property of the pane row to the hosted plugin and to the editor.
+     * @brief Applies a changed property of the pane row or of its terminal state to the hosted plugin and to the editor.
      *
+     * A shellExited property that becomes true invokes the closePane command on this pane.
      * Id::plugin destroys the editor, because the session reloads the plugin.
-     * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the pane holds the
-     * ENAX mark, and clears the cwd property otherwise. Then the pane lays out, creates the editor, and lays out again.
-     * Id::focus writes the focus value of the row to the focus parameter of the plugin, when an editor exists. Id::name,
-     * when the row holds it, does the same after the editor is created.
+     * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the session holds a PluginState
+     * for the pane. Then the pane lays out, creates the editor, and lays out again.
+     * Id::focus on the pane row writes the focus value of the row to the terminal state of the plugin through setRows().
+     * Id::name, when the row holds it, does the same after the editor is created.
      *
      * @param tree      The ValueTree whose property changed.
-     * @param property  The identifier of the changed property. Id::focus, Id::plugin and Id::name have an effect.
+     * @param property  The identifier of the changed property. Id::shellExited, Id::focus, Id::plugin and Id::name have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 

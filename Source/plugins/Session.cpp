@@ -8,8 +8,7 @@ Session::Session (jam::UUID newUuid,
                   juce::AudioProcessorGraph::NodeID newAudioOutputId,
                   juce::AudioProcessorGraph::NodeID newMidiInputId,
                   juce::AudioPluginFormatManager& newFormatManager,
-                  juce::KnownPluginList& newKnownPluginList,
-                  jam::Array<juce::int64>& newLoadingPanes)
+                  juce::KnownPluginList& newKnownPluginList)
     : sessionsState (newSessionsState),
       model (newModel),
       graph (newGraph),
@@ -17,8 +16,7 @@ Session::Session (jam::UUID newUuid,
       audioOutputId (newAudioOutputId),
       midiInputId (newMidiInputId),
       formatManager (newFormatManager),
-      knownPluginList (newKnownPluginList),
-      loadingPanes (newLoadingPanes)
+      knownPluginList (newKnownPluginList)
 {
     model.createAndAddParameter<jam::Parameter<int64_t>> (state, Id::id, newUuid.value);
     sessionsState.addListener (this);
@@ -32,6 +30,14 @@ Session::~Session()
 juce::AudioProcessor& Session::getPlugin (jam::UUID uuid) { return *graph.getNodeForId (plugins.at (uuid))->getProcessor(); }
 
 bool Session::contains (jam::UUID uuid) const { return plugins.contains (uuid); }
+
+bool Session::hasPluginState (jam::UUID uuid) const { return pluginStates.contains (uuid); }
+
+void Session::setRows (jam::UUID uuid, const juce::ValueTree& rows)
+{
+    if (pluginStates.contains (uuid))
+        pluginStates.at (uuid)->setRows (rows);
+}
 
 juce::AudioPluginFormat* Session::getPluginFormat (const juce::AudioPluginFormatManager& formatManager, const juce::File& file)
 {
@@ -58,7 +64,6 @@ void Session::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
 
         removePlugin (uuid);
         tree.removeProperty (Id::name, nullptr);
-        tree.removeProperty (Id::enax, nullptr);
         loadPlugin (tree);
     }
 }
@@ -86,11 +91,9 @@ void Session::loadPlugin (const juce::ValueTree& paneRow)
 
         if (not typesFound.isEmpty())
         {
-            loadingPanes.add (static_cast<juce::int64> (paneRow.getProperty (Id::id)));
             formatManager.createPluginInstanceAsync (*typesFound.getFirst(), graph.getSampleRate(), graph.getBlockSize(),
                                                      [this, paneRow, file] (std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String&)
             {
-                loadingPanes.remove (0);
                 jassert (instance != nullptr);
 
                 if (instance != nullptr and paneRow.isAChildOf (state)
@@ -108,6 +111,15 @@ void Session::addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPlu
 #endif
     const jam::UUID uuid { paneRow.getProperty (Id::id) };
     instance->enableAllBuses();
+
+    if (instance->getPluginDescription().manufacturerName.compare (ProjectInfo::companyName) == 0)
+    {
+        const auto [entry, inserted] { pluginStates.try_emplace (uuid, std::make_unique<PluginState> (*instance, paneRow)) };
+        const auto& [key, pluginState] { *entry };
+
+        jassert (inserted);
+        pluginState->setRows (paneRow.getChildWithName (jam::Format::toType (Id::terminal)));
+    }
 
     auto plugin { graph.addNode (std::move (instance)) };
     jassert (plugin != nullptr);
@@ -141,6 +153,8 @@ void Session::addConnections (juce::AudioProcessorGraph::NodeID pluginId)
 
 void Session::removePlugin (jam::UUID uuid)
 {
+    pluginStates.erase (uuid);
+
     if (plugins.contains (uuid))
     {
         graph.removeNode (plugins.at (uuid));

@@ -27,7 +27,7 @@ ENDView::ENDView()
         {
             events.get (jam::Format::toType (Id::enabled), config.state);
 
-            actions.run (Id::newSession);
+            addSession();
             commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
             grabKeyboardFocus();
         });
@@ -84,7 +84,12 @@ void ENDView::getCommandInfo (juce::CommandID commandID, juce::ApplicationComman
 
 bool ENDView::perform (const InvocationInfo& info)
 {
-    return actions.run (juce::Identifier { commandManager->getNameOfCommand (info.commandID) });
+    const auto isPerformed { commands.contains (info.commandID) };
+
+    if (isPerformed)
+        commands.get (info.commandID);
+
+    return isPerformed;
 }
 
 void ENDView::createAndAttachParameters()
@@ -127,84 +132,84 @@ TabView* ENDView::getActiveTabView() const noexcept
     return nullptr;
 }
 
-void ENDView::registerSessionActions()
+void ENDView::addSession()
 {
-    actions.add (Id::newSession,
-                 [this]
-                 {
-                     auto& session { nexus.createSession() };
-                     const jam::UUID sessionUuid { static_cast<int64_t> (
-                         session.state.getProperty (Id::id)) };
+    auto& session { nexus.createSession() };
+    const jam::UUID sessionUuid { static_cast<int64_t> (session.state.getProperty (Id::id)) };
 
-                     auto [entry, inserted] = sessions.try_emplace (
-                         sessionUuid, std::make_unique<SessionView> (model, session.state));
-                     jassert (inserted);
-                     auto& [key, sessionView] = *entry;
+    auto [entry, inserted] = sessions.try_emplace (
+        sessionUuid, std::make_unique<SessionView> (model, session.state));
+    jassert (inserted);
+    auto& [key, sessionView] = *entry;
 
-                     addAndMakeVisible (*sessionView);
-                     sessionView->toBehind (&messageOverlay);
-                     attachments.try_emplace (sessionUuid,
-                                              std::make_unique<jam::Model::Attachment> (*sessionView));
-                     sessionView->getValueTree().setProperty (Id::focus, sessionView.get() == getActiveSessionView() ? 1 : 0, nullptr);
-                     resized();
+    addAndMakeVisible (*sessionView);
+    sessionView->toBehind (&messageOverlay);
+    attachments.try_emplace (sessionUuid,
+                             std::make_unique<jam::Model::Attachment> (*sessionView));
+    sessionView->getValueTree().setProperty (Id::focus, sessionView.get() == getActiveSessionView() ? 1 : 0, nullptr);
+    resized();
 
-                     actions.run (Id::newTab);
-                 });
+    commandManager->invokeDirectly (map::CommandId::newTab, false);
+}
+
+void ENDView::addPane (const juce::Identifier& edge)
+{
+#if JAM_USING_PROFILER
+    const jam::Profiler::Zone zone { Id::newPane };
+    panePrompt.emplace (Id::panePrompt);
+#endif
+    if (auto* tabView { getActiveTabView() })
+        tabView->addPane (edge);
 }
 
 void ENDView::registerApplicationActions()
 {
-    actions.add (Id::quit,
-                 [this]
-                 {
-                     juce::JUCEApplication::getInstance()->systemRequestedQuit();
-                 });
+    commands.add (map::CommandId::quit,
+                  [this]
+                  {
+                      juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                  });
 
-    actions.add (Id::reload,
-                 [this]
-                 {
-                     config.loadFromPath();
-                 });
+    commands.add (map::CommandId::reload,
+                  [this]
+                  {
+                      config.loadFromPath();
+                  });
 }
 
 void ENDView::registerTabActions()
 {
-    actions.add (Id::newTab,
-                 [this]
-                 {
-                     if (auto* sessionView { getActiveSessionView() })
-                     {
-                         const auto directory { getFocusedDirectory() };
-                         jam::UUID uuid {};
-                         sessionView->add (uuid);
+    commands.add (map::CommandId::newTab,
+                  [this]
+                  {
+                      if (auto* sessionView { getActiveSessionView() })
+                      {
+                          const auto directory { getFocusedDirectory() };
+                          jam::UUID uuid {};
+                          sessionView->add (uuid);
 
-                         const juce::Identifier edge {};
-                         actions.get (Id::newPane, edge);
-                         getActiveTabView()->getFocusedPane().getValueTree().setProperty (Id::cwd, directory, nullptr);
-                         actions.get (Id::loadPlugin, files::evePlugin);
-                     }
-                 });
+                          const juce::Identifier edge {};
+                          addPane (edge);
+                          getActiveTabView()->getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::terminal), nullptr).setProperty (Id::cwd, directory, nullptr);
 
-    actions.add (Id::closeTab,
-                 [this]
-                 {
-                     if (auto* sessionView { getActiveSessionView() })
-                         sessionView->remove (sessionView->getFocusedChild());
-                 });
+                          if (auto* tabView { getActiveTabView() })
+                              tabView->loadPlugin (files::evePlugin);
+                      }
+                  });
 
-    actions.add (Id::nextTab,
-                 [this]
-                 {
-                     if (auto* sessionView { getActiveSessionView() })
-                         sessionView->nextTab();
-                 });
+    commands.add (map::CommandId::nextTab,
+                  [this]
+                  {
+                      if (auto* sessionView { getActiveSessionView() })
+                          sessionView->nextTab();
+                  });
 
-    actions.add (Id::prevTab,
-                 [this]
-                 {
-                     if (auto* sessionView { getActiveSessionView() })
-                         sessionView->prevTab();
-                 });
+    commands.add (map::CommandId::prevTab,
+                  [this]
+                  {
+                      if (auto* sessionView { getActiveSessionView() })
+                          sessionView->prevTab();
+                  });
 }
 
 #if JAM_USING_PROFILER
@@ -215,44 +220,43 @@ void ENDView::registerProfilerActions()
     const auto profilerTable { manifest.getChildWithName (jam::Format::toType (Id::profiler)) };
     const int panes { static_cast<int> (profilerTable[jam::Format::toType (Id::panes)]) };
 
-    actions.add (Id::promptPainted,
-                 [this, panes]
-                 {
-                     panePrompt.reset();
+    nexus.onPromptPainted = [this, panes]
+    {
+        panePrompt.reset();
 
-                     if (auto* tabView { getActiveTabView() })
-                     {
-                         if (tabView->getNumChildren() < panes)
-                             actions.run (Id::splitVertical);
-                         else
-                             actions.run (Id::quit);
-                     }
-                 });
+        if (auto* tabView { getActiveTabView() })
+        {
+            if (tabView->getNumChildren() < panes)
+                commandManager->invokeDirectly (map::CommandId::splitVertical, false);
+            else
+                commandManager->invokeDirectly (map::CommandId::quit, false);
+        }
+    };
 }
 #endif
 
 void ENDView::registerZoomActions()
 {
-    for (const auto& command : { Id::zoomIn, Id::zoomOut, Id::zoomReset })
+    for (const juce::CommandID command : { map::CommandId::zoomIn, map::CommandId::zoomOut, map::CommandId::zoomReset })
     {
-        actions.add (command,
-                     [this, command]
-                     {
-                         const float step { config.getRowValue (jam::Format::toType (Id::display), Id::zoomStep) };
+        commands.add (command,
+                      [this, command]
+                      {
+                          const float step { config.getRowValue (jam::Format::toType (Id::display), Id::zoomStep) };
 
-                         if (auto* sessionView { getActiveSessionView() })
-                         {
-                             if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::exclusiveZoom)))
-                             {
-                                 if (auto* tabView { sessionView->getActiveTabView() })
-                                     tabView->getFocusedPane().setZoom (command, step);
-                             }
-                             else
-                             {
-                                 sessionView->setZoom (command, step);
-                             }
-                         }
-                     });
+                          if (auto* sessionView { getActiveSessionView() })
+                          {
+                              if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::exclusiveZoom)))
+                              {
+                                  if (auto* tabView { sessionView->getActiveTabView() })
+                                      tabView->getFocusedPane().setZoom (command, step);
+                              }
+                              else
+                              {
+                                  sessionView->setZoom (command, step);
+                              }
+                          }
+                      });
     }
 }
 
@@ -260,39 +264,39 @@ void ENDView::registerJoinActions()
 {
     for (const auto& [actionId, direction] : TabView::getJoinDirections())
     {
-        actions.add (actionId,
-                     [this, direction = direction]
-                     {
-                         if (auto* tabView { getActiveTabView() })
-                         {
-                             const auto target { tabView->join (direction) };
+        commands.add (actionId,
+                      [this, direction = direction]
+                      {
+                          if (auto* tabView { getActiveTabView() })
+                          {
+                              const auto target { tabView->join (direction) };
 
-                             if (target != jam::UUID::none())
-                             {
-                                 nexus.getActiveSession().removePlugin (target);
-                             }
-                         }
-                     });
+                              if (target != jam::UUID::none())
+                              {
+                                  nexus.getActiveSession().removePlugin (target);
+                              }
+                          }
+                      });
     }
 }
 
 void ENDView::registerSwapActions()
 {
-    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 4> swapDirections {{
-        { Id::swapLeft, Id::left },
-        { Id::swapDown, Id::bottom },
-        { Id::swapUp, Id::top },
-        { Id::swapRight, Id::right },
+    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 4> swapDirections {{
+        { map::CommandId::swapLeft, Id::left },
+        { map::CommandId::swapDown, Id::bottom },
+        { map::CommandId::swapUp, Id::top },
+        { map::CommandId::swapRight, Id::right },
     }};
 
     for (const auto& [actionId, direction] : swapDirections)
     {
-        actions.add (actionId,
-                     [this, direction = direction]
-                     {
-                         if (auto* tabView { getActiveTabView() })
-                             tabView->swap (direction);
-                     });
+        commands.add (actionId,
+                      [this, direction = direction]
+                      {
+                          if (auto* tabView { getActiveTabView() })
+                              tabView->swap (direction);
+                      });
     }
 }
 
@@ -300,144 +304,80 @@ void ENDView::registerResizeActions()
 {
     using PaneResize = void (TabView::*) (jam::UUID, const juce::Identifier&, float);
 
-    static const std::array<std::tuple<juce::Identifier, juce::Identifier, PaneResize>, 4> paneResizes {{
-        { Id::reducePaneWidth, Id::width, &TabView::reducePane },
-        { Id::reducePaneHeight, Id::height, &TabView::reducePane },
-        { Id::expandPaneWidth, Id::width, &TabView::expandPane },
-        { Id::expandPaneHeight, Id::height, &TabView::expandPane },
+    static const std::array<std::tuple<juce::CommandID, juce::Identifier, PaneResize>, 4> paneResizes {{
+        { map::CommandId::reducePaneWidth, Id::width, &TabView::reducePane },
+        { map::CommandId::reducePaneHeight, Id::height, &TabView::reducePane },
+        { map::CommandId::expandPaneWidth, Id::width, &TabView::expandPane },
+        { map::CommandId::expandPaneHeight, Id::height, &TabView::expandPane },
     }};
 
     for (const auto& [actionId, axis, resize] : paneResizes)
     {
-        actions.add (actionId,
-                     [this, axis = axis, resize = resize]
-                     {
-                         if (auto* tabView { getActiveTabView() })
-                         {
-                             const float step { config.getRowValue (jam::Format::toType (Id::display), Id::paneStep) };
-                             (tabView->*resize) (tabView->getFocusedChild(), axis, step);
-                         }
-                     });
+        commands.add (actionId,
+                      [this, axis = axis, resize = resize]
+                      {
+                          if (auto* tabView { getActiveTabView() })
+                          {
+                              const float step { config.getRowValue (jam::Format::toType (Id::display), Id::paneStep) };
+                              (tabView->*resize) (tabView->getFocusedChild(), axis, step);
+                          }
+                      });
     }
 }
 
 void ENDView::registerPaneActions()
 {
-    static const std::array<std::pair<juce::Identifier, int>, 3> paneModes {{
-        { Id::normal, map::EditorMode::normal },
-        { Id::open, map::EditorMode::open },
-        { Id::list, map::EditorMode::list },
+    static const std::array<std::pair<juce::CommandID, int>, 3> paneModes {{
+        { map::CommandId::normal, map::EditorMode::normal },
+        { map::CommandId::open, map::EditorMode::open },
+        { map::CommandId::list, map::EditorMode::list },
     }};
 
     for (const auto& [actionId, mode] : paneModes)
     {
-        actions.add (actionId,
-                     [this, mode = mode]
-                     {
-                         if (auto* tabView { getActiveTabView() })
-                             tabView->getFocusedPane().setMode (mode);
-                     });
+        commands.add (actionId,
+                      [this, mode = mode]
+                      {
+                          if (auto* tabView { getActiveTabView() })
+                              tabView->getFocusedPane().setMode (mode);
+                      });
     }
 
-    actions.add<const juce::Identifier&> (
-        Id::newPane,
-        [this] (const juce::Identifier& edge)
-        {
-#if JAM_USING_PROFILER
-            const jam::Profiler::Zone zone { Id::newPane };
-            panePrompt.emplace (Id::panePrompt);
-#endif
-            if (auto* tabView { getActiveTabView() })
-            {
-                if (edge.isValid())
-                    tabView->split (edge);
-                else
-                    tabView->add();
-            }
-        });
-
-    actions.add<const juce::String&> (
-        Id::loadPlugin,
-        [this] (const juce::String& plugin)
-        {
-            if (auto* tabView { getActiveTabView() })
-                tabView->getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (plugin).getFullPathName(), nullptr);
-        });
-
-    static const std::array<std::pair<juce::Identifier, juce::Identifier>, 2> splitEdges {{
-        { Id::splitHorizontal, Id::bottom },
-        { Id::splitVertical, Id::right },
+    static const std::array<std::pair<juce::CommandID, juce::Identifier>, 2> splitEdges {{
+        { map::CommandId::splitHorizontal, Id::bottom },
+        { map::CommandId::splitVertical, Id::right },
     }};
 
     for (const auto& [actionId, edge] : splitEdges)
     {
-        actions.add (actionId,
-                     [this, edge = edge]
-                     {
-                         actions.get (Id::newPane, edge);
-                         actions.get (Id::loadPlugin, files::evePlugin);
-                     });
+        commands.add (actionId,
+                      [this, edge = edge]
+                      {
+                          addPane (edge);
+
+                          if (auto* tabView { getActiveTabView() })
+                              tabView->loadPlugin (files::evePlugin);
+                      });
     }
 
-    actions.add (Id::closePane,
-                 [this]
-                 {
-                     if (auto* tabView { getActiveTabView() })
-                     {
-                         if (tabView->getNumChildren() > 1)
-                         {
-                             const auto focusedUuid { tabView->getFocusedChild() };
-
-                             tabView->remove (focusedUuid);
-                             nexus.getActiveSession().removePlugin (focusedUuid);
-                         }
-                         else
-                         {
-                             actions.run (Id::closeTab);
-                         }
-                     }
-                 });
-}
-
-void ENDView::registerTerminalActions()
-{
-    for (const auto& id : jam::TerminalProcessor::getReports())
-    {
-        actions.add<juce::int64, const char*> (id,
-                                               [this, id] (juce::int64 pane, const char* value)
-                                               {
-                                                   getPaneRow (pane).setProperty (id, juce::String::fromUTF8 (value), nullptr);
-                                               });
-    }
-
-    actions.add<juce::int64, const char*> (Id::enax, [this] (juce::int64 pane, const char*) { getPaneRow (pane).setProperty (Id::enax, true, nullptr); });
-
-    actions.add<juce::int64, char*, size_t> (Id::startDirectory,
-                                             [this] (juce::int64 pane, char* directory, size_t numBytes)
-                                             {
-                                                 getPaneRow (pane).getProperty (Id::cwd).toString().copyToUTF8 (directory, numBytes);
-                                             });
+    commands.add (map::CommandId::closePane,
+                  [this]
+                  {
+                      if (auto* tabView { getActiveTabView() })
+                          tabView->getFocusedPane().invokeDirectly (map::CommandId::closePane, false);
+                  });
 }
 
 juce::String ENDView::getFocusedDirectory() const
 {
     if (auto* tabView { getActiveTabView() })
-        return tabView->getFocusedPane().getValueTree().getProperty (Id::cwd).toString();
+        return tabView->getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::cwd).toString();
 
     return juce::String {};
 }
 
-juce::ValueTree ENDView::getPaneRow (juce::int64 pane) const
-{
-    const auto paneRow { jam::Model::getChildWithID (model.getChildWithName (jam::Format::toType (Id::sessions)), juce::var (pane)) };
-    jassert (paneRow.isValid());
-
-    return paneRow;
-}
-
 void ENDView::registerActions()
 {
-    registerSessionActions();
     registerApplicationActions();
     registerTabActions();
     registerZoomActions();
@@ -445,7 +385,6 @@ void ENDView::registerActions()
     registerJoinActions();
     registerSwapActions();
     registerResizeActions();
-    registerTerminalActions();
 #if JAM_USING_PROFILER
     registerProfilerActions();
 #endif

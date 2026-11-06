@@ -55,13 +55,16 @@ public:
      * @param command  Zoom command name.
      * @param step     Zoom step that the command uses.
      */
-    void setZoom (const juce::Identifier& command, float step);
+    void setZoom (juce::CommandID command, float step);
 
 private:
+    /** @brief Command manager of the session view. valueTreeChildRemoved() invokes the quit command through it when the last tab leaves the session. */
+    jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
+
     /** @brief Application look and feel. It gives the tab bar depth and position. */
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
-    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a terminal report of a pane changes.
+    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a terminal row of a pane changes.
      *  @param tree     The ValueTree whose property changed.
      *  @param property The identifier of the changed property.
      */

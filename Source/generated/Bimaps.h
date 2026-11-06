@@ -146,6 +146,8 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
             { swapRight,        juce::Identifier { "swapRight" } },
             { normal,           juce::Identifier { "normal" } },
             { prefix,           juce::Identifier { "prefix" } },
+            { open,             juce::Identifier { "open" } },
+            { list,             juce::Identifier { "list" } },
     } } {}
 
     enum value : int
@@ -175,6 +177,8 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
         swapRight        = 0x470001d,
         normal           = 0x470001f,
         prefix           = 0x4700020,
+        open             = 0x4700021,
+        list             = 0x4700022,
     };
 
     static CommandId* getInstance() noexcept

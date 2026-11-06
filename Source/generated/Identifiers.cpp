@@ -36,17 +36,15 @@ namespace Id
     const juce::Identifier blurRadius               { juce::String::fromUTF8 ("blurRadius") };
     const juce::Identifier button                   { juce::String::fromUTF8 ("button") };
     const juce::Identifier buttonOn                 { juce::String::fromUTF8 ("buttonOn") };
-    const juce::Identifier caret                    { juce::String::fromUTF8 ("caret") };
     const juce::Identifier closePane                { juce::String::fromUTF8 ("closePane") };
     const juce::Identifier closeTab                 { juce::String::fromUTF8 ("closeTab") };
     const juce::Identifier depth                    { juce::String::fromUTF8 ("depth") };
-    const juce::Identifier editorBackground         { juce::String::fromUTF8 ("editorBackground") };
-    const juce::Identifier editorOutline            { juce::String::fromUTF8 ("editorOutline") };
     const juce::Identifier enabled                  { juce::String::fromUTF8 ("enabled") };
     const juce::Identifier exclusiveZoom            { juce::String::fromUTF8 ("exclusiveZoom") };
     const juce::Identifier expandPaneHeight         { juce::String::fromUTF8 ("expandPaneHeight") };
     const juce::Identifier expandPaneWidth          { juce::String::fromUTF8 ("expandPaneWidth") };
     const juce::Identifier filter                   { juce::String::fromUTF8 ("filter") };
+    const juce::Identifier focusedBackground        { juce::String::fromUTF8 ("focusedBackground") };
     const juce::Identifier focusedOutline           { juce::String::fromUTF8 ("focusedOutline") };
     const juce::Identifier focusedSession           { juce::String::fromUTF8 ("focusedSession") };
     const juce::Identifier fontContrast             { juce::String::fromUTF8 ("fontContrast") };
@@ -88,9 +86,8 @@ namespace Id
     const juce::Identifier reducePaneHeight         { juce::String::fromUTF8 ("reducePaneHeight") };
     const juce::Identifier reducePaneWidth          { juce::String::fromUTF8 ("reducePaneWidth") };
     const juce::Identifier reload                   { juce::String::fromUTF8 ("reload") };
+    const juce::Identifier removePane               { juce::String::fromUTF8 ("removePane") };
     const juce::Identifier reset                    { juce::String::fromUTF8 ("reset") };
-    const juce::Identifier resizeBar                { juce::String::fromUTF8 ("resizeBar") };
-    const juce::Identifier resizeBarHighlight       { juce::String::fromUTF8 ("resizeBarHighlight") };
     const juce::Identifier resizeBarThickness       { juce::String::fromUTF8 ("resizeBarThickness") };
     const juce::Identifier resizerBar               { juce::String::fromUTF8 ("resizerBar") };
     const juce::Identifier scrollbar                { juce::String::fromUTF8 ("scrollbar") };
@@ -121,11 +118,6 @@ namespace Id
     const juce::Identifier track                    { juce::String::fromUTF8 ("track") };
     const juce::Identifier useGpu                   { juce::String::fromUTF8 ("gpu") };
     const juce::Identifier visible                  { juce::String::fromUTF8 ("visible") };
-    const juce::Identifier zoom                     { juce::String::fromUTF8 ("zoom") };
-    const juce::Identifier zoomIn                   { juce::String::fromUTF8 ("zoomIn") };
-    const juce::Identifier zoomOut                  { juce::String::fromUTF8 ("zoomOut") };
-    const juce::Identifier zoomReset                { juce::String::fromUTF8 ("zoomReset") };
-    const juce::Identifier zoomStep                 { juce::String::fromUTF8 ("zoomStep") };
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Id

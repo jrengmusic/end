@@ -30,20 +30,6 @@ class ENDLookAndFeel
 {
 public:
     /**
-     * @brief END-private colour identifiers.
-     *
-     * Keyed by LookAndFeel::setColour / findColour for components that have no
-     * JUCE-native colour id. Components sourcing JUCE-native ids (CaretComponent,
-     * TextEditor, ScrollBar, ResizableWindow, juce::TextButton, juce::Label) use
-     * those directly — this enum covers END-only components only.
-     */
-    enum ColourIds
-    {
-        paneBarColourId = 0x2000009,
-        paneBarHighlightColourId = 0x200000A,
-    };
-
-    /**
      * @brief Initialises colours from config, loads SVG graphics from FLEX
      *        child properties, registers events, adds a listener to config,
      *        and installs itself as JUCE's default LookAndFeel.
@@ -59,7 +45,7 @@ public:
      * @brief Registers END's six embedded typefaces — one pass, one parse per
      *        font (SSOT font list) — creating each Typeface::Ptr, storing it in
      *        @ref typefaces under its {name, style} composite key (see
-     *        typefaceKey()) for name+style lookup (getTypefaceForFont()), and
+     *        getTypefaceKey()) for name+style lookup (getTypefaceForFont()), and
      *        interning the same Ptr in jam::Typeface so the rasterizer reaches
      *        the face through the interned entry instead of opening the bytes
      *        again.
@@ -249,8 +235,7 @@ public:
                                        const juce::PopupMenu::Item& item,
                                        const juce::PopupMenu::Options& options) override;
 
-    /** @brief Pane EDGE seam — SVG Flex rendering with pane colourIds.
-     *  Hover/pressed state swaps bar colour to highlight colour.
+    /** @brief Pane EDGE seam — SVG Flex rendering. Each shape keeps its SVG colour.
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
@@ -258,6 +243,9 @@ public:
      *  The outline takes the focused colour when the focus of the pane row is 1, and the outline colour otherwise.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
+
+    /** @brief Fills the pane with its focused or unfocused background colour. */
+    void drawPaneBackground (juce::Graphics& g, juce::Component& pane) override;
 
     /** @brief Pane EDGE seam thickness in pixels from pane config.
      *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
@@ -285,12 +273,12 @@ private:
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
      *  via juce::Font name lookup without requiring system-installed fonts.
      *
-     *  Keyed by the {name, style} composite built by typefaceKey(), NOT by name
+     *  Keyed by the {name, style} composite built by getTypefaceKey(), NOT by name
      *  alone — the two embedded families each register three weights sharing
      *  one juce::Typeface name; a name-only key collides across weights (see
      *  registerTypeface()'s doc comment).
      *  @see registerTypeface
-     *  @see typefaceKey
+     *  @see getTypefaceKey
      */
     jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
 
@@ -340,7 +328,7 @@ private:
      * @param style juce::Typeface::getStyle() / juce::Font::getTypefaceStyle().
      * @return The composite key, e.g. "Display/Book".
      */
-    static juce::String typefaceKey (const juce::String& name, const juce::String& style);
+    static juce::String getTypefaceKey (const juce::String& name, const juce::String& style);
 
     /** @brief Rotation transform for a vertical ButtonBar side (left/right) —
      *  shared by drawBarBackground(), drawBarHighlight(), drawTabButton(), and
