@@ -123,8 +123,8 @@ private:
     /**
      * @brief Registers newTab, nextTab and prevTab.
      *
-     * newTab adds a tab row to the focused session, then adds a pane without an edge. It sets the cwd of the terminal row of the
-     * focused pane to the directory of the focused pane of the previously active tab, then loads EVE into the new pane.
+     * newTab adds a tab row to the focused session, then adds a pane without an edge. It sets the cwd of the pluginState row of the
+     * focused pane to the directory of the focused pane of the previously active tab, then loads the default plugin into the new pane.
      * nextTab and prevTab move between the tabs of the focused session.
      */
     void registerTabActions();
@@ -138,19 +138,19 @@ private:
     void registerZoomActions();
 
     /**
-     * @brief Registers normal, open, list, splitHorizontal, splitVertical and closePane.
+     * @brief Registers normal, open, list, splitHorizontal, splitVertical, loadPlugin, closeTerminal, closePane and closeTerminalPane.
      *
      * normal, open and list set the mode of the focused pane of the active tab to the matching `map::EditorMode` entry.
-     * splitHorizontal and splitVertical add a pane at the bottom or the right edge, then load EVE into the new pane.
-     * closePane invokes the closePane command of the focused pane.
+     * splitHorizontal and splitVertical add a pane at the bottom or the right edge, then load the default plugin into the new pane.
+     * loadPlugin loads the default plugin into the focused pane.
+     * closeTerminal, closePane and closeTerminalPane invoke the same command on the focused pane.
      */
     void registerPaneActions();
 
     /**
      * @brief Registers one join command per join direction of TabView::getJoinDirections().
      *
-     * A join calls TabView::join() on the active tab with the direction. When the call returns the identity of an absorbed pane,
-     * the plugin of that pane is removed from the active session of Nexus.
+     * A join calls TabView::join() on the active tab with the direction.
      */
     void registerJoinActions();
 

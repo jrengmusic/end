@@ -14,14 +14,13 @@
  * @brief Holds the hosted juce::AudioPluginInstance of each pane in one
  *        session, keyed by the pane's own identity. The audio graph owns the
  *        instances. The session keeps the `juce::AudioProcessorGraph::NodeID` of each instance.
- *        For a plugin of the company, the session also keeps the `PluginState` of the pane, which holds the terminal rows of that pane.
+ *        For a plugin of the company, the session also keeps the `PluginState` of the pane, which holds the pluginState rows of that pane.
  *
  * A plugin loads asynchronously. A change of the Id::plugin property of a pane row
  * starts the load of that file, and the instance joins the graph when it is created.
- * The session listens to the sessions row, the parent of the session row. JUCE
- * notifies the listeners of a row before the listeners of its parent. The listeners
- * of the session row unmount a removed tab and its editors first. Then the session
- * removes the plugins of that tab.
+ * The session listens to the sessions row, the parent of the session row.
+ * It reacts to a change of the Id::plugin property of a pane row. It does not handle the removal of a tab.
+ * TabView::childRemoved() removes the plugins of its panes through removePlugin().
  */
 class Session : private juce::ValueTree::Listener
 {
@@ -75,12 +74,12 @@ public:
     bool hasPluginState (jam::UUID uuid) const;
 
     /**
-     * @brief Writes the terminal rows to the PluginState of a pane.
+     * @brief Writes the pluginState rows to the PluginState of a pane.
      *
      * The call does nothing when the pane has no PluginState.
      *
      * @param uuid  Identity of the pane.
-     * @param rows  Tree whose properties are the terminal rows to write.
+     * @param rows  Tree whose properties are the pluginState rows to write.
      */
     void setRows (jam::UUID uuid, const juce::ValueTree& rows);
 
@@ -113,26 +112,10 @@ public:
 
 private:
     /**
-     * @brief Removes the plugin instance of each pane row in the subtree of a row, the row included.
-     * @param row  Root of the subtree.
-     */
-    void removePlugins (const juce::ValueTree& row);
-
-    /**
-     * @brief Removes the plugins of a tab row when the tab row leaves the session row.
-     *
-     * A removal from any other row has no effect.
-     *
-     * @param parentTree  Tree that lost the child.
-     * @param child       Removed child. Its pane rows lose their plugin instances.
-     */
-    void valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int) override;
-
-    /**
      * @brief Adds a created plugin instance to the graph, and binds it to its pane.
      *
      * The instance enables all its buses. For a plugin of the company, the call creates the PluginState of the pane and
-     * writes the terminal rows of the pane to the plugin before the instance joins the graph.
+     * writes the pluginState rows of the pane to the plugin before the instance joins the graph.
      * The instance then joins the graph, and connects to the audio and MIDI processors.
      * The graph node is stored under the identity of the pane. The name of the processor is then written to
      * Id::name of the pane row. The pane creates its editor when that property arrives.
@@ -156,7 +139,8 @@ private:
      *
      * The file is scanned into the known plugin list. A file that is listed with an unchanged modification time is not tested again.
      * The instance is created asynchronously. addPlugin() runs when it arrives, and only when the pane row still belongs to
-     * the session and still names the same file. The call asserts when no plugin format reads the file.
+     * the session and still names the same file. When no plugin format reads the file, the call does nothing.
+     * The call asserts when a format reads the file, but the scan finds no plugin type in it.
      *
      * @param paneRow  Pane row whose Id::plugin property names the file.
      */
@@ -167,6 +151,7 @@ private:
      *
      * The old instance leaves the graph. The Id::name property of the pane row is removed. The pane
      * creates its editor again when the new instance is added. A change of any other property has no effect.
+     * A `plugin` row with no value finds no format, so nothing loads and the pane is a blank canvas.
      *
      * @param tree      Tree whose property changed. Only a descendant of the session row is handled.
      * @param property  Identifier of the changed property. Only Id::plugin has an effect.

@@ -190,10 +190,10 @@ void ENDView::registerTabActions()
 
                           const juce::Identifier edge {};
                           addPane (edge);
-                          getActiveTabView()->getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::terminal), nullptr).setProperty (Id::cwd, directory, nullptr);
+                          getActiveTabView()->getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, directory, nullptr);
 
                           if (auto* tabView { getActiveTabView() })
-                              tabView->loadPlugin (files::evePlugin);
+                              tabView->loadPlugin();
                       }
                   });
 
@@ -268,14 +268,7 @@ void ENDView::registerJoinActions()
                       [this, direction = direction]
                       {
                           if (auto* tabView { getActiveTabView() })
-                          {
-                              const auto target { tabView->join (direction) };
-
-                              if (target != jam::UUID::none())
-                              {
-                                  nexus.getActiveSession().removePlugin (target);
-                              }
-                          }
+                              tabView->join (direction);
                       });
     }
 }
@@ -356,22 +349,32 @@ void ENDView::registerPaneActions()
                           addPane (edge);
 
                           if (auto* tabView { getActiveTabView() })
-                              tabView->loadPlugin (files::evePlugin);
+                              tabView->loadPlugin();
                       });
     }
 
-    commands.add (map::CommandId::closePane,
+    commands.add (map::CommandId::loadPlugin,
                   [this]
                   {
                       if (auto* tabView { getActiveTabView() })
-                          tabView->getFocusedPane().invokeDirectly (map::CommandId::closePane, false);
+                          tabView->loadPlugin();
                   });
+
+    for (const juce::CommandID command : { map::CommandId::closeTerminal, map::CommandId::closePane, map::CommandId::closeTerminalPane })
+    {
+        commands.add (command,
+                      [this, command]
+                      {
+                          if (auto* tabView { getActiveTabView() })
+                              tabView->getFocusedPane().invokeDirectly (command, false);
+                      });
+    }
 }
 
 juce::String ENDView::getFocusedDirectory() const
 {
     if (auto* tabView { getActiveTabView() })
-        return tabView->getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::cwd).toString();
+        return tabView->getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString();
 
     return juce::String {};
 }

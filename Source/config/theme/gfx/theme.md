@@ -20,7 +20,7 @@ light column or the dark column according to the appearance row of display.md.
 +----------------------+--------+------------+-------------------------------------------------+
 | crystal              | colour | 0xffa1d6e5 | jam colour name.                                |
 +----------------------+--------+------------+-------------------------------------------------+
-| faint mediterranea   | colour | 0x1a33535b | JFS palette colour, 10% alpha.                  |
+| faint mediterranea   | colour | 0x0d33535B | JFS palette colour, 10% alpha.                  |
 +----------------------+--------+------------+-------------------------------------------------+
 | glass little mermaid | colour | 0x802c4144 | JFS palette colour, 50% alpha.                  |
 +----------------------+--------+------------+-------------------------------------------------+

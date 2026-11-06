@@ -58,13 +58,13 @@ public:
     void setZoom (juce::CommandID command, float step);
 
 private:
-    /** @brief Command manager of the session view. valueTreeChildRemoved() invokes the quit command through it when the last tab leaves the session. */
+    /** @brief Command manager of the session view. childRemoved() invokes the quit command through it when the last tab leaves the session. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
 
     /** @brief Application look and feel. It gives the tab bar depth and position. */
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
-    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a terminal row of a pane changes.
+    /** @brief Reapplies a tab's displayed name when its Id::name, its Id::focusedPane, or a pluginState row of a pane changes.
      *  @param tree     The ValueTree whose property changed.
      *  @param property The identifier of the changed property.
      */
@@ -85,12 +85,20 @@ private:
     /**
      * @brief Unmounts the TabView of each tab row removed from the session row.
      *
-     * The tab bar takes its depth and position from the theme again. When no tab remains, the quit action runs.
+     * The tab bar takes its depth and position from the theme again.
      *
      * @param parentTree  Tree that lost the child. Only the session row unmounts tabs.
      * @param child       Removed child. A tab row is unmounted.
      */
     void valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int) override;
+
+    /**
+     * @brief Removes the tab from the tab bar. The quit command runs when no tab remains.
+     *
+     * @param uuid  Identity of the removed tab.
+     * @param row   State row of the removed tab.
+     */
+    void childRemoved (jam::UUID uuid, const juce::ValueTree& row) override;
 
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;

@@ -145,7 +145,7 @@ static const jam::Function::Map<juce::String, void>& getStateWrites()
 
 PluginState::PluginState (juce::AudioPluginInstance& newInstance, juce::ValueTree paneRow)
     : instance (newInstance)
-    , terminal (paneRow.getOrCreateChildWithName (jam::Format::toType (Id::terminal), nullptr))
+    , pluginState (paneRow.getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr))
 {
     instance.addListener (this);
 }
@@ -171,5 +171,5 @@ void PluginState::audioProcessorChanged (juce::AudioProcessor*, const ChangeDeta
     const auto block { getStateReads().get (instance.getPluginDescription().pluginFormatName, instance) };
     const auto state { juce::ValueTree::readFromData (block.getData(), block.getSize()) };
 
-    terminal.copyPropertiesFrom (state.getChildWithName (jam::Format::toType (Id::terminal)), nullptr);
+    pluginState.copyPropertiesFrom (state.getChildWithName (jam::Format::toType (Id::pluginState)), nullptr);
 }

@@ -58,9 +58,12 @@ public:
 
     /**
      * @brief Sets the plugin property of the focused pane to the path of a plugin file in the plugins folder of the config.
-     * @param plugin  Name of the plugin file, relative to the plugins folder.
+     *
+     * The default is `files::evePlugin`, because the default pane holds EVE. A plugin name replaces the default.
+     *
+     * @param plugin  Name of the plugin file relative to the plugins folder, or an absolute path.
      */
-    void loadPlugin (const juce::String& plugin);
+    void loadPlugin (const juce::String& plugin = files::evePlugin);
 
     /** @brief Joins the focused pane with its neighbour across direction.
      *  @param direction Edge to join across — Id::left/right/top/bottom.
@@ -80,7 +83,7 @@ public:
     EditorView& get (jam::UUID uuid);
 
     /**
-     * @brief Returns the focused pane of the tab. The pane actions, such as normal and loadPlugin, act on this pane.
+     * @brief Returns the focused pane of the tab. The pane commands of ENDView act on this pane.
      * @return The focused EditorView.
      */
     EditorView& getFocusedPane();
@@ -106,9 +109,8 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-         * An inward drag splits the pane graph at the cursor proportion along the edge axis, then calls loadPlugin() with
-     * files::evePlugin, which loads EVE into the new pane. An outward drag invokes the command that getJoinAction() returns
-     * for the edge. The tab repaints after a gesture that passes the threshold.
+     * An inward drag splits the pane graph at the cursor proportion along the edge axis, then calls loadPlugin() with its default plugin.
+     * An outward drag invokes the command that getJoinAction() returns for the edge. The tab repaints after a gesture that passes the threshold.
      *
      * @param event Mouse event that ends the gesture.
      */
@@ -156,20 +158,16 @@ protected:
     std::unique_ptr<jam::OwnedComponent> createChild (jam::UUID uuid) override;
 
     /**
-     * @brief Removes the departing pane's PANE state row, then delegates to
-     *        jam::MatrixComponent::childRemoved() for graph collapse.
+     * @brief Collapses the pane graph, removes the plugin of the pane, and removes the tab when no pane remains.
      *
-     * The explicit state.removeChild() call only removes the row when the
-     * departing pane is the graph root — a direct child of the TAB row.
-     * For a nested pane, the row's removal is left to
-     * jam::MatrixComponent::childRemoved(), which collapses the pane's
-     * parent EDGE subtree; juce::ValueTree::removeChild() is a no-op when
-     * the row is not a direct child of state, so the explicit call above
-     * never double-removes a nested pane's row.
+     * The editor of the pane is already destroyed when this hook runs.
+     * The matrix collapses the graph first. The session then removes the plugin of the pane.
+     * When no pane remains, the call removes this tab from its session view. That call destroys this tab, so nothing follows it.
      *
-     * @param uuid Identity of the pane being removed.
+     * @param uuid  Identity of the pane being removed.
+     * @param row   Pane row of the removed pane. The matrix reads it to collapse the graph.
      */
-    void childRemoved (jam::UUID uuid) override;
+    void childRemoved (jam::UUID uuid, const juce::ValueTree& row) override;
 
 private:
     /** @brief Command manager that invokes the Area Options commands and the corner drag commands. */
