@@ -68,12 +68,6 @@ void Session::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ident
     }
 }
 
-void Session::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int)
-{
-    if (parentTree == state)
-        removePlugins (child);
-}
-
 void Session::loadPlugin (const juce::ValueTree& paneRow)
 {
 #if JAM_USING_PROFILER
@@ -81,7 +75,6 @@ void Session::loadPlugin (const juce::ValueTree& paneRow)
 #endif
     const juce::File file { paneRow.getProperty (Id::plugin).toString() };
     auto* format { getPluginFormat (file) };
-    jassert (format != nullptr);
 
     if (format != nullptr)
     {
@@ -118,7 +111,7 @@ void Session::addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPlu
         const auto& [key, pluginState] { *entry };
 
         jassert (inserted);
-        pluginState->setRows (paneRow.getChildWithName (jam::Format::toType (Id::terminal)));
+        pluginState->setRows (paneRow.getChildWithName (jam::Format::toType (Id::pluginState)));
     }
 
     auto plugin { graph.addNode (std::move (instance)) };
@@ -160,13 +153,4 @@ void Session::removePlugin (jam::UUID uuid)
         graph.removeNode (plugins.at (uuid));
         plugins.erase (uuid);
     }
-}
-
-void Session::removePlugins (const juce::ValueTree& row)
-{
-    if (row.hasType (jam::Format::toType (Id::pane)))
-        removePlugin (jam::UUID { static_cast<int64_t> (row.getProperty (Id::id)) });
-
-    for (const auto& child : row)
-        removePlugins (child);
 }

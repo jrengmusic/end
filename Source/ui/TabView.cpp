@@ -1,4 +1,6 @@
 #include "ui/TabView.h"
+#include "plugins/Nexus.h"
+#include "ui/SessionView.h"
 
 TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
     : jam::MatrixComponent (newModel, existingState)
@@ -40,10 +42,13 @@ std::unique_ptr<jam::OwnedComponent> TabView::createChild (jam::UUID uuid)
 }
 
 //==============================================================================
-void TabView::childRemoved (jam::UUID uuid)
+void TabView::childRemoved (jam::UUID uuid, const juce::ValueTree& row)
 {
-    state.removeChild (MatrixComponent::get (uuid).getValueTree(), nullptr);
-    MatrixComponent::childRemoved (uuid);
+    MatrixComponent::childRemoved (uuid, row);
+    Nexus::getInstance()->getSession (jam::UUID { state.getParent().getProperty (Id::id) }).removePlugin (uuid);
+
+    if (getNumChildren() == 0)
+        findParentComponentOfClass<SessionView>()->remove (jam::UUID { static_cast<int64_t> (state.getProperty (Id::id)) });
 }
 
 //==============================================================================
@@ -158,7 +163,7 @@ void TabView::mouseUp (const juce::MouseEvent& event)
 
                 split (edge, horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
                                         : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
-                loadPlugin (files::evePlugin);
+                loadPlugin();
             }
             else
             {

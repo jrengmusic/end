@@ -47,10 +47,15 @@ void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::Valu
     {
         OwnerComponent::remove (jam::UUID { static_cast<int64_t> (child.getProperty (Id::id)) });
         lookAndFeelChanged();
-
-        if (getNumChildren() == 0)
-            commandManager->invokeDirectly (map::CommandId::quit, false);
     }
+}
+
+void SessionView::childRemoved (jam::UUID uuid, const juce::ValueTree& row)
+{
+    jam::TabbedComponent::childRemoved (uuid, row);
+
+    if (getNumChildren() == 0)
+        commandManager->invokeDirectly (map::CommandId::quit, false);
 }
 
 TabView& SessionView::get (jam::UUID uuid)
@@ -77,7 +82,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == Id::name or property == Id::focusedPane or tree.hasType (jam::Format::toType (Id::terminal)))
+    if (property == Id::name or property == Id::focusedPane or tree.hasType (jam::Format::toType (Id::pluginState)))
     {
         const auto tabState { EditorView::findAncestorRow (tree, jam::Format::toType (Id::tab)) };
 
@@ -104,17 +109,17 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
     if (sourcePane.isValid())
     {
-        const auto terminal { sourcePane.getChildWithName (jam::Format::toType (Id::terminal)) };
+        const auto pluginState { sourcePane.getChildWithName (jam::Format::toType (Id::pluginState)) };
 
         for (const auto& id : { Id::title, Id::foregroundProcess })
         {
-            const juce::String report { terminal.getProperty (id).toString() };
+            const juce::String report { pluginState.getProperty (id).toString() };
 
             if (report.isNotEmpty())
                 return report;
         }
 
-        const juce::String directoryName { juce::File { terminal.getProperty (Id::cwd).toString() }.getFileName() };
+        const juce::String directoryName { juce::File { pluginState.getProperty (Id::cwd).toString() }.getFileName() };
 
         return directoryName.isNotEmpty() ? directoryName : sourcePane.getProperty (Id::name).toString();
     }

@@ -252,7 +252,7 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
   a hosted instance, in every format. `Session` owns one for each instance from the same
   company (`Session::addPlugin`). Its `juce::AudioProcessorListener` receives
   `audioProcessorChanged`, reads the raw state through one format lookup, and copies the
-  `terminal` rows to the `terminal` child of the pane row. Each changed row gives one
+  `pluginState` rows to the `pluginState` child of the pane row. Each changed row gives one
   `valueTreePropertyChanged`. `setRows` writes rows through the same lookup. VST2 uses the
   chunk, VST3 the `IComponent` data, AU the `jucePluginState` key, CLAP the raw state.
 - **ENAX rules.** The plugin side, `jam::ENAXClientExtensions`, holds the END-only
@@ -289,14 +289,16 @@ END, the plugin creates its own `VulkanGraphicsEngine`
 
 ### 1.7 Plugin State and Tab Names
 
-END holds the state of its plugin in the `terminal` child of each pane row. ARCHITECT:
-*"END is the host. it holds its plugin instance stateInfo."*
+END holds the state of its plugin in the `pluginState` child of each pane row. ARCHITECT:
+*"END is the host. it holds its plugin instance stateInfo."*; *"the correct design is not
+`terminal`, but the state instance of `EVE`. `EVE` could be any plugin"*. `terminal` is EVE's own
+tree. EVE maps it to `pluginState` at `getStateInformation` and `setStateInformation`.
 
 - `PluginState` replaces the rows of that child from the plugin (section 1.5).
 - A new pane takes the `cwd` of the focused pane of its tab (`getInheritedDirectory`).
 - A new tab takes the `cwd` of the focused pane of the active tab (`ENDView`, the `newTab`
   command).
-- `Session::addPlugin` writes the `terminal` child to the plugin before `graph.addNode`, so
+- `Session::addPlugin` writes the `pluginState` child to the plugin before `graph.addNode`, so
   the shell starts in that `cwd`.
 - A plugin from another company has no `PluginState`, and its pane holds no rows from it.
 - END holds the module of each plugin with a `PluginState` until `Nexus` ends (`Nexus::addPluginModule`).
@@ -320,18 +322,41 @@ END holds the state of its plugin in the `terminal` child of each pane row. ARCH
   (`jam/cast/gui.md:226-242`), and `MatrixComponent::perform` runs them
   (`jam_MatrixComponent.cpp:385-398`). Every command of `map::CommandId` has a table entry,
   except `prefix`: a layer-entry row enters its layer in `invokeKey` and is never performed.
-- Workspace verbs: `newTab`, `addPane` (split by edge or append), `closePane`
-  (pane → tab → window cascade), `splitVertical`/`splitHorizontal`, pane
-  join/swap, pane focus (`map::MatrixCommandId`), pane resize by `paneStep`, tab next/prev. `closePane`
-  and `join` remove the plugin of every pane they close (`Session::removePlugin`). The removal
-  of a tab row removes the plugins of that tab (`Session::valueTreeChildRemoved`).
-- **`EditorView` is the command target of `closePane`.** `perform` closes its own pane by
+- Workspace verbs: `newTab`, `addPane` (split by edge or append), `closeTerminal`, `closePane`
+  (pane → tab → window cascade), `closeTerminalPane`, `splitVertical`/`splitHorizontal`, pane
+  join/swap, pane focus (`map::MatrixCommandId`), pane resize by `paneStep`, tab next/prev.
+- **A close has one order.** `OwnerComponent::remove` destroys the child while its row is whole.
+  Its `childRemoved` hook then runs, so a focus write reaches only the children that stay.
+  `TabView` calls `Session::removePlugin` from that hook, after the editor is gone. When an owner
+  holds no child, its hook tells the next owner: a tab with no pane leaves its session, and a
+  session with no tab quits the application. ARCHITECT: *"closing pane, exit, clean dtor must be
+  deterministic, SSOT. one COMMAND"*; *"last pane quit app"*.
+- **`loadPlugin` loads any plugin into the focused pane.** `files::evePlugin` is its default
+  argument. A file drop overrides it (`EditorView::DropTarget::filesDropped`). ARCHITECT: *"there
+  will be command that load any plugin, override eve as the default arg"*.
+- **The pane model.** ARCHITECT, verbatim:
+  - *"a pane is just blank canvas for ANY PLUGIN"*
+  - *"END "features" is A PLUGIN"*
+  - *"default plugin is EVE"*
+  - *"any pane could be any plugin"*
+  - *"`exit` is terminal command that trigger chain of closing pane with its eve that received self dtor chain"*
+  - *"cmd+w is closing pane, any pane, by default trigger `exit` chain command, the focused pane"*
+  - *"by default cmd+w IS `exit`"*
+- **Three close commands, in `map::CommandId`.** ARCHITECT: *"close terminal should be one
+  commandId (kills eve instance CLEANLY)"*; *"close pane should be one commandId"*; *"close terminal
+  pane should be one commandId (calls closeTerminal then, closePane)"*; *"cmd+w, `exit`, should call
+  close terminal pane"*.
+  - `closeTerminal` removes the `plugin` row of the pane. The pane deletes its editor, then
+    `Session` removes the plugin.
+  - `closePane` removes the pane, or the tab when it is the only pane.
+  - `closeTerminalPane` invokes `closeTerminal`, then `closePane`.
+- **`EditorView` is the command target of the close commands.** `perform` acts on its own pane by
   identity, focused or not. The key path asks the focused pane.
 - **A shell exit closes its pane.** The `shellExited` row reaches the `terminal` child of the
-  pane row. `EditorView` invokes `closePane` on itself asynchronously, so the removal runs
+  pane row. `EditorView` invokes `closeTerminalPane` on itself asynchronously, so the removal runs
   outside the plugin's call stack. ARCHITECT: *"`exit` should close END's pane (exit eve)"*.
 - **END tells a hosted plugin through rows.** ENDView tells the panes; it never reaches into a
-  plugin. `EditorView::setRows` builds a `terminal` tree with the one row, and `Session::setRows`
+  plugin. `EditorView::setRows` builds a `pluginState` tree with the one row, and `Session::setRows`
   writes it through `PluginState`. The mode keys are jam's `map::EditorMode`.
   - `zoomIn` / `zoomOut` add or subtract `zoomStep` (`display.md`) to the `zoom` row.
     `zoomReset` sets its default value (`EditorView::setZoom`). EVE holds the limit. The targets
@@ -339,8 +364,11 @@ END holds the state of its plugin in the `terminal` child of each pane row. ARCH
     pane only when `exclusiveZoom` is true.
   - `normal`, `open` and `list` set the `mode` row of the focused plugin to the matching key of
     `map::EditorMode` (`EditorView::setMode`).
-  - `focus` follows the pane row. END writes no `width` or `height`: `EditorView::setEditorBounds`
-    sizes the editor, and EVE writes those rows at the final stop.
+  - `focus` follows the pane row.
+  - `EditorView::resized` writes the `width` and `height` rows from the pane bounds.
+    `EditorView::setEditorBounds` only moves an editor that is not resizable, such as the VST2
+    host window, so the plugin sets its own size from the rows.
+    ARCHITECT: *"it's still the same tree but adhere to how audio plugin host-client contract"*.
 - Splits and pane verbs act on the active tab's focused pane, the TAB row's
   `focusedPane` — never on positional or last-created assumptions.
 - The pane menu's splits invoke the same `splitVertical` and `splitHorizontal` commands

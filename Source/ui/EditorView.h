@@ -13,12 +13,12 @@
  *        juce::AudioProcessorEditor.
  *
  * The editor is created when the pane row receives Id::name. It is not created in
- * the constructor. The name branch lays out the pane, creates the editor, and lays
- * out the pane again. addPlugin() sets Id::name after it binds the plugin, so the
+ * the constructor. The name branch creates the editor, then lays out the pane.
+ * addPlugin() sets Id::name after it binds the plugin, so the
  * session holds the plugin at that time. When the Id::plugin of the pane row changes,
  * the editor is destroyed. When the Id::focus of the own row changes, the focus
- * row of the terminal state is written to the hosted plugin through the session.
- * When the shellExited row of the terminal state becomes true, the pane closes itself.
+ * row of the pluginState is written to the hosted plugin through the session.
+ * When the shellExited row of the pluginState becomes true, the pane closes itself.
  *
  * A DropTarget covers the pane. A plugin file dropped on the pane splits the pane
  * at the drop edge, and the file loads into the new pane.
@@ -48,7 +48,8 @@ public:
      *
      * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
      * Any other editor sits at the inset position from the top left corner.
-     * The function writes no row and no parameter.
+     * The function writes the width and the height rows of the pluginState from the pane bounds, reduced by the inset.
+     * The rows are written when the session holds the pane, because an editor that is not resizable only moves.
      */
     void resized() override;
 
@@ -67,8 +68,10 @@ public:
     juce::ApplicationCommandTarget* getNextCommandTarget() override;
 
     /**
-     * @brief Adds the id of the one command of the pane, `map::CommandId::closePane`.
-     * @param commands  Array that receives the id.
+     * @brief Adds the ids of the three close commands of the pane.
+     *
+     * The ids are `map::CommandId::closeTerminal`, `map::CommandId::closePane` and `map::CommandId::closeTerminalPane`.
+     * @param commands  Array that receives the ids.
      */
     void getAllCommands (juce::Array<juce::CommandID>& commands) override;
 
@@ -80,21 +83,22 @@ public:
     void getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result) override;
 
     /**
-     * @brief Closes this pane.
+     * @brief Runs the close command of the invocation on this pane.
      *
-     * When the tab holds more than one pane, the call removes the pane from the tab, then removes its plugin from the session.
-     * When the pane is the only pane, the call removes the tab from its session view.
+     * `closeTerminal` removes the `plugin` row of the pane. The session then removes the plugin.
+     * `closePane` removes the pane from its tab.
+     * `closeTerminalPane` invokes `closeTerminal`, then `closePane`.
      *
-     * @param info  Invocation that carries the command id. Not used.
+     * @param info  Invocation that carries the command id.
      * @return Always true.
      */
     bool perform (const InvocationInfo& info) override;
 
     /**
-     * @brief Writes the zoom row of the terminal state of the pane, which the session passes to the plugin.
+     * @brief Writes the zoom row of the pluginState of the pane, which the session passes to the plugin.
      *
      * zoomIn adds @p step to the zoom row, zoomOut subtracts it, and zoomReset sets it to 1.0. The row is not clamped.
-     * A zoom row of the terminal state that is absent reads as 1.0.
+     * A zoom row of the pluginState that is absent reads as 1.0.
      *
      * @param command  Zoom command: zoomIn, zoomOut or zoomReset.
      * @param step     Zoom step, in normalised units.
@@ -102,7 +106,7 @@ public:
     void setZoom (juce::CommandID command, float step);
 
     /**
-     * @brief Writes the mode row of the terminal state of the pane, which the session passes to the plugin.
+     * @brief Writes the mode row of the pluginState of the pane, which the session passes to the plugin.
      * @param newMode  Editor mode, a constant of `map::EditorMode`.
      */
     void setMode (int newMode);
@@ -164,9 +168,9 @@ private:
     void setEditorBounds (int inset);
 
     /**
-     * @brief Writes one row of the terminal state to the session of the pane.
+     * @brief Writes one row of the pluginState to the session of the pane.
      *
-     * The call builds a `terminal` tree with one property, then gives it to the session, which passes it to the PluginState of the pane.
+     * The call builds a `pluginState` tree with one property, then gives it to the session, which passes it to the PluginState of the pane.
      *
      * @param row    Identifier of the row to write.
      * @param value  Value of the row.
@@ -184,14 +188,14 @@ private:
     Session& getSession();
 
     /**
-     * @brief Applies a changed property of the pane row or of its terminal state to the hosted plugin and to the editor.
+     * @brief Applies a changed property of the pane row or of its pluginState to the hosted plugin and to the editor.
      *
-     * A shellExited property that becomes true invokes the closePane command on this pane.
-     * Id::plugin destroys the editor, because the session reloads the plugin.
+     * A shellExited property that becomes true invokes the closeTerminalPane command on this pane.
+     * Id::plugin destroys the editor, because the session removes the old instance.
      * Id::name, when the row holds it, adds the plugin file to the ENAX plugin modules of Nexus when the session holds a PluginState
-     * for the pane. Then the pane lays out, creates the editor, and lays out again.
-     * Id::focus on the pane row writes the focus value of the row to the terminal state of the plugin through setRows().
-     * Id::name, when the row holds it, does the same after the editor is created.
+     * for the pane. Then the pane creates the editor and lays out.
+     * Id::focus on the pane row writes the focus value of the row to the pluginState of the plugin through setRows().
+     * Id::name, when the row holds it, also writes the focus value after the editor is created.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property. Id::shellExited, Id::focus, Id::plugin and Id::name have an effect.
@@ -206,7 +210,7 @@ private:
      */
     void createProcessorEditor();
 
-    /** The hosted plugin editor. It is nullptr when the session does not hold the plugin of this pane. */
+    /** The hosted plugin editor. It is nullptr until createProcessorEditor() creates one. It is also nullptr after a change of the plugin row, and when the plugin returns no editor. */
     std::unique_ptr<juce::AudioProcessorEditor> editor;
 
     /** @brief Drop target that covers the pane. It stays above the hosted editor. */

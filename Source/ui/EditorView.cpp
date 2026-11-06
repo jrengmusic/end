@@ -1,6 +1,6 @@
 #include "ui/EditorView.h"
 #include "plugins/Nexus.h"
-#include "ui/SessionView.h"
+#include "ui/TabView.h"
 
 static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
 {
@@ -8,13 +8,13 @@ static juce::String getInheritedDirectory (const juce::ValueTree& tabState)
     const jam::UUID focusedUuid { static_cast<int64_t> (tabRow.getProperty (Id::focusedPane)) };
     const auto focusedPane { jam::Model::getChildWithID (tabRow, juce::var (focusedUuid.value)) };
 
-    return focusedPane.getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::cwd).toString();
+    return focusedPane.getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString();
 }
 
 EditorView::EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid)
     : jam::PaneComponent (model, tabState, jam::Format::toType (Id::pane), uuid)
 {
-    state.getOrCreateChildWithName (jam::Format::toType (Id::terminal), nullptr).setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
+    state.getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, getInheritedDirectory (tabState), nullptr);
     state.addListener (this);
     addAndMakeVisible (dropTarget);
 }
@@ -47,6 +47,11 @@ void EditorView::resized()
 
         if (editor != nullptr)
             setEditorBounds (inset);
+
+        const auto inner { getLocalBounds().reduced (inset) };
+
+        setRows (Id::width, inner.getWidth());
+        setRows (Id::height, inner.getHeight());
     }
 }
 
@@ -99,7 +104,9 @@ juce::ApplicationCommandTarget* EditorView::getNextCommandTarget()
 
 void EditorView::getAllCommands (juce::Array<juce::CommandID>& commands)
 {
+    commands.add (map::CommandId::closeTerminal);
     commands.add (map::CommandId::closePane);
+    commands.add (map::CommandId::closeTerminalPane);
 }
 
 void EditorView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
@@ -107,21 +114,34 @@ void EditorView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCom
     jam::CommandManager::setInfo (result, map::CommandId::getInstance()->get (commandID).toString());
 }
 
-bool EditorView::perform (const InvocationInfo&)
+bool EditorView::perform (const InvocationInfo& info)
 {
-    const jam::UUID uuid { state.getProperty (Id::id) };
-    auto& session { getSession() };
-    auto* tabView { findParentComponentOfClass<TabView>() };
+    static const jam::Function::Map<juce::CommandID, void> paneCommands {
+        []
+        {
+            jam::Function::Map<juce::CommandID, void> table;
 
-    if (tabView->getNumChildren() > 1)
-    {
-        tabView->remove (uuid);
-        session.removePlugin (uuid);
-    }
-    else
-    {
-        tabView->findParentComponentOfClass<SessionView>()->remove (jam::UUID { static_cast<int64_t> (tabView->getValueTree().getProperty (Id::id)) });
-    }
+            table.add<EditorView&> (map::CommandId::closeTerminal, [] (EditorView& pane)
+            {
+                pane.state.removeProperty (Id::plugin, nullptr);
+            });
+
+            table.add<EditorView&> (map::CommandId::closePane, [] (EditorView& pane)
+            {
+                pane.findParentComponentOfClass<TabView>()->remove (jam::UUID { pane.state.getProperty (Id::id) });
+            });
+
+            table.add<EditorView&> (map::CommandId::closeTerminalPane, [] (EditorView& pane)
+            {
+                pane.invokeDirectly (map::CommandId::closeTerminal, false);
+                pane.invokeDirectly (map::CommandId::closePane, false);
+            });
+
+            return table;
+        }()
+    };
+
+    paneCommands.get (info.commandID, *this);
 
     return true;
 }
@@ -147,7 +167,7 @@ void EditorView::setZoom (juce::CommandID command, float step)
         }()
     };
 
-    const auto zoom { static_cast<float> (state.getChildWithName (jam::Format::toType (Id::terminal)).getProperty (Id::zoom, defaultZoom)) };
+    const auto zoom { static_cast<float> (state.getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::zoom, defaultZoom)) };
 
     setRows (Id::zoom, zoomValues.get (command, float { zoom }, float { step }));
 }
@@ -159,7 +179,7 @@ void EditorView::setMode (int newMode)
 
 void EditorView::setRows (const juce::Identifier& row, const juce::var& value)
 {
-    juce::ValueTree rows { jam::Format::toType (Id::terminal) };
+    juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
 
     rows.setProperty (row, value, nullptr);
     getSession().setRows (jam::UUID { state.getProperty (Id::id) }, rows);
@@ -168,7 +188,7 @@ void EditorView::setRows (const juce::Identifier& row, const juce::var& value)
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == Id::shellExited and static_cast<bool> (tree.getProperty (property)))
-        invokeDirectly (map::CommandId::closePane, true);
+        invokeDirectly (map::CommandId::closeTerminalPane, true);
 
     const auto isPluginLoaded { property == Id::name and tree.hasProperty (Id::name) };
 
@@ -183,7 +203,6 @@ void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Id
         if (getSession().hasPluginState (jam::UUID { tree.getProperty (Id::id) }))
             Nexus::getInstance()->addPluginModule (juce::File { tree.getProperty (Id::plugin).toString() });
 
-        resized();
         createProcessorEditor();
         resized();
     }
