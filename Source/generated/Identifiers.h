@@ -91,7 +91,6 @@ extern const juce::Identifier theme;
 extern const juce::Identifier themes;
 extern const juce::Identifier titleBarButtons;
 extern const juce::Identifier useGpu;
-extern const juce::Identifier visible;
 extern const juce::Identifier zoom;
 extern const juce::Identifier zoomStep;
 

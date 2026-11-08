@@ -50,14 +50,13 @@ public:
     /**
      * @brief Splits the pane graph at an edge, or adds a pane when the edge is invalid.
      *
+     * A split uses jam::MatrixComponent::defaultProportion as its proportion.
      * The focused pane after the call gets @p directory as the `cwd` property of its pluginState, then loadPlugin() runs.
      *
      * @param edge        Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane.
-     * @param directory   Working directory written to the `cwd` property. mouseUp() passes the working directory of the focused pane.
-     * @param proportion  Split position along the axis of the edge, as a proportion of the focused pane. mouseUp() passes
-     *                    the cursor position as a proportion of the pane width or height.
+     * @param directory   Working directory written to the `cwd` property.
      */
-    void addPane (const juce::Identifier& edge, const juce::String& directory, float proportion = jam::MatrixComponent::defaultProportion);
+    void addPane (const juce::Identifier& edge, const juce::String& directory);
 
     /**
      * @brief Sets the plugin property of the focused pane to the full path of the file named by files::evePlugin in the plugins folder of the config.
@@ -108,9 +107,10 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * An inward drag calls addPane() with the edge, the working directory of the focused pane, and the cursor position.
-     * The position is a proportion of the pane width for a left or right edge, and of the pane height for a top or bottom edge.
+     * An inward drag invokes map::CommandId::splitVertical for a left or right edge.
+     * An inward drag invokes map::CommandId::splitHorizontal for a top or bottom edge.
      * An outward drag invokes the command that `getJoinCommands().at (edge)` returns for the edge.
+     * Each command is invoked through commandManager.
      *
      * @param event Mouse event that ends the gesture.
      */

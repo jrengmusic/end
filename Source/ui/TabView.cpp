@@ -16,10 +16,10 @@ void TabView::add()
     MatrixComponent::add (uuid, createChild (uuid));
 }
 
-void TabView::addPane (const juce::Identifier& edge, const juce::String& directory, float proportion)
+void TabView::addPane (const juce::Identifier& edge, const juce::String& directory)
 {
     if (edge.isValid())
-        split (edge, proportion);
+        split (edge);
     else
         add();
 
@@ -148,12 +148,7 @@ void TabView::mouseUp (const juce::MouseEvent& event)
         {
             if (isInward (edge, offset))
             {
-                const bool horizontal { isHorizontal (edge) };
-
-                addPane (edge,
-                         getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString(),
-                         horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
-                                    : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
+                commandManager->invokeDirectly (isHorizontal (edge) ? map::CommandId::splitVertical : map::CommandId::splitHorizontal, false);
             }
             else
             {
@@ -228,10 +223,8 @@ void TabView::paintSplitPreview (juce::Graphics& g, const juce::Identifier& edge
     const auto head { splitVertical ? focusedBounds.withRight (splitLine) : focusedBounds.withBottom (splitLine) };
     const auto tail { splitVertical ? focusedBounds.withLeft (splitLine) : focusedBounds.withTop (splitLine) };
 
-    static const juce::String regionSeparator { " | " };
-
     const juce::String message { juce::String (head.getWidth()) + sizeSeparator + juce::String (head.getHeight())
-                                 + regionSeparator
+                                 + jam::regionSeparator
                                  + juce::String (tail.getWidth()) + sizeSeparator + juce::String (tail.getHeight()) };
 
     jam::drawMessageOverlay (g, *this, focusedBounds, message, ENDLookAndFeel::getInstance()->getOverlayFont(), splitLine, splitVertical,

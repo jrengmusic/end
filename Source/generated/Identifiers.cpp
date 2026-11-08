@@ -87,7 +87,6 @@ namespace Id
     const juce::Identifier themes                   { juce::String::fromUTF8 ("themes") };
     const juce::Identifier titleBarButtons          { juce::String::fromUTF8 ("titleBarButtons") };
     const juce::Identifier useGpu                   { juce::String::fromUTF8 ("gpu") };
-    const juce::Identifier visible                  { juce::String::fromUTF8 ("visible") };
     const juce::Identifier zoom                     { juce::String::fromUTF8 ("zoom") };
     const juce::Identifier zoomStep                 { juce::String::fromUTF8 ("zoomStep") };
 

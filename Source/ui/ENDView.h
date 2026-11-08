@@ -205,7 +205,8 @@ private:
      *
      * With JAM_USING_PROFILER, the call first starts a profiler zone and the pane prompt.
      *
-     * @param edge  Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
+     * @param edge       Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
+     * @param directory  Directory that the focused pane of the active tab stores as its cwd.
      */
     void addPane (const juce::Identifier& edge, const juce::String& directory);
 
