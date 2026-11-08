@@ -28,8 +28,6 @@ bundle or its offload stamp in the plugins folder, or of a file extension.
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | join cells horizontal normal | toCamel | join_cells_horizontal_normal.svg | toLiteral | Join-cells-horizontal corner-menu icon.              |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
-| @string | eve plugin                   | toCamel | EVE.vst                          | toLiteral | EVE plugin bundle that each new pane loads.          |
-+---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | plugins stamp                | toCamel | .plugins-stamp                   | toLiteral | Hash stamp of the plugin archives last offloaded.    |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | archive extension            | toCamel | zip                              | toLiteral | Extension of the plugin archives in the binary data. |
@@ -38,3 +36,11 @@ bundle or its offload stamp in the plugins folder, or of a file extension.
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | settings file name           | toCamel | END.settings                     | toLiteral | Window state file of END in the config directory.    |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
+
+## platform files
+
++---------+------------+---------+---------+-----------+---------+-----------+---------------------------------------------+
+| type    | name       | format  | mac     | format    | win     | format    | description                                 |
++=========+============+=========+=========+===========+=========+===========+=============================================+
+| @string | eve plugin | toCamel | EVE.vst | toLiteral | EVE.dll | toLiteral | EVE plugin bundle that each new pane loads. |
++---------+------------+---------+---------+-----------+---------+-----------+---------------------------------------------+

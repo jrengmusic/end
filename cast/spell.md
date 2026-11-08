@@ -128,12 +128,26 @@
 |                                               |                           | - name: files                                       |                    |
 |                                               |                           | > - [list]: @code:identifier                        |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| > - [list]: @files:platform files             | - [list]: @code:linebreak | @code:line                                          | @Files             |
+|                                               |                           | - macro: #pragma once                               |                    |
+|                                               |                           |                                                     |                    |
+|                                               |                           | @code:namespace                                     |                    |
+|                                               |                           | - name: files                                       |                    |
+|                                               |                           | > - [list]: @code:identifier                        |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > - [list]: @files:files                      | - [list]: @code:linebreak | @source:source                                      | @FilesSource       |
 |                                               |                           | - file: Files.h                                     |                    |
 |                                               |                           |                                                     |                    |
 |                                               |                           | @code:namespace                                     |                    |
 |                                               |                           | - name: files                                       |                    |
 |                                               |                           | > - [list]: @code:identifier-definition             |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| > - [list]: @files:platform files             | - [list]: @code:linebreak | @source:source                                      | @FilesSource       |
+|                                               |                           | - file: Files.h                                     |                    |
+|                                               |                           |                                                     |                    |
+|                                               |                           | @code:namespace                                     |                    |
+|                                               |                           | - name: files                                       |                    |
+|                                               |                           | > - [list]: @source:platform-identifier-definition  |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > > > - [list]: @bimaps:FileConfig            | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps            |
 |                                               |                           | - macro: #pragma once                               |                    |
@@ -203,7 +217,6 @@
 |                                               |                           | - [description]: @headers:brief                     |                    |
 | - [list]: @project-info:cmake                 |                           |                                                     |                    |
 | - [list]: @signing:signing                    |                           |                                                     |                    |
-| - [list]: @project-info:architecture          | - [list]: @semicolon      | - [list]: @cmake:value                              |                    |
 | - [list]: @project-info:release:stage=        | - [list]: @semicolon      | - [list]: @cmake:mac                                |                    |
 | - [list]: @project-info:release:stage=linker  | - [list]: @semicolon      | - [list]: @cmake:mac                                |                    |
 | - [list]: @project-info:debug:stage=          | - [list]: @semicolon      | - [list]: @cmake:mac                                |                    |

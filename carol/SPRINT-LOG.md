@@ -2,6 +2,78 @@
 
 ---
 
+## Sprint 98: Build Time — Selected-Format Lanes, Host-Arch Debug, END PCH and Job Pool, ccache ✅
+
+**Date:** 2026-11-09
+**Duration:** one session, over a context compaction. The start and end times are not recorded.
+**Scope (ARCHITECT):** `PLAN-build-time.md` (9 steps). *"[x] Selected-format SSOT … [x] Install gate + 1-arch Debug … [x] END PCH + job pool … [x] ccache … write RFC to MACHINIST to ~/.config/ to execute"*; archetype answer "Also archetype"; *"EVE manifest by default (Release) must always build all, pack all, etc as now"*; *"the main `driver` flag, is at END"*; *"still the default `cast spell` is full chain, release, all format, universal, signed and notarized, etc"*; *"the implementation must be written now, so it was written UNIVERSALLY. no hardcoding of any platform"*; architecture answer "Universal in template". After the audit: *"B. write RFC to cast repo"*.
+
+### Agents Participated
+- COUNSELOR — PLAN, every validation read, the DCF triage of the audit, `~/.config/RFC-ccache.md`, `cast/RFC-toolchain-working-directory.md`, the small edits named below, this log.
+- Pathfinder (haiku) — verbatim reads of the EVE, END and archetype templates and tables; the cast SPEC output and toolchain sections; the cast toolchain working-directory path (doxygen and LSP); the inventory of every `## toolchain` table; the bootstrap scripts; the CMake 4.4.5 help, `man ccache` and `clang-cl -help`.
+- Engineer (sonnet) — every template and table edit below.
+- Auditor (opus) — one pass, 17 findings.
+- MACHINIST (separate session) — executed `~/.config/RFC-ccache.md` (ARCHITECT: *"machinist done its job"*).
+
+### Files Modified (15 total)
+**end:**
+- `cast/cmake.cast:13-23` — compile job pool, pasted from EVE. `:29` — `CMAKE_OSX_ARCHITECTURES` default `"x86_64;arm64"` in the template ("Universal in template"). `:33` — `CMAKE_MSVC_DEBUG_INFORMATION_FORMAT` `Embedded` (`/Z7`), because ccache does not support `/Zi`. `:47-52` — `find_program(CAST_CCACHE ccache NO_CACHE REQUIRED)` and one `ENABLED_LANGUAGES` loop that sets each `CMAKE_<LANG>_COMPILER_LAUNCHER`. `:141-154` — precompiled header, `-Xclang -fno-pch-timestamp` on APPLE, module sources skip the PCH and glob through `${CAST_USER_MODULE_PATH}`.
+- `project-info.md:94-97` — `compileJobMemory` and `precompiledHeader` rows. `:114`, `:124`, `:132` — explicit architecture flags (`-UCMAKE_OSX_ARCHITECTURES` universal, `-DCMAKE_OSX_ARCHITECTURES=` host). `:120`, `:128` — END's debug and no-sign chains call EVE's `--vst-debug` and `--vst-no-sign` (the format word lives in END: "END toolchain, literal"). `## architecture` deleted. `:272` — `debugSymbols` win cell blank (CMake owns the MSVC format).
+- `cast/spell.md` — the `@project-info:architecture` source line deleted from the `@CMakeLists` row (it fed the deleted `:::[list]:::`). `:131-137`, `:145-151` — second `@Files` and `@FilesSource` rows read `@files:platform files`.
+- `cast/files.md:40-46` — `## platform files` (`mac` `EVE.vst`, `win` `EVE.dll`); the `eve plugin` row left `## files`. `files::evePlugin` keeps its name (one consumer, `Nexus.cpp:199`).
+- `cast/source.cast:8-14` — fence `platform-identifier-definition` (`#if JUCE_MAC` / `#else`).
+- `carol/SPRINT-LOG.md` — this entry and the handoff below.
+
+**eve:**
+- `cast/cmake.cast:35` — architecture default in the template. `:38` — MSVC `Embedded`. `:53-58` — the ccache block. `:60-69` — `CAST_PLUGIN_FORMAT` cache value: a fatal check against `CAST_FORMATS`, then `CAST_FORMATS` narrows to one format and `CAST_INSTALLER_FORMATS` intersects (`list(FILTER … INCLUDE REGEX "^${CAST_PLUGIN_FORMAT}$")`, `:68`). `:182-186` — PCH timestamp option. `:188-189` — module glob through `${CAST_USER_MODULE_PATH}`. Both install gates — `CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT CAST_PLUGIN_FORMAT`. Pack stays ungated in Debug (*"ensure both release and debug build always run post build copy to end repo"*).
+- `project-info.md` — `architecture` row deleted. `## toolchain` `:119-201`: every `cmake` row states the architecture and the format; six new lanes `vst-debug`, `vst3-debug`, `au-debug` (Debug, host) and `vst-no-sign`, `vst3-no-sign`, `au-no-sign` (Release, `-DCAST_SIGN=OFF`, host). `:260` — `debugSymbols` win cell blank.
+
+**archetype:**
+- `app/cast/cmake.cast` — the END changes in generic form: job pool `:12-24`, architecture `:29`, MSVC `:33`, ccache `:47-52`, PCH and timestamp `:133-146`.
+- `app/init.cast` — `compileJobMemory`, `precompiledHeader` (`:63-64`); toolchain flags (`:77`, `:85`, `:91`); `## architecture` and its manifest source line deleted; `debugSymbols` win cell blank; the `## release` and `## debug` tables get the missing border between `fullPathInPdb` and `explicitTemplateInstantiation` (`:157`, `:215`); `## juce module` and `## define` re-padded (cast SPEC §3.1).
+- `plugin-only/cast/cmake.cast` — the EVE changes without the installer lane: architecture `:35`, MSVC `:38`, ccache `:53-58`, `CAST_PLUGIN_FORMAT` narrows `CAST_FORMATS` only, PCH timestamp, module glob, both install gates.
+- `plugin-only/init.cast` — `architecture` row deleted; toolchain `:122-184` with the arch and format flags and the lanes `vst3-debug`, `au-debug`, `vst3-no-sign`, `au-no-sign`; `debugSymbols` (`:229`) win cell blank.
+- `ARCHETYPE.md` — Build flows (`:172-187`), the `## architecture` row (`:205`), section 6 plugin-only and app bullets (`:358-372`, `:402-414`), section 7 (`:455-458`). The §8 sentence that named projects needing a fresh cast run is deleted (ARCHITECT: *"ARCHETYPE is for ANY PROJECT. why hardcode eve into its docs?"*).
+
+**~/.config:**
+- `RFC-ccache.md` (new) — ccache in both bootstrap scripts, one monorepo `ccache.conf` with `sloppiness = pch_defines,time_macros,include_file_mtime,include_file_ctime` through `CCACHE_CONFIGPATH`; 4 open questions.
+
+**cast:**
+- `RFC-toolchain-working-directory.md` (new) — each toolchain row runs in the folder of the file that declares its table (option a) or in the manifest's folder (option b); scaffold for `Toolchain::runProcess`, `Processor::runToolchainRow`, `Pack.cpp:146` and SPEC §6.9; inventory of all 24 toolchain tables; 5 open questions.
+
+### Alignment Check
+- [x] BLESSED principles followed — one format word in END drives EVE (S); every lane states its architecture and format, so a shared build folder holds no stale value (D); the template fails fast without ccache (E).
+- [x] NAMES.md adhered — new names ratified by plan approval (`CAST_PLUGIN_FORMAT`, the lane words, `CAST_CCACHE`, `platform-identifier-definition`, `## platform files`); `CAST_LANGUAGES` / `CAST_LANGUAGE` from the `CAST_SIGNING_PROFILES` / `CAST_FORMAT` families (Rule 5).
+- [x] MANIFESTO.md principles applied
+- [ ] Destructive-Edit Discipline: the Engineer that edited `archetype/plugin-only/init.cast` rebuilt the toolchain table by script with no backup (CAROL.md Destructive-Edit Discipline, step 2). The read-back showed no damage.
+
+### Problems Solved
+- **Debug chain builds every format, both architectures, and installs.** END's debug and no-sign rows now call one EVE lane each. That lane builds one format for the host architecture, packs it into `end/Source/plugins/`, and installs nothing. The default chain stays universal, all formats, signed, installed.
+- **Architecture needed a table.** ARCHITECT: *"i actually bit bothered by architecture need dedicated table"*. The default lives once in each template. A lane overrides it by flag; an empty value gives the host architecture (CMake `CMAKE_OSX_ARCHITECTURES.rst:10-12`).
+- **END compiled without PCH and job pool.** END and the app archetype now have both, byte-identical to EVE.
+- **ccache.** The templates launch through ccache in every enabled language. PCH caching follows `man ccache` (PRECOMPILED HEADERS, lines 1994-2021): sloppiness in the machine config, `-fno-pch-timestamp` for clang. MSVC uses `/Z7`.
+- **Audit (17 findings).** Fixed: #2 (one `ENABLED_LANGUAGES` loop), #6 (`NO_CACHE`, the `CAST_SIGNTOOL` pattern), #7 (glob reads `${CAST_USER_MODULE_PATH}`), #8 (installer formats intersect), #10 (app tables), #12 and #13 (RFC errors). Partly fixed: #14 (uncited RFC claims removed; the quote is ARCHITECT's message), #15 (§8 sentence; citation part rejected). Rejected with citation: #1 (SPEC §6.4 arity and §6.7 merge), #3 (no data lane carries the values; PLAN Step 5), #4 (`man ccache:1994`, `:1119` — no clang-cl/MSVC PCH caching), #5 (ARCHITECT's RFC ruling), #9 (PLAN Step 2), #16 (Step 7 validation), #17 (MANIFESTO L, one artifact per template). #11 (macOS absolute toolchain paths) has no fix inside these repos: each row runs in the caller's folder (`cast/Source/Toolchain.cpp:21-22`, `cast/SPEC.md:939-941`). It went to the cast RFC.
+
+### State for Continuation
+- No build was run. Before the next build, ARCHITECT runs a fresh `cast` in EVE, then in END. Check:
+  - `Source/generated/Files.h` and `Files.cpp` still hold one `namespace files` block (SPEC §6.7 merge of the two `@Files` rows). A second block still compiles.
+  - `cast cast/spell.md --debug` in END: EVE builds `EVE_VST` only, `lipo -info` on it shows the host architecture, and `unzip -l "Source/plugins/EVE v0.0.1 macOS.zip"` lists `EVE.vst/` only.
+  - A second Debug build after one jam edit: `ccache -s` shows hits; compare `.ninja_log` with the 43.2 s baseline.
+  - The default `cast cast/spell.md` in END: universal (`lipo -info`: x86_64 arm64), all EVE formats, signed and notarized.
+- Windows is not tested (ARCHITECT: *"the actual testing/hardening will eventually get on actual windows machine"*).
+- The EVE and END toolchain rows still hold `/Users/jreng/…` absolute paths. They wait for the cast working-directory change (handoff below).
+- `PLAN-build-time.md` is done and still at the project root.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261103T195500` — fit of plugin editors to the pane (deferred by ARCHITECT).
+- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
+- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
+
+---
+
 ## Sprint 97: One Load Path, Async Instance, Drop Target in Front, EVE Known, Editor Once, OMP Race, Model-Driven Tabs ✅
 
 **Date:** 2026-11-04
@@ -292,144 +364,6 @@
 
 ---
 
-## Sprint 93: ENAX Plan 1 Steps 1–8d — END Hosts EVE in Every Pane, One Instance per Pane ✅
-
-**Date:** 2026-11-02
-**Duration:** one session, over a context compaction. The start and end times are not recorded.
-**Plan:** `PLAN-enax-plugin-host-type.md` Steps 1–8d (locked). Steps 9 and 10 are folded into `PLAN-enax-command-id.md` by ARCHITECT's order.
-
-### Agents Participated
-- COUNSELOR — discussion, trace specs, every validation read, the small edits named below, this log.
-- Pathfinder (haiku) — reads, the whatdbg `trace` runs (interactive with ARCHITECT), git status and diff, binary hash checks.
-- Engineer (sonnet) — Steps 8c, "pane complete at creation", the plugin offload stamp, the TextEditor terminal lanes, the ViewManager bind-before-bounds order.
-- Auditor — not run. ARCHITECT: *"/audit wholesale until /log"*; it runs once over Plan 2's sprint.
-
-### Files Modified
-**end (24 files):**
-- `Source/Main.cpp:29-40` — one export `enax_get_extension (const char* id)` returns `Nexus::getExtension (id)`. The three `jam_host_*` exports are deleted.
-- `Source/plugins/Nexus.h` / `.cpp` — `extensions` table: `enaxContextFactory`, `enaxPeerDeleted`, `enaxKeyPressed`, `enaxMouseEvent`, `enaxDisplayBounds` (`Nexus.cpp:30-34`); `keyPressedCallback` and `mouseEventCallback` forward to the active window's peer (`:6-24`); `getExtension` (`:112-121`); `registerAudioUnit` (`:188-209`). `offloadPlugins` extracts only when the stamp differs from `CAST_PLUGINS_HASH` (`:123-150`), because the old size test kept a stale EVE of equal size.
-- `Source/plugins/Session.cpp:39-82` — one synchronous load per pane: `PluginDescription` with `fileOrIdentifier` and `pluginFormatName`, then `formatManager.createPluginInstance`. The `findAllTypesForFile` scan (it built a throw-away instance, `juce_VSTPluginFormatHeadless.cpp:53`) and the `Id::pluginId` write are deleted.
-- `Source/ui/EditorView.cpp:4-12`, `:72-92` — the editor is created in the constructor (`createProcessorEditor()`), JUCE-native. `resized` sets the hosted `Width`/`Height` parameters through `convertTo0to1 (snapToLegalValue (…))` (`:22-55`). `visibilityChanged` and the `pluginId` branch are deleted.
-- `Source/ui/SessionView.cpp:56` — `property == Id::name or property == Id::focusedPane`.
-- `Source/lookAndFeel/ENDLookAndFeel.h` / `.cpp:509-519` — the pane outline reads the pane row's `Id::focus`; `createFocusOutlineForComponent` is deleted.
-- `cast/cmake.cast:295-306` — `CAST_PLUGINS_HASH`: SHA256 over the `.zip` files of the layout glob, a configure dependency, a compile definition.
-- `cast/files.md:33` — `plugins stamp` = `.plugins-stamp`. `cast/identifiers.md` — `pluginId` row deleted.
-- `project-info.md` — the EVE spell runs before jam in each cast row. `Source/plugins/EVE v0.1.0 macOS.zip` — the current EVE build.
-- Generated: `CMakeLists.txt`, `Source/generated/Files.*`, `Identifiers.*`, `.clangd`, `.project`.
-- `SPEC.md`, `ARCHITECTURE.md` — END as an audio plugin host with ENAX (partial; see State for Continuation). `PLAN-enax-plugin-host-type.md` — Steps 8a–8d recorded. `PLAN-enax-command-id.md:101` — "arm" wording replaced.
-
-**jam (36 tracked + 6 new):**
-- `jam_core/utilities/jam_PluginHostType.h` / `.cpp` (new) — one detection object over `juce::PluginHostType`; `jam_PluginHost.h` deleted; callers moved (`jam_AudioModel.cpp:126`, `:446`, `jam_PopupMenu.h:1966`, `jam_ScaledContent.cpp:7`, `jam_ViewEditor.cpp:76`, `:93`, `jam_ViewPanel.cpp:18`).
-- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h` / `.cpp` (new) — mixin, rule table, one `isEND()` probe; `set (rule, callback, args…)` forwards its arguments (`.h:12-19`); the size rule fills `ranges[width/height]` from `minimumPaneExtent` and END's display bounds (`.cpp:21-27`).
-- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h:57-128` — `create` takes the extensions; `engine` and `keys` rules replace the `getHostFunction` branch.
-- `jam_plugin_bootstrap/parameter/jam_ParameterLayout.h` / `.cpp:77-166` — `get (parameters, ranges)` with an integer entry.
-- `jam_plugin_bootstrap/view/jam_PluginEditor.cpp` — `resized` writes width/height through a gesture (`:58-70`); `getZoomSize() const` (`:168-177`); `width`/`height` registry callbacks call `setScaling()` (`:236-246`).
-- `jam_plugin_bootstrap/view/jam_ViewManager.h:75-78` / `.cpp:60-70`, `:95-146` — build, bind, then lay out: the build pass sets no bounds; `applyComponentBounds<DocumentType>` runs after `addBindings`; the XML lane lays out from each row's `rect`. MANIFESTO E, Complete at Creation.
-- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — the `onKeyPress`, `onMouse`, `onImages` slots and the `liveCursor`, `liveCursorVisible`, `liveIsRecording`, `winsize` Values are deleted. `bindToModel` binds the instance's `Id::terminal` row before it redirects `state` (`.cpp:148-163`); `cursor`, `cursorVisible`, `isRecording` dispatch through the `properties` map (`:782-789`); `setWinsize()` writes the row (`:1098`). Terminal mode encodes keys and mouse with `TerminalKeyboard::map` / `TerminalMouse::map` against the row and sends prvalues through `bindToEvents` → `chainEvents[Id::terminalInput]` (`:137-145`, `:542-557`, `:1457-1471`). `setImageBounds`, `addImageBounds`, `imageBounds` and `Value::Listener` are deleted. Local `node` renamed `componentState` (NAMES Rule 6).
-- `jam_gui/layout/jam_OwnedComponent.h` (`focusOfChildComponentChanged`), `jam_OwnerComponent.h:80` (`addAndMakeVisible`), `jam_MatrixComponent.cpp:353-359` (no `setVisible`), `jam_PaneComponent.h` (`setHasFocusOutline` removed).
-- `jam_plugin_bootstrap/standalone/jam_AudioStandaloneApp.*` — `MainWindow::focusGained` gives the editor focus.
-- `patch/juce-plugin-host-type-hook.patch`, `juce-plugin-window-focus-hook.patch`, `juce-mouse-event-hook.patch` (new); `juce-plugin-transparency-hook.patch` (opaque only when the host is not END).
-- `cast/core.md:74-78` (five ENAX ids), `cast/plugin_bootstrap.md` (`engine`), `cast/terminal.md:63` (`winsize`, moved from EVE because jam now names it), generated, `user-modules-info.md`, `jam_core.*`, `jam_plugin_bootstrap.*`.
-
-**eve (12 files):**
-- `Source/EVEProcessor.h` — `jam::ENAXClientExtensions` mixin; `create (*this, …)`; size ranges into `ParameterLayout::get`.
-- `Source/EVEViewComponents.cpp:26-37` — `registration.events` is stateless (`[]`): `bindToEvents (chainEvents->at (eventName))`, then terminal mode. The old `[this]` capture bound every later editor to the first instance's terminal row through the first-wins shared registry (`jam_SharedInstance.h:1-3`).
-- `Source/EVEView.h` / `.cpp` — `setOverlays`, `applyImage`, `overlays` deleted.
-- `Source/EVETerminalProcessor.cpp:37` — the destructor calls `releaseResources()`.
-- `Source/layout/parameters.md` — `width` (80–7680, 800) and `height` (80–4320, 600).
-- `cast/identifiers.md` — `winsize` moved to jam. `CMakeLists.txt` (patch list), `project-info.md` (absolute toolchain paths), generated, `PLAN-Grand-Scheme.md` ("arm" wording).
-
-### Alignment Check
-- [x] BLESSED principles followed — one instance per pane; per-instance state through the lanes each bind receives; bind before layout.
-- [x] NAMES.md adhered — corrected in-sprint: the conditional `set` in `setWinsize` was reverted (Rule 1), `node` renamed (Rule 6).
-- [x] MANIFESTO.md principles applied
-- [ ] No @Auditor and no doxygen pass. ARCHITECT ordered both to run once, wholesale, at the end of Plan 2.
-
-### Problems Solved
-- **Second pane empty.** The cause was the shared registry. `jam::PluginEditor` holds `SharedInstance<Registry>` (`jam_PluginEditor.h:217`), first-wins. EVE's `[this]` bind lambda therefore bound instance 2's text editor to instance 1's terminal row. The trace showed instance 2's `winsize` never firing and instance 1 restarting at 110×37. Fixed by stateless registration, with per-instance data through the bind lanes (JFS pattern, `FilterStripViewRegistration.cpp:365-401`).
-- **Stale EVE.** The size-only offload test kept an older EVE of equal size (SHA256 differed). Fixed by the build-time hash stamp.
-- **Two instances per pane.** The type scan built a throw-away instance. Replaced by one direct load.
-- **The `winsize` write on an unbound row** (`juce_ValueTree.cpp:777`). Fixed at the causes: `bindToModel` binds the row before it redirects `state`, and `ViewManager` binds before it lays out.
-- **Crash on first key.** `Function::Array::get` deduced `<const char*&, int&>`; fixed by passing prvalues (`jam_Function.h:145-149`).
-- ARCHITECT's runtime test: 2 tabs, 2 panes, every terminal created, focus correct, each pane closed until quit, no issue.
-
-### State for Continuation
-- Plan 2 (`PLAN-enax-command-id.md`) is next. It absorbs, by ARCHITECT's order:
-  1. Per-instance key `mode`. `jam::CommandManager::mode` is one `juce::Value` per binary (`jam_CommandManager.h:23`). Each TextEditor `referTo`s it (`jam_TextEditor.cpp:105`, `:159`), so the editor bound last owns it for every pane (`jam_CommandManager.cpp:54`). Plan 2 `:38`, `:95`, `:109` keep this design and need amendment.
-  2. `Session::newPlugin` takes a `juce::PluginDescription`; EVE's description is fixed data from `Nexus` (`Session.cpp:48` hardcodes the VST format name). The name `defaultPlugin` is not ratified.
-  3. The `MVKBlockObserver` duplicate class (END and EVE) and the `FSEventStream` assertion, logged once per instance.
-  4. Plan 1 Step 9 (AU, one format at a time) and Step 10 (SPEC/ARCHITECTURE).
-  5. Plan 2's own citations are stale (for example `:39`, `:51`); refresh them first.
-- `ARCHITECTURE.md` still describes the removed `Id::pluginId` and the type scan (the lifecycle bullets and "The View is detachable"). Read the code before you rewrite it.
-- Stale doc lines for the doxygen pass: `jam_TextEditor.h:67`, `:141`, `:160`, `:471`, the constructor and `setWinsize` docs; `jam_ViewManager.h:278-279`, `:302-303`, `:323-329`, `:685`; `EVEView.h:7-10` and the `registerViewComponents` doc; `EditorView.h:14-16`, `:44-47`; `jam_OwnerComponent.h:64-73`; the `jam_PluginEditor.h` `getZoomSize` / `addCallbacks` docs; `ENDLookAndFeel.h:258`; "arm" prose at `jam_ParameterLayout.h:18`, `:199`, `jam_ModelLayout.h:17`.
-- Under the debugger only, `split` asserted at `jam_MatrixComponent.cpp:70` when the window was not focused at the pane's focus grab (`juce_Component.cpp:2960-2966`). It did not occur in ARCHITECT's runtime test.
-- DEBT-20261025T214955 and DEBT-20261009T112447 are recorded as paid in `CLAUDE.md`. Their receipts belong to Plan 2 Step 10 (`PLAN-enax-command-id.md:146`).
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
-
----
-
-## Sprint 92: ENAX Host–Client Contract Planned — Grand-Scheme Amendment, Two Executable Plans, Plan Hygiene ✅
-
-**Date:** 2026-11-01
-**Duration:** one session. The start and end times are not recorded.
-
-### Agents Participated
-- COUNSELOR — discussion with ARCHITECT, every ruling recorded verbatim, the Grand-Scheme amendment, both plans, the debt rewrite, the CLAUDE.md refresh, this log.
-- Pathfinder (haiku) — reads: plan and log inventory over end, jam and eve; the key and command path; the Grand-Scheme; the JFS and KANJUT attachment pattern; the glyph raster path under a transform; the JUCE hosted-parameter, focus and transparency code; the AU registration facts.
-- Engineer (sonnet) — `rm` of 11 plan files.
-- Auditor — not run. This sprint wrote documents only; each plan runs @Auditor at its own end.
-
-### Files Modified (17 total)
-- `PLAN-enax-plugin-host-type.md` (new) — Plan 1, 10 steps: `jam::PluginHostType` (END registered in JUCE's shape), ENAX ids, one `enax_get_extension` export over `Nexus::extensions`, `jam::ENAXClientExtensions` (mixin, rule registry, one `isEND()` probe), engine and key-hook rules, transparency through JUCE's host query, focus forwarded by END, AU in-process registration, docs. Its gate runs once per format.
-- `PLAN-enax-command-id.md` (new) — Plan 2, 10 steps: trace first, EditorMode as a key, owner-scoped command tables (`map::TextEditorCommandId`, `map::PluginEditorCommandId`) with default bindings, one binder per binary, the hosted key rule, `mode` as an EVE host parameter with `jam::Model::ValueAttachment`, END driving the focused plugin by parameter name, END zoom through the plugin's `zoom` parameter with `exclusiveZoom`, copy and paste, docs.
-- `DEBT.md:20-25` — DEBT-20261025T135707 rewritten to its CLAP-format remainder and marked deferred. The `VirtualClock` part is done (`:125`, `:36` of this log).
-- `CLAUDE.md:3`, `:9-21` — END named an audio plugin host end to end. Last sprint, the four debts, the two open plans and the Layer Order follow the working tree.
-- `carol/SPRINT-LOG.md` — this entry.
-- `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md` (§4.3, after `:986`) — `[AMENDED 2026-11-01 — ENAX, the END host–client contract, ARCHITECT verbatim]`.
-- Deleted (done or superseded): `PLAN-eve-hosted-at-end.md`, `PLAN-END-plugin-host.md`, `PLAN-terminal-editor.md`, `PLAN-eve-shared-engine.md`, `PLAN-end-host-contract.md`; eve `PLAN-column-reflow.md`, `PLAN-eve-beat-endless.md`, `PLAN-terminal-clock-rhythm.md`, `PLAN-terminal-clock.md`, `PLAN-seq-profiling.md`; jam `PLAN-cpu-graphics-engine.md`.
-
-### Alignment Check
-- [x] BLESSED principles followed — each design point was checked against SSOT, Encapsulation and Explicit, and each scattered site is cited in the plans.
-- [x] NAMES.md adhered — every new name was ratified by ARCHITECT or derived from a cited family. The full list is in each plan's rulings.
-- [x] MANIFESTO.md principles applied
-- [ ] No build and no runtime check: this sprint changed no code.
-
-### Problems Solved
-- **Plan sprawl.** 13 plans were spread over three repos. 11 are deleted. The kept plans are `eve/PLAN-Grand-Scheme.md` (founding RFC), `eve/PLAN-eve-terminal-protocol.md` (Step 14 waits for ARCHITECT's runtime test) and the two new END plans.
-- **A vague key and command contract.** The old Step 7.3 pushed the plugin's key rows into a coalesced END table. The session replaced it:
-  - A command id is a callback id, owned by the owner of the state it changes. This is the `ColourId` isomorph (`jam/cast/style.md:66`).
-  - Widgets carry their default bindings. Config overrides by name, and the widget never reads config.
-  - One binder and one entry per binary.
-  - The TextEditor keeps resolving its own keys by its own mode (`jam_TextEditor.cpp:726-729`).
-- **END driving plugin state.** The state goes through JUCE's host parameter contract, which every format carries.
-  - Hosted parameter ids are format-specific (`juce_VSTPluginFormatImpl.h:979-981`, `juce_VST3PluginFormatImpl.h:2106-2108`, `juce_AudioUnitPluginFormatImpl.h:758-760`). So END finds a parameter by name. The name comes from one jam function (`jam_ParameterLayout.cpp:26-31`).
-  - END works only in normalised values, with JUCE's own API (`juce_AudioProcessorParameter.h:105-159`).
-- **Zoom.** The JUCE view transform reflows, because the view bounds are divided by the zoom (`jam_ViewEditor.cpp:96`). Glyphs rasterise at the scaled size (`jam_GlyphRasterizer.cpp:55-61`, `:463-465`). So zoom stays the transform over the `zoom` parameter, and the font-size multiplier is dropped.
-- **Contract name.** ARCHITECT ratified ENAX (*"END Native API eXtension"*) and `jam::ENAXClientExtensions`. The latter is the isomorph of JUCE's per-format client extensions (`juce_AudioProcessor.h:1254-1284`).
-
-### State for Continuation
-- Next: `/go` on `PLAN-enax-plugin-host-type.md`, then `PLAN-enax-command-id.md`. Both state "Risks / Open Questions: None".
-- Before Plan 1 Step 6, read every `PluginEditorLayout::create` caller (LSP). The known caller is `eve/Source/EVEProcessor.h:96-97`.
-- Before Plan 1 Step 7, read the AU client editor wrapper (`juce_audio_plugin_client_AU_1.mm`). It was not read this session.
-- Before Plan 2 Step 3, read the generated form of a `static-value-lookup-table` section (`jam/cast/spell.md:2711-2721`).
-- The two 2026-10-31 handoffs below record the previous sprint's completed work. That work is committed but not logged as a sprint.
-- `eve/PLAN-eve-terminal-protocol.md` waits for ARCHITECT's Step 14 runtime test. Its sprint is not logged (`eve/carol/SPRINT-LOG.md:144`).
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
-
----
-
 ## Handoff to COUNSELOR: END Host Contract — EVE Hosted at END as VST2
 
 **From:** COUNSELOR
@@ -522,4 +456,50 @@ None. Chord handling is resolved by ARCHITECT: *"CommandManager should have "mer
 ### Next Steps
 - When ARCHITECT says `/go` on `PLAN-end-host-contract.md`, start Step 1 (the `juce-plugin-host-type-hook.patch`).
 - Before Step 7, ARCHITECT builds END Debug and EVE Debug (same configuration on both sides).
+
+---
+
+## Handoff to COUNSELOR: Relative Toolchain Paths in EVE and END
+
+**From:** COUNSELOR
+**Date:** 2026-11-09
+**Status:** Blocked — waits for the cast working-directory change
+
+### Read First
+1. `~/Documents/Poems/dev/cast/RFC-toolchain-working-directory.md` — the rule cast will implement, the data rows after the change ("The data after the change"), and the 5 open questions.
+2. Sprint 98 above — the lanes and flags that the rows carry now.
+3. `~/Documents/Poems/dev/eve/project-info.md` `## toolchain` (`:119-201`) and `~/Documents/Poems/dev/end/project-info.md` `## toolchain` (`:105-135`) — the rows to rewrite.
+
+### Context
+- ARCHITECT's rule: *"the implementation must be written now, so it was written UNIVERSALLY. no hardcoding of any platform"*.
+- The EVE rows and three END rows hold macOS absolute paths, for example `eve/project-info.md:126` `-S /Users/jreng/Documents/Poems/dev/eve -B /Users/jreng/Documents/Poems/dev/eve/Builds/Release …` and `end/project-info.md:120` `cast | /Users/jreng/Documents/Poems/dev/eve/spell --vst-debug`.
+- They are absolute because each toolchain row runs in the caller's folder (`cast/Source/Toolchain.cpp:21-22`, `cast/SPEC.md:939-941`), so EVE's rows run in END's folder when END calls EVE.
+- ARCHITECT selected the fix in cast: *"B. write RFC to cast repo"*. A cast COUNSELOR session works on it (ARCHITECT: *"counselor at cast just started"*).
+
+### Completed
+- `cast/RFC-toolchain-working-directory.md` written, with the inventory of all 24 `## toolchain` tables and their relative-path base.
+- Sprint 98: every EVE `cmake` row states its architecture and format; END's debug and no-sign rows call `--vst-debug` and `--vst-no-sign` (`end/project-info.md:120`, `:128`).
+
+### Remaining
+1. Cast COUNSELOR — implement the working-directory rule that ARCHITECT selects (RFC Open Question 1).
+2. COUNSELOR (END/EVE) — rewrite the EVE toolchain table (`eve/project-info.md:119-201`): every `/Users/jreng/Documents/Poems/dev/jam/cast/spell.md` → `../jam/cast/spell.md`; `-S /Users/jreng/Documents/Poems/dev/eve -B /Users/jreng/Documents/Poems/dev/eve/Builds/<X>` → `-S . -B Builds/<X>`; `-C /Users/jreng/Documents/Poems/dev/eve/Builds/<X>` → `-C Builds/<X>`. All other cells stay. This holds under RFC option (a). Under option (b) the paths are one level up (`../../jam/cast/spell.md`, `-S .. -B ../Builds/<X>`, `-C ../Builds/<X>`).
+3. COUNSELOR (END/EVE) — rewrite `end/project-info.md:110`, `:120`, `:128` to `../eve/cast/spell.md`, `../eve/cast/spell.md --vst-debug`, `../eve/cast/spell.md --vst-no-sign` (RFC Open Question 5: the direct path, not the `eve/spell` link). Under option (b), END's relative rows (`:112`, `:114`, `:116`, `:118`, `:122`-`:134`) also move one level up.
+4. ARCHITECT — fresh `cast cast/spell.md` in EVE, then in END, from any folder; then the Sprint 98 checks (`State for Continuation`).
+
+### Key Decisions
+- *"the implementation must be written now, so it was written UNIVERSALLY. no hardcoding of any platform. correct foundation, the actual testing/hardening will eventually get on actual windows machine"*
+- *"my DX is identical on any machine, any platform"*
+- *"B. write RFC to cast repo"*
+- *"ARCHETYPE is for ANY PROJECT. why hardcode eve into its docs?"*
+- *"machinist done its job. counselor at cast just started. are you done with yours?"*
+
+### Files Modified
+- `~/Documents/Poems/dev/cast/RFC-toolchain-working-directory.md` — new.
+
+### Open Questions
+- Which working directory cast uses: the folder of the file that declares the table (a) or the manifest's folder (b). Decider: ARCHITECT (cast RFC Open Question 1). The row text of Remaining 2 and 3 depends on it.
+- jreng-filter-strip's `cast/signing.md:48-52` changes under (a). Decider: ARCHITECT (cast RFC Open Question 2). It is not in the END/EVE scope.
+
+### Next Steps
+- Start when ARCHITECT says the cast working-directory change is in. Read the cast SPEC §6.9 text that lands, then do Remaining 2 and 3 with @Engineer, and validate each row by a read.
 
