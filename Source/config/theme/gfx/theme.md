@@ -32,7 +32,7 @@ END reads the light column or the dark column according to the appearance row of
 +----------------------+--------+------------+------------------------+
 | gentle cold          | colour | 0xffc5f0e9 | Pale mint.             |
 +----------------------+--------+------------+------------------------+
-| glass corbeau        | colour | 0x600d141f | Blue black, 33% alpha. |
+| glass corbeau        | colour | 0x400d141f | Blue black, 25% alpha. |
 +----------------------+--------+------------+------------------------+
 | glass little mermaid | colour | 0x802c4144 | Dark teal, 50% alpha.  |
 +----------------------+--------+------------+------------------------+

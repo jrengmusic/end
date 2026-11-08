@@ -2,6 +2,60 @@
 
 ---
 
+## Sprint 99: ENAX Plugin Format Is One Word — `pluginFormat`, Generated `pluginBundle.cmake`, Bundle From the Zip ✅
+
+**Date:** 2026-11-09
+**Duration:** not measured (one session, run from the cast COUNSELOR session)
+**Scope (ARCHITECT):** *"add to end's CLAUDE.md, what AGENTS need to change if in the future we want to switch EVE (or any END's enax plugin) to other format"*; *"ONLY one place, one word, if it need to be replaced in couple of places, then the design is garbage"*; *"the selection should live at END's project-info.md"*; *"isnt this could be done in DETERMINISTICALLY in cmake way? but universal abstraction as `template`, then cast only drives the parameter?"*; rulings *"Generated -P script"*, *"From the zip"*, *"Default also narrows"*, *"Redefine vst/vst3/au"*, *"pluginFormat, plugin.cmake"*, then *"pluginBundle.cmake? more accurate?"*.
+
+### Agents Participated
+- COUNSELOR — the reads of cast cell resolution (`cast/Source/Model.cpp:72`, `:129-132`, `:987-988`), five ARCHITECT questions, every validation read, the audit triage, the SPEC / ARCHITECTURE / CLAUDE.md edits, this log.
+- Pathfinder (haiku) ×4 — the format-site inventory; the gh.cmake chain, Nexus unpack path and JUCE `ZipFile` API; the Sprint 98 checks (`lipo`, `unzip -l`, `ccache -s`); the doxygen pass.
+- Engineer (sonnet) ×4 — data and template; Nexus load from the zip; the audit fixes (CMake archive gate, Nexus split); the deletion of `PLAN-build-time.md`.
+- Auditor (opus) ×1 — one pass, 14 findings.
+
+### Files Modified (12 total)
+**end:**
+- `project-info.md:104`, `:106` — `## cmake` rows `pluginFormat | vst` (the one word) and `pluginManifest | ../eve/cast/spell.md`; the table re-gridded. `## toolchain` `:114`, `:124`, `:132` — `cmake -P pluginBundle.cmake`, `-DCAST_LANE=debug …`, `-DCAST_LANE=no-sign …` replace the three literal EVE lane calls.
+- `cast/cmake.cast:540-544` — fence `plugin-bundle`: `string(JOIN "-" CAST_PLUGIN_LANE :::pluginFormat::: ${CAST_LANE})`, then `execute_process(COMMAND cast "${CMAKE_CURRENT_LIST_DIR}/:::pluginManifest:::" "--${CAST_PLUGIN_LANE}" COMMAND_ERROR_IS_FATAL ANY)`. `:356-391` — the plugin-archive block moved after the pack values; it keeps the archive of `${CAST_PACK_platform}` and fails the configure unless exactly one is left.
+- `cast/spell.md:58`, `:249` — `@PluginBundle | ../pluginBundle.cmake` and its wiring row; both `@files:platform files` rows deleted.
+- `cast/files.md` — `## platform files` (`EVE.vst` / `EVE.dll`) deleted; brief reworded.
+- `cast/source.cast` — fence `platform-identifier-definition` deleted (its one user was the deleted row).
+- `Source/plugins/Nexus.cpp:170-211`, `Nexus.h:77-115` — `offloadPlugins` deleted. `getOrCreatePlugin()` returns the first entry of the embedded archive and writes the stamp only after a good unpack. The private static overload `getOrCreatePlugin (resourceName, pluginsDirectory, isOffloaded)` handles one archive with `uncompressTo`.
+- `Source/ui/TabView.h:61-68`, `Nexus.h:20-27` — doxygen.
+- `CLAUDE.md` — `## ENAX Plugin Format (one word)`; stale `Nexus.cpp` line cites corrected.
+- `SPEC.md:67-71`, `:236-244`; `ARCHITECTURE.md:13`, `:726`, `:817-822` — `offloadPlugins` / `files::evePlugin` text replaced, line cites corrected.
+- `PLAN-build-time.md` — deleted (ARCHITECT: *"delete PLAN-build-time.md"*).
+
+**eve:**
+- `project-info.md:150-164` — the `vst`, `vst3`, `au` lanes pass `-DCAST_PLUGIN_FORMAT=VST|VST3|AU` and build `-C Builds/Release`: Release, signed, universal, one format, packed.
+
+### Alignment Check
+- [x] BLESSED principles followed — S: the format is one cell; the bundle name comes from EVE's output, not restated. D: one embedded archive, enforced at the owner (CMake). E: the unpack Result and the stamp write are asserted.
+- [x] NAMES.md adhered — `pluginFormat`, `pluginBundle.cmake`, `CAST_LANE` ratified by ARCHITECT; `pluginManifest` from the same `## cmake` key family and cast's "manifest"; `@PluginBundle` / `plugin-bundle` from the `@Gh` / `gh` siblings; `isStamped` from `jam_Subprocess.cpp:70`.
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **The format word was fused into three places** (`project-info.md` `--vst-debug`, `--vst-no-sign`; `files.md` `EVE.vst` / `EVE.dll`). cast resolves only a whole-cell `@alias` (`Model.cpp:987-988`), so the composition moved to CMake: one word, one generated script, one lane word per END lane.
+- **Audit, 14 findings.** Fixed: 1 + 7 (CMake one-archive gate), 2 (unpack Result, stamp), 4 (split under 30 lines), 5 (`pluginsHash` scope), 6 (re-check assert removed), 9 (`au` macOS only in CLAUDE.md), 10-13 (stale docs, line cites, CLAUDE.md wording, files.md brief). Rejected with a read: 3 (`getOrCreate` is creation, NAMES verb contract; creation may allocate, MANIFESTO E), 8 (ARCHITECT Sprint 98: *"EVE manifest by default (Release) must always build all, pack all, etc as now"*), 14 (`CAST_LANE` was in the option ARCHITECT chose). Doxygen-pass claims: C1 rejected (the same invariant as finding 6), C2 rejected (`isOffloaded` is a computed argument, not a tracked flag), C3 is covered by the CMake gate.
+- **CMake facts used:** `execute_process` shares the parent pipes when no `OUTPUT_*` is given (`execute_process.rst:143-144`); `COMMAND_ERROR_IS_FATAL ANY` (`:213-241`); `string(JOIN)` (`string.rst:234-239`).
+
+### State for Continuation
+- Not built. ARCHITECT runs `cast cast/spell.md` in END: it must write `pluginBundle.cmake` at the END root and regenerate `Source/generated/Files.h` / `Files.cpp` without `evePlugin` (`Files.h:48`, `Files.cpp:50` still hold it).
+- Check per lane: `cast cast/spell.md --debug` calls EVE `--vst-debug`; `--no-sign` calls `--vst-no-sign`; the default calls `--vst` (signed, universal, VST only, no install: `eve/CMakeLists.txt:723`).
+- END's configure now fails unless `Source/plugins/` holds exactly one `* <platform>[ scout].zip` (`cast/cmake.cast:366-371`).
+- Doxygen not regenerated (`ninja doxygen`).
+- END log hygiene still open: the consumed handoffs at the end of this file (*END Host Contract*, *Relative Toolchain Paths in EVE and END*).
+- Windows not tested.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 98: Build Time — Selected-Format Lanes, Host-Arch Debug, END PCH and Job Pool, ccache ✅
 
 **Date:** 2026-11-09

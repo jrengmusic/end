@@ -67,8 +67,8 @@ Application → Config → Nexus → Session → hosted audio plugins (EditorVie
 - **Nexus** (`Source/plugins/Nexus.h`) — host singleton. Owns the sessions Model
   state (`Id::sessions` tree: the `focusedSession` parameter, `Nexus.cpp:37-39`), the
   plugin format manager, the one audio graph, and the ENAX extensions
-  (`Nexus.h:153`). Offloads the plugins from BinaryData to `~/.config/end/plugins/`
-  (`Nexus.cpp` `offloadPlugins`).
+  (`Nexus.h:153`). Offloads the plugin from BinaryData to `~/.config/end/plugins/`
+  (`Nexus::getOrCreatePlugin`, `Nexus.cpp:170-211`).
 - **Session** — uuid-keyed container of hosted plugin instances for one window's
   session. A write of `Id::plugin` to a PANE row runs `loadPlugin (paneRow)`, which creates
   the plugin asynchronously; the creation callback runs `addPlugin (paneRow, instance)`
@@ -233,11 +233,15 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
 - Formats: JUCE's default formats (VST2, VST3, AU) and `jam::ClapPluginFormat`
   (`Nexus::addFormats`, `Nexus.cpp:66-76`; `Nexus::registerExtensions` fills the
   extensions that it passes, `Nexus.cpp:54-64`).
-- Plugins live in `~/.config/end/plugins/`. `Nexus::offloadPlugins` writes them from
-  BinaryData when the build-time hash of the archives differs from the stamp file
-  (`Nexus.cpp:172-206`). On macOS, when `files::evePlugin` names a `.component`, the
-  `Nexus` constructor registers that one bundle in the process after the offload
-  (`Nexus::registerEVE`, `Nexus.cpp:78-95`; `Nexus::registerAudioUnit`, `:254-262`). Formats are tested one at a time, so no other
+- Plugins live in `~/.config/end/plugins/`. END's CMake embeds exactly one plugin
+  archive, the one of the host platform (`cast/cmake.cast:356-371`).
+  `Nexus::getOrCreatePlugin` unpacks it from BinaryData when the build-time hash of the
+  archive differs from the stamp file, or when its bundle is absent, and returns the
+  bundle that the archive carries: its first entry (`Nexus.cpp:170-211`). The format
+  is the `pluginFormat` row of `project-info.md` (`CLAUDE.md`, ENAX Plugin Format). On
+  macOS, when that bundle is a `.component`, the `Nexus` constructor registers that one
+  bundle in the process after the offload (`Nexus::registerEVE`, `Nexus.cpp:78-95`;
+  `Nexus::registerAudioUnit`, `:259-267`). Formats are tested one at a time, so no other
   bundle loads. ARCHITECT: *"i dont want to put "END's in-house plugin" into system
   audio plugins path"*.
 - A write of `Id::plugin` to a PANE row makes `Session::loadPlugin` create the plugin

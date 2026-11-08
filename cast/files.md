@@ -11,10 +11,10 @@
 ## files
 
 ```
-@brief Product asset file names — pane split/join corner-menu icons, the plugin bundle each new pane loads, and the plugin file extensions.
+@brief Product asset file names — pane split/join corner-menu icons, the plugin offload stamp, and the plugin file extensions.
 
-Each constant is the literal name of an embedded SVG resource, of the plugin
-bundle or its offload stamp in the plugins folder, or of a file extension.
+Each constant is the literal name of an embedded SVG resource, of the offload
+stamp in the plugins folder, of the settings file, or of a file extension.
 ```
 
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
@@ -36,11 +36,3 @@ bundle or its offload stamp in the plugins folder, or of a file extension.
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | settings file name           | toCamel | END.settings                     | toLiteral | Window state file of END in the config directory.    |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
-
-## platform files
-
-+---------+------------+---------+---------+-----------+---------+-----------+---------------------------------------------+
-| type    | name       | format  | mac     | format    | win     | format    | description                                 |
-+=========+============+=========+=========+===========+=========+===========+=============================================+
-| @string | eve plugin | toCamel | EVE.vst | toLiteral | EVE.dll | toLiteral | EVE plugin bundle that each new pane loads. |
-+---------+------------+---------+---------+-----------+---------+-----------+---------------------------------------------+

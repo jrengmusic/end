@@ -59,7 +59,11 @@ public:
     void addPane (const juce::Identifier& edge, const juce::String& directory);
 
     /**
-     * @brief Sets the plugin property of the focused pane to the full path of the file named by files::evePlugin in the plugins folder of the config.
+     * @brief Sets the plugin property of the focused pane to the full path of the plugin bundle
+     *        that Nexus::getOrCreatePlugin() returns.
+     *
+     * The bundle name comes from the embedded archive, so this pane names no bundle. That call can unpack the
+     * archive into the plugins folder first.
      */
     void loadPlugin();
 

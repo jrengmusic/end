@@ -55,6 +55,8 @@
 +--------------------+-------------------------------------+
 | @Gh                | ../gh.cmake                         |
 +--------------------+-------------------------------------+
+| @PluginBundle      | ../pluginBundle.cmake               |
++--------------------+-------------------------------------+
 | @Release           | ../RELEASE.md                       |
 +--------------------+-------------------------------------+
 
@@ -128,26 +130,12 @@
 |                                               |                           | - name: files                                       |                    |
 |                                               |                           | > - [list]: @code:identifier                        |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
-| > - [list]: @files:platform files             | - [list]: @code:linebreak | @code:line                                          | @Files             |
-|                                               |                           | - macro: #pragma once                               |                    |
-|                                               |                           |                                                     |                    |
-|                                               |                           | @code:namespace                                     |                    |
-|                                               |                           | - name: files                                       |                    |
-|                                               |                           | > - [list]: @code:identifier                        |                    |
-+-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > - [list]: @files:files                      | - [list]: @code:linebreak | @source:source                                      | @FilesSource       |
 |                                               |                           | - file: Files.h                                     |                    |
 |                                               |                           |                                                     |                    |
 |                                               |                           | @code:namespace                                     |                    |
 |                                               |                           | - name: files                                       |                    |
 |                                               |                           | > - [list]: @code:identifier-definition             |                    |
-+-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
-| > - [list]: @files:platform files             | - [list]: @code:linebreak | @source:source                                      | @FilesSource       |
-|                                               |                           | - file: Files.h                                     |                    |
-|                                               |                           |                                                     |                    |
-|                                               |                           | @code:namespace                                     |                    |
-|                                               |                           | - name: files                                       |                    |
-|                                               |                           | > - [list]: @source:platform-identifier-definition  |                    |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | > > > - [list]: @bimaps:FileConfig            | - [list]: @code:linebreak | @code:namespace                                     | @Bimaps            |
 |                                               |                           | - macro: #pragma once                               |                    |
@@ -257,6 +245,8 @@
 | - [list]: @project-info:cmake                 |                           | @cmake:gh                                           | @Gh                |
 | - [list]: @project-info:project info          |                           | - [list]: @cmake:pack-value                         |                    |
 | - [list]: @project-info:pack                  |                           |                                                     |                    |
++-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
+| - [list]: @project-info:cmake                 |                           | @cmake:plugin-bundle                                | @PluginBundle      |
 +-----------------------------------------------+---------------------------+-----------------------------------------------------+--------------------+
 | - [list]: @project-info:cmake                 |                           | @installer:[no-banner]release                       | @Release           |
 | - [list]: @project-info:release notes         |                           | - [list]: @installer:note                           |                    |

@@ -4,11 +4,3 @@
 
 :::[list]:::
 ```
-
-```platform-identifier-definition
-#if JUCE_MAC
-const :::type::: :::name::: { juce::String::fromUTF8 (:::mac:::) };
-#else
-const :::type::: :::name::: { juce::String::fromUTF8 (:::win:::) };
-#endif
-```

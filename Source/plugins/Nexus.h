@@ -19,11 +19,11 @@ class Nexus : public jam::Instance<Nexus>
 public:
     /**
      * @brief Registers the host extensions, builds the model, the plugin formats and the audio graph,
-     *        then lists the EVE plugin.
+     *        then lists the plugin bundle of the binary data when a plugin format reads it.
      *
-     * The constructor calls registerEVE(). That call unpacks the plugins of the binary data when they are stale
-     * (getOrCreatePlugin()). On macOS, registerEVE() registers the EVE bundle as an Audio Unit
-     * component when the EVE file has the component extension.
+     * The constructor calls registerEVE(). That call gets the plugin bundle from getOrCreatePlugin(), which unpacks
+     * the embedded archive when the plugins stamp is stale or the bundle is absent. On macOS, registerEVE() registers
+     * the bundle as an Audio Unit component when the bundle file has the Audio Unit extension.
      */
     Nexus();
 
@@ -75,12 +75,16 @@ public:
     void addPluginModule (const juce::File& file);
 
     /**
-     * @brief Returns the EVE plugin file in the plugins folder of the config.
+     * @brief Unpacks the embedded plugin archive when needed, then returns the plugin bundle that the archive carries.
      *
-     * The plugin archives of the binary data are unpacked first when the plugins stamp differs from the plugin hash,
-     * or when the EVE plugin file is absent.
+     * The binary data embeds exactly one plugin archive, of the host platform, because the configure step fails otherwise.
+     * The first entry of the archive is the bundle, so the bundle name comes from the archive. The archive is unpacked
+     * into the plugins folder of the config when the plugins stamp differs from the plugin hash, which the build derives
+     * from the archive files, or when the bundle is absent. The stamp is replaced with the plugin hash only when it
+     * differed and the bundle exists.
      *
-     * @return The EVE plugin file.
+     * @return The plugin bundle in the plugins folder of the config, or an empty file when the unpack fails or the
+     *         binary data embeds no archive.
      */
     juce::File getOrCreatePlugin();
 
@@ -97,9 +101,18 @@ public:
 
 private:
     /**
-     * @brief Unpacks each plugin archive of the binary data into the plugins folder, then writes the plugin hash to the plugins stamp.
+     * @brief Makes the bundle of one embedded plugin archive available in the plugins folder, unpacking the archive only when needed.
+     *
+     * The archive carries its bundle as the first entry, so the bundle path is known before any unpack. When the archive
+     * is offloaded and its bundle exists, the bundle is returned without unpacking. Otherwise every file of the archive is
+     * unpacked into the plugins folder, and existing files are overwritten. A debug build asserts when the unpack fails.
+     *
+     * @param resourceName       Name of the archive resource in the binary data.
+     * @param pluginsDirectory   Plugins folder of the config that receives the unpacked files.
+     * @param isOffloaded        True when the plugins stamp matches the plugin hash.
+     * @return The bundle in pluginsDirectory, or an empty file when the unpack fails.
      */
-    void offloadPlugins();
+    static juce::File getOrCreatePlugin (const char* resourceName, const juce::File& pluginsDirectory, bool isOffloaded);
 
 #if JUCE_MAC
     /**

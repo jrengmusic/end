@@ -32,11 +32,25 @@ namespace files
     const juce::String splitHorizontalNormal     { juce::String::fromUTF8 ("split_horizontal_normal.svg") };
     const juce::String joinCellsVerticalNormal   { juce::String::fromUTF8 ("join_cells_vertical_normal.svg") };
     const juce::String joinCellsHorizontalNormal { juce::String::fromUTF8 ("join_cells_horizontal_normal.svg") };
-    const juce::String evePlugin                 { juce::String::fromUTF8 ("EVE.vst") };
     const juce::String pluginsStamp              { juce::String::fromUTF8 (".plugins-stamp") };
     const juce::String archiveExtension          { juce::String::fromUTF8 ("zip") };
     const juce::String audioUnitExtension        { juce::String::fromUTF8 ("component") };
     const juce::String settingsFileName          { juce::String::fromUTF8 ("END.settings") };
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace files
+
+//==============================================================================
+
+namespace files
+{
+/*_____________________________________________________________________________*/
+
+    #if JUCE_MAC
+    const juce::String evePlugin { juce::String::fromUTF8 ("EVE.vst") };
+    #else
+    const juce::String evePlugin { juce::String::fromUTF8 ("EVE.dll") };
+    #endif
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

@@ -32,6 +32,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
+cmake_host_system_information(RESULT CAST_TOTAL_MEMORY QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information(RESULT CAST_LOGICAL_CORES QUERY NUMBER_OF_LOGICAL_CORES)
+math(EXPR CAST_COMPILE_JOBS "${CAST_TOTAL_MEMORY} / 1280")
+
+if(CAST_COMPILE_JOBS GREATER CAST_LOGICAL_CORES)
+    set(CAST_COMPILE_JOBS ${CAST_LOGICAL_CORES})
+endif()
+
+set_property(GLOBAL PROPERTY JOB_POOLS compile=${CAST_COMPILE_JOBS})
+set(CMAKE_JOB_POOL_COMPILE compile)
+set(CMAKE_JOB_POOL_PRECOMPILE_HEADER compile)
+
 option(CAST_SIGN "Run the codesign/notarize POST_BUILD chain on a Release build" ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "macOS deployment target")
 
@@ -40,6 +53,7 @@ if(APPLE)
     set(CAST_EXTRA_LANGUAGES OBJC OBJCXX)
 elseif(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
     set(CAST_EXTRA_LANGUAGES "")
 endif()
 
@@ -52,6 +66,13 @@ project(END
     LANGUAGES C CXX ${CAST_EXTRA_LANGUAGES}
     DESCRIPTION "Ephemeral Nexus Display"
 )
+
+find_program(CAST_CCACHE ccache NO_CACHE REQUIRED)
+get_property(CAST_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+
+foreach(CAST_LANGUAGE ${CAST_LANGUAGES})
+    set(CMAKE_${CAST_LANGUAGE}_COMPILER_LAUNCHER "${CAST_CCACHE}")
+endforeach()
 
 message(STATUS "CAST: configuring ${PROJECT_NAME} ${PROJECT_VERSION}")
 
@@ -77,7 +98,7 @@ elseif(WIN32)
 /LTCG;/OPT:REF;/OPT:ICF
     )
     set(CAST_DEBUG_COMPILE_FLAGS
-/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/W4;/FC;/wd4661;/Od;/Zi
+/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/W4;/FC;/wd4661;/Od
     )
 endif()
 
@@ -259,6 +280,21 @@ ${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${CAST_SOURCE_FILES})
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:<JuceHeader.h$<ANGLE-R>>")
+
+if(APPLE)
+    target_compile_options(${PROJECT_NAME} PRIVATE "SHELL:-Xclang -fno-pch-timestamp")
+endif()
+
+file(GLOB CAST_MODULE_SOURCES
+    "${CAST_JUCE_PATH}/modules/*/*.cpp"
+    "${CAST_JUCE_PATH}/modules/*/*.mm"
+    "${CAST_USER_MODULE_PATH}/*/*.cpp"
+    "${CAST_USER_MODULE_PATH}/*/*.mm"
+)
+
+set_source_files_properties(${CAST_MODULE_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 
 # ==============================================================================
 # DEFINES — one call, platform and configuration routed by generator expression

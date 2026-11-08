@@ -323,36 +323,6 @@ file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
 :::[list]:::
 )
 
-set(CAST_PLUGIN_FILES ${CAST_LAYOUT_FILES})
-list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX "[.]zip$")
-list(FILTER CAST_LAYOUT_FILES EXCLUDE REGEX "[.]zip$")
-
-if(CAST_PROFILE)
-    list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX " scout[.]zip$")
-else()
-    list(FILTER CAST_PLUGIN_FILES EXCLUDE REGEX " scout[.]zip$")
-endif()
-
-list(APPEND CAST_LAYOUT_FILES ${CAST_PLUGIN_FILES})
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CAST_PLUGIN_FILES})
-
-set(CAST_PLUGINS_HASH_CONCAT "")
-foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
-    file(SHA256 "${CAST_PLUGIN_FILE}" CAST_PLUGIN_FILE_HASH)
-    string(APPEND CAST_PLUGINS_HASH_CONCAT "${CAST_PLUGIN_FILE_HASH}")
-endforeach()
-string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
-
-set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"")
-
-juce_add_binary_data(${PROJECT_NAME}_BinaryData
-    NAMESPACE "BinaryData"
-    SOURCES ${CAST_LAYOUT_FILES}
-            ${CAST_SHADER_SPV_FILES}
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_BinaryData)
-
 include(CheckIPOSupported)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -382,6 +352,43 @@ if(APPLE)
         )
     endif()
 endif()
+
+set(CAST_PLUGIN_FILES ${CAST_LAYOUT_FILES})
+list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX "[.]zip$")
+list(FILTER CAST_LAYOUT_FILES EXCLUDE REGEX "[.]zip$")
+
+if(CAST_PROFILE)
+    list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX " scout[.]zip$")
+else()
+    list(FILTER CAST_PLUGIN_FILES EXCLUDE REGEX " scout[.]zip$")
+endif()
+
+list(FILTER CAST_PLUGIN_FILES INCLUDE REGEX " ${CAST_PACK_platform}( scout)?[.]zip$")
+list(LENGTH CAST_PLUGIN_FILES CAST_PLUGIN_COUNT)
+
+if(NOT CAST_PLUGIN_COUNT EQUAL 1)
+    message(FATAL_ERROR "CAST: one plugin archive for ${CAST_PACK_platform} expected in Source/plugins, found: ${CAST_PLUGIN_FILES}")
+endif()
+
+list(APPEND CAST_LAYOUT_FILES ${CAST_PLUGIN_FILES})
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CAST_PLUGIN_FILES})
+
+set(CAST_PLUGINS_HASH_CONCAT "")
+foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
+    file(SHA256 "${CAST_PLUGIN_FILE}" CAST_PLUGIN_FILE_HASH)
+    string(APPEND CAST_PLUGINS_HASH_CONCAT "${CAST_PLUGIN_FILE_HASH}")
+endforeach()
+string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
+
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"")
+
+juce_add_binary_data(${PROJECT_NAME}_BinaryData
+    NAMESPACE "BinaryData"
+    SOURCES ${CAST_LAYOUT_FILES}
+            ${CAST_SHADER_SPV_FILES}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_BinaryData)
 
 if(WIN32)
     string(TOLOWER "${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}" CAST_PACK_architecture)
@@ -535,4 +542,10 @@ if(CAST_RELEASE_VIEW EQUAL 0)
 else()
     execute_process(COMMAND gh release create "${CAST_RELEASE_TAG}" ${CAST_RELEASE_ASSETS} --repo ":::repository:::" --title "${CAST_RELEASE_TAG}" --notes-file "${CMAKE_CURRENT_LIST_DIR}/RELEASE.md" COMMAND_ERROR_IS_FATAL ANY)
 endif()
+```
+
+```plugin-bundle
+string(JOIN "-" CAST_PLUGIN_LANE :::pluginFormat::: ${CAST_LANE})
+
+execute_process(COMMAND cast "${CMAKE_CURRENT_LIST_DIR}/:::pluginManifest:::" "--${CAST_PLUGIN_LANE}" COMMAND_ERROR_IS_FATAL ANY)
 ```

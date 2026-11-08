@@ -167,40 +167,45 @@ juce::File Nexus::getManifestFile()
 }
 #endif
 
-static const juce::String pluginsHash { CAST_PLUGINS_HASH };
-
-void Nexus::offloadPlugins()
+juce::File Nexus::getOrCreatePlugin (const char* resourceName, const juce::File& pluginsDirectory, bool isOffloaded)
 {
-    const auto pluginsDirectory { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::plugins) };
+    int resourceSize { 0 };
+    const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
+    juce::MemoryInputStream stream { resourceData, static_cast<size_t> (resourceSize), false };
+    juce::ZipFile zip { stream };
+    const auto plugin { pluginsDirectory.getChildFile (zip.getEntry (0)->filename) };
 
-    for (int resourceIndex { 0 }; resourceIndex < BinaryData::namedResourceListSize; ++resourceIndex)
-    {
-        const char* resourceName { BinaryData::namedResourceList[resourceIndex] };
-        const auto original { juce::File::createFileWithoutCheckingPath (
-            BinaryData::getNamedResourceOriginalFilename (resourceName)) };
+    if (isOffloaded and plugin.exists())
+        return plugin;
 
-        if (original.hasFileExtension (files::archiveExtension))
-        {
-            int resourceSize { 0 };
-            const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
-            juce::MemoryInputStream stream { resourceData, static_cast<size_t> (resourceSize), false };
-            juce::ZipFile zip { stream };
+    const auto unpacked { zip.uncompressTo (pluginsDirectory, true) };
+    jassert (unpacked.wasOk());
 
-            for (int entryIndex { 0 }; entryIndex < zip.getNumEntries(); ++entryIndex)
-                zip.uncompressEntry (entryIndex, pluginsDirectory, true);
-        }
-    }
-
-    pluginsDirectory.getChildFile (files::pluginsStamp).replaceWithText (pluginsHash);
+    return unpacked.wasOk() ? plugin : juce::File {};
 }
 
 juce::File Nexus::getOrCreatePlugin()
 {
-    const auto plugin { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
-    const auto stamp { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::pluginsStamp) };
+    static const juce::String pluginsHash { CAST_PLUGINS_HASH };
 
-    if (stamp.loadFileAsString().compare (pluginsHash) != 0 or not plugin.exists())
-        offloadPlugins();
+    const auto pluginsDirectory { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::plugins) };
+    const auto stamp { pluginsDirectory.getChildFile (files::pluginsStamp) };
+    const auto isOffloaded { stamp.loadFileAsString().compare (pluginsHash) == 0 };
+    juce::File plugin;
+
+    for (int resourceIndex { 0 }; resourceIndex < BinaryData::namedResourceListSize; ++resourceIndex)
+    {
+        const char* resourceName { BinaryData::namedResourceList[resourceIndex] };
+
+        if (juce::File::createFileWithoutCheckingPath (BinaryData::getNamedResourceOriginalFilename (resourceName)).hasFileExtension (files::archiveExtension))
+            plugin = getOrCreatePlugin (resourceName, pluginsDirectory, isOffloaded);
+    }
+
+    if (not isOffloaded and plugin.exists())
+    {
+        [[maybe_unused]] const bool isStamped { stamp.replaceWithText (pluginsHash) };
+        jassert (isStamped);
+    }
 
     return plugin;
 }

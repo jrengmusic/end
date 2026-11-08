@@ -10,7 +10,7 @@
 
 ## Identity
 
-END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:77-87`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
+END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:66-76`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
 
 ---
 
@@ -723,7 +723,7 @@ literal hosting relationship:
 ### Hosting Contract
 
 - END hosts any VST2, VST3 or AU plugin. CLAP follows later.
-- One load path: the `loadPlugin (plugin)` action writes the plugin file into `Id::plugin` of the focused pane row. `files::evePlugin` is the default argument. A dropped plugin file is the override. `Session` reacts to that Model event.
+- One load path: the `loadPlugin (plugin)` action writes the plugin file into `Id::plugin` of the focused pane row. The default argument is the bundle that `Nexus::getOrCreatePlugin` returns, the first entry of the plugin archive. A dropped plugin file is the override. `Session` reacts to that Model event.
 - One split path: `newPane (edge)` splits the focused pane in half, or adds a pane. The split keys, `newTab` and a file drop each run `newPane`, then `loadPlugin` (`ENDView.cpp:172-186`, `:358-371`, `EditorView.cpp:74-85`). The corner drag calls `TabView::split (edge, proportion)`, then runs `loadPlugin` (`TabView.cpp:133-150`).
 - EVE is known: `Nexus::registerEVE` lists EVE's description at construction, so the first EVE load runs no scan.
 - `EditorView::DropTarget` sits in front of every child of a pane. A file drag that enters it focuses the pane. A plugin file dropped on it runs `newPane (pane.getEdge (point))`, then `loadPlugin (path)`.
@@ -814,12 +814,12 @@ hardcoded to END. The contract is formalised and enforced at run time.
   view the first responder (`juce_NSViewComponentPeer_mac.mm:237-239`, `:1590-1600`).
   The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
   gives the editor focus (`jam_AudioStandaloneApp.cpp:74-78`).
-- **AU registration.** On macOS, when `files::evePlugin` names a `.component`
+- **AU registration.** On macOS, when the plugin bundle is a `.component`
   (`files::audioUnitExtension`), the `Nexus` constructor registers that one bundle in
-  the process after `offloadPlugins`: `CFBundleCreate`, the plist `AudioComponents`
-  entries, `CFBundleGetFunctionPointerForName` with `factoryFunction`, then
-  `AudioComponentRegister` (`Nexus::registerEVE`, `Nexus.cpp:89-106`;
-  `Nexus::registerAudioUnit`, `:208-258`). No other bundle
+  the process after `Nexus::getOrCreatePlugin` unpacks it: `CFBundleCreate`, the plist
+  `AudioComponents` entries, `CFBundleGetFunctionPointerForName` with `factoryFunction`,
+  then `AudioComponentRegister` (`Nexus::registerEVE`, `Nexus.cpp:78-95`;
+  `Nexus::registerAudioUnit`, `:259-267`). No other bundle
   loads. Nexus owns each bundle for the process (`Nexus.h:111`).
 
 The View is detachable. `EditorView` creates the hosted editor once, when its

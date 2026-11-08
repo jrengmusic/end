@@ -2,7 +2,8 @@ CompileFlags:
   CompilationDatabase: /Users/jreng/Documents/Poems/dev/end
   Remove: [--target=*]
   Add:
-    - -DCAST_CONFIG_DIRECTORY=.config/end
+    - -DCAST_CONFIG_DIRECTORY=.config/dev
+    - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
     - -DHAVE_FCNTL_H
     - -DHAVE_FREETYPE
@@ -48,10 +49,9 @@ CompileFlags:
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
     - -DJUCE_USE_CURL=0
     - -DJUCE_WEB_BROWSER=0
-    - -DNDEBUG=1
     - -DVMA_VULKAN_VERSION=1002000
-    - -D_NDEBUG=1
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Release/END_artefacts/JuceLibraryCode
+    - -D_DEBUG=1
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/END_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/Source/generated
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
@@ -71,25 +71,33 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_web/.
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Release/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Release/juce_binarydata_END_BinaryData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_END_BinaryData/JuceLibraryCode
     - -isystem
     - /Users/jreng/Documents/Poems/dev/end/../../Vulkan/macOS/include
-    - -O3
-    - -DNDEBUG
+    - -g
     - -std=c++17
-    - -flto=thin
-    - -arch
-    - x86_64
     - -arch
     - arm64
     - -mmacosx-version-min=11.0
+    - -Xclang
+    - -fno-pch-timestamp
     - -Wno-shadow
     - -Wno-unused-parameter
     - -Wno-float-equal
     - -Wno-sign-conversion
     - -Wno-switch-enum
     - -Wno-implicit-float-conversion
+    - -O0
+    - -Winvalid-pch
+    - -Xclang
+    - -include-pch
+    - -Xclang
+    - /Users/jreng/Documents/Poems/dev/end/Builds/Debug/CMakeFiles/END.dir/cmake_pch.hxx.pch
+    - -Xclang
+    - -include
+    - -Xclang
+    - /Users/jreng/Documents/Poems/dev/end/Builds/Debug/CMakeFiles/END.dir/cmake_pch.hxx
 Diagnostics:
   MissingIncludes: None
   UnusedIncludes: None

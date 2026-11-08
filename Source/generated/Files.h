@@ -31,11 +31,21 @@ namespace files
     extern const juce::String splitHorizontalNormal;    ///< Split-horizontal corner-menu icon.
     extern const juce::String joinCellsVerticalNormal;  ///< Join-cells-vertical corner-menu icon.
     extern const juce::String joinCellsHorizontalNormal;///< Join-cells-horizontal corner-menu icon.
-    extern const juce::String evePlugin;                ///< EVE plugin bundle that each new pane loads.
     extern const juce::String pluginsStamp;             ///< Hash stamp of the plugin archives last offloaded.
     extern const juce::String archiveExtension;         ///< Extension of the plugin archives in the binary data.
     extern const juce::String audioUnitExtension;       ///< Extension of an Audio Unit bundle.
     extern const juce::String settingsFileName;         ///< Window state file of END in the config directory.
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace files
+
+//==============================================================================
+
+namespace files
+{
+/*_____________________________________________________________________________*/
+
+    extern const juce::String evePlugin;///< EVE plugin bundle that each new pane loads.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files
