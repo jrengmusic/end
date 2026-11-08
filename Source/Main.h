@@ -7,8 +7,9 @@
 #include "generated/Generated.h"
 #include "plugins/Nexus.h"
 
-class ENDApplication : public juce::JUCEApplication,
-                       private juce::ValueTree::Listener
+class ENDApplication
+    : public juce::JUCEApplication
+    , private juce::ValueTree::Listener
 {
 public:
     ENDApplication();
@@ -21,6 +22,11 @@ public:
 
 private:
     //==============================================================================
+    // Owned global registry aggregate — jam::Bimap<T> owner. Declared before any consumer so the
+    // single-global-pointer Instance<T> slot is populated before first use.
+    Generated generated;
+    //==============================================================================
+#if JUCE_DEBUG
     static inline const char* const debugLogFileExtension { ".ode" };
 
     /** @brief Diagnostic log sink — canonical location: ConfigDirectory::Config::path
@@ -29,15 +35,10 @@ private:
      *  started (IDE, Finder, terminal), so runtime diagnostics always land
      *  in one known, readable file. */
 
-    jam::debug::Log::Scope logScope {
-        ConfigDirectory::Config::path
-            .getChildFile (jam::Format::toFileName (ProjectInfo::projectName, debugLogFileExtension))
-    };
+    jam::debug::Log::Scope logScope { ConfigDirectory::Config::path.getChildFile (
+        jam::Format::toFileName (ProjectInfo::projectName, debugLogFileExtension)) };
+#endif
 
-    //==============================================================================
-    // Owned global registry aggregate — jam::Bimap<T> owner. Declared before any consumer so the
-    // single-global-pointer Instance<T> slot is populated before first use.
-    Generated generated;
 #if JAM_USING_PROFILER
     jam::Profiler profiler { jam::Profiler::defaultCapacity };
 #endif
@@ -53,16 +54,16 @@ private:
     // behaviour.
     Nexus nexus;
     ConfigModel config;
-
-    //==============================================================================
     ENDLookAndFeel lookAndFeel;
 
+    //==============================================================================
     /**
      * @brief Window state file of END in the config directory, END.settings.
      *
      * initialise() restores the window from the window key of this file, and shutdown() writes the window state to it.
      */
-    juce::PropertiesFile settings { ConfigDirectory::Config::getPath (files::settingsFileName), juce::PropertiesFile::Options {} };
+    juce::PropertiesFile settings { ConfigDirectory::Config::getPath (files::settingsFileName),
+                                    juce::PropertiesFile::Options {} };
 
     std::unique_ptr<jam::Window> window;
 
@@ -78,7 +79,8 @@ private:
      *  the post-process chain are applied later in initialise(), after the window exists. */
     void initialiseVulkan();
 
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    void
+    valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /** @brief Populates @ref events with the callbacks for every config value this application applies: font rasterization, embolden, GPU use, background, filter, post-process, and the two post-process render parameters. */
     void registerEvents();
