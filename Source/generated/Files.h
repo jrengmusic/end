@@ -21,10 +21,10 @@ namespace files
 /*_____________________________________________________________________________*/
 
 /**
- * @brief Product asset file names — pane split/join corner-menu icons, the plugin bundle each new pane loads, and the plugin file extensions.
+ * @brief Product asset file names — pane split/join corner-menu icons, the plugin offload stamp, and the plugin file extensions.
  *
- * Each constant is the literal name of an embedded SVG resource, of the plugin
- * bundle or its offload stamp in the plugins folder, or of a file extension.
+ * Each constant is the literal name of an embedded SVG resource, of the offload
+ * stamp in the plugins folder, of the settings file, or of a file extension.
  */
 
     extern const juce::String splitVerticalNormal;      ///< Split-vertical corner-menu icon.
@@ -35,17 +35,6 @@ namespace files
     extern const juce::String archiveExtension;         ///< Extension of the plugin archives in the binary data.
     extern const juce::String audioUnitExtension;       ///< Extension of an Audio Unit bundle.
     extern const juce::String settingsFileName;         ///< Window state file of END in the config directory.
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace files
-
-//==============================================================================
-
-namespace files
-{
-/*_____________________________________________________________________________*/
-
-    extern const juce::String evePlugin;///< EVE plugin bundle that each new pane loads.
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

@@ -166,12 +166,14 @@ private:
     /** @brief Theme sub-model. Its state is the THEMES subtree under the CONFIG tree. */
     ConfigTheme theme;
 
+public:
     /** @brief BACKGROUND shader sub-model. Its state is a child of the GRAPHICS table. */
     ConfigShader background { jam::Format::toType (Id::background) };
 
     /** @brief POST_PROCESSING shader sub-model. Its state is a child of the GRAPHICS table. */
     ConfigShader postProcessing { jam::Format::toType (Id::postProcessing) };
 
+private:
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigModel)
 };

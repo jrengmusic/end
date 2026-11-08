@@ -143,7 +143,7 @@ void ENDApplication::setBackground()
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
-        const auto shaderState { jam::Model::getChildWithName (config.state, jam::Format::toType (Id::background)) };
+        const auto shaderState { config.background.state };
         const auto filter { getImageResampleFilter (config) };
 
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
@@ -171,8 +171,7 @@ void ENDApplication::setPostProcess()
 
     if (gpuEnabled and projectName.isNotEmpty())
     {
-        const auto shaderState { jam::Model::getChildWithName (
-            config.state, jam::Format::toType (Id::postProcessing)) };
+        const auto shaderState { config.postProcessing.state };
         const auto filter { getImageResampleFilter (config) };
 
         const int shaderFormat { shaderState.getProperty (Id::shaderFormat) };
