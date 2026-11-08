@@ -29,7 +29,7 @@ static juce::FontOptions getTabFontOptions (ConfigModel& config)
 
 ENDLookAndFeel::ENDLookAndFeel()
 {
-    initialiseColours();
+    applyColours();
     loadGraphics();
     registerEvents();
     config.addListener (this);
@@ -49,7 +49,7 @@ void ENDLookAndFeel::darkModeSettingChanged()
     const juce::String appearanceName { config.getRowValue (jam::Format::toType (Id::display), Id::appearance) };
 
     if (map::Appearance::getInstance()->get (appearanceName) == map::Appearance::automatic)
-        initialiseColours();
+        applyColours();
 }
 
 void ENDLookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree,
@@ -71,28 +71,25 @@ juce::AffineTransform ENDLookAndFeel::getVerticalTextTransform (int position,
         : juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi).translated (width, 0.0f);
 }
 
-void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
+juce::Rectangle<float> ENDLookAndFeel::applyBarRotation (juce::Graphics& g, juce::Component& component) const
 {
-    auto bounds { bar.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::ButtonBar*> (bar.getParentComponent()) };
+    auto bounds { component.getLocalBounds().toFloat() };
+    auto* parentBar { dynamic_cast<jam::ButtonBar*> (component.getParentComponent()) };
 
     if (parentBar != nullptr and parentBar->isVertical())
         bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
 
-    if (graphics.contains (Id::tabBar))
-        jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabBar), bounds);
+    return bounds;
+}
+
+void ENDLookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
+{
+    jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabBar), applyBarRotation (g, bar));
 }
 
 void ENDLookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
 {
-    auto bounds { highlight.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::ButtonBar*> (highlight.getParentComponent()) };
-
-    if (parentBar != nullptr and parentBar->isVertical())
-        bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
-
-    if (graphics.contains (Id::tabHighlight))
-        jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabHighlight), bounds);
+    jam::Svg::Flex::paint (g, *this, graphics.at (Id::tabHighlight), applyBarRotation (g, highlight));
 }
 
 void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
@@ -100,17 +97,10 @@ void ENDLookAndFeel::drawTabButton (juce::Graphics& g,
                                     bool isMouseOver,
                                     bool isMouseDown)
 {
-    auto bounds { button.getLocalBounds().toFloat() };
-    auto* parentBar { dynamic_cast<jam::ButtonBar*> (button.getParentComponent()) };
-    const bool isVertical { parentBar != nullptr and parentBar->isVertical() };
-
-    if (isVertical)
-        bounds = applyRotation (g, bounds, getVerticalTextTransform (parentBar->getPosition(), bounds.getWidth(), bounds.getHeight()));
-
+    const auto bounds { applyBarRotation (g, button) };
     const auto state { jam::ButtonSVG::getState (button, isMouseOver, isMouseDown) };
     const juce::Identifier stateId { map::ButtonState::getInstance()->get (state) };
 
-    // Sparse bank — paint only when the state slot was authored in the FLEX child (loadGraphics()).
     if (graphics.contains (stateId))
         jam::Svg::Flex::paint (g, *this, graphics.at (stateId), bounds);
 }
@@ -143,12 +133,7 @@ juce::FontOptions ENDLookAndFeel::getOverlayFont() const
         .withPointHeight (static_cast<float> (config.getRowValue (jam::Format::toType (Id::overlay), Id::textFontSize)));
 }
 
-juce::Font ENDLookAndFeel::getCommonFont() const
-{
-    return getTabFontOptions (config);
-}
-
-juce::Font ENDLookAndFeel::getPopupMenuFont() { return getCommonFont(); }
+juce::Font ENDLookAndFeel::getPopupMenuFont() { return getTabFontOptions (config); }
 
 int ENDLookAndFeel::getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept
 {
@@ -481,8 +466,7 @@ void ENDLookAndFeel::drawPaneEdge (juce::Graphics& g, juce::Component& bar)
         bounds = applyRotation (g, bounds, getVerticalTextTransform (map::Position::left, bounds.getWidth(), bounds.getHeight())
                                                .translated (bounds.getX(), bounds.getY()));
 
-    if (graphics.contains (Id::resizerBar))
-        jam::Svg::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
+    jam::Svg::Flex::paint (g, *this, graphics.at (Id::resizerBar), bounds);
 }
 
 void ENDLookAndFeel::drawPaneOutline (juce::Graphics& g, juce::Component& pane)
@@ -510,12 +494,12 @@ void ENDLookAndFeel::registerTypeface()
         jam::Typeface::getInstance()->registerTypeface (typeface, data, static_cast<size_t> (size));
     };
 
-    registerFont (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
-    registerFont (jam::fonts::DisplayBook_ttf, jam::fonts::DisplayBook_ttfSize);
-    registerFont (jam::fonts::DisplayMedium_ttf, jam::fonts::DisplayMedium_ttfSize);
-    registerFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
-    registerFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
-    registerFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
+    registerFont (BinaryData::DisplayBold_ttf, BinaryData::DisplayBold_ttfSize);
+    registerFont (BinaryData::DisplayBook_ttf, BinaryData::DisplayBook_ttfSize);
+    registerFont (BinaryData::DisplayMedium_ttf, BinaryData::DisplayMedium_ttfSize);
+    registerFont (BinaryData::DisplayMonoBold_ttf, BinaryData::DisplayMonoBold_ttfSize);
+    registerFont (BinaryData::DisplayMonoBook_ttf, BinaryData::DisplayMonoBook_ttfSize);
+    registerFont (BinaryData::DisplayMonoMedium_ttf, BinaryData::DisplayMonoMedium_ttfSize);
 }
 
 void ENDLookAndFeel::setColours()
@@ -540,7 +524,7 @@ void ENDLookAndFeel::setColours()
         setColour (colourId, jam::ColourScheme::toColour (config.getRowValue (tableType, rowKey)));
 }
 
-void ENDLookAndFeel::initialiseColours()
+void ENDLookAndFeel::applyColours()
 {
     setColours();
     setPopupMenuColours();
@@ -561,20 +545,15 @@ void ENDLookAndFeel::setPopupMenuColours()
 
 void ENDLookAndFeel::loadGraphics()
 {
-    graphics.clear();
+    jam::HashMap<juce::Identifier, jam::Svg::Flex::Segments> newGraphics;
 
-    auto graphicsTree { jam::Model::getChildWithName (config.state, jam::Format::toType (Id::flex)) };
+    jam::Model::forEachProperty (jam::Model::getChildWithName (config.state, jam::Format::toType (Id::flex)),
+        [this, &newGraphics] (const juce::Identifier& propName, const juce::var& value)
+        {
+            newGraphics.addOrReplace (propName, jam::Svg::Flex::getSegments (value.toString(), colourScheme));
+        });
 
-    if (graphicsTree.isValid())
-    {
-        jam::Model::forEachProperty (graphicsTree,
-            [this] (const juce::Identifier& propName, const juce::var& value)
-            {
-                if (value.isString())
-                    graphics.addOrReplace (propName,
-                        jam::Svg::Flex::getSegments (value.toString(), colourScheme));
-            });
-    }
+    graphics = std::move (newGraphics);
 }
 
 void ENDLookAndFeel::registerEvents()
@@ -582,14 +561,14 @@ void ENDLookAndFeel::registerEvents()
     events.add<juce::ValueTree&> (jam::Format::toType (Id::theme),
                                   [this] (juce::ValueTree&)
                                   {
-                                      initialiseColours();
+                                      applyColours();
                                       loadGraphics();
                                   });
 
-    for (const auto& type : { jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::tab), jam::Format::toType (Id::button), jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane) })
+    for (const auto& type : { jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::button), jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane) })
         events.add<juce::ValueTree&> (type, [this] (juce::ValueTree&) { setColours(); });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::appearance), [this] (juce::ValueTree&) { initialiseColours(); });
+    events.add<juce::ValueTree&> (jam::Format::toType (Id::appearance), [this] (juce::ValueTree&) { applyColours(); });
 
     events.add<juce::ValueTree&> (jam::Format::toType (Id::menu),
                                   [this] (juce::ValueTree&)

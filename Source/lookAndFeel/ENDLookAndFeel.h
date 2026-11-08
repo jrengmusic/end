@@ -4,8 +4,6 @@
  */
 #pragma once
 #include <JuceHeader.h>
-#include <jam_gui/jam_gui.h>
-#include <JamFontsBinaryData.h>
 #include "generated/Generated.h"
 #include "config/ConfigModel.h"
 
@@ -14,13 +12,13 @@
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
  * Inherits jam::StyleCustom for tab bar background, highlight, button,
- * and pane edge rendering. Listens to both the config root ValueTree and the theme
- * subtree for live theme changes.
+ * and pane edge rendering. Listens to the config root ValueTree, which reports the
+ * property changes of its subtrees, for live theme changes.
  *
- * Event dispatch uses a single-key lookup: property key takes priority; when no
- * event is registered for the property, the lookup falls back to tree.getType().
+ * Event dispatch uses ConfigModel::getEventKey: the property key takes priority; when no
+ * event is registered for it, the lookup falls back to the tree type, then to the parent tree type.
  * This routes theme rebuild (Id::theme) and per-component colour refresh
- * (scrollbar, tab, button, overlay, pane, appearance) through one code path.
+ * (scrollbar, button, overlay, pane, appearance, menu) through one code path.
  */
 class ENDLookAndFeel
     : public jam::StyleCustom
@@ -30,48 +28,33 @@ class ENDLookAndFeel
 {
 public:
     /**
-     * @brief Initialises colours from config, loads SVG graphics from FLEX
-     *        child properties, registers events, adds a listener to config,
-     *        and installs itself as JUCE's default LookAndFeel.
+     * @brief Applies the colours from config, loads SVG graphics from FLEX
+     *        child properties, registers events, adds itself as a listener of
+     *        config and of the dark-mode setting, and installs itself as JUCE's
+     *        default LookAndFeel.
      *        Typeface registration happens later — see registerTypeface()'s
      *        doc comment for why it cannot run here.
      */
     ENDLookAndFeel();
 
-    /** @brief Removes the listener from config. */
-    ~ENDLookAndFeel();
+    /** @brief Removes itself as a listener of the dark-mode setting and of config. */
+    ~ENDLookAndFeel() override;
 
     /**
-     * @brief Registers END's six embedded typefaces — one pass, one parse per
-     *        font (SSOT font list) — creating each Typeface::Ptr, storing it in
-     *        @ref typefaces under its {name, style} composite key (see
-     *        getTypefaceKey()) for name+style lookup (getTypefaceForFont()), and
-     *        interning the same Ptr in jam::Typeface so the rasterizer reaches
-     *        the face through the interned entry instead of opening the bytes
-     *        again.
+     * @brief Registers END's six embedded typefaces.
      *
-     * Name-only keys collide: the two families (Display, DisplayMono) each
-     * register three weights (Bold/Book/Medium) that share one juce::Typeface
-     * name, so a name-only key lets addOrReplace() release two of every three
-     * Ptrs, recycling their heap addresses into later createSystemTypefaceFor()
-     * calls and desyncing jam::Typeface's pointer-keyed intern table from the
-     * live Typeface identities. The composite key keeps all six Ptrs alive
-     * with unique, stable addresses.
-     *
-     * Cannot run at LookAndFeel construction time — jam::Typeface belongs to
-     * jam::CpuGraphicsEngine, which does not exist yet then (ENDApplication creates the
-     * engine through jam::VulkanGraphicsEngine::getOrCreate in initialiseVulkan(),
-     * after ENDLookAndFeel construction). Called once, externally, immediately
-     * after engine creation (ENDApplication::initialiseVulkan()).
+     * For each of the six embedded fonts, creates a Typeface::Ptr with juce::Typeface::createSystemTypefaceFor,
+     * stores it in @ref typefaces under its {name, style} key from getTypefaceKey(), and registers the same
+     * Ptr and its bytes with jam::Typeface.
      */
     void registerTypeface();
 
     /**
-     * @brief Single-key event dispatch through the events map.
+     * @brief Event dispatch through the events map.
      *
-     * Checks whether @p property has a registered callback; if not, falls back to
-     * @p tree.getType(). Routes theme rebuild (Id::theme) and per-component
-     * colour refresh to their respective callbacks.
+     * Looks up the key that ConfigModel::getEventKey gives for @p property: the property when it is
+     * registered, otherwise the tree type when that is registered, otherwise the parent tree type.
+     * Routes theme rebuild (Id::theme) and per-component colour refresh to their respective callbacks.
      *
      * @param tree     The ValueTree whose property changed.
      * @param property The identifier of the changed property.
@@ -120,35 +103,42 @@ public:
                         bool isMouseDown) override;
 
     /** @brief Tab label rendering — uses getTabFont() and getTabText() from theme config.
-     *  No border, centred, colour from Label::textColourId (synced by ButtonTab::buttonStateChanged).
+     *  Fills the background with Label::backgroundColourId. Draws the text centred, in Label::textColourId.
+     *  The text is drawn only when the label is not being edited.
      */
     void drawTabLabel (juce::Graphics& g, juce::Label& label) override;
 
     /**
      * @brief Returns tab font constructed from theme config (family, size, kerning).
      *
-     * Reads jam::Format::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize, Id::kerningFactor.
+     * Reads the jam::Format::toType (Id::tab) rows Id::textFontFamily, Id::textFontSize and Id::kerningFactor.
      */
     juce::FontOptions getTabFont() const override;
 
+    /** @brief Returns the font of the overlay table: its textFontFamily and textFontSize rows. */
     juce::FontOptions getOverlayFont() const;
 
-    /** @brief Returns the popup menu font constructed from the Display font
-     *  config (same source as getTabFont(), no kerning).
+    /** @brief Returns the popup menu font from the tab table: its textFontFamily and textFontSize rows.
+     *  The kerning factor is not applied.
      */
     juce::Font getPopupMenuFont() override;
 
     /** @brief Returns horizontal padding in pixels per side of the tab label.
-     *  Reads tab.text_padding from the display config (user-configurable).
+     *  Reads the textPadding row of the tab table.
      */
     int getTabPadding() const override;
-    int getTabBarDepth (const jam::TabbedComponent&) const noexcept;
+    /** @brief Height of the tab bar in pixels: the tab font height times the depth row of the tab table.
+     *  Zero when the bar holds at most one tab and the alwaysVisible row of the tab table is unset.
+     *  @param tabs  The tabbed component whose bar is measured.
+     */
+    int getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept;
+
+    /** @brief Ordinal of the tab bar side from the tab.position row, resolved through map::Position. */
     int getTabPosition() const noexcept;
 
-    /** @brief Display transform applied to a tab label before measuring and painting.
-     *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
-     *  identity otherwise. Consumed by both ButtonBar::getBestTabLength (measurement) and
-     *  drawTabButton (render) so measured width and painted string never diverge.
+    /** @brief Display transform applied to a tab label before it is painted.
+     *  Reads the uppercase row of the tab table; returns toUpperCase() when set,
+     *  identity otherwise. drawTabLabel() calls it for the text it paints.
      */
     juce::String getTabText (const juce::String& tabName) const override;
 
@@ -183,10 +173,9 @@ public:
      */
     juce::BorderSize<int> getTabBarPadding() const override;
 
-    /** @brief Derives and applies the window's tint colour, blur radius, WindowFX
-     *  style, and title-bar-button visibility onto @p window — reads
-     *  jam::Format::toType (Id::window), jam::Format::toType (Id::style), and
-     *  jam::Format::toType (Id::display) directly from config.
+    /** @brief Applies the window background colour, the blur radius, and the WindowFX ordinal to @p window.
+     *  The colour comes from the window table, the WindowFX ordinal from getWindowFX(). Asserts that
+     *  @p window is a jam::Window.
      *  @param window  The top-level window component to style.
      */
     void prepareWindow (juce::Component& window) override;
@@ -195,33 +184,27 @@ public:
     float getWindowBlur() const noexcept override;
 
     /**
-     * @brief Applies the window's tint/blur style and menu opacity to a newly
-     *        created popup menu window.
+     * @brief Sets the popup menu window opaque to false, then applies the tint, the blur and the menu opacity to it.
      *
-     * Deferred to the next message-loop iteration via
-     * juce::MessageManager::callAsync, guarded by a SafePointer, since the
-     * window is not yet fully constructed at the point JUCE calls this.
-     * Background blur is skipped and full opacity used when
-     * jam::BackgroundBlur is disabled.
+     * The tint and the blur are applied in a juce::MessageManager::callAsync call, guarded by a SafePointer.
+     * The opacity is the menu opacity row when jam::BackgroundBlur is enabled, and 1.0 otherwise.
+     * The blur is the window blur radius when jam::BackgroundBlur is enabled, and 0.0 otherwise.
      *
      * @param newWindow The popup menu's top-level window component.
      */
     void preparePopupMenuWindow (juce::Component& newWindow) override;
 
-    /** @brief Windows-only opaque background fill when background blur is disabled; no-op otherwise. */
+    /** @brief Fills the background with the popup menu background colour on Windows when jam::BackgroundBlur is disabled. Does nothing otherwise. */
     void drawPopupMenuBackgroundWithOptions (juce::Graphics&,
                                              int,
                                              int,
                                              const juce::PopupMenu::Options&) override;
 
     /**
-     * @brief Renders a single popup menu row — separator, icon, tick, text,
-     *        submenu arrow, and shortcut key description.
+     * @brief Renders a single popup menu row.
      *
-     * Icons are resolved by item ID via an internal SVG lookup (split/join
-     * entries); items without a matching icon fall back to a tick mark when
-     * ticked. Highlighted, enabled, and ticked states each select their own
-     * colour from the LookAndFeel's popup menu colours.
+     * A separator is drawn as one line in the popup menu text colour at 0.3 alpha. Any other item draws its
+     * background, its icon, its submenu arrow, and its text, with the font of getPopupMenuFont().
      *
      * @param g             Graphics context.
      * @param area          The row's bounds.
@@ -235,12 +218,13 @@ public:
                                        const juce::PopupMenu::Item& item,
                                        const juce::PopupMenu::Options& options) override;
 
-    /** @brief Pane EDGE seam — SVG Flex rendering. Each shape keeps its SVG colour.
+    /** @brief Paints the seam of a pane edge with the resizerBar SVG Flex segments.
+     *  A seam narrower than it is tall is rotated with the vertical transform of getVerticalTextTransform().
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
-    /** @brief Draws the outline of a pane as a rounded rectangle, inset by the pane padding and the line thickness of the pane.
-     *  The outline takes the focused colour when the focus of the pane row is 1, and the outline colour otherwise.
+    /** @brief Draws the outline of a pane as a rounded rectangle, the pane area inset by the pane padding.
+     *  The stroke width is jam::PaneComponent::lineThickness. The focused outline colour is used when the pane is focused.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
 
@@ -264,6 +248,7 @@ private:
     jam::SharedInstance<map::WindowFX> windowFX { std::in_place };
     jam::SharedInstance<map::Appearance> appearance { std::in_place };
 
+    /** @brief Reapplies the colours when the appearance row of the display table is automatic. */
     void darkModeSettingChanged() override;
 
     /** @brief Singleton config model reference — source for theme path and top-level config values. */
@@ -304,12 +289,12 @@ private:
      *
      * Populated by registerEvents(). A row child of a config table has no entry of its own,
      * so valueTreePropertyChanged() looks up the type of its parent table. Handles:
-     * - Id::theme         — full theme rebuild via initialiseColours() + loadGraphics()
-     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::tab), jam::Format::toType (Id::button),
+     * - Id::theme         — full theme rebuild via applyColours() + loadGraphics()
+     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::button),
      *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
      *                     — per-component colour refresh via setColours()
      * - jam::Format::toType (Id::appearance)
-     *                     — colour refresh via initialiseColours()
+     *                     — colour refresh via applyColours()
      * - jam::Format::toType (Id::menu)
      *                     — popup menu colour refresh via setPopupMenuColours()
      */
@@ -330,9 +315,8 @@ private:
      */
     static juce::String getTypefaceKey (const juce::String& name, const juce::String& style);
 
-    /** @brief Rotation transform for a vertical ButtonBar side (left/right) —
-     *  shared by drawBarBackground(), drawBarHighlight(), drawTabButton(), and
-     *  drawPaneEdge(), which each append further translation of their own.
+    /** @brief Rotation transform for a vertical ButtonBar side (left/right).
+     *  Called by applyBarRotation().
      *
      *  @param position Vertical bar side (map::Position::left or the right-side case),
      *                  as returned by jam::ButtonBar::getPosition().
@@ -342,11 +326,13 @@ private:
     juce::AffineTransform
     getVerticalTextTransform (int position, float width, float height) const noexcept;
 
-    /** @brief Display font constructed from theme config (family, size), no kerning.
-     *  Reads jam::Format::toType (Id::tab) properties: Id::fontFamily, Id::textFontSize — same source
-     *  as getTabFont() minus the kerning factor.
+    /** @brief Applies the vertical rotation to @p g when the parent of @p component is a vertical ButtonBar.
+     *  @param g          Graphics context. Receives the rotation when the parent bar is vertical.
+     *  @param component  The component to paint. Its local bounds are the source of the result.
+     *  @return           The local bounds of @p component as floats. When the parent bar is vertical,
+     *                    the bounds that applyRotation() returns for the vertical transform.
      */
-    juce::Font getCommonFont() const;
+    juce::Rectangle<float> applyBarRotation (juce::Graphics& g, juce::Component& component) const;
 
     /** @brief WindowFX ordinal from the active theme's platform style name
      *  (jam::Format::toType (Id::style), Id::mac on macOS / Id::win on Windows),
@@ -373,16 +359,18 @@ private:
     /**
      * @brief Applies all component colours, then the popup menu colours.
      *
-     * Calls setColours(), then setPopupMenuColours().
+     * Calls setColours(), then setPopupMenuColours(). Called by the constructor, by the Id::theme
+     * event, by the jam::Format::toType (Id::appearance) event, and by darkModeSettingChanged()
+     * when the appearance is automatic.
      * Defined in ENDLookAndFeel.cpp.
      */
-    void initialiseColours();
+    void applyColours();
 
     /**
      * @brief Sets the JUCE and END colour ids of every component tree from the config rows.
      *
      * Reads one colour row through ConfigModel::getRowValue() for each (table type, row key,
-     * colour id) entry of the scrollbar, tab, button, overlay and pane tables.
+     * colour id) entry of the scrollbar, button, overlay and pane tables.
      * Converts the row with jam::ColourScheme::toColour() and passes it to
      * juce::LookAndFeel::setColour(). Defined in ENDLookAndFeel.cpp.
      */
@@ -393,7 +381,7 @@ private:
      *        to the juce::PopupMenu colour IDs.
      *
      * Reads jam::Format::toType (Id::menu) properties against the window background colour
-     * (jam::Format::toType (Id::window)). Called by initialiseColours(), and on the
+     * (jam::Format::toType (Id::window)). Called by applyColours(), and on the
      * jam::Format::toType (Id::menu) colour-refresh event. Defined in ENDLookAndFeel.cpp.
      */
     void setPopupMenuColours();
@@ -402,36 +390,16 @@ private:
      * @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      * Registers callbacks for:
-     * - Id::theme         → initialiseColours() + loadGraphics()
-     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::tab), jam::Format::toType (Id::button),
+     * - Id::theme         → applyColours() + loadGraphics()
+     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::button),
      *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
      *                     → setColours()
      * - jam::Format::toType (Id::appearance)
-     *                     → initialiseColours()
+     *                     → applyColours()
      * - jam::Format::toType (Id::menu)
      *                     → setPopupMenuColours()
      *
-     * The font events (Id::fontRasterizer, Id::fontGamma, Id::fontContrast,
-     * Id::embolden) are not here: their callbacks write the jam::CpuGraphicsEngine
-     * rasterization state and then cascade Component::sendLookAndFeelChange() to
-     * every juce::Desktop top-level window, so they belong to ENDApplication, which
-     * owns the config and drives engine creation.
-     *
-     * Glyph-identity coverage: every config value that can alter what a glyph
-     * looks like was inventoried; only fontRasterizer/fontGamma/fontContrast/
-     * embolden change the rasterized bitmap for an UNCHANGED glyph.
-     * tab.font_family/font_size/kerning_factor and jam::overlay's
-     * font_family/font_size need no dedicated callback: the glyph key
-     * (jam_GlyphRasterizer.h) identifies a cached glyph by {typeface index,
-     * glyphIndex, fontSize} — a new family resolves to a new interned typeface
-     * index and a new size is a new key member, so both cache-miss and
-     * re-rasterize correctly on the very next paint with no engine call
-     * required; kerning_factor never reaches the key at all (it shifts glyph pen
-     * positions, never glyph identity). getTabFont() and MessageOverlay::paint()
-     * already re-read config on every paint, and any theme.md edit unconditionally
-     * fires Id::theme (ConfigTheme::loadFromPath) into the theme callback above,
-     * which repaints the whole component tree (juce::Component::sendLookAndFeelChange
-     * descends to every child) — so the new family/size is picked up immediately.
+     * Each callback is registered in the order listed above. The events map is read in valueTreePropertyChanged().
      * Defined in ENDLookAndFeel.cpp.
      */
     void registerEvents();

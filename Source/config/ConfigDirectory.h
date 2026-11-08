@@ -14,8 +14,15 @@
     The contract methods are @c loadFromPath(), which is pure virtual, and @c saveToPath(),
     which defaults to a no-op. Subclasses implement disk-overlay behaviour in @c loadFromPath().
 
-    @c ConfigModel is the sole @c jam::File::Watcher::Listener. ConfigDirectory
-    subclasses never watch files directly.
+    @c ConfigModel derives from @c jam::File::Watcher::Listener and owns the watcher.
+    ConfigDirectory declares no watcher.
+
+    @par Names
+    The nested structs name the on-disk categories of END's config tree. @c Config covers the root
+    directory, named by @c Config::configDirectoryName under the user home directory. @c Themes and
+    @c Shaders resolve child directories under it. @c Flex gives the FLEX SVG filenames of the
+    @c flex/ directory of each theme. Each bimap key of a registry becomes a filename through
+    @c jam::Format::toFileName.
 
     @see jam::Model
     @see ConfigModel
@@ -33,20 +40,7 @@ public:
     ~ConfigDirectory() override = default;
 
     //==========================================================================
-    /**
-        @brief On-disk file/directory name resolution for END's config tree —
-               bridges the @c map::FileConfig / @c map::FileThemes / @c map::FileFlex
-               bimap keys (bare stems) to their extensioned filenames, and the
-               config root to the subdirectories rooted under it.
-
-        Each nested struct mirrors one on-disk category under @c Config::path
-        (@c ~/.config/end): @c Config itself for the root markdown files, @c Themes
-        for the @c themes/ directory, @c Flex for FLEX SVG assets, @c Shaders
-        for the @c shaders/ directory. @c getName overloads turn a bimap key into
-        a filename via @c jam::Format::toFileName; @c getPath overloads resolve a
-        child path relative to @c Config::path.
-    */
-    /** @brief Root config directory (@c ~/.config/end) and its root markdown files. */
+    /** @brief Root config directory and its root markdown files. */
     struct Config
     {
         /** @brief Filename for the root markdown file named by @p key.
@@ -106,6 +100,38 @@ public:
          */
         static juce::File getPath (const juce::String& shadersName) noexcept;
     };
+
+    /** @brief Appends the tables of each valid file of @p files to @p target.
+     *
+     *  Each file is read through @p read and parsed as a config document. The document is checked
+     *  against the rules of jam::ConfigValidator, and then against the rules of the memoized default
+     *  document of the same name. A document that passes both appends its tables to @p target. A
+     *  document that fails either is not appended, and its validation message is added to the result.
+     *
+     *  @param target   Tree that receives the tables.
+     *  @param files    Registry of bimap keys to file stems.
+     *  @param getName  Returns the extensioned filename of a key.
+     *  @param read     Returns the text of a file, given its filename.
+     *  @return         The validation messages of the rejected files, each followed by a newline.
+     *                  Empty when every file passes.
+     */
+    static juce::String addFileTables (juce::ValueTree target,
+                                       const jam::Bimap<int>& files,
+                                       const std::function<juce::String (int)>& getName,
+                                       const std::function<juce::String (const juce::String&)>& read);
+
+    /** @brief Appends the tables of the default document of each file of @p files to @p target.
+     *
+     *  The default document is read from BinaryData through jam::ConfigDocument::getOrCreate, which
+     *  keeps one parsed document per filename for the lifetime of the process.
+     *
+     *  @param target   Tree that receives the tables.
+     *  @param files    Registry of bimap keys to file stems.
+     *  @param getName  Returns the extensioned filename of a key.
+     */
+    static void addDefaultTables (juce::ValueTree target,
+                                  const jam::Bimap<int>& files,
+                                  const std::function<juce::String (int)>& getName);
 
     //==========================================================================
     /** @brief Read from disk and overlay into @c state.

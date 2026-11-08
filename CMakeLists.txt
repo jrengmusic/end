@@ -472,20 +472,10 @@ if(CAST_SHADER_SPV_FILES)
     target_link_libraries(${PROJECT_NAME} PRIVATE jam_vulkan_ShaderData)
 endif()
 
-file(GLOB CAST_FONT_FILES CONFIGURE_DEPENDS "${CAST_USER_MODULE_PATH}/resources/fonts/*.ttf")
-
-if(CAST_FONT_FILES)
-    juce_add_binary_data(jam_graphics_FontData
-        NAMESPACE   "jam::fonts"
-        HEADER_NAME "JamFontsBinaryData.h"
-        SOURCES     ${CAST_FONT_FILES}
-    )
-    target_link_libraries(${PROJECT_NAME} PRIVATE jam_graphics_FontData)
-endif()
-
 file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/*.md"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/theme/gfx/*.md"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/fonts/*.ttf"           # Bundled Display and DisplayMono TrueType fonts
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/svg/*.svg"
     "${CAST_USER_MODULE_PATH}/resources/svg/*.svg"
     "${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.frag"

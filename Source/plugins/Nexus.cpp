@@ -48,7 +48,6 @@ Nexus::Nexus()
     midiInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode))->nodeID;
     deviceManager.addAudioCallback (&player);
-    offloadPlugins();
     registerEVE();
 }
 
@@ -78,7 +77,7 @@ void Nexus::addFormats()
 
 void Nexus::registerEVE()
 {
-    const auto eve { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
+    const auto eve { getOrCreatePlugin() };
 
     if (auto* format { Session::getPluginFormat (formatManager, eve) })
     {
@@ -136,9 +135,9 @@ Session& Nexus::createSession()
     return *session;
 }
 
-Session& Nexus::getSession (jam::UUID sessionUuid) { return *sessions.at (sessionUuid); }
+Session& Nexus::getSession (jam::UUID sessionUuid) const { return *sessions.at (sessionUuid); }
 
-Session& Nexus::getActiveSession()
+Session& Nexus::getActiveSession() const
 {
     auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
         jam::Format::toType (Id::sessions), Id::focusedSession) };
@@ -168,34 +167,42 @@ juce::File Nexus::getManifestFile()
 }
 #endif
 
+static const juce::String pluginsHash { CAST_PLUGINS_HASH };
+
 void Nexus::offloadPlugins()
 {
     const auto pluginsDirectory { jam::File::getOrCreateDirectory (ConfigDirectory::Config::path, Id::plugins) };
-    const auto stamp { pluginsDirectory.getChildFile (files::pluginsStamp) };
-    const juce::String pluginsHash { CAST_PLUGINS_HASH };
 
-    if (stamp.loadFileAsString().compare (pluginsHash) != 0)
+    for (int resourceIndex { 0 }; resourceIndex < BinaryData::namedResourceListSize; ++resourceIndex)
     {
-        for (int resourceIndex { 0 }; resourceIndex < BinaryData::namedResourceListSize; ++resourceIndex)
+        const char* resourceName { BinaryData::namedResourceList[resourceIndex] };
+        const auto original { juce::File::createFileWithoutCheckingPath (
+            BinaryData::getNamedResourceOriginalFilename (resourceName)) };
+
+        if (original.hasFileExtension (files::archiveExtension))
         {
-            const char* resourceName { BinaryData::namedResourceList[resourceIndex] };
-            const auto original { juce::File::createFileWithoutCheckingPath (
-                BinaryData::getNamedResourceOriginalFilename (resourceName)) };
+            int resourceSize { 0 };
+            const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
+            juce::MemoryInputStream stream { resourceData, static_cast<size_t> (resourceSize), false };
+            juce::ZipFile zip { stream };
 
-            if (original.hasFileExtension (files::archiveExtension))
-            {
-                int resourceSize { 0 };
-                const char* resourceData { BinaryData::getNamedResource (resourceName, resourceSize) };
-                juce::MemoryInputStream stream { resourceData, static_cast<size_t> (resourceSize), false };
-                juce::ZipFile zip { stream };
-
-                for (int entryIndex { 0 }; entryIndex < zip.getNumEntries(); ++entryIndex)
-                    zip.uncompressEntry (entryIndex, pluginsDirectory, true);
-            }
+            for (int entryIndex { 0 }; entryIndex < zip.getNumEntries(); ++entryIndex)
+                zip.uncompressEntry (entryIndex, pluginsDirectory, true);
         }
-
-        stamp.replaceWithText (pluginsHash);
     }
+
+    pluginsDirectory.getChildFile (files::pluginsStamp).replaceWithText (pluginsHash);
+}
+
+juce::File Nexus::getOrCreatePlugin()
+{
+    const auto plugin { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin) };
+    const auto stamp { ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::pluginsStamp) };
+
+    if (stamp.loadFileAsString().compare (pluginsHash) != 0 or not plugin.exists())
+        offloadPlugins();
+
+    return plugin;
 }
 
 #if JUCE_MAC

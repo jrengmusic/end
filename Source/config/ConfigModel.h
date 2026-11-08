@@ -3,123 +3,8 @@
 #include "generated/Generated.h"
 #include "end/ENDModel.h"
 #include "ConfigDirectory.h"
-
-/**
-    @brief Shader source model — @c ConfigDirectory subclass that holds a
-           single shader tree (BACKGROUND or POST_PROCESSING) as its own @c state.
-
-    The constructor adopts an empty @p treeType-rooted tree through
-    @c ConfigDirectory's ValueTree ctor -- pass names are unknown until
-    @c loadFromPath first enumerates the active shader project directory (an
-    empty project is a valid initial/no-project state, not an error).
-
-    After construction, @c ConfigModel attaches each instance's @c state
-    directly under the GRAPHICS child — both are first-class GRAPHICS children,
-    not parent/child of each other.
-
-    The two-level parameter key @c (BACKGROUND, Image) vs @c (POST_PROCESSING, Image)
-    ensures no collision in @c jam::Model::createAndAddParameter.
-
-    Load policy: @c saveToPath is a no-op (shader source is never seeded from
-    BinaryData). @c loadFromPath reads GLSL from disk into @c state.
-
-    @see ConfigDirectory
-    @see ConfigModel
-*/
-class ConfigShader : public ConfigDirectory
-{
-public:
-    /** @brief Constructs with an empty shader tree of the given type.
-     *  @param treeType  Tree type identifier (jam::Format::toType (Id::background) or jam::Format::toType (Id::postProcessing)).
-     */
-    explicit ConfigShader (juce::Identifier treeType);
-
-    ~ConfigShader() override = default;
-
-    /** @brief Reads the GLSL source of the active shader project into @c state.
-     *
-     *  Finds the shader directory through @c ConfigDirectory::Shaders::getPath.
-     *  Reads the first file with the slang manifest extension in that directory,
-     *  and parses it with @c jam::VulkanShaderPreset::parse(). The format is
-     *  @c jam::VulkanShaderFormat::slang when the parsed preset has passes. An
-     *  absent manifest, or one without passes, gives
-     *  @c jam::VulkanShaderFormat::shadertoy. @c jam::VulkanShaderFormat::load()
-     *  reads the directory in the resolved format. This method does not parse
-     *  the sources itself.
-     *
-     *  Overlays the loaded tree on @c state with @c setValuesFrom. Stamps
-     *  @c Id::shaderFormat with the resolved format, and @c Id::path with the
-     *  full path of the directory, on @c state. Sends a property change for
-     *  @c jam::Format::toType (Id::graphics).
-     *
-     *  @param path  Active shader project name from ConfigModel.
-     *  @return      Always empty. This method reports no error.
-     */
-    juce::String loadFromPath (const juce::var& path) override;
-
-private:
-    //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigShader)
-};
-
-//==============================================================================
-/**
-    @brief Theme state model — @c ConfigDirectory subclass mirroring the
-           on-disk @c themes/ directory as a THEMES subtree.
-
-    The constructor init-list passes the THEMES-rooted tree of getDefaultThemes()
-    to @c ConfigDirectory's ValueTree ctor. getDefaultThemes() builds a fresh tree on each call.
-    Its THEME child is built from the memoized @c jam::ConfigDocument of each @c map::FileThemes
-    BinaryData markdown file, and a FLEX child (from @c map::FileFlex SVGs) is appended as a
-    sibling of THEME.
-    @c ConfigModel attaches the whole @c theme.state THEMES
-    subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
-    @c theme.state remains the live THEMES tree, so @c loadFromPath() and
-    @c saveToPath() operate on it directly.
-
-    @see ConfigDirectory
-    @see ConfigModel
-*/
-class ConfigTheme : public ConfigDirectory
-{
-public:
-    /** @brief Constructs by adopting the THEMES-rooted tree that getDefaultThemes() builds
-     *         from the memoized default documents, through @c ConfigDirectory.
-     */
-    ConfigTheme();
-
-    ~ConfigTheme() override = default;
-
-    /** @brief Reads the theme markdown files and the flex SVG files of the active theme into @c state.
-     *
-     *  Starts from the binary defaults of getDefaultThemes(). Locates the theme directory via
-     *  @c ConfigDirectory::Themes::getPath. When the directory exists, builds a disk tree of THEMES from its
-     *  markdown files through addFileTables, and of FLEX from its flex/ files through @c jam::Model::fromFiles.
-     *  A flex SVG that fails @c jam::XmlValidator keeps its binary default, and its path and the validation
-     *  message are added to the errors. The disk tree overlays the defaults, and the result overlays @c state
-     *  with @c setValuesFrom. When the directory is missing, adds a missing-directory error, and the defaults
-     *  still overlay @c state. Sends a property change for @c jam::Format::toType (Id::theme) in both cases.
-     *
-     *  @param path  Active theme name from ConfigModel.
-     *  @return      The markdown and flex validation errors and the missing-directory error. Empty when successful.
-     */
-    juce::String loadFromPath (const juce::var& path) override;
-
-    /** @brief Writes the default theme files to the active theme directory.
-     *
-     *  Creates the theme directory and its @c flex/ subdirectory when absent.
-     *  Writes each theme markdown file that has a BinaryData default through
-     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which replaces a file whose version is older.
-     *  Writes each flex SVG file only when the file is absent. Does nothing when the theme path is empty.
-     *
-     *  @param path  Active theme name from ConfigModel.
-     */
-    void saveToPath (const juce::var& path) override;
-
-private:
-    //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigTheme)
-};
+#include "ConfigTheme.h"
+#include "ConfigShader.h"
 
 //==============================================================================
 /**
@@ -127,17 +12,15 @@ private:
            drives the ConfigTheme and ConfigShader sub-models.
 
     @par Build-in-ctor composition
-    getDefaultThemes() and getDefaultConfig() build a fresh tree on each call, through addDefaultTables.
+    getDefaultThemes() and getDefaultConfig() build a fresh tree on each call, through ConfigDirectory::addDefaultTables.
     addDefaultTables reads each default document from the memoized @c jam::ConfigDocument::getOrCreate, so each
-    BinaryData file is parsed one time per process. Errors of the default documents are sent to ENDModel on each call.
+    BinaryData file is parsed one time per process.
     @c theme is a member object whose constructor adopts the THEMES subtree of getDefaultThemes().
     @c background (BACKGROUND) and @c postProcessing (POST_PROCESSING) are member objects whose
     constructors adopt an empty tree of their own type; their content is read by @c loadFromPath().
     @c ConfigModel's init-list adopts the CONFIG tree of getDefaultConfig() through @c jam::Model's
-    ValueTree ctor. The constructor body then attaches the @c theme (THEMES),
-    @c background (BACKGROUND), and @c postProcessing (POST_PROCESSING) subtrees into
-    the CONFIG tree. Both shader instances are first-class GRAPHICS children —
-    no key collision via the two-level @c (treeType, propertyId) key scheme.
+    ValueTree ctor. The constructor body then appends the @c theme (THEMES) subtree to the CONFIG tree,
+    and the @c background and @c postProcessing subtrees to the GRAPHICS child.
 
     @par Construction order
     @c jam::Model base runs first (adopting the CONFIG tree). @c theme,
@@ -156,9 +39,9 @@ private:
     @c jam::ConfigDocument::parse builds the documents of the disk files. @c jam::Model::fromFiles builds
     the FLEX child from SVG files. These are the SSOT builders.
     Each bimap key of a markdown registry resolves to one markdown file. Its document, memoized for the defaults
-    and parsed for the disk files, goes through
-    @c jam::ConfigDocument::addTables with the rules of @c jam::ConfigValidator {}.getRules(). When the document
-    passes the rules, addTables appends each table tree that has no table failures to the target tree.
+    and parsed for the disk files, goes through ConfigDirectory::addFileTables. The document must pass the rules of
+    @c jam::ConfigValidator {}.getRules() and the rules of its default document. When it passes, its tables are
+    appended to the target tree. When it fails, the whole document is rejected and its error is added to the errors.
     @c jam::Model::fromFiles sets one raw-string property per map entry on a fresh @p rootTag tree,
     key = stem, value = @c read(key). It does no parsing.
 
@@ -201,12 +84,13 @@ public:
     /**
         @brief Returns the value of one config row.
 
-        Finds the row child @c jam::Format::toType (name) in the table child @p type of this tree.
-        Returns the dark cell when the row has one and the display appearance is dark.
-        Otherwise returns the value cell. The table and the row must exist.
+        Reads the row child @c jam::Format::toType (name) of the table child @p type of this tree directly.
+        The display appearance is read from the appearance row of the display table. When the row has a dark
+        cell and jam::StyleManager::isDark reports that appearance as dark, returns the dark cell. Otherwise
+        returns the value cell. No assertion checks the table or the row.
 
         @param type  The table type of the config file, as @c jam::Format::toType gives it.
-        @param name  The key of the row. @c jam::Format::toType gives the row child name.
+        @param name  The key of the row. This function applies @c jam::Format::toType to it to get the row child name.
         @return The value of the row.
     */
     juce::var getRowValue (const juce::Identifier& type, const juce::Identifier& name) const noexcept;
@@ -227,16 +111,18 @@ public:
                                          const juce::Identifier& property);
 
 private:
+    /** @brief Singleton application model. loadFromPath() sets its message. */
     ENDModel& appModel { *ENDModel::getInstance() };
+
+    /** @brief Appearance registry instance held by the model. */
     jam::SharedInstance<map::Appearance> appearance { std::in_place };
 
     /**
         @brief Creates the config directory, then writes the root markdown defaults from BinaryData to @c ConfigDirectory::Config::path.
 
-        Each file that has a BinaryData default goes through @c jam::ConfigDocument::getOrCreateDefaultFile, which writes
-        the default text when @c jam::Format::isVersionOld reports the file's version as older than the default's version.
-        An empty file version counts as older. The theme is not saved here: loadResources() saves it through
-        ConfigTheme::saveToPath().
+        Each file of @c map::FileConfig goes through @c jam::ConfigDocument::getOrCreateDefaultFile, which writes
+        the BinaryData default when @c jam::Format::isVersionOld reports the file's version as older than the default's
+        version. The theme is not saved here: loadResources() saves it through ConfigTheme::saveToPath().
     */
     void saveToPath();
 
@@ -277,8 +163,13 @@ private:
     /** @brief Coalescing window in milliseconds for the filesystem watcher. */
     static constexpr int coalesceMs { 300 };
 
+    /** @brief Theme sub-model. Its state is the THEMES subtree under the CONFIG tree. */
     ConfigTheme theme;
+
+    /** @brief BACKGROUND shader sub-model. Its state is a child of the GRAPHICS table. */
     ConfigShader background { jam::Format::toType (Id::background) };
+
+    /** @brief POST_PROCESSING shader sub-model. Its state is a child of the GRAPHICS table. */
     ConfigShader postProcessing { jam::Format::toType (Id::postProcessing) };
 
     //==========================================================================

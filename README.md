@@ -1,7 +1,7 @@
 # END
 **Ephemeral Nexus Display**
 
-The long and winding road finding a cross-platform, dual-backend renderer, rich-featured, modern terminal emulator with a non-web stack native Markdown and Mermaid renderer that can run on your grandma's PC finally comes to END.
+The long and winding road finding a cross-platform, dual-backend renderer, rich-featured audio plugin host with a non-web stack that runs on your grandma's PC finally comes to END. END is not a terminal emulator. It hosts the eve terminal plugin and the whelmed markdown plugin.
 
 ---
 
@@ -47,7 +47,7 @@ Modern terminals often glorify "GPU acceleration" as a jargon badge, claiming su
 On an iMac 5K 2015, END consistently finishes 150–200ms ahead of the field — GPU and CPU rendering both.
 
 
-Under the hood, END runs a lock-free render pipeline. VT conformance is covered by a comprehensive unit test suite across all ANSI, DEC, OSC, and CSI sequences. Hardware-specific sequences — DECLL, printer passthrough, serial control — are correctly excluded. No software terminal implements them.
+Under the hood, END renders every window with the JAM Vulkan engine. END is not a terminal emulator. The VT engine lives in the eve plugin, which END hosts in a pane.
 
 ### Fonts
 
@@ -91,7 +91,7 @@ Everything is hot-reloaded. Changes take effect the moment you save any config f
 
 ### Markdown & Mermaid
 
-Working side by side with your clankers, you will inevitably need to read documents — specs, plans, diagrams. Many CLI/TUI tools try to solve this with compromised monospace cells and forced beautification. END handles this natively with its own Markdown and Mermaid renderer. Exactly what you would expect reading from a web browser, without the bloated garbage of a web stack. Customize however you like — your choice of font, color, and sizes for each format element.
+Working side by side with your clankers, you will inevitably need to read documents — specs, plans, diagrams. Many CLI/TUI tools try to solve this with compromised monospace cells and forced beautification. END does not render them itself. The whelmed plugin, a markdown editor and viewer, runs in a pane of END. Customize however you like — your choice of font, color, and sizes for each format element.
 
 Headers, tokenized code blocks, bullet lists, tables, and Mermaid diagrams — all rendered natively. No fake header blocks. No fake tables. No fake raster diagram images. What You See Is What You Get — a hybrid encoder Markdown and Mermaid renderer, inside your terminal.
 

@@ -47,23 +47,26 @@ public:
     /** @brief Default destructor. */
     ~TabView() override = default;
 
-    /** @brief Mints a new pane and mounts it as a child of the graph. */
-    void add();
-
     /**
      * @brief Splits the pane graph at an edge, or adds a pane when the edge is invalid.
-     * @param edge  Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane.
+     *
+     * The focused pane after the call gets @p directory as the `cwd` property of its pluginState, then loadPlugin() runs.
+     *
+     * @param edge        Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane.
+     * @param directory   Working directory written to the `cwd` property. mouseUp() passes the working directory of the focused pane.
+     * @param proportion  Split position along the axis of the edge, as a proportion of the focused pane. mouseUp() passes
+     *                    the cursor position as a proportion of the pane width or height.
      */
-    void addPane (const juce::Identifier& edge);
+    void addPane (const juce::Identifier& edge, const juce::String& directory, float proportion = jam::MatrixComponent::defaultProportion);
 
     /**
-     * @brief Sets the plugin property of the focused pane to the full path of files::evePlugin in the plugins folder of the config.
+     * @brief Sets the plugin property of the focused pane to the full path of the file named by files::evePlugin in the plugins folder of the config.
      */
     void loadPlugin();
 
     /** @brief Joins the focused pane with its neighbour across direction.
      *  @param direction Edge to join across — Id::left/right/top/bottom.
-     *  @return Identity of the pane absorbed into the surviving pane, or jam::UUID::none() when no neighbour exists.
+     *  @return The identity that MatrixComponent::join returns for the focused pane and the direction.
      */
     jam::UUID join (const juce::Identifier& direction);
 
@@ -79,13 +82,13 @@ public:
     EditorView& get (jam::UUID uuid);
 
     /**
-     * @brief Returns the focused pane of the tab. The pane commands of ENDView act on this pane.
+     * @brief Returns the focused pane of the tab.
      * @return The focused EditorView.
      */
     EditorView& getFocusedPane();
 
     /**
-     * @brief Sets the zoom parameter of each pane of the tab with a zoom command.
+     * @brief Applies a zoom command to the zoom row of each pane of the tab.
      * @param command  Zoom command id: zoomIn, zoomOut or zoomReset.
      * @param step     Zoom step that the command uses.
      */
@@ -105,9 +108,9 @@ public:
     /**
      * @brief Commits a corner drag that passes splitDragThreshold: a split when the drag is inward, a join when it is outward.
      *
-     * An inward drag splits the pane graph at the cursor position. The position is a proportion of the pane width for a left
-     * or right edge, and of the pane height for a top or bottom edge. Then it calls loadPlugin().
-     * An outward drag invokes the command that `getJoinDirections().at (edge)` returns for the edge.
+     * An inward drag calls addPane() with the edge, the working directory of the focused pane, and the cursor position.
+     * The position is a proportion of the pane width for a left or right edge, and of the pane height for a top or bottom edge.
+     * An outward drag invokes the command that `getJoinCommands().at (edge)` returns for the edge.
      *
      * @param event Mouse event that ends the gesture.
      */
@@ -120,7 +123,7 @@ public:
      *
      * @return The table, keyed by edge. Id::left maps to joinLeft, Id::bottom to joinDown, Id::top to joinUp and Id::right to joinRight.
      */
-    static const jam::HashMap<juce::Identifier, juce::CommandID>& getJoinDirections();
+    static const jam::HashMap<juce::Identifier, juce::CommandID>& getJoinCommands();
 
     /** @brief Minimum drag distance in pixels, either axis, before a corner
      *  drag arms a split/join preview.
@@ -138,19 +141,20 @@ protected:
     std::unique_ptr<jam::OwnedComponent> createChild (jam::UUID uuid) override;
 
     /**
-     * @brief Collapses the pane graph, removes the plugin of the pane, and removes the tab when no pane remains.
+     * @brief Collapses the pane graph, removes the plugin of the pane, and removes the tab row when no pane remains.
      *
-     * The editor of the pane is already destroyed when this hook runs.
-     * The matrix collapses the graph first. The Nexus session then removes the plugin of the pane.
-     * When no pane remains, the call removes the tab row from the session state. SessionView::valueTreeChildRemoved() then removes the tab.
-     * That removal destroys this tab, so nothing may follow the call in this function.
+     * The call runs the matrix childRemoved() first. It then calls Session::removePlugin() on the session of the tab.
+     * When no child remains, the tab row is removed from its parent, and that removal is the last step of the call.
      *
      * @param uuid  Identity of the pane being removed.
-     * @param row   Pane row of the removed pane. The matrix reads it to collapse the graph.
+     * @param row   Pane row of the removed pane.
      */
     void childRemoved (jam::UUID uuid, const juce::ValueTree& row) override;
 
 private:
+    /** @brief Mints a new pane and mounts it as a child of the graph. */
+    void add();
+
     /** @brief Command manager that invokes the Area Options commands and the corner drag commands. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
 
@@ -159,8 +163,9 @@ private:
      *
      * The overlay is non-opaque and does not intercept mouse clicks. showPreview() adds it to the desktop.
      */
-    struct Preview : public juce::Component
+    class Preview : public juce::Component
     {
+    public:
         /**
          * @brief Makes the overlay non-opaque and stops it from intercepting mouse clicks.
          * @param newOwner  Tab whose corner drag the overlay paints.
@@ -199,13 +204,17 @@ private:
      */
     void paintPreview (juce::Graphics& g);
 
-    /** @brief Builds the Area Options popup for the focused pane's corner menu. */
+    /**
+     * @brief Builds the Area Options popup for the focused pane's corner menu.
+     *
+     * The join and swap items are enabled when the focused pane has a neighbour in their direction.
+     */
     juce::PopupMenu buildAreaOptionsMenu();
 
     /**
-     * @brief Invokes the command of the same name as the Area Options item that a menu result selects.
+     * @brief Invokes the map::CommandId command that the Area Options item of a menu result selects.
      *
-     * The command is invoked through commandManager for splitVertical, splitHorizontal, joinLeft, joinRight, joinUp, joinDown,
+     * The command is invoked through commandManager for the items splitVertical, splitHorizontal, joinLeft, joinRight, joinUp, joinDown,
      * swapLeft, swapRight, swapUp and swapDown. A result that matches no item invokes nothing.
      *
      * @param result The chosen item ID from buildAreaOptionsMenu().

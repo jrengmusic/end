@@ -72,7 +72,6 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_web/.
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_jam_vulkan_ShaderData/JuceLibraryCode
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Builds/Debug/juce_binarydata_END_BinaryData/JuceLibraryCode
     - -isystem
     - /Users/jreng/Documents/Poems/dev/end/../../Vulkan/macOS/include

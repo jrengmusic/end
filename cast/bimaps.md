@@ -52,6 +52,8 @@ consumer-side helpers derive the full filename. The default row is tabBar.
 +-------------------+-----+----------------+
 | resizerBar        | 3   | `resizerBar`   |
 +-------------------+-----+----------------+
+| scrollbar         | 4   | `scrollbar`    |
++-------------------+-----+----------------+
 
 ## CommandId
 
@@ -94,5 +96,4 @@ The key is the juce::CommandID; the value is the row key.
 | normal            | 0x470001f | `normal`            |
 | prefix            | 0x4700020 | `prefix`            |
 | open              | 0x4700021 | `open`              |
-| list              | 0x4700022 | `list`              |
 +-------------------+-----------+---------------------+

@@ -162,7 +162,7 @@ private:
     void registerCloseActions();
 
     /**
-     * @brief Registers one join command per join direction of TabView::getJoinDirections().
+     * @brief Registers one join command per join direction of TabView::getJoinCommands().
      *
      * A join calls TabView::join() on the active tab with the direction.
      */
@@ -207,7 +207,7 @@ private:
      *
      * @param edge  Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
      */
-    void addPane (const juce::Identifier& edge);
+    void addPane (const juce::Identifier& edge, const juce::String& directory);
 
     /** @brief Registers the graphics events and the mouse events. */
     void registerEvents();

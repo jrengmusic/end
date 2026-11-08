@@ -49,15 +49,12 @@ namespace Id
     const juce::Identifier frameRate                { juce::String::fromUTF8 ("frameRate") };
     const juce::Identifier graphNode                { juce::String::fromUTF8 ("graphNode") };
     const juce::Identifier graphics                 { juce::String::fromUTF8 ("graphics") };
-    const juce::Identifier highlight                { juce::String::fromUTF8 ("highlight") };
     const juce::Identifier imouse                   { juce::String::fromUTF8 ("imouse") };
     const juce::Identifier kerningFactor            { juce::String::fromUTF8 ("kerningFactor") };
-    const juce::Identifier menu                     { juce::String::fromUTF8 ("menu") };
     const juce::Identifier mouse                    { juce::String::fromUTF8 ("mouse") };
     const juce::Identifier newPane                  { juce::String::fromUTF8 ("newPane") };
     const juce::Identifier orbit                    { juce::String::fromUTF8 ("orbit") };
     const juce::Identifier outline                  { juce::String::fromUTF8 ("outline") };
-    const juce::Identifier overlay                  { juce::String::fromUTF8 ("overlay") };
     const juce::Identifier pane                     { juce::String::fromUTF8 ("pane") };
     const juce::Identifier paneEditor               { juce::String::fromUTF8 ("paneEditor") };
     const juce::Identifier panePrompt               { juce::String::fromUTF8 ("panePrompt") };
@@ -72,8 +69,6 @@ namespace Id
     const juce::Identifier profiler                 { juce::String::fromUTF8 ("profiler") };
     const juce::Identifier reset                    { juce::String::fromUTF8 ("reset") };
     const juce::Identifier resizeBarThickness       { juce::String::fromUTF8 ("resizeBarThickness") };
-    const juce::Identifier resizerBar               { juce::String::fromUTF8 ("resizerBar") };
-    const juce::Identifier scrollbar                { juce::String::fromUTF8 ("scrollbar") };
     const juce::Identifier session                  { juce::String::fromUTF8 ("session") };
     const juce::Identifier sessionPlugin            { juce::String::fromUTF8 ("sessionPlugin") };
     const juce::Identifier sessions                 { juce::String::fromUTF8 ("sessions") };
@@ -90,9 +85,7 @@ namespace Id
     const juce::Identifier textPadding              { juce::String::fromUTF8 ("textPadding") };
     const juce::Identifier theme                    { juce::String::fromUTF8 ("theme") };
     const juce::Identifier themes                   { juce::String::fromUTF8 ("themes") };
-    const juce::Identifier thumb                    { juce::String::fromUTF8 ("thumb") };
     const juce::Identifier titleBarButtons          { juce::String::fromUTF8 ("titleBarButtons") };
-    const juce::Identifier track                    { juce::String::fromUTF8 ("track") };
     const juce::Identifier useGpu                   { juce::String::fromUTF8 ("gpu") };
     const juce::Identifier visible                  { juce::String::fromUTF8 ("visible") };
     const juce::Identifier zoom                     { juce::String::fromUTF8 ("zoom") };

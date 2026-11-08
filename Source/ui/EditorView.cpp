@@ -78,24 +78,20 @@ bool EditorView::DropTarget::isInterestedInFileDrag (const juce::StringArray& fi
 
 void EditorView::DropTarget::fileDragEnter (const juce::StringArray&, int, int)
 {
-    if (auto* pane { findParentComponentOfClass<jam::PaneComponent>() })
-    {
-        if (auto* owner { pane->findParentComponentOfClass<jam::OwnerComponent>() })
-            owner->setFocusedChild (
-                jam::UUID { static_cast<int64_t> (pane->getValueTree().getProperty (Id::id)) });
-    }
+    auto& pane { *findParentComponentOfClass<jam::PaneComponent>() };
+
+    pane.findParentComponentOfClass<jam::OwnerComponent>()->setFocusedChild (
+        jam::UUID { static_cast<int64_t> (pane.getValueTree().getProperty (Id::id)) });
 }
 
 void EditorView::DropTarget::filesDropped (const juce::StringArray& files, int x, int y)
 {
-    if (auto* pane { findParentComponentOfClass<jam::PaneComponent>() })
-    {
-        const juce::Identifier edge { pane->getEdge (
-            pane->getLocalPoint (this, juce::Point<int> { x, y })) };
+    auto& pane { *findParentComponentOfClass<jam::PaneComponent>() };
+    auto& matrix { *findParentComponentOfClass<jam::MatrixComponent>() };
+    const juce::Identifier edge { pane.getEdge (
+        pane.getLocalPoint (this, juce::Point<int> { x, y })) };
 
-        if (auto* matrix { findParentComponentOfClass<jam::MatrixComponent>() })
-            matrix->get (matrix->split (edge)).getValueTree().setProperty (Id::plugin, juce::File { files[0] }.getFullPathName(), nullptr);
-    }
+    matrix.get (matrix.split (edge)).getValueTree().setProperty (Id::plugin, juce::File { files[0] }.getFullPathName(), nullptr);
 }
 
 void EditorView::setEditorBounds (int inset)
@@ -197,6 +193,16 @@ void EditorView::setZoom (juce::CommandID command, float step)
 }
 
 void EditorView::setMode (int newMode) { setRow (Id::mode, newMode); }
+
+void EditorView::close (juce::CommandID command)
+{
+    const auto markdownFile { state.getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::markdownFile).toString() };
+
+    if (markdownFile.isNotEmpty())
+        setRow (Id::markdownFile, juce::String {});
+    else
+        invokeDirectly (command, false);
+}
 
 void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
 {

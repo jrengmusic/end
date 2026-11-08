@@ -7,20 +7,22 @@
 #include "config/ConfigDirectory.h"
 
 /**
- * @struct Nexus
+ * @class Nexus
  * @brief Application root of END: the audio graph, the plugin formats, the
  *        model of the sessions, and the host extensions that the hosted plugins read.
  *
  * One graph and one format manager serve every session. Each session holds the
  * hosted plugin of each of its panes, inside this graph.
  */
-struct Nexus : jam::Instance<Nexus>
+class Nexus : public jam::Instance<Nexus>
 {
+public:
     /**
      * @brief Registers the host extensions, builds the model, the plugin formats and the audio graph,
-     *        offloads the plugins of the binary data, then lists the EVE plugin.
+     *        then lists the EVE plugin.
      *
-     * The constructor calls registerEVE(). On macOS, registerEVE() registers the EVE bundle as an Audio Unit
+     * The constructor calls registerEVE(). That call unpacks the plugins of the binary data when they are stale
+     * (getOrCreatePlugin()). On macOS, registerEVE() registers the EVE bundle as an Audio Unit
      * component when the EVE file has the component extension.
      */
     Nexus();
@@ -37,19 +39,22 @@ struct Nexus : jam::Instance<Nexus>
 
     /**
      * @brief Returns the session with an identity.
-     * @param sessionUuid  Identity of the session. The session must exist.
+     *
+     * The call uses the `at` lookup of the session map, so it fails when no session has the identity.
+     *
+     * @param sessionUuid  Identity of the session.
      * @return The session.
      */
-    Session& getSession (jam::UUID sessionUuid);
+    Session& getSession (jam::UUID sessionUuid) const;
 
     /**
      * @brief Returns the focused session, which the `focusedSession` parameter names.
      *
-     * The parameter must hold a session identity. It is zero only before the first session is created.
+     * The call asserts that the parameter is not zero. The parameter is zero until the first session is created.
      *
      * @return The focused session.
      */
-    Session& getActiveSession();
+    Session& getActiveSession() const;
 
     /**
      * @brief Returns the host extension with an identifier.
@@ -69,7 +74,21 @@ struct Nexus : jam::Instance<Nexus>
      */
     void addPluginModule (const juce::File& file);
 
+    /**
+     * @brief Returns the EVE plugin file in the plugins folder of the config.
+     *
+     * The plugin archives of the binary data are unpacked first when the plugins stamp differs from the plugin hash,
+     * or when the EVE plugin file is absent.
+     *
+     * @return The EVE plugin file.
+     */
+    juce::File getOrCreatePlugin();
+
 #if JAM_USING_PROFILER
+    /**
+     * @brief Returns the command-line file of the process, resolved against the working folder.
+     * @return The file that the first command-line argument names.
+     */
     static juce::File getManifestFile();
 
     /** @brief Callback that the prompt-painted extension invokes when the profiler prompt is painted. ENDView sets it. */
@@ -78,7 +97,7 @@ struct Nexus : jam::Instance<Nexus>
 
 private:
     /**
-     * @brief Unpacks the plugin archives of the binary data into the plugins folder once per plugin hash.
+     * @brief Unpacks each plugin archive of the binary data into the plugins folder, then writes the plugin hash to the plugins stamp.
      */
     void offloadPlugins();
 
@@ -111,16 +130,16 @@ private:
     /**
      * @brief Adds the default JUCE plugin formats and the CLAP format to the format manager.
      *
-     * The CLAP format receives the extensions, the product name, the company name, the host URL and the version.
+     * The CLAP format receives the extensions, the product name, the company name, the host URL, the version
+     * and the plugins folder of the config.
      */
     void addFormats();
 
     /**
-     * @brief Lists the EVE plugin in the known plugin list, so that its first load runs no scan.
+     * @brief Adds the EVE plugin description to the known plugin list, when the plugin formats read the EVE file.
      *
-     * The listed description carries the modification time of the EVE file. A file that is listed with an unchanged
-     * modification time is not tested again. On macOS, an EVE bundle with the Audio Unit extension is also registered
-     * as an audio component.
+     * The description carries the modification time of the EVE file. On macOS, an EVE bundle with the Audio Unit
+     * extension is also registered as an audio component.
      */
     void registerEVE();
 

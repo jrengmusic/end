@@ -54,6 +54,7 @@ public:
      */
     void resized() override;
 
+    /** @brief Lays out the pane again, because the inset of the hosted editor comes from the pane padding of the look and feel. */
     void lookAndFeelChanged() override;
 
     /**
@@ -96,7 +97,7 @@ public:
      * A zoom row of the pluginState that is absent reads as 1.0.
      *
      * @param command  Zoom command: zoomIn, zoomOut or zoomReset.
-     * @param step     Zoom step, in normalised units.
+     * @param step     Zoom step that zoomIn adds and zoomOut subtracts.
      */
     void setZoom (juce::CommandID command, float step);
 
@@ -105,6 +106,15 @@ public:
      * @param newMode  Editor mode, a constant of `map::EditorMode`.
      */
     void setMode (int newMode);
+
+    /**
+     * @brief Closes the markdown file of the pane when one is shown, otherwise runs the command on this pane.
+     *
+     * A non-empty `markdownFile` property of the pluginState gives an empty `markdownFile` row. Otherwise the call invokes @p command on this pane.
+     *
+     * @param command  Close command to invoke when no markdown file is shown.
+     */
+    void close (juce::CommandID command);
 
 private:
     /**
@@ -200,7 +210,7 @@ private:
     /**
      * @brief Creates the editor of the plugin that the session holds for this pane, and mounts it in the pane.
      *
-     * The session must hold the plugin. Session::getPlugin() throws std::out_of_range when it does not.
+     * The session must hold the plugin. Session::getPlugin() looks the plugin up with `at` and requires contains() to be true first.
      * When the plugin returns no editor, the pane mounts none. The drop target moves to the front, above the editor.
      */
     void createProcessorEditor();

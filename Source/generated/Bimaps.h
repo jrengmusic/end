@@ -87,6 +87,7 @@ struct FileFlex : public jam::Bimap<int>
             { tabHighlight,      juce::String::fromUTF8 ("tabHighlight") },
             { tabButtonNormalOn, juce::String::fromUTF8 ("normalOn") },
             { resizerBar,        juce::String::fromUTF8 ("resizerBar") },
+            { scrollbar,         juce::String::fromUTF8 ("scrollbar") },
     } } {}
 
     enum value : int
@@ -95,6 +96,7 @@ struct FileFlex : public jam::Bimap<int>
         tabHighlight      = 1,
         tabButtonNormalOn = 2,
         resizerBar        = 3,
+        scrollbar         = 4,
     };
 
     static FileFlex* getInstance() noexcept
@@ -150,7 +152,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
             { normal,            juce::Identifier { "normal" } },
             { prefix,            juce::Identifier { "prefix" } },
             { open,              juce::Identifier { "open" } },
-            { list,              juce::Identifier { "list" } },
     } } {}
 
     enum value : int
@@ -184,7 +185,6 @@ struct CommandId : public jam::Bimap<int, juce::Identifier>
         normal            = 0x470001f,
         prefix            = 0x4700020,
         open              = 0x4700021,
-        list              = 0x4700022,
     };
 
     static CommandId* getInstance() noexcept

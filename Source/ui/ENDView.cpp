@@ -26,7 +26,7 @@ ENDView::ENDView()
     juce::MessageManager::callAsync (
         [this]
         {
-            events.get (jam::Format::toType (Id::enabled), config.state);
+            setMouseConfig();
 
             addSession();
             commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
@@ -150,14 +150,14 @@ void ENDView::addSession()
     commandManager->invokeDirectly (map::CommandId::newTab, false);
 }
 
-void ENDView::addPane (const juce::Identifier& edge)
+void ENDView::addPane (const juce::Identifier& edge, const juce::String& directory)
 {
 #if JAM_USING_PROFILER
     const jam::Profiler::Zone zone { Id::newPane };
     panePrompt.emplace (Id::panePrompt);
 #endif
     if (auto* tabView { getActiveTabView() })
-        tabView->addPane (edge);
+        tabView->addPane (edge, directory);
 }
 
 void ENDView::registerApplicationActions()
@@ -187,9 +187,7 @@ void ENDView::registerTabActions()
                           sessionView->add (uuid);
 
                           const juce::Identifier edge {};
-                          addPane (edge);
-                          getActiveTabView()->getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, directory, nullptr);
-                          getActiveTabView()->loadPlugin();
+                          addPane (edge, directory);
                       }
                   });
 
@@ -258,7 +256,7 @@ void ENDView::registerZoomActions()
 
 void ENDView::registerJoinActions()
 {
-    for (const auto& [direction, actionId] : TabView::getJoinDirections())
+    for (const auto& [direction, actionId] : TabView::getJoinCommands())
     {
         commands.add (actionId,
                       [this, direction = direction]
@@ -316,10 +314,9 @@ void ENDView::registerResizeActions()
 
 void ENDView::registerModeActions()
 {
-    static const std::array<std::pair<juce::CommandID, int>, 3> paneModes {{
+    static const std::array<std::pair<juce::CommandID, int>, 2> paneModes {{
         { map::CommandId::normal, map::EditorMode::normal },
         { map::CommandId::open, map::EditorMode::open },
-        { map::CommandId::list, map::EditorMode::list },
     }};
 
     for (const auto& [actionId, mode] : paneModes)
@@ -345,10 +342,7 @@ void ENDView::registerSplitActions()
         commands.add (actionId,
                       [this, edge = edge]
                       {
-                          addPane (edge);
-
-                          if (auto* tabView { getActiveTabView() })
-                              tabView->loadPlugin();
+                          addPane (edge, getFocusedDirectory());
                       });
     }
 }
@@ -371,7 +365,7 @@ void ENDView::registerCloseActions()
                       [this, command]
                       {
                           if (auto* tabView { getActiveTabView() })
-                              tabView->getFocusedPane().invokeDirectly (command, false);
+                              tabView->getFocusedPane().close (command);
                       });
     }
 }

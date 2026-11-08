@@ -16,17 +16,20 @@ void TabView::add()
     MatrixComponent::add (uuid, createChild (uuid));
 }
 
-void TabView::addPane (const juce::Identifier& edge)
+void TabView::addPane (const juce::Identifier& edge, const juce::String& directory, float proportion)
 {
     if (edge.isValid())
-        split (edge);
+        split (edge, proportion);
     else
         add();
+
+    getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, directory, nullptr);
+    loadPlugin();
 }
 
 void TabView::loadPlugin()
 {
-    getFocusedPane().getValueTree().setProperty (Id::plugin, ConfigDirectory::Config::getPath (Id::plugins).getChildFile (files::evePlugin).getFullPathName(), nullptr);
+    getFocusedPane().getValueTree().setProperty (Id::plugin, Nexus::getInstance()->getOrCreatePlugin().getFullPathName(), nullptr);
 }
 
 //==============================================================================
@@ -106,7 +109,7 @@ bool TabView::isInward (const juce::Identifier& edge, juce::Point<int> offset) c
     return isLow (map::Position::getInstance()->get (edge.toString())) == ((horizontal ? offset.getX() : offset.getY()) > 0);
 }
 
-const jam::HashMap<juce::Identifier, juce::CommandID>& TabView::getJoinDirections()
+const jam::HashMap<juce::Identifier, juce::CommandID>& TabView::getJoinCommands()
 {
     static const jam::HashMap<juce::Identifier, juce::CommandID> joinDirections
     {
@@ -147,13 +150,14 @@ void TabView::mouseUp (const juce::MouseEvent& event)
             {
                 const bool horizontal { isHorizontal (edge) };
 
-                split (edge, horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
-                                        : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
-                loadPlugin();
+                addPane (edge,
+                         getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString(),
+                         horizontal ? static_cast<float> (relative.x) / static_cast<float> (pane->getWidth())
+                                    : static_cast<float> (relative.y) / static_cast<float> (pane->getHeight()));
             }
             else
             {
-                commandManager->invokeDirectly (getJoinDirections().at (edge), false);
+                commandManager->invokeDirectly (getJoinCommands().at (edge), false);
             }
         }
     }
