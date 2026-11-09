@@ -506,18 +506,18 @@ void ENDLookAndFeel::loadGraphics()
 
 void ENDLookAndFeel::registerEvents()
 {
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::theme),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      jam::StyleManager::getInstance()->registerStyle (config.getChildWithName (jam::Format::toType (Id::themes)));
-                                      applyColours();
-                                      applyFontStyles();
-                                      loadGraphics();
-                                  });
+    events.add (jam::Format::toType (Id::theme),
+                [this] (juce::ValueTree&)
+                {
+                    jam::StyleManager::getInstance()->registerStyle (config.getChildWithName (jam::Format::toType (Id::themes)));
+                    applyColours();
+                    applyFontStyles();
+                    loadGraphics();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::appearance),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      applyColours();
-                                  });
+    events.add (jam::Format::toType (Id::appearance),
+                [this] (juce::ValueTree&)
+                {
+                    applyColours();
+                });
 }

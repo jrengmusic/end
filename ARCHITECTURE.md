@@ -682,13 +682,20 @@ MessageOverlay inherits `jam::Model::Component` (IDtype::overlay) + `juce::Timer
 ```
 binary defaults (BinaryData, built once into ConfigModel::state at construction)
 markdown files on disk (overlay — ~/.config/end/*.md, themes/<name>/*.md)
-  → ConfigModel::saveToPath: jam::ConfigDocument::getOrCreateDefaultFile writes the
-    binary text when a file is missing or its front-matter version is older
+  → ConfigModel::saveToPath and ConfigTheme::saveToPath: jam::ConfigDocument::
+    getOrCreateDefaultFile writes the default text when a file is missing or its
+    front-matter version is older (the binary text for display.md and keys.md; the
+    binary front matter + the markdown of style.css for theme.md)
   → ConfigModel::watcher (jam::File::Watcher, Extensions::md-filtered) detects change
   → ConfigModel::fileChanged tells ConfigModel::loadFromPath() to re-read: per file,
-    jam::ConfigDocument::addTables (disk, binary document, disk document,
-    jam::ConfigValidator rules) validates the disk file and appends each table whose
-    columns equal the binary table's (the same jam path EVE's PluginEditorLayout uses)
+    ConfigDirectory::addFileTables validates the disk document with the
+    jam::ConfigValidator rules and the rules of the binary document, then appends
+    the tree that its getValueTree function gives: ConfigDocument::getValueTree for
+    display.md and keys.md; for themes/<name>/theme.md, ConfigTheme's getStyleTree,
+    which is CssDocument::parse (CssWriter {}.getText (document)).getValueTree
+    (THEMES, style). theme.md
+    is the markdown of style.css, written by ConfigDocument::toDocument (CssDocument)
+    (the same jam path EVE's PluginEditorLayout uses)
   → ConfigModel::state properties updated via setValuesFrom (one overlay pass); a
     failed file or table adds nothing, so its binary rows stay
   → ConfigModel::getRowValue returns a row's dark value while display.md appearance

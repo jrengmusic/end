@@ -67,7 +67,7 @@ private:
     std::unique_ptr<jam::Window> window;
 
     /** @brief Callbacks for the config properties and tables this application applies, keyed by property, tree type or parent tree type. valueTreePropertyChanged() dispatches through it. */
-    jam::Function::Map<juce::Identifier, void> events;
+    jam::Function::Map<juce::Identifier, void (juce::ValueTree&)> events;
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;

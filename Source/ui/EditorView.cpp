@@ -214,13 +214,13 @@ void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
 
 void EditorView::registerEvents()
 {
-    events.add<juce::ValueTree&> (Id::shellExited, [this] (juce::ValueTree& tree)
+    events.add (Id::shellExited, [this] (juce::ValueTree& tree)
     {
         if (static_cast<bool> (tree.getProperty (Id::shellExited)))
             invokeDirectly (map::CommandId::closeTerminalPane, true);
     });
 
-    events.add<juce::ValueTree&> (Id::plugin, [this] (juce::ValueTree&)
+    events.add (Id::plugin, [this] (juce::ValueTree&)
     {
         if (editor != nullptr)
         {
@@ -229,7 +229,7 @@ void EditorView::registerEvents()
         }
     });
 
-    events.add<juce::ValueTree&> (Id::name, [this] (juce::ValueTree& tree)
+    events.add (Id::name, [this] (juce::ValueTree& tree)
     {
         if (tree.hasProperty (Id::name))
         {
@@ -245,7 +245,7 @@ void EditorView::registerEvents()
         }
     });
 
-    events.add<juce::ValueTree&> (Id::focus, [this] (juce::ValueTree& tree)
+    events.add (Id::focus, [this] (juce::ValueTree& tree)
     {
         if (tree == state)
             setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));

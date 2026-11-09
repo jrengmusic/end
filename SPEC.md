@@ -163,27 +163,42 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   resolves the escape to the literal.
 - **Theme style:** `Source/config/theme/gfx/style.css` is the one source of every font,
   colour and metric. ARCHITECT: *"css contract: ALL RELATED STYLE SSOT - fonts - colour -
-  metrics"*. The carried `theme.md` holds only the rows that are none of these (`## tab`
-  `position`, `always visible`, `uppercase`; `## pane` `split line`). The default text is
-  the carried `theme.md`, a newline, then the markdown built from the css
-  (`ConfigTheme.cpp`, `getDefaultText`).
+  metrics"*. `theme.md` is the second serialization of that `jam::CssDocument`. Each css
+  block is one markdown table, and each table is one css block. The carried `theme.md` is
+  the front matter only. The default text is the carried `theme.md`, a newline, then
+  `jam::ConfigDocument::toDocument (CssDocument)` written by `jam::MarkdownWriter`
+  (`ConfigTheme.cpp`, `getOrCreateDefaultText`). The tab rows (`position`, `always
+  visible`, `uppercase`) and the pane row (`split line`) are settings, not style. They are
+  in `display.md` `## tab` and `## pane`.
 - **Theme on disk:** the default is written to a virgin disk, and disk wins. ARCHITECT:
-  *"binary write to virgin state to disk, disk always win."* The sheet is one `## style`
-  heading. Its `###` tables are `colours`, one per component, `fonts` and `metrics`. `key`
-  cells are plain words. `jam::ConfigDocument` drops the `colour id` and `font id` suffix
-  at emit and adds it from the generated tables at parse. A reference cell holds a palette
-  name in words. ARCHITECT: *"md must be using plain words without any redudancy of
-  `colour id`, `font id` etc."* A direct `0xAARRGGBB` stays valid in a user theme.
-  ARCHITECT: *"using direct AARRGGBB hex should work as is"*. An empty `dark` is the light
-  value. `display.md` `appearance` (AUTO, LIGHT, DARK) picks the column; AUTO follows the
-  OS.
+  *"binary write to virgin state to disk, disk always win."* The tables are `## colours`
+  (palette rows `colour` + `0xAARRGGBB`, and colour-id rows `alias` + palette words in
+  `light` / `dark`), `## fonts` (face rows with `value`, `style`, `src`, `height`,
+  `kerning`, and the rasterizer columns on the first face; font-id rows `alias` + face
+  words), one `## metrics` (the unit is the type, `em` or `float`), `## window`,
+  and one table per css class. Each record of `.appearance` or of a class (`DARK`) is one
+  column after the light column. ARCHITECT: *"fonts is fonts, colours is colours, metrics is
+  metrics."* `key` cells are plain words. `jam::ConfigDocument` drops the `colour id` and
+  `font id` suffix at write, and adds it from the generated lexicon at read. ARCHITECT:
+  *"md must be using plain words without any redudancy of `colour id`, `font id` etc."*
+  An empty `dark` is the light value. `display.md` `appearance` (AUTO, LIGHT, DARK) picks
+  the column; AUTO follows the OS.
+- **Theme load:** `ConfigDirectory::addFileTables` validates the disk `theme.md` against
+  the default document. `jam::CssWriter` writes a valid document as css text, and
+  `CssDocument::parse` of that text gives the THEMES tree through `getValueTree`
+  (`getStyleTree` in `ConfigTheme.cpp`). The css document is the only builder of its
+  sections. An
+  invalid document leaves the default tree and its error goes to the message overlay.
+  ARCHITECT: *"if disk was invalid, rendering never fails ... BUT Validator must show
+  error."*
 - **Theme consumers:** the `Id::theme` event runs `StyleManager::registerStyle` on the
   THEMES tree, then `setAppearance`. Every style read goes through StyleManager
   (`ENDLookAndFeel.cpp`). ARCHITECT: *"style related `config` always through Style, never
   by poking config directly."*
-- **Pane padding:** `theme.md` `## pane` `padding` is the one inset of the focused
-  outline and of the hosted editor, which sits inside the outline stroke
-  (`ENDLookAndFeel::getPanePadding`, `EditorView::resized`).
+- **Pane padding:** the `.metrics` row `--PaneComponent--padding` (`## metrics` `pane
+  component padding`) is the one inset of the focused outline and of the hosted editor,
+  which sits inside the outline stroke (`ENDLookAndFeel::getPanePadding`,
+  `EditorView::resized`).
 - **Constants pipeline:** `cast/*.md` (project-info, identifiers, bimaps, files)
   → `cast cast/spell.md` → `Source/generated/{ProjectInfo,Identifiers,Bimaps,
   Files,Generated}.h` (global `Id::`, `map::`, `files::`). The generated lexicon

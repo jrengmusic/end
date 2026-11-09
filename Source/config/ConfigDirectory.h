@@ -101,37 +101,45 @@ public:
         static juce::File getPath (const juce::String& shadersName) noexcept;
     };
 
-    /** @brief Appends the tables of each valid file of @p files to @p target.
+    /** @brief Appends the children of the tree of each valid file of @p files to @p target.
      *
-     *  Each file is read through @p read and parsed as a config document. The document is checked
-     *  against the rules of jam::ConfigValidator, and then against the rules of the memoized default
-     *  document of the same name. A document that passes both appends its tables to @p target. A
-     *  document that fails either is not appended, and its validation message is added to the result.
+     *  Each file is read through @p read and parsed as a config document. The document must pass the rules of
+     *  jam::ConfigValidator. It must then pass the rules of the default document of the same file name, which
+     *  @p getDefaultDocument returns. A document that passes both appends the children of the tree that @p getTree
+     *  builds to @p target. A document that fails either is not appended, and its validation message is added to the result.
      *
-     *  @param target   Tree that receives the tables.
-     *  @param files    Registry of bimap keys to file stems.
-     *  @param getName  Returns the extensioned filename of a key.
-     *  @param read     Returns the text of a file, given its filename.
-     *  @return         The validation messages of the rejected files, each followed by a newline.
-     *                  Empty when every file passes.
+     *  @param target              Tree that receives the children.
+     *  @param files               Registry of bimap keys to file stems.
+     *  @param getName             Returns the extensioned filename of a key.
+     *  @param read                Returns the text of a file, given its filename.
+     *  @param getDefaultDocument  Returns the default config document of a filename.
+     *  @param getTree             Builds the tree of a parsed config document. Its children are appended to @p target.
+     *  @return                    The validation messages of the rejected files, each followed by a newline.
+     *                             Empty when every file passes.
      */
     static juce::String addFileTables (juce::ValueTree target,
                                        const jam::Bimap<int>& files,
                                        const std::function<juce::String (int)>& getName,
-                                       const std::function<juce::String (const juce::String&)>& read);
+                                       const std::function<juce::String (const juce::String&)>& read,
+                                       const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
+                                       const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree);
 
-    /** @brief Appends the tables of the default document of each file of @p files to @p target.
+    /** @brief Appends the children of the tree of the default document of each file of @p files to @p target.
      *
-     *  The default document is read from BinaryData through jam::ConfigDocument::getOrCreate, which
-     *  keeps one parsed document per filename for the lifetime of the process.
+     *  @p getDefaultDocument returns the default document of a filename, and @p getTree builds its tree.
+     *  No rule runs on the default documents.
      *
-     *  @param target   Tree that receives the tables.
-     *  @param files    Registry of bimap keys to file stems.
-     *  @param getName  Returns the extensioned filename of a key.
+     *  @param target              Tree that receives the children.
+     *  @param files               Registry of bimap keys to file stems.
+     *  @param getName             Returns the extensioned filename of a key.
+     *  @param getDefaultDocument  Returns the default config document of a filename.
+     *  @param getTree             Builds the tree of a parsed config document. Its children are appended to @p target.
      */
     static void addDefaultTables (juce::ValueTree target,
                                   const jam::Bimap<int>& files,
-                                  const std::function<juce::String (int)>& getName);
+                                  const std::function<juce::String (int)>& getName,
+                                  const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
+                                  const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree);
 
     //==========================================================================
     /** @brief Read from disk and overlay into @c state.
@@ -143,14 +151,16 @@ public:
 
     /** @brief Writes the default assets of the directory to disk.
      *
-     *  The base implementation writes nothing. ConfigTheme overrides it: it creates the theme directory and its
-     *  flex/ subdirectory when absent, writes each theme markdown default through
-     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which replaces a file whose version is older, and writes
-     *  each flex SVG default only when its file is absent. ConfigShader does not override it, so it inherits the no-op.
+     *  The base implementation writes nothing. ConfigTheme overrides it.
+     *  ConfigTheme creates the theme directory and its flex/ subdirectory when they are absent.
+     *  It writes each theme markdown default through @c jam::ConfigDocument::getOrCreateDefaultFile.
+     *  That function replaces a file whose version is older than the default version.
+     *  It writes each flex SVG default only when its file is absent.
+     *  ConfigShader does not override this function, so it uses the no-op.
      *
      *  @param path  Active config value passed by the owning ConfigModel.
      */
-    virtual void saveToPath (const juce::var& path) {}
+    virtual void saveToPath (const juce::var& path);
 
 private:
     //==========================================================================

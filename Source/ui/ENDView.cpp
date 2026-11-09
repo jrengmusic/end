@@ -398,13 +398,13 @@ void ENDView::registerActions()
 void ENDView::registerGraphicsEvents()
 {
     for (const auto& id : { jam::Format::toType (Id::backgroundOpacity), jam::Format::toType (Id::frameRate), jam::Format::toType (Id::backgroundResolution) })
-        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
+        events.add (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
 }
 
 void ENDView::registerMouseEvents()
 {
     for (const auto& id : { jam::Format::toType (Id::enabled), jam::Format::toType (Id::imouse), jam::Format::toType (Id::orbit), jam::Format::toType (Id::reset) })
-        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setMouseConfig(); });
+        events.add (id, [this] (juce::ValueTree&) { setMouseConfig(); });
 }
 
 void ENDView::registerEvents()
@@ -412,7 +412,7 @@ void ENDView::registerEvents()
     registerGraphicsEvents();
     registerMouseEvents();
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
+    events.add (jam::Format::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
 }
 
 void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)

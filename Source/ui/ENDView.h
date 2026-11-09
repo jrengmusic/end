@@ -250,7 +250,7 @@ private:
     /** @brief Model attachments of the session views, keyed by session identity. */
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
     /** @brief Event callbacks keyed by the property or the tree type that changed. */
-    jam::Function::Map<juce::Identifier, void> events;
+    jam::Function::Map<juce::Identifier, void (juce::ValueTree&)> events;
     /** @brief Command callbacks keyed by command id. The register functions add them, and perform() runs them. */
     jam::Function::Map<juce::CommandID, void> commands;
 

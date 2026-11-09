@@ -1,9 +1,20 @@
 #include "ConfigModel.h"
 
+static juce::ValueTree getConfigTree (const jam::ConfigDocument& document)
+{
+    return document.getValueTree (jam::Format::toType (Id::config));
+}
+
+static const jam::ConfigDocument& getDefaultDocument (const juce::String& fileName)
+{
+    return jam::ConfigDocument::getOrCreate (juce::Identifier { fileName });
+}
+
 static juce::ValueTree getDefaultConfig()
 {
     juce::ValueTree config { jam::Format::toType (Id::config) };
-    ConfigDirectory::addDefaultTables (config, *map::FileConfig::getInstance(), ConfigDirectory::Config::getName);
+    ConfigDirectory::addDefaultTables (config, *map::FileConfig::getInstance(), ConfigDirectory::Config::getName,
+                                      getDefaultDocument, getConfigTree);
 
     return config;
 }
@@ -72,7 +83,9 @@ void ConfigModel::loadFromPath()
     juce::String errors { ConfigDirectory::addFileTables (disk,
         *map::FileConfig::getInstance(),
         ConfigDirectory::Config::getName,
-        [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); }) };
+        [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); },
+        getDefaultDocument,
+        getConfigTree) };
 
     auto config { getDefaultConfig() };
 
@@ -90,7 +103,7 @@ void ConfigModel::loadFromPath()
     appModel.setMessage (message);
 }
 
-juce::Identifier ConfigModel::getEventKey (const jam::Function::Map<juce::Identifier, void>& events,
+juce::Identifier ConfigModel::getEventKey (const jam::Function::Map<juce::Identifier, void (juce::ValueTree&)>& events,
                                            const juce::ValueTree& tree,
                                            const juce::Identifier& property)
 {

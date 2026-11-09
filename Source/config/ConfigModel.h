@@ -106,7 +106,7 @@ public:
         @param property  Property that changed.
         @return The key to look up in @p events.
     */
-    static juce::Identifier getEventKey (const jam::Function::Map<juce::Identifier, void>& events,
+    static juce::Identifier getEventKey (const jam::Function::Map<juce::Identifier, void (juce::ValueTree&)>& events,
                                          const juce::ValueTree& tree,
                                          const juce::Identifier& property);
 

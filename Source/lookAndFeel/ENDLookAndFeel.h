@@ -263,7 +263,7 @@ private:
      * - jam::Format::toType (Id::theme)      — StyleManager::registerStyle(), applyColours(), applyFontStyles(), loadGraphics()
      * - jam::Format::toType (Id::appearance) — applyColours()
      */
-    jam::Function::Map<juce::Identifier, void> events;
+    jam::Function::Map<juce::Identifier, void (juce::ValueTree&)> events;
 
     /** @brief Rotation transform for a vertical bar side (left or right).
      *  Called by applyBarRotation() and by drawPaneEdge(). The left side rotates by -90 degrees,

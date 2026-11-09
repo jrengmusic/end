@@ -46,62 +46,62 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
 
 void ENDApplication::registerEvents()
 {
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::alwaysOnTop),
-                                  [this] (juce::ValueTree& row)
-                                  {
-                                      window->setAlwaysOnTop (row.getProperty (Id::value));
-                                  });
+    events.add (jam::Format::toType (Id::alwaysOnTop),
+                [this] (juce::ValueTree& row)
+                {
+                    window->setAlwaysOnTop (row.getProperty (Id::value));
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::titleBarButtons),
-                                  [this] (juce::ValueTree& row)
-                                  {
-                                      window->setWindowButtons (row.getProperty (Id::value));
-                                  });
+    events.add (jam::Format::toType (Id::titleBarButtons),
+                [this] (juce::ValueTree& row)
+                {
+                    window->setWindowButtons (row.getProperty (Id::value));
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::theme),
-                                  [] (juce::ValueTree&)
-                                  {
-                                      cascadeLookAndFeelChange();
-                                  });
+    events.add (jam::Format::toType (Id::theme),
+                [] (juce::ValueTree&)
+                {
+                    cascadeLookAndFeelChange();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::useGpu),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackground();
-                                      setPostProcess();
-                                  });
+    events.add (jam::Format::toType (Id::useGpu),
+                [this] (juce::ValueTree&)
+                {
+                    setBackground();
+                    setPostProcess();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::background),
-                                  [this] (juce::ValueTree& row)
-                                  {
-                                      if (row.getParent().getType() == jam::Format::toType (Id::graphics))
-                                          setBackground();
-                                  });
+    events.add (jam::Format::toType (Id::background),
+                [this] (juce::ValueTree& row)
+                {
+                    if (row.getParent().getType() == jam::Format::toType (Id::graphics))
+                        setBackground();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::filter),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setBackground();
-                                      setPostProcess();
-                                  });
+    events.add (jam::Format::toType (Id::filter),
+                [this] (juce::ValueTree&)
+                {
+                    setBackground();
+                    setPostProcess();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessing),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcess();
-                                  });
+    events.add (jam::Format::toType (Id::postProcessing),
+                [this] (juce::ValueTree&)
+                {
+                    setPostProcess();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessingOpacity),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcessParams();
-                                  });
+    events.add (jam::Format::toType (Id::postProcessingOpacity),
+                [this] (juce::ValueTree&)
+                {
+                    setPostProcessParams();
+                });
 
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::postProcessingResolution),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setPostProcessParams();
-                                  });
+    events.add (jam::Format::toType (Id::postProcessingResolution),
+                [this] (juce::ValueTree&)
+                {
+                    setPostProcessParams();
+                });
 }
 
 void ENDApplication::setBackground()
