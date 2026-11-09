@@ -7,13 +7,14 @@
 
     The constructor init-list passes the THEMES-rooted tree of getDefaultThemes()
     to @c ConfigDirectory's ValueTree ctor. getDefaultThemes() builds a fresh tree on each call.
-    Its THEME child is built from the memoized @c jam::ConfigDocument of each @c map::FileThemes
-    BinaryData markdown file, and a FLEX child (from @c map::FileFlex SVGs) is appended as a
-    sibling of THEME.
+    Its THEME tables are built from the memoized @c jam::ConfigDocument of each @c map::FileThemes
+    markdown file. Each one is parsed from its default text, which is the BinaryData markdown of the file,
+    a newline, and the markdown that @c jam::ConfigDocument::toDocument writes from the settings sheet of
+    the theme stylesheet. The default text is built once per file name.
+    A FLEX child (from @c map::FileFlex SVGs) is appended to the THEMES tree beside the THEME tables.
     @c ConfigModel attaches the whole @c theme.state THEMES
     subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
-    @c theme.state remains the live THEMES tree, so @c loadFromPath() and
-    @c saveToPath() operate on it directly.
+    @c loadFromPath() overlays @c state. @c saveToPath() writes the default files and does not read @c state.
 
     @see ConfigDirectory
     @see ConfigModel
@@ -31,7 +32,7 @@ public:
 
     /** @brief Reads the theme markdown files and the flex SVG files of the active theme into @c state.
      *
-     *  Starts from the binary defaults of getDefaultThemes(). Locates the theme directory via
+     *  Starts from the defaults of getDefaultThemes(). Locates the theme directory via
      *  @c ConfigDirectory::Themes::getPath. When the directory exists, builds a disk tree of THEMES from its
      *  markdown files through addFileTables, and of FLEX from its flex/ files through addFileFlex.
      *  A flex SVG that fails @c jam::XmlValidator keeps its binary default, and its path and the validation
@@ -46,11 +47,11 @@ public:
 
     /** @brief Writes the default theme files to the active theme directory.
      *
-     *  Creates the theme directory and its @c flex/ subdirectory when absent.
+     *  Gets or creates the theme directory and its @c flex/ subdirectory.
      *  Writes each theme markdown file of @c map::FileThemes through
-     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which writes the BinaryData default when the
+     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which writes the default text of that file when the
      *  file's version is older than the default's version.
-     *  Writes each flex SVG file of @c map::FileFlex only when the file is absent.
+     *  Writes each flex SVG file of @c map::FileFlex only when the file is absent, from its BinaryData text.
      *
      *  @param path  Active theme name from ConfigModel.
      */

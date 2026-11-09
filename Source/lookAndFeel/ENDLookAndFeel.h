@@ -12,13 +12,11 @@
  * @brief END's look-and-feel — theme-driven rendering with live ValueTree updates.
  *
  * Inherits jam::StyleCustom for tab bar background, highlight, button,
- * and pane edge rendering. Listens to the config root ValueTree, which reports the
- * property changes of its subtrees, for live theme changes.
+ * and pane edge rendering. Listens to config as a juce::ValueTree::Listener for live theme changes.
  *
  * Event dispatch uses ConfigModel::getEventKey: the property key takes priority; when no
  * event is registered for it, the lookup falls back to the tree type, then to the parent tree type.
- * This routes theme rebuild (Id::theme) and per-component colour refresh
- * (scrollbar, button, overlay, pane, appearance, menu) through one code path.
+ * This routes the theme rebuild (Id::theme) and the appearance change through one code path.
  */
 class ENDLookAndFeel
     : public jam::StyleCustom
@@ -28,12 +26,10 @@ class ENDLookAndFeel
 {
 public:
     /**
-     * @brief Applies the colours from config, loads SVG graphics from FLEX
-     *        child properties, registers events, adds itself as a listener of
-     *        config and of the dark-mode setting, and installs itself as JUCE's
-     *        default LookAndFeel.
-     *        Typeface registration happens later — see registerTypeface()'s
-     *        doc comment for why it cannot run here.
+     * @brief Registers the events, and adds itself as a listener of config and of the dark-mode setting.
+     *
+     * The colours, the font styles and the graphics are not built here. initialiseStyle() builds them,
+     * and ENDApplication::initialiseVulkan() calls it after the graphics engine is created.
      */
     ENDLookAndFeel();
 
@@ -41,20 +37,11 @@ public:
     ~ENDLookAndFeel() override;
 
     /**
-     * @brief Registers END's six embedded typefaces.
-     *
-     * For each of the six embedded fonts, creates a Typeface::Ptr with juce::Typeface::createSystemTypefaceFor,
-     * stores it in @ref typefaces under its {name, style} key from getTypefaceKey(), and registers the same
-     * Ptr and its bytes with jam::Typeface.
-     */
-    void registerTypeface();
-
-    /**
      * @brief Event dispatch through the events map.
      *
      * Looks up the key that ConfigModel::getEventKey gives for @p property: the property when it is
      * registered, otherwise the tree type when that is registered, otherwise the parent tree type.
-     * Routes theme rebuild (Id::theme) and per-component colour refresh to their respective callbacks.
+     * The callback under that key runs with @p tree. When no callback is registered under the key, nothing runs.
      *
      * @param tree     The ValueTree whose property changed.
      * @param property The identifier of the changed property.
@@ -109,26 +96,22 @@ public:
     void drawTabLabel (juce::Graphics& g, juce::Label& label) override;
 
     /**
-     * @brief Returns tab font constructed from theme config (family, size, kerning).
+     * @brief Returns the font of the tab sheet: StyleManager::getFont for Id::tab.
      *
-     * Reads the jam::Format::toType (Id::tab) rows Id::textFontFamily, Id::textFontSize and Id::kerningFactor.
+     * getTabBarDepth() measures the tab bar with this font, and drawTabLabel() paints the labels with it.
      */
     juce::FontOptions getTabFont() const override;
 
-    /** @brief Returns the font of the overlay table: its textFontFamily and textFontSize rows. */
+    /** @brief Returns the font of the overlay: StyleManager::getFont for Id::overlay. */
     juce::FontOptions getOverlayFont() const;
 
-    /** @brief Returns the popup menu font from the tab table: its textFontFamily and textFontSize rows.
-     *  The kerning factor is not applied.
-     */
+    /** @brief Returns the popup menu font: StyleManager::getFont for Id::tab, the font of getTabFont(). */
     juce::Font getPopupMenuFont() override;
 
-    /** @brief Returns horizontal padding in pixels per side of the tab label.
-     *  Reads the textPadding row of the tab table.
-     */
+    /** @brief Returns the padding of the tab label in pixels, from the Id::tabTextPadding metric of the style sheet. */
     int getTabPadding() const override;
-    /** @brief Height of the tab bar in pixels: the tab font height times the depth row of the tab table.
-     *  Zero when the bar holds at most one tab and the alwaysVisible row of the tab table is unset.
+    /** @brief Height of the tab bar in pixels: the height of the tab font times the Id::tabDepth metric, rounded.
+     *  Zero when the bar holds at most one tab and the Id::alwaysVisible row of the tab table is unset.
      *  @param tabs  The tabbed component whose bar is measured.
      */
     int getTabBarDepth (const jam::TabbedComponent& tabs) const noexcept;
@@ -143,51 +126,38 @@ public:
     juce::String getTabText (const juce::String& tabName) const override;
 
     /**
-     * @brief Resolves the exact Typeface::Ptr registered in @ref typefaces for
-     *        one of END's six embedded fonts, bypassing JUCE's TypefaceCache
-     *        platform lookup by name.
+     * @brief Resolves the typeface of a font request from the faces of the Id::fonts config table.
      *
-     * TypefaceCache resolves juce::Font name lookups through a platform-specific
-     * path and would otherwise hand back a *different* Typeface object than the
-     * Ptr registerTypeface() interned in jam::Typeface.
-     * Returning the same object identity here guarantees it
-     * flows unchanged from name-based Font construction through shaping into the
-     * interned typeface index, so jam::GlyphRasterizer reaches the FreeType face of
-     * that entry for END's embedded fonts instead of opening a second face for every glyph.
-     *
-     * Two probes against @ref typefaces before falling back to the base class:
-     * the exact {name, style} key first, then {name, "Book"} — "Book" is the
-     * regular weight of both embedded families (Display, DisplayMono), and
-     * juce::Font requests style "Regular" by default, which none of the six
-     * embedded faces carry.
+     * Each face gives its typeface through StyleManager::getFont. A face whose name and style both match the
+     * request is returned at once. A face whose name matches and whose style is Book is kept as a fallback,
+     * and is returned only when no face matches the exact style. Returning that typeface keeps the object that
+     * StyleManager holds for the face.
      *
      * @param font The font whose typeface is being resolved.
-     * @return The registered Ptr when @p font names one of the six embedded
-     *         fonts (exact style or the family's Book weight); otherwise the
-     *         base class result.
+     * @return The typeface of the matching face, otherwise the base class result.
      */
     juce::Typeface::Ptr getTypefaceForFont (const juce::Font& font) override;
 
-    /** @brief Component-level padding for the tab bar from display config.
-     *  Reads tab.padding { top, right, bottom, left } (CSS convention).
+    /** @brief Padding of the tab bar, from the Id::tabPaddingTop, Id::tabPaddingLeft, Id::tabPaddingBottom and Id::tabPaddingRight metrics of the style sheet.
+     *  The metrics are passed in the order top, left, bottom, right.
      */
     juce::BorderSize<int> getTabBarPadding() const override;
 
-    /** @brief Applies the window background colour, the blur radius, and the WindowFX ordinal to @p window.
-     *  The colour comes from the window table, the WindowFX ordinal from getWindowFX(). Asserts that
-     *  @p window is a jam::Window.
+    /** @brief Styles @p window as a jam::Window: its background colour, its blur radius, and its WindowFX ordinal.
+     *  The colour is the ResizableWindow::backgroundColourId of this look and feel, the blur is getWindowBlur(),
+     *  and the WindowFX is getWindowFX(). Asserts that @p window is a jam::Window.
      *  @param window  The top-level window component to style.
      */
     void prepareWindow (juce::Component& window) override;
 
-    /** @brief Blur radius from the active theme (jam::Format::toType (Id::window), Id::blurRadius). */
+    /** @brief Blur radius of the window: StyleManager::getWindowStyle for Id::blur. */
     float getWindowBlur() const noexcept override;
 
     /**
-     * @brief Sets the popup menu window opaque to false, then applies the tint, the blur and the menu opacity to it.
+     * @brief Sets the popup menu window opaque to false, then applies the menu tint, the WindowFX and the blur to it.
      *
-     * The tint and the blur are applied in a juce::MessageManager::callAsync call, guarded by a SafePointer.
-     * The opacity is the menu opacity row when jam::BackgroundBlur is enabled, and 1.0 otherwise.
+     * The tint, the WindowFX and the blur are applied in a juce::MessageManager::callAsync call, guarded by a
+     * juce::Component::SafePointer. The tint is the popup menu background colour of the window. The WindowFX is getWindowFX().
      * The blur is the window blur radius when jam::BackgroundBlur is enabled, and 0.0 otherwise.
      *
      * @param newWindow The popup menu's top-level window component.
@@ -218,35 +188,54 @@ public:
                                        const juce::PopupMenu::Item& item,
                                        const juce::PopupMenu::Options& options) override;
 
-    /** @brief Paints the seam of a pane edge with the resizerBar SVG Flex segments.
-     *  A seam narrower than it is tall is rotated with the vertical transform of getVerticalTextTransform().
+    /** @brief Paints the seam of a pane edge with the Id::resizerBar SVG Flex segments.
+     *  A seam narrower than it is tall is rotated with the left-side transform of getVerticalTextTransform().
      */
     void drawPaneEdge (juce::Graphics& g, juce::Component& bar) override;
 
-    /** @brief Draws the outline of a pane as a rounded rectangle, the pane area inset by the pane padding.
+    /** @brief Draws the outline of a pane as a rounded rectangle, inset by the pane padding and by jam::PaneComponent::lineThickness.
      *  The stroke width is jam::PaneComponent::lineThickness. The focused outline colour is used when the pane is focused.
      */
     void drawPaneOutline (juce::Graphics& g, juce::Component& pane) override;
 
-    /** @brief Fills the pane with its focused or unfocused background colour. */
+    /** @brief Fills the pane area, inset as in drawPaneOutline(), with its focused or unfocused background colour. */
     void drawPaneBackground (juce::Graphics& g, juce::Component& pane) override;
 
-    /** @brief Pane EDGE seam thickness in pixels from pane config.
-     *  Reads pane.resize_bar_thickness (user-configurable). Consumed by
-     *  jam::PaneEdge::getSeam() to size the drag-hit region.
+    /** @brief Pixel thickness of the pane edge seam, from the Id::paneComponentResizeBarThickness metric of the style sheet.
+     *  jam::PaneEdge::getSeam() reads it to size the drag-hit region.
      */
     int getPaneEdgeSize() const noexcept override;
 
-    /** @brief Pane padding in pixels from the display config.
-     *  Reads the padding row of the pane table. The space lies between the pane bounds and the pane outline.
+    /** @brief Pane padding in pixels, from the Id::paneComponentPadding metric of the style sheet.
+     *  The pane outline and the pane fill are inset by this padding and by jam::PaneComponent::lineThickness.
      */
     int getPanePadding() const noexcept override;
+
+    /**
+     * @brief Creates the StyleManager from the themes child of config, applies the colours, the font styles and
+     *        the graphics, then installs this look and feel as JUCE's default.
+     *
+     * The StyleManager is created first, because applyColours() and applyFontStyles() read from it.
+     * ENDApplication::initialiseVulkan() is the only caller.
+     */
+    void initialiseStyle();
+
+    /**
+     * @brief Sets the font rasterizer backend, gamma, contrast and embolden state of the CPU graphics engine.
+     *
+     * The backend is the entry of map::FontRasterizerBackend that the rasterizer entry of StyleManager names;
+     * an assertion checks that the name is an entry. The embolden state is true when the embolden entry equals
+     * Format::fromBoolean (true), ignoring case.
+     */
+    void applyFontStyles();
 
 private:
     jam::SharedInstance<map::ButtonState> buttonState { std::in_place };
     jam::SharedInstance<map::Position> position { std::in_place };
     jam::SharedInstance<map::WindowFX> windowFX { std::in_place };
     jam::SharedInstance<map::Appearance> appearance { std::in_place };
+    jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
+    jam::SharedInstance<jam::StyleManager> styleManager;
 
     /** @brief Reapplies the colours when the appearance row of the display table is automatic. */
     void darkModeSettingChanged() override;
@@ -255,32 +244,14 @@ private:
     ConfigModel& config { *ConfigModel::getInstance() };
 
     //==============================================================================
-    /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
-     *  via juce::Font name lookup without requiring system-installed fonts.
-     *
-     *  Keyed by the {name, style} composite built by getTypefaceKey(), NOT by name
-     *  alone — the two embedded families each register three weights sharing
-     *  one juce::Typeface name; a name-only key collides across weights (see
-     *  registerTypeface()'s doc comment).
-     *  @see registerTypeface
-     *  @see getTypefaceKey
-     */
-    jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
-
-    /** @brief Parsed SVG assets keyed by their FLEX child property name or
-     *  button state identifier.
+    /** @brief Parsed SVG assets keyed by the full name of their FLEX child property.
      *
      *  Each entry is a Svg::Flex::Segments set (9-slice layout, paint-ready)
      *  produced by Svg::Flex::getSegments from the SVG content stored as a
-     *  property of the FLEX child of config.state. Rebuilt by loadGraphics()
-     *  on construction and on every Id::theme rebuild event.
+     *  property of the FLEX child of config.state. Rebuilt by loadGraphics(),
+     *  which initialiseStyle() calls, and on every Id::theme event.
      *
-     *  Keys are resolved from the property name: the suffix after the last '_'
-     *  is used when it matches a map::ButtonState entry; otherwise the full
-     *  property name is the key. Svg::Flex::getSegments looks up each named SVG
-     *  element as a top-level int key of the colourScheme member of jam::StyleCustom
-     *  (jam_SvgAttributes.cpp). END leaves colourScheme empty, so every element
-     *  keeps its own SVG style.
+     *  drawTabButton() skips a button state whose entry is absent.
      */
     jam::HashMap<juce::Identifier, jam::Svg::Flex::Segments> graphics;
 
@@ -288,38 +259,18 @@ private:
      * @brief Event dispatch map keyed by juce::Identifier (property or tree type).
      *
      * Populated by registerEvents(). A row child of a config table has no entry of its own,
-     * so valueTreePropertyChanged() looks up the type of its parent table. Handles:
-     * - Id::theme         — full theme rebuild via applyColours() + loadGraphics()
-     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::button),
-     *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
-     *                     — per-component colour refresh via setColours()
-     * - jam::Format::toType (Id::appearance)
-     *                     — colour refresh via applyColours()
-     * - jam::Format::toType (Id::menu)
-     *                     — popup menu colour refresh via setPopupMenuColours()
+     * so valueTreePropertyChanged() falls back to the type of its parent table. Handles:
+     * - jam::Format::toType (Id::theme)      — StyleManager::registerStyle(), applyColours(), applyFontStyles(), loadGraphics()
+     * - jam::Format::toType (Id::appearance) — applyColours()
      */
     jam::Function::Map<juce::Identifier, void> events;
 
-    /**
-     * @brief Builds the composite key @ref typefaces is keyed by: name and
-     *        style joined by "/".
+    /** @brief Rotation transform for a vertical bar side (left or right).
+     *  Called by applyBarRotation() and by drawPaneEdge(). The left side rotates by -90 degrees,
+     *  the other side by +90 degrees.
      *
-     * Both registerTypeface() (ENDLookAndFeel.cpp) and getTypefaceForFont()
-     * use this single definition so the key building never drifts between
-     * insertion and lookup. See @ref typefaces and registerTypeface() for why
-     * a name-only key is unsafe.
-     *
-     * @param name  juce::Typeface::getName() / juce::Font::getTypefaceName().
-     * @param style juce::Typeface::getStyle() / juce::Font::getTypefaceStyle().
-     * @return The composite key, e.g. "Display/Book".
-     */
-    static juce::String getTypefaceKey (const juce::String& name, const juce::String& style);
-
-    /** @brief Rotation transform for a vertical ButtonBar side (left/right).
-     *  Called by applyBarRotation().
-     *
-     *  @param position Vertical bar side (map::Position::left or the right-side case),
-     *                  as returned by jam::ButtonBar::getPosition().
+     *  @param position Vertical bar side: map::Position::left, or the right-side case otherwise.
+     *                  applyBarRotation() passes jam::ButtonBar::getPosition(); drawPaneEdge() passes map::Position::left.
      *  @param width    Bar width before rotation.
      *  @param height   Bar height before rotation.
      */
@@ -334,72 +285,43 @@ private:
      */
     juce::Rectangle<float> applyBarRotation (juce::Graphics& g, juce::Component& component) const;
 
-    /** @brief WindowFX ordinal from the active theme's platform style name
-     *  (jam::Format::toType (Id::style), Id::mac on macOS / Id::win on Windows),
-     *  resolved through map::WindowFX. Zero when the style name has no entry.
+    /** @brief WindowFX ordinal of the window style string for this platform: Id::mac on macOS, Id::win on Windows.
+     *  The string is read through StyleManager::getWindowStyleString(), which reads the window sheet, and it is
+     *  resolved through map::WindowFX. On other platforms the string is empty. Zero when the string has no entry.
      *  Consumed by prepareWindow() and preparePopupMenuWindow().
      */
     int16_t getWindowFX() const;
 
     //==============================================================================
     /**
-     * @brief Reads SVG content from the FLEX child of config.state and
-     *        parses each property into Svg::Flex::Segments.
+     * @brief Reads the SVG content of the FLEX child of config.state and parses each property into Svg::Flex::Segments.
      *
-     * Iterates properties of the FLEX child via jam::Model::forEachProperty.
-     * For each string property: the key is the suffix after the last '_' when it
-     * matches a map::ButtonState entry, or the full property name otherwise.
-     * Svg::Flex::getSegments looks up each named SVG element as a top-level int key
-     * of the colourScheme member of jam::StyleCustom (jam_SvgAttributes.cpp). END
-     * leaves colourScheme empty, so every element keeps its own SVG style. No disk I/O.
+     * Iterates the properties of the FLEX child through jam::Model::forEachProperty. Each property name is the key,
+     * and its string value is the SVG text. Svg::Flex::getSegments receives the colourScheme member of
+     * jam::StyleCustom, which no code in ENDLookAndFeel.cpp assigns. No disk I/O.
      * Defined in ENDLookAndFeel.cpp.
      */
     void loadGraphics();
 
     /**
-     * @brief Applies all component colours, then the popup menu colours.
+     * @brief Applies the colours of the appearance of the display config to this look and feel.
      *
-     * Calls setColours(), then setPopupMenuColours(). Called by the constructor, by the Id::theme
-     * event, by the jam::Format::toType (Id::appearance) event, and by darkModeSettingChanged()
-     * when the appearance is automatic.
+     * Reads the appearance row of the display table and passes it to StyleManager::setAppearance() for the style sheet.
+     * Called by initialiseStyle(), by the theme event, by the appearance event, and by darkModeSettingChanged()
+     * when the appearance is automatic. The constructor does not call it.
      * Defined in ENDLookAndFeel.cpp.
      */
     void applyColours();
 
     /**
-     * @brief Sets the JUCE and END colour ids of every component tree from the config rows.
+     * @brief Populates the events map with the callbacks of the theme and of the appearance.
      *
-     * Reads one colour row through ConfigModel::getRowValue() for each (table type, row key,
-     * colour id) entry of the scrollbar, button, overlay and pane tables.
-     * Converts the row with jam::ColourScheme::toColour() and passes it to
-     * juce::LookAndFeel::setColour(). Defined in ENDLookAndFeel.cpp.
-     */
-    void setColours();
-
-    /**
-     * @brief Applies window background, opacity, text, and highlight colours
-     *        to the juce::PopupMenu colour IDs.
+     * Registers two callbacks, in this order:
+     * - jam::Format::toType (Id::theme): StyleManager::registerStyle() with the themes child of config, then applyColours(),
+     *   applyFontStyles() and loadGraphics().
+     * - jam::Format::toType (Id::appearance): applyColours().
      *
-     * Reads jam::Format::toType (Id::menu) properties against the window background colour
-     * (jam::Format::toType (Id::window)). Called by applyColours(), and on the
-     * jam::Format::toType (Id::menu) colour-refresh event. Defined in ENDLookAndFeel.cpp.
-     */
-    void setPopupMenuColours();
-
-    /**
-     * @brief Populates the events map with ValueTree property/type-keyed callbacks.
-     *
-     * Registers callbacks for:
-     * - Id::theme         → applyColours() + loadGraphics()
-     * - jam::Format::toType (Id::scrollbar), jam::Format::toType (Id::button),
-     *   jam::Format::toType (Id::overlay), jam::Format::toType (Id::pane)
-     *                     → setColours()
-     * - jam::Format::toType (Id::appearance)
-     *                     → applyColours()
-     * - jam::Format::toType (Id::menu)
-     *                     → setPopupMenuColours()
-     *
-     * Each callback is registered in the order listed above. The events map is read in valueTreePropertyChanged().
+     * The events map is read in valueTreePropertyChanged().
      * Defined in ENDLookAndFeel.cpp.
      */
     void registerEvents();

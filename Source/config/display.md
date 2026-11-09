@@ -113,38 +113,6 @@ BufferB, BufferC, BufferD (Shadertoy convention).
 |                            |        |          |            | the shader's own offscreen         |
 |                            |        |          |            | buffers.                           |
 +----------------------------+--------+----------+------------+------------------------------------+
-| font rasterizer            | string | freetype | edgeTable, | Glyph atlas mono rasterization     |
-|                            |        |          | freetype,  | backend for embedded fonts. System |
-|                            |        |          | native     | fonts always draw from the JUCE    |
-|                            |        |          |            | outline, whatever this value.      |
-|                            |        |          |            | "edgeTable" - unhinted             |
-|                            |        |          |            | juce::Typeface coverage            |
-|                            |        |          |            | rasterization. "freetype" -        |
-|                            |        |          |            | unhinted FreeType rasterization    |
-|                            |        |          |            | (default), no autofitter, no stem  |
-|                            |        |          |            | darkening. "native" - OS-native    |
-|                            |        |          |            | font-smoothing (CoreText on macOS, |
-|                            |        |          |            | DirectWrite on Windows).           |
-+----------------------------+--------+----------+------------+------------------------------------+
-| font gamma                 | float  | 2.2      |            | Coverage LUT gamma exponent        |
-|                            |        |          |            | applied to every rasterized mono   |
-|                            |        |          |            | glyph byte. 2.2 is the sRGB        |
-|                            |        |          |            | standard transfer-function         |
-|                            |        |          |            | exponent - coverage boost pow(x,   |
-|                            |        |          |            | 1/2.2) approximates linear-space   |
-|                            |        |          |            | compositing for light-on-dark      |
-|                            |        |          |            | text, correcting for sRGB-space    |
-|                            |        |          |            | blending under-weighting partial   |
-|                            |        |          |            | coverage.                          |
-+----------------------------+--------+----------+------------+------------------------------------+
-| font contrast              | float  | 0.0      |            | Coverage LUT contrast applied      |
-|                            |        |          |            | alongside font gamma (0.0 = no     |
-|                            |        |          |            | synthetic darkening). FreeType's   |
-|                            |        |          |            | own autofitter and native          |
-|                            |        |          |            | font-smoothing already bring their |
-|                            |        |          |            | own boldening; this stays 0.0 by   |
-|                            |        |          |            | default.                           |
-+----------------------------+--------+----------+------------+------------------------------------+
 
 ## mouse
 

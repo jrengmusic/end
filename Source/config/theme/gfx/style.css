@@ -1,0 +1,2108 @@
+:root {
+    --blank: #00000000;
+    --blueBikini: #00C8D8;
+    --bunker: #090D12;
+    --caribbeanBlue: #01C2D2;
+    --cavoloNero: #6B9099;
+    --clearBlack: #00000000;
+    --codeHighlight: #00DDEE20;
+    --crystal: #A1D6E5;
+    --dolphin: #8CC9D9;
+    --gentleCold: #C5F0E9;
+    --glassCorbeau: #0D141F40;
+    --glassLittleMermaid: #2C414480;
+    --glassNarwhalGrey: #090D12BF;
+    --lagoon: #519299;
+    --mattWhite: #FEFFD2;
+    --mediterranea: #33535B;
+    --paleSky: #BAFFFD;
+    --paradiso: #4E8C93;
+    --poseidonJr: #67DFEF;
+    --preciousPersimmon: #FC704C;
+    --silkStar: #F3F5C5;
+    --steam: #DDDDDD;
+    --tranquiliTeal: #699DAA;
+    --void: #001A20;
+    --vulcan: #2D3B40;
+    --umbra: #191817;
+    --carbon: #33302E;
+    --onyx: #524E49;
+    --smokescreen: #706B65;
+    --argent: #8F8881;
+    --darkSouls: #ADA59C;
+    --concrete: #CCC2B8;
+    --platinum: #EBDFD3;
+    --abyssalDeep: #003240;
+    --nightMode: #004659;
+    --deepFathom: #005A73;
+    --marinaTrench: #006B8A;
+    --haddocksSweater: #007DA1;
+    --harborBlue: #008FB8;
+    --aquarius: #00A1CF;
+    --magicalMerlin: #00B3E6;
+    --electricLagoon: #00C7FF;
+    --seaSerpent: #1FCEFF;
+    --hammamBlue: #40D5FF;
+    --belowZero: #61DCFF;
+    --freezingVapor: #80E3FF;
+    --distantHomeworld: #9EEAFF;
+    --calmWaters: #BFF1FF;
+    --snowflake: #E0F8FF;
+    --rogueMagenta: #FF00B2;
+    --wildOrchid: #FF40C6;
+    --candyBlossom: #FF80D9;
+    --cottonCandy: #FFBFEC;
+    --royalStar: #FFD900;
+    --solarPower: #FFE240;
+    --cheesecake: #FFEC80;
+    --moonMilk: #FFF5BF;
+}
+
+.appearance {
+    --ScrollBar--thumbColourId: var(--glassLittleMermaid);
+    --ScrollBar--trackColourId: var(--clearBlack);
+    --TextButton--buttonColourId: var(--void);
+    --TextButton--buttonOnColourId: var(--vulcan);
+    --TextButton--textColourOffId: var(--mediterranea);
+    --TextButton--textColourOnId: var(--blueBikini);
+    --Label--backgroundColourId: var(--glassNarwhalGrey);
+    --Label--textColourId: var(--paradiso);
+    --PopupMenu--textColourId: var(--crystal);
+    --PopupMenu--highlightedBackgroundColourId: var(--cavoloNero);
+    --PopupMenu--backgroundColourId: var(--glassNarwhalGrey);
+    --PopupMenu--highlightedTextColourId: var(--crystal);
+    --ResizableWindow--backgroundColourId: var(--glassNarwhalGrey);
+    --Ansi--colour0ColourId: var(--bunker);
+    --Ansi--colour1ColourId: var(--preciousPersimmon);
+    --Ansi--colour2ColourId: var(--gentleCold);
+    --Ansi--colour3ColourId: var(--silkStar);
+    --Ansi--colour4ColourId: var(--dolphin);
+    --Ansi--colour5ColourId: var(--lagoon);
+    --Ansi--colour6ColourId: var(--tranquiliTeal);
+    --Ansi--colour7ColourId: var(--steam);
+    --Ansi--colour8ColourId: var(--mediterranea);
+    --Ansi--colour9ColourId: var(--preciousPersimmon);
+    --Ansi--colour10ColourId: var(--paleSky);
+    --Ansi--colour11ColourId: var(--mattWhite);
+    --Ansi--colour12ColourId: var(--poseidonJr);
+    --Ansi--colour13ColourId: var(--caribbeanBlue);
+    --Ansi--colour14ColourId: var(--blueBikini);
+    --Ansi--colour15ColourId: var(--paleSky);
+    --Ansi--colour16ColourId: var(--blank);
+    --TextEditor--backgroundColourId: var(--blank);
+    --TextEditor--textColourId: var(--crystal);
+    --TextEditor--highlightColourId: var(--codeHighlight);
+    --TextEditor--linkLabelBackgroundColourId: var(--crystal);
+    --TextEditor--linkLabelTextColourId: var(--bunker);
+    --TextEditor--statusBarBackgroundColourId: var(--bunker);
+    --TextEditor--statusBarTextColourId: var(--crystal);
+    --TextEditor--statusBarNormalColourId: var(--paradiso);
+    --TextEditor--statusBarVisualColourId: var(--preciousPersimmon);
+    --TextEditor--statusBarOpenColourId: var(--silkStar);
+    --TextEditor--statusBarLabelTextColourId: var(--bunker);
+    --TextEditor--statusBarRulerColourId: var(--mediterranea);
+    --CaretComponent--caretColourId: var(--crystal);
+    --Markdown--textColourId: var(--bunker);
+    --Markdown--headingColourId: var(--bunker);
+    --Markdown--codeTextColourId: var(--bunker);
+    --Markdown--codeBackgroundColourId: var(--silkStar);
+    --Markdown--linkColourId: var(--caribbeanBlue);
+    --Markdown--checkboxColourId: var(--paradiso);
+    --Markdown--quoteBarColourId: var(--paradiso);
+    --Markdown--quoteBackgroundColourId: var(--blank);
+    --Markdown--ruleColourId: var(--steam);
+    --Markdown--tableLineColourId: var(--steam);
+    --Markdown--tableHeaderColourId: var(--bunker);
+    --Markdown--tableHeaderBackgroundColourId: var(--blank);
+    --Markdown--codeBlockBackgroundColourId: var(--silkStar);
+    --Markdown--syntaxKeywordColourId: var(--preciousPersimmon);
+    --Markdown--syntaxStringColourId: var(--lagoon);
+    --Markdown--syntaxCommentColourId: var(--cavoloNero);
+    --Markdown--syntaxNumberColourId: var(--blueBikini);
+    --Markdown--syntaxPunctuationColourId: var(--mediterranea);
+    --Markdown--backgroundColourId: var(--mattWhite);
+    --Markdown--metadataColourId: var(--mediterranea);
+    --Markdown--listMarkerColourId: var(--cavoloNero);
+    --Markdown--taskDoneColourId: var(--mediterranea);
+    --Markdown--tagColourId: var(--caribbeanBlue);
+    --Markdown--tagBackgroundColourId: var(--codeHighlight);
+    --Markdown--textFontId: var(--text);
+    --Markdown--boldFontId: var(--textSemibold);
+    --Markdown--italicFontId: var(--textItalic);
+    --Markdown--boldItalicFontId: var(--textBoldItalic);
+    --Markdown--codeFontId: var(--mono);
+    --Markdown--heading1FontId: var(--textBold);
+    --Markdown--heading2FontId: var(--textSemibold);
+    --Markdown--heading3FontId: var(--textSemibold);
+    --Markdown--heading4FontId: var(--textSemibold);
+    --Markdown--heading5FontId: var(--textSemibold);
+    --Markdown--heading6FontId: var(--textSemibold);
+    --Markdown--tableHeaderFontId: var(--textSemibold);
+    --MermaidDiagram--backgroundColourId: var(--platinum);
+    --MermaidDiagram--nodeFillColourId: var(--concrete);
+    --MermaidDiagram--nodeBorderColourId: var(--haddocksSweater);
+    --MermaidDiagram--nodeTextColourId: var(--umbra);
+    --MermaidDiagram--lineColourId: var(--carbon);
+    --MermaidDiagram--textColourId: var(--carbon);
+    --MermaidDiagram--edgeLabelBackgroundColourId: var(--platinum);
+    --MermaidDiagram--clusterFillColourId: var(--concrete);
+    --MermaidDiagram--clusterBorderColourId: var(--solarPower);
+    --MermaidDiagram--clusterTitleFillColourId: var(--concrete);
+    --MermaidDiagram--stateTerminalColourId: var(--umbra);
+    --MermaidDiagram--erRowEvenFillColourId: var(--platinum);
+    --MermaidDiagram--erRowOddFillColourId: var(--concrete);
+    --MermaidDiagram--sequenceLifelineColourId: var(--carbon);
+    --MermaidDiagram--sequenceNoteFillColourId: var(--moonMilk);
+    --MermaidDiagram--sequenceNoteBorderColourId: var(--royalStar);
+    --MermaidDiagram--sequenceNoteTextColourId: var(--umbra);
+    --MermaidDiagram--sequenceActivationFillColourId: var(--concrete);
+    --MermaidDiagram--sequenceActivationBorderColourId: var(--smokescreen);
+    --MermaidDiagram--c4Fill1ColourId: var(--harborBlue);
+    --MermaidDiagram--c4Fill2ColourId: var(--solarPower);
+    --MermaidDiagram--c4Fill3ColourId: var(--wildOrchid);
+    --MermaidDiagram--c4Fill4ColourId: var(--aquarius);
+    --MermaidDiagram--c4Fill5ColourId: var(--cheesecake);
+    --MermaidDiagram--c4Fill6ColourId: var(--candyBlossom);
+    --MermaidDiagram--c4Fill7ColourId: var(--electricLagoon);
+    --MermaidDiagram--c4Fill8ColourId: var(--royalStar);
+    --MermaidDiagram--c4Border1ColourId: var(--aquarius);
+    --MermaidDiagram--c4Border2ColourId: var(--cheesecake);
+    --MermaidDiagram--c4Border3ColourId: var(--candyBlossom);
+    --MermaidDiagram--c4Border4ColourId: var(--magicalMerlin);
+    --MermaidDiagram--c4Border5ColourId: var(--moonMilk);
+    --MermaidDiagram--c4Border6ColourId: var(--cottonCandy);
+    --MermaidDiagram--c4Border7ColourId: var(--seaSerpent);
+    --MermaidDiagram--c4Border8ColourId: var(--solarPower);
+    --MermaidDiagram--c4TextColourId: var(--umbra);
+    --MermaidDiagram--c4LineColourId: var(--smokescreen);
+    --MermaidDiagram--c4LabelColourId: var(--onyx);
+    --MermaidDiagram--c4BoundaryColourId: var(--concrete);
+    --MermaidDiagram--pieSection1ColourId: var(--harborBlue);
+    --MermaidDiagram--pieSection2ColourId: var(--solarPower);
+    --MermaidDiagram--pieSection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--pieSection4ColourId: var(--aquarius);
+    --MermaidDiagram--pieSection5ColourId: var(--cheesecake);
+    --MermaidDiagram--pieSection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--pieSection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--pieSection8ColourId: var(--royalStar);
+    --MermaidDiagram--pieSection9ColourId: var(--rogueMagenta);
+    --MermaidDiagram--pieSection10ColourId: var(--hammamBlue);
+    --MermaidDiagram--pieSection11ColourId: var(--moonMilk);
+    --MermaidDiagram--pieSection12ColourId: var(--cottonCandy);
+    --MermaidDiagram--pieStrokeColourId: var(--platinum);
+    --MermaidDiagram--pieOuterStrokeColourId: var(--carbon);
+    --MermaidDiagram--pieSectionTextColourId: var(--umbra);
+    --MermaidDiagram--pieLegendTextColourId: var(--umbra);
+    --MermaidDiagram--pieTitleTextColourId: var(--umbra);
+    --MermaidDiagram--gitBranch1ColourId: var(--harborBlue);
+    --MermaidDiagram--gitBranch2ColourId: var(--solarPower);
+    --MermaidDiagram--gitBranch3ColourId: var(--wildOrchid);
+    --MermaidDiagram--gitBranch4ColourId: var(--aquarius);
+    --MermaidDiagram--gitBranch5ColourId: var(--cheesecake);
+    --MermaidDiagram--gitBranch6ColourId: var(--candyBlossom);
+    --MermaidDiagram--gitBranch7ColourId: var(--electricLagoon);
+    --MermaidDiagram--gitBranch8ColourId: var(--royalStar);
+    --MermaidDiagram--gitBranchLabelColourId: var(--umbra);
+    --MermaidDiagram--gitCommitLabelColourId: var(--platinum);
+    --MermaidDiagram--gitCommitLabelBackgroundColourId: var(--umbra);
+    --MermaidDiagram--gitTagColourId: var(--royalStar);
+    --MermaidDiagram--gitTagLabelColourId: var(--umbra);
+    --MermaidDiagram--ganttSectionBandColourId: var(--concrete);
+    --MermaidDiagram--ganttSectionAccentColourId: var(--darkSouls);
+    --MermaidDiagram--ganttTaskFillColourId: var(--harborBlue);
+    --MermaidDiagram--ganttTaskDoneColourId: var(--darkSouls);
+    --MermaidDiagram--ganttTaskActiveColourId: var(--electricLagoon);
+    --MermaidDiagram--ganttTaskCritColourId: var(--rogueMagenta);
+    --MermaidDiagram--ganttMilestoneColourId: var(--harborBlue);
+    --MermaidDiagram--ganttTitleColourId: var(--umbra);
+    --MermaidDiagram--ganttSectionLabelColourId: var(--umbra);
+    --MermaidDiagram--ganttTaskLabelColourId: var(--umbra);
+    --MermaidDiagram--ganttTaskLabelOutsideColourId: var(--umbra);
+    --MermaidDiagram--ganttAxisLabelColourId: var(--carbon);
+    --MermaidDiagram--ganttGridColourId: var(--darkSouls);
+    --MermaidDiagram--ganttExcludeColourId: var(--darkSouls);
+    --MermaidDiagram--ganttTodayColourId: var(--solarPower);
+    --MermaidDiagram--railroadTerminalFillColourId: var(--royalStar);
+    --MermaidDiagram--railroadTerminalBorderColourId: var(--solarPower);
+    --MermaidDiagram--railroadTerminalTextColourId: var(--umbra);
+    --MermaidDiagram--railroadNonTerminalFillColourId: var(--calmWaters);
+    --MermaidDiagram--railroadNonTerminalBorderColourId: var(--haddocksSweater);
+    --MermaidDiagram--railroadNonTerminalTextColourId: var(--umbra);
+    --MermaidDiagram--railroadLineColourId: var(--carbon);
+    --MermaidDiagram--railroadMarkerColourId: var(--royalStar);
+    --MermaidDiagram--railroadSpecialFillColourId: var(--distantHomeworld);
+    --MermaidDiagram--railroadSpecialBorderColourId: var(--aquarius);
+    --MermaidDiagram--railroadRuleNameColourId: var(--haddocksSweater);
+    --MermaidDiagram--eventModelingUiFillColourId: var(--snowflake);
+    --MermaidDiagram--eventModelingUiBorderColourId: var(--darkSouls);
+    --MermaidDiagram--eventModelingCommandFillColourId: var(--calmWaters);
+    --MermaidDiagram--eventModelingCommandBorderColourId: var(--haddocksSweater);
+    --MermaidDiagram--eventModelingEventFillColourId: var(--moonMilk);
+    --MermaidDiagram--eventModelingEventBorderColourId: var(--royalStar);
+    --MermaidDiagram--eventModelingProcessorFillColourId: var(--cottonCandy);
+    --MermaidDiagram--eventModelingProcessorBorderColourId: var(--wildOrchid);
+    --MermaidDiagram--eventModelingReadModelFillColourId: var(--freezingVapor);
+    --MermaidDiagram--eventModelingReadModelBorderColourId: var(--marinaTrench);
+    --MermaidDiagram--eventModelingFrameTextColourId: var(--umbra);
+    --MermaidDiagram--eventModelingSwimlaneFillColourId: var(--platinum);
+    --MermaidDiagram--eventModelingSwimlaneBorderColourId: var(--concrete);
+    --MermaidDiagram--eventModelingSwimlaneLabelColourId: var(--smokescreen);
+    --MermaidDiagram--eventModelingRelationColourId: var(--carbon);
+    --MermaidDiagram--swimlaneLaneFillColourId: var(--platinum);
+    --MermaidDiagram--swimlaneLaneBorderColourId: var(--concrete);
+    --MermaidDiagram--swimlaneLaneLabelColourId: var(--smokescreen);
+    --MermaidDiagram--journeySection1ColourId: var(--harborBlue);
+    --MermaidDiagram--journeySection2ColourId: var(--solarPower);
+    --MermaidDiagram--journeySection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--journeySection4ColourId: var(--aquarius);
+    --MermaidDiagram--journeySection5ColourId: var(--cheesecake);
+    --MermaidDiagram--journeySection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--journeySection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--journeySection8ColourId: var(--royalStar);
+    --MermaidDiagram--journeySection1TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection2TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection3TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection4TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection5TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection6TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection7TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection8TextColourId: var(--umbra);
+    --MermaidDiagram--journeyTaskFillColourId: var(--harborBlue);
+    --MermaidDiagram--journeyTaskLabelColourId: var(--platinum);
+    --MermaidDiagram--journeyActor1ColourId: var(--magicalMerlin);
+    --MermaidDiagram--journeyActor2ColourId: var(--rogueMagenta);
+    --MermaidDiagram--journeyActor3ColourId: var(--marinaTrench);
+    --MermaidDiagram--journeyActor4ColourId: var(--cottonCandy);
+    --MermaidDiagram--journeyActor5ColourId: var(--abyssalDeep);
+    --MermaidDiagram--journeyActor6ColourId: var(--moonMilk);
+    --MermaidDiagram--journeyFaceFillColourId: var(--platinum);
+    --MermaidDiagram--journeyFaceStrokeColourId: var(--smokescreen);
+    --MermaidDiagram--journeyFaceFeatureColourId: var(--carbon);
+    --MermaidDiagram--journeyTitleColourId: var(--umbra);
+    --MermaidDiagram--journeyActorLabelColourId: var(--umbra);
+    --MermaidDiagram--journeyActorDotStrokeColourId: var(--umbra);
+    --MermaidDiagram--timelineSection1ColourId: var(--harborBlue);
+    --MermaidDiagram--timelineSection2ColourId: var(--solarPower);
+    --MermaidDiagram--timelineSection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--timelineSection4ColourId: var(--aquarius);
+    --MermaidDiagram--timelineSection5ColourId: var(--cheesecake);
+    --MermaidDiagram--timelineSection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--timelineSection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--timelineSection8ColourId: var(--royalStar);
+    --MermaidDiagram--timelineSection1TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection2TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection3TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection4TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection5TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection6TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection7TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection8TextColourId: var(--umbra);
+    --MermaidDiagram--timelineTitleColourId: var(--umbra);
+    --MermaidDiagram--timelineSection1LineColourId: var(--royalStar);
+    --MermaidDiagram--timelineSection2LineColourId: var(--harborBlue);
+    --MermaidDiagram--timelineSection3LineColourId: var(--solarPower);
+    --MermaidDiagram--timelineSection4LineColourId: var(--wildOrchid);
+    --MermaidDiagram--timelineSection5LineColourId: var(--aquarius);
+    --MermaidDiagram--timelineSection6LineColourId: var(--cheesecake);
+    --MermaidDiagram--timelineSection7LineColourId: var(--candyBlossom);
+    --MermaidDiagram--timelineSection8LineColourId: var(--electricLagoon);
+    --MermaidDiagram--quadrantFill1ColourId: var(--platinum);
+    --MermaidDiagram--quadrantFill2ColourId: var(--concrete);
+    --MermaidDiagram--quadrantFill3ColourId: var(--platinum);
+    --MermaidDiagram--quadrantFill4ColourId: var(--concrete);
+    --MermaidDiagram--quadrantPoint1ColourId: var(--harborBlue);
+    --MermaidDiagram--quadrantPoint2ColourId: var(--solarPower);
+    --MermaidDiagram--quadrantPoint3ColourId: var(--wildOrchid);
+    --MermaidDiagram--quadrantPoint4ColourId: var(--aquarius);
+    --MermaidDiagram--quadrantPoint5ColourId: var(--cheesecake);
+    --MermaidDiagram--quadrantPoint6ColourId: var(--candyBlossom);
+    --MermaidDiagram--quadrantGridLineColourId: var(--darkSouls);
+    --MermaidDiagram--quadrantTitleColourId: var(--umbra);
+    --MermaidDiagram--quadrantLabelColourId: var(--carbon);
+    --MermaidDiagram--xychartSeries1ColourId: var(--harborBlue);
+    --MermaidDiagram--xychartSeries2ColourId: var(--solarPower);
+    --MermaidDiagram--xychartSeries3ColourId: var(--wildOrchid);
+    --MermaidDiagram--xychartSeries4ColourId: var(--aquarius);
+    --MermaidDiagram--xychartSeries5ColourId: var(--cheesecake);
+    --MermaidDiagram--xychartSeries6ColourId: var(--candyBlossom);
+    --MermaidDiagram--xychartSeries7ColourId: var(--electricLagoon);
+    --MermaidDiagram--xychartSeries8ColourId: var(--royalStar);
+    --MermaidDiagram--xychartAxisLabelColourId: var(--carbon);
+    --MermaidDiagram--xychartTitleColourId: var(--umbra);
+    --MermaidDiagram--xychartAxisLineColourId: var(--darkSouls);
+    --MermaidDiagram--xychartLegendLabelColourId: var(--carbon);
+    --MermaidDiagram--infoTextColourId: var(--umbra);
+    --MermaidDiagram--mindmapRootFillColourId: var(--harborBlue);
+    --MermaidDiagram--mindmapBranch1ColourId: var(--solarPower);
+    --MermaidDiagram--mindmapBranch2ColourId: var(--wildOrchid);
+    --MermaidDiagram--mindmapBranch3ColourId: var(--harborBlue);
+    --MermaidDiagram--mindmapBranch4ColourId: var(--aquarius);
+    --MermaidDiagram--mindmapBranch5ColourId: var(--cheesecake);
+    --MermaidDiagram--mindmapBranch6ColourId: var(--candyBlossom);
+    --MermaidDiagram--mindmapBranch7ColourId: var(--electricLagoon);
+    --MermaidDiagram--mindmapBranch8ColourId: var(--royalStar);
+    --MermaidDiagram--mindmapLabelColourId: var(--umbra);
+    --MermaidDiagram--treemapFill1ColourId: var(--harborBlue);
+    --MermaidDiagram--treemapFill2ColourId: var(--solarPower);
+    --MermaidDiagram--treemapFill3ColourId: var(--wildOrchid);
+    --MermaidDiagram--treemapFill4ColourId: var(--aquarius);
+    --MermaidDiagram--treemapFill5ColourId: var(--cheesecake);
+    --MermaidDiagram--treemapFill6ColourId: var(--candyBlossom);
+    --MermaidDiagram--treemapFill7ColourId: var(--electricLagoon);
+    --MermaidDiagram--treemapFill8ColourId: var(--royalStar);
+    --MermaidDiagram--treemapLabel1ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel2ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel3ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel4ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel5ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel6ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel7ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel8ColourId: var(--umbra);
+    --MermaidDiagram--cynefinComplexColourId: var(--harborBlue);
+    --MermaidDiagram--cynefinComplicatedColourId: var(--concrete);
+    --MermaidDiagram--cynefinClearColourId: var(--solarPower);
+    --MermaidDiagram--cynefinChaoticColourId: var(--wildOrchid);
+    --MermaidDiagram--cynefinConfusionColourId: var(--darkSouls);
+    --MermaidDiagram--cynefinCliffColourId: var(--rogueMagenta);
+    --MermaidDiagram--cynefinLabelColourId: var(--umbra);
+    --MermaidDiagram--treeViewLabelColourId: var(--concrete);
+    --MermaidDiagram--treeViewLineColourId: var(--smokescreen);
+    --MermaidDiagram--treeViewIconColourId: var(--harborBlue);
+    --MermaidDiagram--treeViewDescriptionColourId: var(--argent);
+    --MermaidDiagram--treeViewHighlightBackgroundColourId: var(--solarPower);
+    --MermaidDiagram--treeViewHighlightStrokeColourId: var(--solarPower);
+    --MermaidDiagram--vennSet1ColourId: var(--harborBlue);
+    --MermaidDiagram--vennSet2ColourId: var(--solarPower);
+    --MermaidDiagram--vennSet3ColourId: var(--wildOrchid);
+    --MermaidDiagram--vennSet4ColourId: var(--aquarius);
+    --MermaidDiagram--vennSet5ColourId: var(--cheesecake);
+    --MermaidDiagram--vennSet6ColourId: var(--candyBlossom);
+    --MermaidDiagram--vennSet7ColourId: var(--electricLagoon);
+    --MermaidDiagram--vennSet8ColourId: var(--royalStar);
+    --MermaidDiagram--vennTitleColourId: var(--umbra);
+    --MermaidDiagram--vennSetLabelColourId: var(--umbra);
+    --MermaidDiagram--vennRegionLabelColourId: var(--carbon);
+    --MermaidDiagram--radarCurve1ColourId: var(--harborBlue);
+    --MermaidDiagram--radarCurve2ColourId: var(--solarPower);
+    --MermaidDiagram--radarCurve3ColourId: var(--wildOrchid);
+    --MermaidDiagram--radarCurve4ColourId: var(--aquarius);
+    --MermaidDiagram--radarCurve5ColourId: var(--cheesecake);
+    --MermaidDiagram--radarCurve6ColourId: var(--candyBlossom);
+    --MermaidDiagram--radarCurve7ColourId: var(--electricLagoon);
+    --MermaidDiagram--radarCurve8ColourId: var(--royalStar);
+    --MermaidDiagram--radarAxisColourId: var(--darkSouls);
+    --MermaidDiagram--radarAxisLabelColourId: var(--umbra);
+    --MermaidDiagram--radarGraticuleColourId: var(--darkSouls);
+    --MermaidDiagram--radarTitleColourId: var(--umbra);
+    --MermaidDiagram--radarLegendLabelColourId: var(--carbon);
+    --MermaidDiagram--packetBlockColourId: var(--moonMilk);
+    --MermaidDiagram--packetBlockStrokeColourId: var(--concrete);
+    --MermaidDiagram--packetLabelColourId: var(--umbra);
+    --MermaidDiagram--packetBitColourId: var(--carbon);
+    --MermaidDiagram--packetTitleColourId: var(--umbra);
+    --MermaidDiagram--sankeyNode1ColourId: var(--harborBlue);
+    --MermaidDiagram--sankeyNode2ColourId: var(--solarPower);
+    --MermaidDiagram--sankeyNode3ColourId: var(--wildOrchid);
+    --MermaidDiagram--sankeyNode4ColourId: var(--aquarius);
+    --MermaidDiagram--sankeyNode5ColourId: var(--cheesecake);
+    --MermaidDiagram--sankeyNode6ColourId: var(--candyBlossom);
+    --MermaidDiagram--sankeyNode7ColourId: var(--electricLagoon);
+    --MermaidDiagram--sankeyNode8ColourId: var(--royalStar);
+    --MermaidDiagram--sankeyNode9ColourId: var(--rogueMagenta);
+    --MermaidDiagram--sankeyNode10ColourId: var(--hammamBlue);
+    --MermaidDiagram--sankeyLabelColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand1ColourId: var(--harborBlue);
+    --MermaidDiagram--kanbanColumnBand2ColourId: var(--solarPower);
+    --MermaidDiagram--kanbanColumnBand3ColourId: var(--wildOrchid);
+    --MermaidDiagram--kanbanColumnBand4ColourId: var(--aquarius);
+    --MermaidDiagram--kanbanColumnBand5ColourId: var(--cheesecake);
+    --MermaidDiagram--kanbanColumnBand6ColourId: var(--candyBlossom);
+    --MermaidDiagram--kanbanColumnBand7ColourId: var(--electricLagoon);
+    --MermaidDiagram--kanbanColumnBand8ColourId: var(--royalStar);
+    --MermaidDiagram--kanbanColumnBand1TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand2TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand3TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand4TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand5TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand6TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand7TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand8TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanCardFillColourId: var(--platinum);
+    --MermaidDiagram--kanbanCardLabelColourId: var(--umbra);
+    --MermaidDiagram--kanbanCardMetaColourId: var(--smokescreen);
+    --MermaidDiagram--kanbanPriority1ColourId: var(--rogueMagenta);
+    --MermaidDiagram--kanbanPriority2ColourId: var(--royalStar);
+    --MermaidDiagram--kanbanPriority3ColourId: var(--marinaTrench);
+    --MermaidDiagram--kanbanPriority4ColourId: var(--aquarius);
+    --MermaidDiagram--architectureIconColourId: var(--carbon);
+    --MermaidDiagram--architectureIconBackgroundColourId: var(--harborBlue);
+    --MermaidDiagram--architectureGroupBorderColourId: var(--haddocksSweater);
+    --MermaidDiagram--wardleyAxisColourId: var(--carbon);
+    --MermaidDiagram--wardleyAxisTextColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyGridColourId: var(--concrete);
+    --MermaidDiagram--wardleyTitleColourId: var(--umbra);
+    --MermaidDiagram--wardleyNodeFillColourId: var(--concrete);
+    --MermaidDiagram--wardleyNodeBorderColourId: var(--harborBlue);
+    --MermaidDiagram--wardleyNodeLabelColourId: var(--umbra);
+    --MermaidDiagram--wardleyLinkColourId: var(--onyx);
+    --MermaidDiagram--wardleyTrendColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyBuildFillColourId: var(--darkSouls);
+    --MermaidDiagram--wardleyBuyFillColourId: var(--argent);
+    --MermaidDiagram--wardleyOutsourceFillColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyMarketFillColourId: var(--concrete);
+    --MermaidDiagram--wardleyInertiaColourId: var(--carbon);
+    --MermaidDiagram--wardleyAcceleratorFillColourId: var(--carbon);
+    --MermaidDiagram--wardleyAcceleratorBorderColourId: var(--carbon);
+    --MermaidDiagram--wardleyAcceleratorLabelColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyAnnotationFillColourId: var(--carbon);
+    --MermaidDiagram--wardleyAnnotationBorderColourId: var(--carbon);
+    --MermaidDiagram--wardleyAnnotationTextColourId: var(--platinum);
+    --MermaidDiagram--wardleyAnnotationBoxFillColourId: var(--carbon);
+    --MermaidDiagram--wardleyAnnotationBoxBorderColourId: var(--carbon);
+    --MermaidDiagram--wardleyAnnotationBoxTextColourId: var(--concrete);
+    --MermaidDiagram--wardleyNoteColourId: var(--smokescreen);
+    --MermaidDiagram--textFontId: var(--text);
+    --MermaidDiagram--classTitleFontId: var(--mermaidClassTitle);
+    --MermaidDiagram--classBodyFontId: var(--mermaidClassBody);
+    --MermaidDiagram--classCardinalityFontId: var(--mermaidClassCardinality);
+    --MermaidDiagram--c4ElementFontId: var(--mermaidC4Element);
+    --MermaidDiagram--c4StereotypeFontId: var(--mermaidC4Stereotype);
+    --MermaidDiagram--c4DescriptionFontId: var(--mermaidC4Description);
+    --MermaidDiagram--c4BoundaryLabelFontId: var(--mermaidC4BoundaryLabel);
+    --MermaidDiagram--c4BoundaryTypeFontId: var(--mermaidC4BoundaryType);
+    --MermaidDiagram--c4BoundaryDescrFontId: var(--mermaidC4BoundaryDescr);
+    --MermaidDiagram--c4MessageFontId: var(--mermaidC4Message);
+    --MermaidDiagram--architectureFontId: var(--mermaidArchitecture);
+    --MermaidDiagram--ganttFontId: var(--mermaidGantt);
+    --MermaidDiagram--ganttSectionFontId: var(--mermaidGanttSection);
+    --MermaidDiagram--ganttAxisFontId: var(--mermaidGanttAxis);
+    --MermaidDiagram--railroadFontId: var(--mermaidRailroad);
+    --MermaidDiagram--eventModelingSwimlaneFontId: var(--mermaidEventModelingSwimlane);
+    --MermaidDiagram--eventModelingFontId: var(--mermaidEventModeling);
+    --MermaidDiagram--swimlaneLaneLabelFontId: var(--mermaidSwimlaneLaneLabel);
+    --MermaidDiagram--sankeyLabelFontId: var(--mermaidSankeyLabel);
+    --MermaidDiagram--gitCommitLabelFontId: var(--mermaidGitCommitLabel);
+    --MermaidDiagram--gitTagLabelFontId: var(--mermaidGitTagLabel);
+    --MermaidDiagram--wardleyAxisFontId: var(--mermaidWardleyAxis);
+    --MermaidDiagram--wardleyTitleFontId: var(--mermaidWardleyTitle);
+    --MermaidDiagram--wardleyLabelFontId: var(--mermaidWardleyLabel);
+    --MermaidDiagram--wardleyAnnotationFontId: var(--mermaidWardleyAnnotation);
+    --MermaidDiagram--wardleyAnnotationBoxFontId: var(--mermaidWardleyAnnotationBox);
+    --MermaidDiagram--wardleyNoteFontId: var(--mermaidWardleyNote);
+    --MermaidDiagram--ishikawaHeadFontId: var(--mermaidIshikawaHead);
+    --MermaidDiagram--ishikawaLabelFontId: var(--mermaidIshikawaLabel);
+    --MermaidDiagram--cynefinDomainFontId: var(--mermaidCynefinDomain);
+    --MermaidDiagram--cynefinTitleFontId: var(--mermaidCynefinTitle);
+    --MermaidDiagram--cynefinItemFontId: var(--mermaidCynefinItem);
+    --MermaidDiagram--cynefinSubtitleFontId: var(--mermaidCynefinSubtitle);
+    --MermaidDiagram--treeViewTitleFontId: var(--mermaidTreeViewTitle);
+    --MermaidDiagram--kanbanColumnHeaderFontId: var(--mermaidKanbanColumnHeader);
+    --MermaidDiagram--kanbanMetaFontId: var(--mermaidKanbanMeta);
+    --MermaidDiagram--journeyTitleFontId: var(--mermaidJourneyTitle);
+    --MermaidDiagram--journeySectionFontId: var(--mermaidJourneySection);
+    --MermaidDiagram--journeyTaskFontId: var(--mermaidJourneyTask);
+    --MermaidDiagram--journeyActorFontId: var(--mermaidJourneyActor);
+    --MermaidDiagram--timelineTitleFontId: var(--mermaidTimelineTitle);
+    --MermaidDiagram--timelineSectionFontId: var(--mermaidTimelineSection);
+    --MermaidDiagram--timelinePeriodFontId: var(--mermaidTimelinePeriod);
+    --MermaidDiagram--timelineEventFontId: var(--mermaidTimelineEvent);
+    --MermaidDiagram--quadrantTitleFontId: var(--mermaidQuadrantTitle);
+    --MermaidDiagram--quadrantAxisFontId: var(--mermaidQuadrantAxis);
+    --MermaidDiagram--quadrantLabelFontId: var(--mermaidQuadrantLabel);
+    --MermaidDiagram--quadrantPointFontId: var(--mermaidQuadrantPoint);
+    --MermaidDiagram--vennTitleFontId: var(--mermaidVennTitle);
+    --MermaidDiagram--vennSetLabelFontId: var(--mermaidVennSetLabel);
+    --MermaidDiagram--vennRegionLabelFontId: var(--mermaidVennRegionLabel);
+    --MermaidDiagram--radarTitleFontId: var(--mermaidRadarTitle);
+    --MermaidDiagram--radarAxisLabelFontId: var(--mermaidRadarAxisLabel);
+    --MermaidDiagram--radarLegendFontId: var(--mermaidRadarLegend);
+    --MermaidDiagram--pieTitleFontId: var(--mermaidPieTitle);
+    --MermaidDiagram--pieSectionLabelFontId: var(--mermaidPieSectionLabel);
+    --MermaidDiagram--pieLegendFontId: var(--mermaidPieLegend);
+    --MermaidDiagram--packetBitFontId: var(--mermaidPacketBit);
+    --MermaidDiagram--packetLabelFontId: var(--mermaidPacketLabel);
+    --MermaidDiagram--packetTitleFontId: var(--mermaidPacketTitle);
+    --MermaidDiagram--xychartTitleFontId: var(--mermaidXychartTitle);
+    --MermaidDiagram--xychartAxisLabelFontId: var(--mermaidXychartAxisLabel);
+    --MermaidDiagram--xychartAxisTitleFontId: var(--mermaidXychartAxisTitle);
+    --MermaidDiagram--xychartLegendFontId: var(--mermaidXychartLegend);
+    --MermaidDiagram--infoFontId: var(--mermaidInfo);
+    --MermaidDiagram--requirementStereotypeFontId: var(--mermaidRequirementStereotype);
+    --MermaidDiagram--requirementTitleFontId: var(--mermaidRequirementTitle);
+    --MermaidDiagram--treemapLabelFontId: var(--mermaidTreemapLabel);
+    --MermaidDiagram--treemapValueFontId: var(--mermaidTreemapValue);
+    --MermaidDiagram--treeViewDirectoryFontId: var(--mermaidTreeViewDirectory);
+    --MermaidDiagram--treeViewDescriptionFontId: var(--mermaidTreeViewDescription);
+    --PaneComponent--outlineColourId: var(--clearBlack);
+    --PaneComponent--focusedOutlineColourId: var(--clearBlack);
+    --PaneComponent--backgroundColourId: var(--clearBlack);
+    --PaneComponent--focusedBackgroundColourId: var(--glassCorbeau);
+}
+
+.appearance.DARK {
+    --Markdown--textColourId: var(--steam);
+    --Markdown--headingColourId: var(--steam);
+    --Markdown--codeTextColourId: var(--steam);
+    --Markdown--codeBackgroundColourId: var(--vulcan);
+    --Markdown--linkColourId: var(--poseidonJr);
+    --Markdown--checkboxColourId: var(--caribbeanBlue);
+    --Markdown--quoteBarColourId: var(--caribbeanBlue);
+    --Markdown--quoteBackgroundColourId: var(--blank);
+    --Markdown--ruleColourId: var(--mediterranea);
+    --Markdown--tableLineColourId: var(--mediterranea);
+    --Markdown--tableHeaderColourId: var(--steam);
+    --Markdown--tableHeaderBackgroundColourId: var(--blank);
+    --Markdown--codeBlockBackgroundColourId: var(--vulcan);
+    --Markdown--syntaxKeywordColourId: var(--paleSky);
+    --Markdown--syntaxStringColourId: var(--gentleCold);
+    --Markdown--syntaxCommentColourId: var(--cavoloNero);
+    --Markdown--syntaxNumberColourId: var(--crystal);
+    --Markdown--syntaxPunctuationColourId: var(--dolphin);
+    --Markdown--backgroundColourId: var(--bunker);
+    --Markdown--metadataColourId: var(--dolphin);
+    --Markdown--listMarkerColourId: var(--cavoloNero);
+    --Markdown--taskDoneColourId: var(--dolphin);
+    --Markdown--tagColourId: var(--poseidonJr);
+    --MermaidDiagram--backgroundColourId: var(--umbra);
+    --MermaidDiagram--nodeFillColourId: var(--carbon);
+    --MermaidDiagram--nodeBorderColourId: var(--aquarius);
+    --MermaidDiagram--nodeTextColourId: var(--platinum);
+    --MermaidDiagram--lineColourId: var(--concrete);
+    --MermaidDiagram--textColourId: var(--concrete);
+    --MermaidDiagram--edgeLabelBackgroundColourId: var(--umbra);
+    --MermaidDiagram--clusterFillColourId: var(--onyx);
+    --MermaidDiagram--clusterBorderColourId: var(--royalStar);
+    --MermaidDiagram--clusterTitleFillColourId: var(--onyx);
+    --MermaidDiagram--stateTerminalColourId: var(--platinum);
+    --MermaidDiagram--erRowEvenFillColourId: var(--umbra);
+    --MermaidDiagram--erRowOddFillColourId: var(--carbon);
+    --MermaidDiagram--sequenceLifelineColourId: var(--darkSouls);
+    --MermaidDiagram--sequenceNoteFillColourId: var(--royalStar);
+    --MermaidDiagram--sequenceNoteBorderColourId: var(--solarPower);
+    --MermaidDiagram--sequenceNoteTextColourId: var(--umbra);
+    --MermaidDiagram--sequenceActivationFillColourId: var(--onyx);
+    --MermaidDiagram--sequenceActivationBorderColourId: var(--darkSouls);
+    --MermaidDiagram--c4Fill1ColourId: var(--harborBlue);
+    --MermaidDiagram--c4Fill2ColourId: var(--solarPower);
+    --MermaidDiagram--c4Fill3ColourId: var(--wildOrchid);
+    --MermaidDiagram--c4Fill4ColourId: var(--aquarius);
+    --MermaidDiagram--c4Fill5ColourId: var(--cheesecake);
+    --MermaidDiagram--c4Fill6ColourId: var(--candyBlossom);
+    --MermaidDiagram--c4Fill7ColourId: var(--electricLagoon);
+    --MermaidDiagram--c4Fill8ColourId: var(--royalStar);
+    --MermaidDiagram--c4Border1ColourId: var(--haddocksSweater);
+    --MermaidDiagram--c4Border2ColourId: var(--royalStar);
+    --MermaidDiagram--c4Border3ColourId: var(--rogueMagenta);
+    --MermaidDiagram--c4Border4ColourId: var(--harborBlue);
+    --MermaidDiagram--c4Border5ColourId: var(--solarPower);
+    --MermaidDiagram--c4Border6ColourId: var(--wildOrchid);
+    --MermaidDiagram--c4Border7ColourId: var(--magicalMerlin);
+    --MermaidDiagram--c4Border8ColourId: var(--royalStar);
+    --MermaidDiagram--c4TextColourId: var(--umbra);
+    --MermaidDiagram--c4LineColourId: var(--argent);
+    --MermaidDiagram--c4LabelColourId: var(--darkSouls);
+    --MermaidDiagram--c4BoundaryColourId: var(--carbon);
+    --MermaidDiagram--pieSection1ColourId: var(--harborBlue);
+    --MermaidDiagram--pieSection2ColourId: var(--solarPower);
+    --MermaidDiagram--pieSection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--pieSection4ColourId: var(--aquarius);
+    --MermaidDiagram--pieSection5ColourId: var(--cheesecake);
+    --MermaidDiagram--pieSection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--pieSection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--pieSection8ColourId: var(--royalStar);
+    --MermaidDiagram--pieSection9ColourId: var(--rogueMagenta);
+    --MermaidDiagram--pieSection10ColourId: var(--hammamBlue);
+    --MermaidDiagram--pieSection11ColourId: var(--moonMilk);
+    --MermaidDiagram--pieSection12ColourId: var(--cottonCandy);
+    --MermaidDiagram--pieStrokeColourId: var(--umbra);
+    --MermaidDiagram--pieOuterStrokeColourId: var(--concrete);
+    --MermaidDiagram--pieSectionTextColourId: var(--umbra);
+    --MermaidDiagram--pieLegendTextColourId: var(--platinum);
+    --MermaidDiagram--pieTitleTextColourId: var(--platinum);
+    --MermaidDiagram--gitBranch1ColourId: var(--harborBlue);
+    --MermaidDiagram--gitBranch2ColourId: var(--solarPower);
+    --MermaidDiagram--gitBranch3ColourId: var(--wildOrchid);
+    --MermaidDiagram--gitBranch4ColourId: var(--aquarius);
+    --MermaidDiagram--gitBranch5ColourId: var(--cheesecake);
+    --MermaidDiagram--gitBranch6ColourId: var(--candyBlossom);
+    --MermaidDiagram--gitBranch7ColourId: var(--electricLagoon);
+    --MermaidDiagram--gitBranch8ColourId: var(--royalStar);
+    --MermaidDiagram--gitBranchLabelColourId: var(--umbra);
+    --MermaidDiagram--gitCommitLabelColourId: var(--umbra);
+    --MermaidDiagram--gitCommitLabelBackgroundColourId: var(--platinum);
+    --MermaidDiagram--gitTagColourId: var(--royalStar);
+    --MermaidDiagram--gitTagLabelColourId: var(--umbra);
+    --MermaidDiagram--ganttSectionBandColourId: var(--onyx);
+    --MermaidDiagram--ganttSectionAccentColourId: var(--smokescreen);
+    --MermaidDiagram--ganttTaskFillColourId: var(--harborBlue);
+    --MermaidDiagram--ganttTaskDoneColourId: var(--smokescreen);
+    --MermaidDiagram--ganttTaskActiveColourId: var(--electricLagoon);
+    --MermaidDiagram--ganttTaskCritColourId: var(--rogueMagenta);
+    --MermaidDiagram--ganttMilestoneColourId: var(--harborBlue);
+    --MermaidDiagram--ganttTitleColourId: var(--platinum);
+    --MermaidDiagram--ganttSectionLabelColourId: var(--platinum);
+    --MermaidDiagram--ganttTaskLabelColourId: var(--umbra);
+    --MermaidDiagram--ganttTaskLabelOutsideColourId: var(--platinum);
+    --MermaidDiagram--ganttAxisLabelColourId: var(--argent);
+    --MermaidDiagram--ganttGridColourId: var(--onyx);
+    --MermaidDiagram--ganttExcludeColourId: var(--carbon);
+    --MermaidDiagram--ganttTodayColourId: var(--solarPower);
+    --MermaidDiagram--railroadTerminalFillColourId: var(--royalStar);
+    --MermaidDiagram--railroadTerminalBorderColourId: var(--solarPower);
+    --MermaidDiagram--railroadTerminalTextColourId: var(--umbra);
+    --MermaidDiagram--railroadNonTerminalFillColourId: var(--onyx);
+    --MermaidDiagram--railroadNonTerminalBorderColourId: var(--aquarius);
+    --MermaidDiagram--railroadNonTerminalTextColourId: var(--platinum);
+    --MermaidDiagram--railroadLineColourId: var(--concrete);
+    --MermaidDiagram--railroadMarkerColourId: var(--royalStar);
+    --MermaidDiagram--railroadSpecialFillColourId: var(--marinaTrench);
+    --MermaidDiagram--railroadSpecialBorderColourId: var(--deepFathom);
+    --MermaidDiagram--railroadRuleNameColourId: var(--belowZero);
+    --MermaidDiagram--eventModelingUiFillColourId: var(--carbon);
+    --MermaidDiagram--eventModelingUiBorderColourId: var(--argent);
+    --MermaidDiagram--eventModelingCommandFillColourId: var(--abyssalDeep);
+    --MermaidDiagram--eventModelingCommandBorderColourId: var(--aquarius);
+    --MermaidDiagram--eventModelingEventFillColourId: var(--nightMode);
+    --MermaidDiagram--eventModelingEventBorderColourId: var(--royalStar);
+    --MermaidDiagram--eventModelingProcessorFillColourId: var(--onyx);
+    --MermaidDiagram--eventModelingProcessorBorderColourId: var(--wildOrchid);
+    --MermaidDiagram--eventModelingReadModelFillColourId: var(--deepFathom);
+    --MermaidDiagram--eventModelingReadModelBorderColourId: var(--belowZero);
+    --MermaidDiagram--eventModelingFrameTextColourId: var(--platinum);
+    --MermaidDiagram--eventModelingSwimlaneFillColourId: var(--umbra);
+    --MermaidDiagram--eventModelingSwimlaneBorderColourId: var(--carbon);
+    --MermaidDiagram--eventModelingSwimlaneLabelColourId: var(--argent);
+    --MermaidDiagram--eventModelingRelationColourId: var(--concrete);
+    --MermaidDiagram--swimlaneLaneFillColourId: var(--umbra);
+    --MermaidDiagram--swimlaneLaneBorderColourId: var(--carbon);
+    --MermaidDiagram--swimlaneLaneLabelColourId: var(--argent);
+    --MermaidDiagram--journeySection1ColourId: var(--harborBlue);
+    --MermaidDiagram--journeySection2ColourId: var(--solarPower);
+    --MermaidDiagram--journeySection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--journeySection4ColourId: var(--aquarius);
+    --MermaidDiagram--journeySection5ColourId: var(--cheesecake);
+    --MermaidDiagram--journeySection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--journeySection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--journeySection8ColourId: var(--royalStar);
+    --MermaidDiagram--journeySection1TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection2TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection3TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection4TextColourId: var(--platinum);
+    --MermaidDiagram--journeySection5TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection6TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection7TextColourId: var(--umbra);
+    --MermaidDiagram--journeySection8TextColourId: var(--umbra);
+    --MermaidDiagram--journeyTaskFillColourId: var(--harborBlue);
+    --MermaidDiagram--journeyTaskLabelColourId: var(--platinum);
+    --MermaidDiagram--journeyActor1ColourId: var(--magicalMerlin);
+    --MermaidDiagram--journeyActor2ColourId: var(--rogueMagenta);
+    --MermaidDiagram--journeyActor3ColourId: var(--marinaTrench);
+    --MermaidDiagram--journeyActor4ColourId: var(--cottonCandy);
+    --MermaidDiagram--journeyActor5ColourId: var(--abyssalDeep);
+    --MermaidDiagram--journeyActor6ColourId: var(--moonMilk);
+    --MermaidDiagram--journeyFaceFillColourId: var(--platinum);
+    --MermaidDiagram--journeyFaceStrokeColourId: var(--darkSouls);
+    --MermaidDiagram--journeyFaceFeatureColourId: var(--carbon);
+    --MermaidDiagram--journeyTitleColourId: var(--platinum);
+    --MermaidDiagram--journeyActorLabelColourId: var(--platinum);
+    --MermaidDiagram--journeyActorDotStrokeColourId: var(--umbra);
+    --MermaidDiagram--timelineSection1ColourId: var(--harborBlue);
+    --MermaidDiagram--timelineSection2ColourId: var(--solarPower);
+    --MermaidDiagram--timelineSection3ColourId: var(--wildOrchid);
+    --MermaidDiagram--timelineSection4ColourId: var(--aquarius);
+    --MermaidDiagram--timelineSection5ColourId: var(--cheesecake);
+    --MermaidDiagram--timelineSection6ColourId: var(--candyBlossom);
+    --MermaidDiagram--timelineSection7ColourId: var(--electricLagoon);
+    --MermaidDiagram--timelineSection8ColourId: var(--royalStar);
+    --MermaidDiagram--timelineSection1TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection2TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection3TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection4TextColourId: var(--platinum);
+    --MermaidDiagram--timelineSection5TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection6TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection7TextColourId: var(--umbra);
+    --MermaidDiagram--timelineSection8TextColourId: var(--umbra);
+    --MermaidDiagram--timelineTitleColourId: var(--platinum);
+    --MermaidDiagram--timelineSection1LineColourId: var(--royalStar);
+    --MermaidDiagram--timelineSection2LineColourId: var(--harborBlue);
+    --MermaidDiagram--timelineSection3LineColourId: var(--solarPower);
+    --MermaidDiagram--timelineSection4LineColourId: var(--wildOrchid);
+    --MermaidDiagram--timelineSection5LineColourId: var(--aquarius);
+    --MermaidDiagram--timelineSection6LineColourId: var(--cheesecake);
+    --MermaidDiagram--timelineSection7LineColourId: var(--candyBlossom);
+    --MermaidDiagram--timelineSection8LineColourId: var(--electricLagoon);
+    --MermaidDiagram--quadrantFill1ColourId: var(--carbon);
+    --MermaidDiagram--quadrantFill2ColourId: var(--onyx);
+    --MermaidDiagram--quadrantFill3ColourId: var(--carbon);
+    --MermaidDiagram--quadrantFill4ColourId: var(--onyx);
+    --MermaidDiagram--quadrantPoint1ColourId: var(--harborBlue);
+    --MermaidDiagram--quadrantPoint2ColourId: var(--solarPower);
+    --MermaidDiagram--quadrantPoint3ColourId: var(--wildOrchid);
+    --MermaidDiagram--quadrantPoint4ColourId: var(--aquarius);
+    --MermaidDiagram--quadrantPoint5ColourId: var(--cheesecake);
+    --MermaidDiagram--quadrantPoint6ColourId: var(--candyBlossom);
+    --MermaidDiagram--quadrantGridLineColourId: var(--smokescreen);
+    --MermaidDiagram--quadrantTitleColourId: var(--platinum);
+    --MermaidDiagram--quadrantLabelColourId: var(--concrete);
+    --MermaidDiagram--xychartSeries1ColourId: var(--harborBlue);
+    --MermaidDiagram--xychartSeries2ColourId: var(--solarPower);
+    --MermaidDiagram--xychartSeries3ColourId: var(--wildOrchid);
+    --MermaidDiagram--xychartSeries4ColourId: var(--aquarius);
+    --MermaidDiagram--xychartSeries5ColourId: var(--cheesecake);
+    --MermaidDiagram--xychartSeries6ColourId: var(--candyBlossom);
+    --MermaidDiagram--xychartSeries7ColourId: var(--electricLagoon);
+    --MermaidDiagram--xychartSeries8ColourId: var(--royalStar);
+    --MermaidDiagram--xychartAxisLabelColourId: var(--concrete);
+    --MermaidDiagram--xychartTitleColourId: var(--platinum);
+    --MermaidDiagram--xychartAxisLineColourId: var(--smokescreen);
+    --MermaidDiagram--xychartLegendLabelColourId: var(--concrete);
+    --MermaidDiagram--infoTextColourId: var(--platinum);
+    --MermaidDiagram--mindmapRootFillColourId: var(--harborBlue);
+    --MermaidDiagram--mindmapBranch1ColourId: var(--solarPower);
+    --MermaidDiagram--mindmapBranch2ColourId: var(--wildOrchid);
+    --MermaidDiagram--mindmapBranch3ColourId: var(--harborBlue);
+    --MermaidDiagram--mindmapBranch4ColourId: var(--aquarius);
+    --MermaidDiagram--mindmapBranch5ColourId: var(--cheesecake);
+    --MermaidDiagram--mindmapBranch6ColourId: var(--candyBlossom);
+    --MermaidDiagram--mindmapBranch7ColourId: var(--electricLagoon);
+    --MermaidDiagram--mindmapBranch8ColourId: var(--royalStar);
+    --MermaidDiagram--mindmapLabelColourId: var(--umbra);
+    --MermaidDiagram--treemapFill1ColourId: var(--harborBlue);
+    --MermaidDiagram--treemapFill2ColourId: var(--solarPower);
+    --MermaidDiagram--treemapFill3ColourId: var(--wildOrchid);
+    --MermaidDiagram--treemapFill4ColourId: var(--aquarius);
+    --MermaidDiagram--treemapFill5ColourId: var(--cheesecake);
+    --MermaidDiagram--treemapFill6ColourId: var(--candyBlossom);
+    --MermaidDiagram--treemapFill7ColourId: var(--electricLagoon);
+    --MermaidDiagram--treemapFill8ColourId: var(--royalStar);
+    --MermaidDiagram--treemapLabel1ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel2ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel3ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel4ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel5ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel6ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel7ColourId: var(--umbra);
+    --MermaidDiagram--treemapLabel8ColourId: var(--umbra);
+    --MermaidDiagram--cynefinComplexColourId: var(--harborBlue);
+    --MermaidDiagram--cynefinComplicatedColourId: var(--concrete);
+    --MermaidDiagram--cynefinClearColourId: var(--solarPower);
+    --MermaidDiagram--cynefinChaoticColourId: var(--wildOrchid);
+    --MermaidDiagram--cynefinConfusionColourId: var(--darkSouls);
+    --MermaidDiagram--cynefinCliffColourId: var(--rogueMagenta);
+    --MermaidDiagram--cynefinLabelColourId: var(--umbra);
+    --MermaidDiagram--treeViewLabelColourId: var(--concrete);
+    --MermaidDiagram--treeViewLineColourId: var(--smokescreen);
+    --MermaidDiagram--treeViewIconColourId: var(--harborBlue);
+    --MermaidDiagram--treeViewDescriptionColourId: var(--argent);
+    --MermaidDiagram--treeViewHighlightBackgroundColourId: var(--solarPower);
+    --MermaidDiagram--treeViewHighlightStrokeColourId: var(--solarPower);
+    --MermaidDiagram--vennSet1ColourId: var(--harborBlue);
+    --MermaidDiagram--vennSet2ColourId: var(--solarPower);
+    --MermaidDiagram--vennSet3ColourId: var(--wildOrchid);
+    --MermaidDiagram--vennSet4ColourId: var(--aquarius);
+    --MermaidDiagram--vennSet5ColourId: var(--cheesecake);
+    --MermaidDiagram--vennSet6ColourId: var(--candyBlossom);
+    --MermaidDiagram--vennSet7ColourId: var(--electricLagoon);
+    --MermaidDiagram--vennSet8ColourId: var(--royalStar);
+    --MermaidDiagram--vennTitleColourId: var(--platinum);
+    --MermaidDiagram--vennSetLabelColourId: var(--platinum);
+    --MermaidDiagram--vennRegionLabelColourId: var(--concrete);
+    --MermaidDiagram--radarCurve1ColourId: var(--harborBlue);
+    --MermaidDiagram--radarCurve2ColourId: var(--solarPower);
+    --MermaidDiagram--radarCurve3ColourId: var(--wildOrchid);
+    --MermaidDiagram--radarCurve4ColourId: var(--aquarius);
+    --MermaidDiagram--radarCurve5ColourId: var(--cheesecake);
+    --MermaidDiagram--radarCurve6ColourId: var(--candyBlossom);
+    --MermaidDiagram--radarCurve7ColourId: var(--electricLagoon);
+    --MermaidDiagram--radarCurve8ColourId: var(--royalStar);
+    --MermaidDiagram--radarAxisColourId: var(--smokescreen);
+    --MermaidDiagram--radarAxisLabelColourId: var(--platinum);
+    --MermaidDiagram--radarGraticuleColourId: var(--smokescreen);
+    --MermaidDiagram--radarTitleColourId: var(--platinum);
+    --MermaidDiagram--radarLegendLabelColourId: var(--concrete);
+    --MermaidDiagram--packetBlockColourId: var(--moonMilk);
+    --MermaidDiagram--packetBlockStrokeColourId: var(--umbra);
+    --MermaidDiagram--packetLabelColourId: var(--umbra);
+    --MermaidDiagram--packetBitColourId: var(--concrete);
+    --MermaidDiagram--packetTitleColourId: var(--platinum);
+    --MermaidDiagram--sankeyNode1ColourId: var(--harborBlue);
+    --MermaidDiagram--sankeyNode2ColourId: var(--solarPower);
+    --MermaidDiagram--sankeyNode3ColourId: var(--wildOrchid);
+    --MermaidDiagram--sankeyNode4ColourId: var(--aquarius);
+    --MermaidDiagram--sankeyNode5ColourId: var(--cheesecake);
+    --MermaidDiagram--sankeyNode6ColourId: var(--candyBlossom);
+    --MermaidDiagram--sankeyNode7ColourId: var(--electricLagoon);
+    --MermaidDiagram--sankeyNode8ColourId: var(--royalStar);
+    --MermaidDiagram--sankeyNode9ColourId: var(--rogueMagenta);
+    --MermaidDiagram--sankeyNode10ColourId: var(--hammamBlue);
+    --MermaidDiagram--sankeyLabelColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand1ColourId: var(--harborBlue);
+    --MermaidDiagram--kanbanColumnBand2ColourId: var(--solarPower);
+    --MermaidDiagram--kanbanColumnBand3ColourId: var(--wildOrchid);
+    --MermaidDiagram--kanbanColumnBand4ColourId: var(--aquarius);
+    --MermaidDiagram--kanbanColumnBand5ColourId: var(--cheesecake);
+    --MermaidDiagram--kanbanColumnBand6ColourId: var(--candyBlossom);
+    --MermaidDiagram--kanbanColumnBand7ColourId: var(--electricLagoon);
+    --MermaidDiagram--kanbanColumnBand8ColourId: var(--royalStar);
+    --MermaidDiagram--kanbanColumnBand1TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand2TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand3TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand4TextColourId: var(--platinum);
+    --MermaidDiagram--kanbanColumnBand5TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand6TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand7TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanColumnBand8TextColourId: var(--umbra);
+    --MermaidDiagram--kanbanCardFillColourId: var(--umbra);
+    --MermaidDiagram--kanbanCardLabelColourId: var(--platinum);
+    --MermaidDiagram--kanbanCardMetaColourId: var(--darkSouls);
+    --MermaidDiagram--kanbanPriority1ColourId: var(--rogueMagenta);
+    --MermaidDiagram--kanbanPriority2ColourId: var(--royalStar);
+    --MermaidDiagram--kanbanPriority3ColourId: var(--aquarius);
+    --MermaidDiagram--kanbanPriority4ColourId: var(--distantHomeworld);
+    --MermaidDiagram--architectureIconColourId: var(--concrete);
+    --MermaidDiagram--architectureIconBackgroundColourId: var(--harborBlue);
+    --MermaidDiagram--architectureGroupBorderColourId: var(--marinaTrench);
+    --MermaidDiagram--wardleyAxisColourId: var(--concrete);
+    --MermaidDiagram--wardleyAxisTextColourId: var(--darkSouls);
+    --MermaidDiagram--wardleyGridColourId: var(--onyx);
+    --MermaidDiagram--wardleyTitleColourId: var(--platinum);
+    --MermaidDiagram--wardleyNodeFillColourId: var(--carbon);
+    --MermaidDiagram--wardleyNodeBorderColourId: var(--aquarius);
+    --MermaidDiagram--wardleyNodeLabelColourId: var(--platinum);
+    --MermaidDiagram--wardleyLinkColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyTrendColourId: var(--darkSouls);
+    --MermaidDiagram--wardleyBuildFillColourId: var(--argent);
+    --MermaidDiagram--wardleyBuyFillColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyOutsourceFillColourId: var(--onyx);
+    --MermaidDiagram--wardleyMarketFillColourId: var(--carbon);
+    --MermaidDiagram--wardleyInertiaColourId: var(--concrete);
+    --MermaidDiagram--wardleyAcceleratorFillColourId: var(--platinum);
+    --MermaidDiagram--wardleyAcceleratorBorderColourId: var(--platinum);
+    --MermaidDiagram--wardleyAcceleratorLabelColourId: var(--darkSouls);
+    --MermaidDiagram--wardleyAnnotationFillColourId: var(--platinum);
+    --MermaidDiagram--wardleyAnnotationBorderColourId: var(--platinum);
+    --MermaidDiagram--wardleyAnnotationTextColourId: var(--umbra);
+    --MermaidDiagram--wardleyAnnotationBoxFillColourId: var(--platinum);
+    --MermaidDiagram--wardleyAnnotationBoxBorderColourId: var(--platinum);
+    --MermaidDiagram--wardleyAnnotationBoxTextColourId: var(--smokescreen);
+    --MermaidDiagram--wardleyNoteColourId: var(--darkSouls);
+}
+
+.window {
+    blur: 32;
+    mac: backgroundBlur;
+    win: blurBehind;
+}
+
+.metrics {
+    --ScrollBar--thickness: 8;
+    --Tab--depth: 3.0;
+    --Tab--textPadding: 8;
+    --Tab--paddingTop: 4;
+    --Tab--paddingRight: 8;
+    --Tab--paddingBottom: 4;
+    --Tab--paddingLeft: 8;
+    --PaneComponent--resizeBarThickness: 8;
+    --PaneComponent--padding: 8;
+    fontSize: 16.0;
+    lineHeight: 1.5;
+    heading1Size: 1.618;
+    heading2Size: 1.462;
+    heading3Size: 1.318;
+    heading4Size: 1.188;
+    heading5Size: 1.076;
+    heading6Size: 1.0;
+    heading1LineHeight: 1.2;
+    heading2LineHeight: 1.2;
+    heading3LineHeight: 1.3;
+    heading4LineHeight: 1.4;
+    heading5LineHeight: 1.5;
+    heading6LineHeight: 1.5;
+    heading1LetterSpacing: -0.015;
+    heading2LetterSpacing: -0.011;
+    heading3LetterSpacing: -0.008;
+    heading4LetterSpacing: -0.005;
+    heading5LetterSpacing: -0.002;
+    heading6LetterSpacing: 0.0;
+    codeSize: 0.875;
+    codeLineHeight: 1.5;
+    ruleHeight: 2.125;
+    paragraphSpacing: 1.0;
+    headingSpacing: 2.5;
+    listIndent: 2.25;
+    quoteIndent: 1.5;
+    quoteBarThickness: 0.125;
+    ruleThickness: 0.125;
+    codePaddingVertical: 0.75;
+    codePaddingHorizontal: 1.0;
+    codeRadius: 0.25;
+    inlineCodePaddingHorizontal: 0.2625;
+    tableCellPaddingVertical: 0.25;
+    tableCellPaddingHorizontal: 0.5;
+    tableLineThickness: 0.0625;
+    tableLineHeight: 1.3;
+    maxLineWidth: 43.75;
+    margin: 2.0;
+    metadataSize: 0.875;
+    metadataPaddingVertical: 0.5;
+    metadataSpacing: 2.0;
+    listItemPadding: 0.075;
+    listIndentCharacters: 3.0;
+    listBulletSize: 0.3;
+    metadataLabelWidth: 9.0;
+    metadataLineHeight: 2.2143;
+    metadataGap: 0.5;
+    metadataIconSize: 1.125;
+    metadataIconStroke: 0.109375;
+    tagPaddingHorizontal: 0.56875;
+    tagPaddingVertical: 0.21875;
+    tagRadius: 0.618;
+    mermaidLineHeight: 1.5;
+    stateNodeStrokeWidth: 0.0625;
+    stateEdgeStrokeWidth: 0.0625;
+    stateClusterStrokeWidth: 0.0625;
+    stateCornerRadius: 0.3125;
+    stateTerminalSize: 0.875;
+    stateTerminalInnerSize: 0.625;
+    stateTerminalStrokeWidth: 0.125;
+    nodeSeparation: 3.125;
+    rankSeparation: 3.125;
+    canvasMargin: 0.5;
+    groupPadding: 1.0;
+    nodePadding: 0.5;
+    groupTitleHeight: 1.75;
+    edgeLabelPadding: 0.125;
+    flowchartForkJoinCornerRadius: 0.125;
+    rectangleCornerRadius: 0.1875;
+    actorBoxCornerRadius: 0.1875;
+    roundRectCornerRadius: 0.625;
+    mindmapDefaultCornerRadius: 0.375;
+    flowchartCircleEmptyMinSize: 0.875;
+    flowchartDoubleCircleInnerInset: 0.25;
+    erEntityPadding: 0.9375;
+    erMinEntityWidth: 6.25;
+    erMinEntityHeight: 4.6875;
+    erNodeSeparation: 8.75;
+    erRankSeparation: 5.0;
+    erEdgeDashLength: 0.5;
+    sequenceActorMargin: 3.125;
+    sequenceActorWidth: 9.375;
+    sequenceActorHeight: 4.0625;
+    sequenceBoxMargin: 0.625;
+    sequenceNoteMargin: 0.625;
+    sequenceActivationWidth: 0.625;
+    sequenceLifelineStrokeWidth: 0.03125;
+    sequenceMessageStrokeWidth: 0.0625;
+    sequenceMessageDashLength: 0.1875;
+    classPadding: 0.75;
+    classDividerStrokeWidth: 0.0625;
+    classEdgeStrokeWidth: 0.0625;
+    classEdgeDashLength: 0.1875;
+    classCardinalityDistance: 1.5625;
+    classCardinalityOffset: 0.625;
+    c4ShapeWidth: 13.5;
+    c4ShapeHeight: 3.75;
+    c4ShapePadding: 1.25;
+    c4ShapeMargin: 2.5;
+    c4DiagramMarginX: 3.125;
+    c4DiagramMarginY: 0.625;
+    c4BoundaryLabelOffset: 2.0;
+    c4BoundaryDashLength: 0.4375;
+    c4BoundaryCornerRadius: 0.15625;
+    c4ShapeCornerRadius: 0.75;
+    c4ShapeStrokeWidth: 0.125;
+    c4BoundaryStrokeWidth: 0.0625;
+    c4EdgeStrokeWidth: 0.0625;
+    architectureIconSize: 5.0;
+    architecturePadding: 2.5;
+    architectureEdgeStrokeWidth: 0.1875;
+    architectureEdgeLength: 7.5;
+    architectureJunctionSize: 0.625;
+    architectureGroupStrokeWidth: 0.0625;
+    architectureGroupDashLength: 0.5;
+    architectureGroupIconSize: 1.875;
+    architectureGroupLabelPadding: 0.1875;
+    architectureIconPadding: 0.75;
+    requirementPadding: 1.25;
+    requirementEdgeDashLength: 0.625;
+    requirementRankSeparation: 6.25;
+    flowchartSubroutineBarInset: 0.5;
+    ganttDayWidth: 2.5;
+    ganttBarHeight: 1.25;
+    ganttBarGap: 0.25;
+    ganttTopPadding: 3.125;
+    ganttLeftPadding: 4.6875;
+    ganttRightPadding: 4.6875;
+    ganttGridLineStartPadding: 2.1875;
+    ganttTitleTopMargin: 1.5625;
+    ganttTaskStrokeWidth: 0.125;
+    ganttGridStrokeWidth: 0.03125;
+    ganttSectionLabelPadding: 0.625;
+    ganttTaskLabelPadding: 0.3125;
+    ganttBandOpacity: 0.25;
+    railroadPadding: 0.625;
+    railroadVerticalSeparation: 0.5;
+    railroadHorizontalSeparation: 0.625;
+    railroadArcRadius: 0.625;
+    railroadStrokeWidth: 0.125;
+    railroadMarkerRadius: 0.3125;
+    railroadBoxCornerRadius: 0.625;
+    railroadRuleNameGap: 1.25;
+    railroadMarkerGap: 0.625;
+    railroadBaselineMinimum: 1.25;
+    railroadDashLength: 0.3125;
+    railroadLineWidth: 0.0625;
+    eventModelingPadding: 0.625;
+    eventModelingSwimlanePadding: 0.9375;
+    eventModelingSwimlaneLabelGap: 1.25;
+    eventModelingFrameMinimumWidth: 6.25;
+    eventModelingFrameMinimumHeight: 6.25;
+    eventModelingFrameHorizontalPadding: 3.5;
+    eventModelingFrameVerticalPadding: 1.25;
+    eventModelingFrameCornerRadius: 0.1875;
+    eventModelingFrameStrokeWidth: 0.125;
+    eventModelingFrameSeparation: 0.625;
+    eventModelingFrameOverlap: 5.625;
+    eventModelingRelationStrokeWidth: 0.0625;
+    eventModelingSwimlaneStrokeWidth: 0.0625;
+    swimlanePadding: 0.625;
+    swimlaneLanePadding: 2.5;
+    swimlaneLaneLabelGap: 1.25;
+    swimlaneLaneStrokeWidth: 0.0625;
+    swimlaneEdgeCornerRadius: 0.3125;
+    swimlaneNodePadding: 0.5;
+    swimlaneTrackSpacing: 0.625;
+    swimlaneRoutingMargin: 1.5625;
+    sankeyCanvasWidth: 37.5;
+    sankeyCanvasHeight: 25.0;
+    sankeyNodeWidth: 0.625;
+    sankeyNodePadding: 0.75;
+    sankeyLabelPadding: 0.375;
+    sankeyLinkOpacity: 0.5;
+    gitCommitStep: 2.5;
+    gitLayoutOffset: 0.625;
+    gitBranchSpacing: 3.125;
+    gitRotatedLabelSpacing: 2.5;
+    gitSpineOffset: 0.125;
+    gitDefaultPosition: 1.875;
+    gitCommitRadius: 0.625;
+    gitMergeRadius: 0.375;
+    gitReverseCrossExtent: 0.3125;
+    gitReverseStrokeWidth: 0.1875;
+    gitHighlightOuterExtent: 1.25;
+    gitHighlightInnerExtent: 0.75;
+    gitCherryPickDotRadius: 0.171875;
+    gitCherryPickDotOffsetX: 0.1875;
+    gitCherryPickDotOffsetY: 0.125;
+    gitCherryPickStemBase: 0.0625;
+    gitCherryPickStemTip: 0.3125;
+    gitArrowStrokeWidth: 0.5;
+    gitArrowCornerRadius: 1.25;
+    gitArrowRerouteRadius: 0.625;
+    gitLaneSeparation: 0.625;
+    gitBranchStrokeWidth: 0.0625;
+    gitBranchDashLength: 0.125;
+    gitLabelPaddingX: 0.25;
+    gitLabelPaddingY: 0.125;
+    gitTagOffset: 1.0;
+    gitTagBackgroundOffset: 1.2;
+    gitTagStackStep: 1.25;
+    gitTagHoleRadius: 0.09375;
+    gitTagSideTranslate: 0.75;
+    gitTagSideTextTranslate: 0.875;
+    gitTagSideTextOffsetX: 0.3125;
+    gitTagSideTextOffsetY: 0.1875;
+    gitBranchLabelInset: 0.25;
+    gitBranchLabelRotatedOffset: 1.875;
+    gitBranchLabelPaddingX: 1.125;
+    gitBranchLabelPaddingY: 0.25;
+    gitBranchLabelOffset: 1.1875;
+    gitBranchLabelSideInset: 0.625;
+    gitBranchLabelCornerRadius: 0.25;
+    gitTagStrokeWidth: 0.0625;
+    blockPadding: 0.5;
+    wardleyCanvasWidth: 56.25;
+    wardleyCanvasHeight: 37.5;
+    wardleyPadding: 3.0;
+    wardleyNodeRadius: 0.375;
+    wardleyNodeStrokeWidth: 0.1875;
+    wardleyNodeLabelOffsetX: 0.5;
+    wardleyNodeLabelOffsetY: 0.5;
+    wardleyAnchorLabelOffsetY: 0.1875;
+    wardleyAxisStrokeWidth: 0.0625;
+    wardleyAxisLabelOffset: 0.75;
+    wardleyStageLabelOffset: 2.0;
+    wardleyStageDashLength: 0.3125;
+    wardleyAxisTickLength: 0.375;
+    wardleyStrategyRadius: 0.75;
+    wardleyMarketSatelliteRadius: 0.2625;
+    wardleyMarketTriangleRadius: 0.45;
+    wardleyInertiaOffset: 1.3125;
+    wardleyInertiaStrokeWidth: 0.375;
+    wardleyLinkStrokeWidth: 0.0625;
+    wardleyTrendStrokeWidth: 0.0625;
+    wardleyTrendDashLength: 0.25;
+    wardleyTrendArrowLength: 0.375;
+    wardleyAnnotationRadius: 0.625;
+    wardleyAnnotationStrokeWidth: 0.09375;
+    wardleyAnnotationBoxPadding: 0.625;
+    wardleyAnnotationBoxLineHeight: 1.0;
+    wardleyAnnotationBoxCornerRadius: 0.25;
+    wardleyAcceleratorWidth: 3.75;
+    wardleyAcceleratorHeight: 1.875;
+    wardleyAcceleratorHeadWidth: 1.25;
+    wardleyAcceleratorLabelOffset: 1.875;
+    ishikawaSpineLength: 15.625;
+    ishikawaSpineStrokeWidth: 0.125;
+    ishikawaSpineHeadGap: 1.25;
+    ishikawaHeadMinWidth: 3.75;
+    ishikawaHeadMinHeight: 2.5;
+    ishikawaHeadPaddingX: 0.375;
+    ishikawaHeadPaddingY: 2.5;
+    ishikawaHeadStrokeWidth: 0.125;
+    ishikawaBranchStrokeWidth: 0.125;
+    ishikawaSubBranchStrokeWidth: 0.0625;
+    ishikawaSubBranchStubLength: 1.875;
+    ishikawaSubBranchBaseLength: 3.75;
+    ishikawaSubBranchChildLength: 0.3125;
+    ishikawaLabelOffset: 0.6875;
+    ishikawaLabelBoxPaddingX: 1.25;
+    ishikawaLabelBoxPaddingY: 0.125;
+    ishikawaLabelBoxStrokeWidth: 0.125;
+    ishikawaHeadWrapWidth: 6.875;
+    ishikawaLabelWrapWidth: 7.5;
+    ishikawaHeadCurveFactor: 2.4;
+    ishikawaArrowLength: 0.375;
+    ishikawaArrowWidth: 0.375;
+    mindmapNodeWrapWidth: 12.5;
+    mindmapLevelDistance: 2.5;
+    mindmapEdgeStrokeWidth: 0.5;
+    mindmapEdgeStrokeStep: 0.125;
+    mindmapEdgeStrokeMinimum: 0.125;
+    treemapSectionHeaderHeight: 1.5625;
+    treemapSectionInnerPadding: 0.625;
+    treemapInnerPadding: 0.625;
+    treemapLabelFontSizeSimple: 2.375;
+    treemapLabelFontSizeComplex: 1.0;
+    treemapLabelFontSizeMinimumSimple: 0.5;
+    treemapLabelFontSizeMinimumComplex: 0.25;
+    treemapSectionStrokeWidth: 0.125;
+    treemapLeafStrokeWidth: 0.1875;
+    treemapCanvasWidth: 60.0;
+    treemapCanvasHeight: 31.25;
+    treemapValueFontRatio: 0.6;
+    treemapFillOpacity: 0.6;
+    treemapLabelShrinkStep: 0.0625;
+    cynefinCanvasWidth: 50.0;
+    cynefinCanvasHeight: 37.5;
+    cynefinItemHeight: 1.625;
+    cynefinItemPaddingX: 0.625;
+    cynefinItemSpacing: 0.25;
+    cynefinItemStrokeWidth: 0.0625;
+    cynefinItemCornerRadius: 0.25;
+    cynefinBoundaryAmplitude: 0.75;
+    cynefinBoundaryStrokeWidth: 0.125;
+    cynefinBoundaryDashLength: 0.375;
+    cynefinCliffStrokeWidth: 0.25;
+    cynefinConfusionStrokeWidth: 0.09375;
+    cynefinConfusionDashLength: 0.25;
+    cynefinArrowStrokeWidth: 0.125;
+    cynefinTitleOffsetY: 2.0;
+    cynefinSubtitleLineHeight: 1.125;
+    cynefinItemOffsetY: 0.75;
+    cynefinConfusionWidthRatio: 0.3;
+    cynefinConfusionHeightRatio: 0.3;
+    cynefinCliffAmplitudeRatio: 0.03;
+    cynefinTransitionCurveRatio: 0.15;
+    cynefinRegionOpacity: 0.3;
+    cynefinConfusionOpacity: 0.3;
+    treeViewRowIndent: 0.625;
+    treeViewPaddingX: 0.3125;
+    treeViewPaddingY: 0.3125;
+    treeViewLineThickness: 0.0625;
+    treeViewIconSize: 0.875;
+    treeViewIconGap: 0.25;
+    treeViewDescriptionGap: 1.0;
+    treeViewHighlightCornerRadius: 0.1875;
+    treeViewMargin: 0.5;
+    treeViewHighlightStrokeWidth: 0.0625;
+    treeViewHighlightOpacity: 0.15;
+    treeViewTitleGap: 0.75;
+    kanbanMargin: 0.625;
+    kanbanColumnWidth: 12.5;
+    kanbanColumnGap: 0.625;
+    kanbanColumnPadding: 0.625;
+    kanbanColumnCornerRadius: 0.3125;
+    kanbanColumnMinHeight: 3.125;
+    kanbanCardGap: 0.3125;
+    kanbanCardPaddingX: 0.625;
+    kanbanCardPaddingY: 0.625;
+    kanbanCardCornerRadius: 0.3125;
+    kanbanPriorityBarWidth: 0.25;
+    kanbanPriorityBarInset: 0.125;
+    kanbanCardStrokeWidth: 0.125;
+    journeyMargin: 0.625;
+    journeyTaskWidth: 9.375;
+    journeyTaskGap: 3.125;
+    journeyTaskHeight: 3.125;
+    journeySectionHeight: 3.125;
+    journeySectionGap: 0.625;
+    journeyCornerRadius: 0.1875;
+    journeyTitleTopMargin: 2.5;
+    journeyLeftMargin: 9.375;
+    journeyActivityGap: 2.5;
+    journeyFaceRadius: 0.9375;
+    journeyScoreRowHeight: 1.875;
+    journeyScoreGap: 6.25;
+    journeyDropLineThickness: 0.0625;
+    journeyDropLineDashLength: 0.25;
+    journeyActivityLineThickness: 0.25;
+    journeyActorDotRadius: 0.4375;
+    journeyActorDotInset: 0.875;
+    journeyActorDotStep: 0.625;
+    journeyFaceStrokeWidth: 0.125;
+    journeyFaceEyeRadius: 0.09375;
+    journeyFaceEyeOffset: 0.3125;
+    journeyFaceMouthRadius: 0.46875;
+    journeyFaceMouthOffset: 0.125;
+    journeyFaceMouthDropOffset: 0.4375;
+    journeyFaceMouthWidth: 0.625;
+    journeyLegendX: 1.25;
+    journeyLegendTop: 3.75;
+    journeyLegendStep: 1.25;
+    journeyLegendTextGap: 1.25;
+    journeyArrowLength: 1.25;
+    journeyArrowWidth: 0.75;
+    journeyActorDotStrokeWidth: 0.0625;
+    timelineMargin: 0.625;
+    timelineLeftMargin: 3.125;
+    timelineTitleTopMargin: 2.5;
+    timelineSectionHeight: 3.125;
+    timelineSectionGap: 0.625;
+    timelinePeriodWidth: 9.375;
+    timelinePeriodGap: 1.25;
+    timelinePeriodPadding: 0.75;
+    timelineEventWidth: 9.375;
+    timelineEventGap: 0.625;
+    timelineEventPadding: 0.625;
+    timelinePeriodAxisGap: 3.125;
+    timelineEventAxisGap: 5.0;
+    timelineAxisLineThickness: 0.25;
+    timelineArrowLength: 1.25;
+    timelineArrowWidth: 0.75;
+    timelineConnectorThickness: 0.0625;
+    timelineConnectorDashLength: 0.25;
+    timelineCornerRadius: 0.1875;
+    timelineNodeLineThickness: 0.1875;
+    timelineConnectorTailLength: 2.5;
+    quadrantCanvasWidth: 37.5;
+    quadrantCanvasHeight: 37.5;
+    quadrantPadding: 1.25;
+    quadrantTitleTopMargin: 1.0;
+    quadrantAxisLabelOffset: 0.75;
+    quadrantLabelTopPadding: 0.5;
+    quadrantPointRadius: 0.3125;
+    quadrantPointLabelOffset: 0.25;
+    quadrantExternalStrokeWidth: 0.125;
+    quadrantInternalStrokeWidth: 0.0625;
+    vennCanvasWidth: 37.5;
+    vennCanvasHeight: 37.5;
+    vennPadding: 1.25;
+    vennTitleTopMargin: 1.0;
+    vennSetRadius: 9.0;
+    vennSetSeparation: -6.0;
+    vennSetStrokeWidth: 0.125;
+    vennSetFillOpacity: 0.25;
+    vennSetLabelOffset: 6.5;
+    radarCanvasWidth: 37.5;
+    radarCanvasHeight: 37.5;
+    radarPadding: 1.25;
+    radarTitleTopMargin: 1.0;
+    radarAxisStrokeWidth: 0.125;
+    radarAxisLabelOffset: 0.75;
+    radarGraticuleStrokeWidth: 0.0625;
+    radarGraticuleOpacity: 0.3;
+    radarCurveStrokeWidth: 0.125;
+    radarCurveFillOpacity: 0.25;
+    radarCurveTension: 0.17;
+    radarLegendX: 28.75;
+    radarLegendTop: 1.75;
+    radarLegendStep: 1.25;
+    radarLegendTextGap: 1.25;
+    radarLegendMarkerSize: 0.75;
+    pieCanvasWidth: 37.5;
+    pieCanvasHeight: 28.125;
+    piePadding: 2.5;
+    pieTitleTopMargin: 1.0;
+    pieStrokeWidth: 0.125;
+    pieOuterStrokeWidth: 0.125;
+    pieSectionFillOpacity: 0.7;
+    pieSectionTextPosition: 0.75;
+    pieLegendX: 29.375;
+    pieLegendTop: 7.5;
+    pieLegendStep: 1.375;
+    pieLegendTextGap: 0.25;
+    pieLegendMarkerSize: 1.125;
+    packetPadding: 0.5;
+    packetBitWidth: 2.0;
+    packetRowHeight: 2.0;
+    packetBlockGap: 0.3125;
+    packetBlockStrokeWidth: 0.0625;
+    packetRowGap: 0.9375;
+    xychartCanvasWidth: 43.75;
+    xychartCanvasHeight: 31.25;
+    xychartPadding: 0.625;
+    xychartTitleTopMargin: 0.625;
+    xychartAxisStrokeWidth: 0.125;
+    xychartAxisTickLength: 0.3125;
+    xychartAxisLabelOffset: 0.3125;
+    xychartAxisTitleOffset: 0.3125;
+    xychartLineStrokeWidth: 0.125;
+    xychartBarPadding: 0.3;
+    xychartLegendX: 38.75;
+    xychartLegendTop: 3.75;
+    xychartLegendStep: 1.5;
+    xychartLegendTextGap: 0.375;
+    xychartLegendMarkerSize: 0.875;
+    infoCanvasWidth: 25.0;
+    infoCanvasHeight: 6.25;
+    wardleyAcceleratorBarb: 0.5;
+    wardleyStrategyLabelOffset: 0.625;
+}
+
+@font-face {
+    font-family: common;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+    --rasterizer: freetype;
+    --gamma: 2.2;
+    --contrast: 0.0;
+    --embolden: false;
+}
+
+@font-face {
+    font-family: bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: mono;
+    src: url(fonts/DisplayMonoMedium.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: tab;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0.075;
+}
+
+@font-face {
+    font-family: overlay;
+    src: url(fonts/DisplayMonoMedium.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--text";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--textBold";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--textSemibold";
+    --typefaceName: Display;
+    --typefaceStyle: Semibold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--textItalic";
+    --typefaceName: Display;
+    --typefaceStyle: Italic;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--textBoldItalic";
+    --typefaceName: Display;
+    --typefaceStyle: "Bold Italic";
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidClassTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 18;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidClassBody";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidClassCardinality";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4Element";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4Stereotype";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10.5;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4Description";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11.48;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4BoundaryLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4BoundaryType";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4BoundaryDescr";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidC4Message";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidArchitecture";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidGantt";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidGanttSection";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidGanttAxis";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRailroad";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidEventModelingSwimlane";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidEventModeling";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidSwimlaneLaneLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidSankeyLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidGitCommitLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidGitTagLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyAxis";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12.6;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyAnnotation";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyAnnotationBox";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidWardleyNote";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidIshikawaHead";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidIshikawaLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidCynefinDomain";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidCynefinTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 18;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidCynefinItem";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidCynefinSubtitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 11;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTreeViewTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 18;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidKanbanColumnHeader";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidKanbanMeta";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidJourneyTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 24;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidJourneySection";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidJourneyTask";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidJourneyActor";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTimelineTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 24;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTimelineSection";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTimelinePeriod";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTimelineEvent";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 13;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidQuadrantTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidQuadrantAxis";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidQuadrantLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidQuadrantPoint";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidVennTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidVennSetLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidVennRegionLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRadarTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRadarAxisLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRadarLegend";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPieTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 25;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPieSectionLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 17;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPieLegend";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 17;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPacketBit";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 10;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPacketLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidPacketTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidXychartTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 20;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidXychartAxisLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidXychartAxisTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidXychartLegend";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 14;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidInfo";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 32;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRequirementStereotype";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidRequirementTitle";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTreemapLabel";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTreemapValue";
+    --typefaceName: Display;
+    --typefaceStyle: Book;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTreeViewDirectory";
+    --typefaceName: Display;
+    --typefaceStyle: Bold;
+    src: url(fonts/DisplayBold.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--mermaidTreeViewDescription";
+    --typefaceName: Display;
+    --typefaceStyle: Italic;
+    src: url(fonts/DisplayBook.ttf);
+    --height: 16;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--monoBook";
+    src: url(fonts/DisplayMonoBook.ttf);
+    --height: 12;
+    --kerning: 0;
+}
+
+@font-face {
+    font-family: "--monoBold";
+    src: url(fonts/DisplayMonoBold.ttf);
+    --height: 12;
+    --kerning: 0;
+}

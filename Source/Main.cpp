@@ -46,9 +46,6 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
 
 void ENDApplication::registerEvents()
 {
-    for (const auto& id : { jam::Format::toType (Id::fontRasterizer), jam::Format::toType (Id::fontGamma), jam::Format::toType (Id::fontContrast) })
-        events.add<juce::ValueTree&> (id, [this] (juce::ValueTree&) { setFontRasterization(); });
-
     events.add<juce::ValueTree&> (jam::Format::toType (Id::alwaysOnTop),
                                   [this] (juce::ValueTree& row)
                                   {
@@ -65,12 +62,6 @@ void ENDApplication::registerEvents()
                                   [] (juce::ValueTree&)
                                   {
                                       cascadeLookAndFeelChange();
-                                  });
-
-    events.add<juce::ValueTree&> (jam::Format::toType (Id::embolden),
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      setEmbolden();
                                   });
 
     events.add<juce::ValueTree&> (jam::Format::toType (Id::useGpu),
@@ -111,27 +102,6 @@ void ENDApplication::registerEvents()
                                   {
                                       setPostProcessParams();
                                   });
-}
-
-void ENDApplication::setFontRasterization()
-{
-    const auto backendName { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontRasterizer).toString() };
-    const auto backend { static_cast<map::FontRasterizerBackend::value> (map::FontRasterizerBackend::getInstance()->get (backendName)) };
-    const float gamma { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontGamma) };
-    const float contrast { config.getRowValue (jam::Format::toType (Id::graphics), Id::fontContrast) };
-
-    jam::CpuGraphicsEngine::getInstance()->setRasterization (backend, gamma, contrast);
-
-    cascadeLookAndFeelChange();
-}
-
-void ENDApplication::setEmbolden()
-{
-    const bool embolden { config.getRowValue (jam::Format::toType (Id::font), Id::embolden) };
-
-    jam::CpuGraphicsEngine::getInstance()->setEmbolden (embolden);
-
-    cascadeLookAndFeelChange();
 }
 
 void ENDApplication::setBackground()
@@ -259,9 +229,7 @@ void ENDApplication::initialiseVulkan()
 
     jam::VulkanGraphicsEngine::getOrCreate (maxImageExtent, ProjectInfo::projectName, jam::VulkanGraphicsEngine::getFrameBudget(), cacheFile, canUseGpu);
 
-    lookAndFeel.registerTypeface();
-    setFontRasterization();
-    setEmbolden();
+    lookAndFeel.initialiseStyle();
 }
 
 //==============================================================================

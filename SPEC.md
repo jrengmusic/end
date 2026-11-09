@@ -161,21 +161,26 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   internally reserved and FORMATTED."* A value cell whose text collides with
   markdown block syntax is backslash-escaped (`\-`, `` \` ``, `\\`) — the parser
   resolves the escape to the literal.
-- **Theme colours:** `theme.md` `## colours` names every colour (JFS palette name,
-  else jam's nearest colour name) with a `0xAARRGGBB` value. An alpha variant takes a
-  word prefix on the base name: `clear`, `faint`, `glass`. `## colours` has the columns
-  `key | type | value | description`. The tables `## window`, `## style`, `## font`,
-  `## scrollbar`, `## tab`, `## button`, `## overlay`, `## pane` and `## menu` have
-  `key | type | light | dark | choices | description`. The tables `## terminal`,
-  `## text editor`, `## markdown` and `## mermaid` have `key | type | light | dark`.
-  `## fonts` has `key | type | value | typefaceStyle | src | height | kerning`. In a table
-  with `light` and `dark` columns, a colour cell holds a
-  `## colours` key. The reader also takes a jam colour name or a direct `0xAARRGGBB`,
-  so a user theme can use them; the default gfx theme uses neither. ARCHITECT: *"using
-  direct AARRGGBB hex should work as is"*; *"no direct hex allowed in gfx theme.md, all
-  colours must be named, and all consumer only use named colour"*. An empty `dark` is
-  the light value. `display.md` `appearance` (AUTO, LIGHT, DARK) picks the column; AUTO
-  follows the OS (`ConfigModel::getRowValue`).
+- **Theme style:** `Source/config/theme/gfx/style.css` is the one source of every font,
+  colour and metric. ARCHITECT: *"css contract: ALL RELATED STYLE SSOT - fonts - colour -
+  metrics"*. The carried `theme.md` holds only the rows that are none of these (`## tab`
+  `position`, `always visible`, `uppercase`; `## pane` `split line`). The default text is
+  the carried `theme.md`, a newline, then the markdown built from the css
+  (`ConfigTheme.cpp`, `getDefaultText`).
+- **Theme on disk:** the default is written to a virgin disk, and disk wins. ARCHITECT:
+  *"binary write to virgin state to disk, disk always win."* The sheet is one `## style`
+  heading. Its `###` tables are `colours`, one per component, `fonts` and `metrics`. `key`
+  cells are plain words. `jam::ConfigDocument` drops the `colour id` and `font id` suffix
+  at emit and adds it from the generated tables at parse. A reference cell holds a palette
+  name in words. ARCHITECT: *"md must be using plain words without any redudancy of
+  `colour id`, `font id` etc."* A direct `0xAARRGGBB` stays valid in a user theme.
+  ARCHITECT: *"using direct AARRGGBB hex should work as is"*. An empty `dark` is the light
+  value. `display.md` `appearance` (AUTO, LIGHT, DARK) picks the column; AUTO follows the
+  OS.
+- **Theme consumers:** the `Id::theme` event runs `StyleManager::registerStyle` on the
+  THEMES tree, then `setAppearance`. Every style read goes through StyleManager
+  (`ENDLookAndFeel.cpp`). ARCHITECT: *"style related `config` always through Style, never
+  by poking config directly."*
 - **Pane padding:** `theme.md` `## pane` `padding` is the one inset of the focused
   outline and of the hosted editor, which sits inside the outline stroke
   (`ENDLookAndFeel::getPanePadding`, `EditorView::resized`).

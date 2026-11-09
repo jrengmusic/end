@@ -511,7 +511,8 @@ endif()
 file(GLOB CAST_LAYOUT_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/*.md"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/theme/gfx/*.md"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/fonts/*.ttf"           # Bundled Display and DisplayMono TrueType fonts
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/theme/gfx/*.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/fonts/*.ttf"            # Bundled Display and DisplayMono TrueType fonts
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/config/svg/*.svg"
     "${CAST_USER_MODULE_PATH}/resources/svg/*.svg"
     "${CAST_USER_MODULE_PATH}/jam_vulkan/shader/*.frag"

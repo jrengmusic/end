@@ -36,3 +36,5 @@ stamp in the plugins folder, of the settings file, or of a file extension.
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
 | @string | settings file name           | toCamel | END.settings                     | toLiteral | Window state file of END in the config directory.    |
 +---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+
+| @string | theme style sheet            | toCamel | style.css                        | toLiteral | Shipped theme stylesheet resource name.              |
++---------+------------------------------+---------+----------------------------------+-----------+------------------------------------------------------+

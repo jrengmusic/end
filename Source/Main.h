@@ -44,7 +44,6 @@ private:
 #endif
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
-    jam::SharedInstance<map::FontRasterizerBackend> fontRasterizerBackend { std::in_place };
     jam::SharedInstance<jam::SharedDocuments> documents { std::in_place };
 
     // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
@@ -73,23 +72,19 @@ private:
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
 
-    /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, registers END's embedded typefaces in
-     *  jam::Typeface, and applies the configured glyph rasterization backend and
-     *  embolden state — called once from initialise(). The background shader and
-     *  the post-process chain are applied later in initialise(), after the window exists. */
+    /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, with the pipeline cache under the
+     *  config directory and the GPU setting of the display table, then calls initialiseStyle() of the look and feel.
+     *  Called once from initialise(). The background shader and the post-process chain are applied later in
+     *  initialise(), after the window exists. */
     void initialiseVulkan();
 
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
-    /** @brief Populates @ref events with the callbacks for every config value this application applies: font rasterization, embolden, GPU use, background, filter, post-process, and the two post-process render parameters. */
+    /** @brief Populates @ref events with the callbacks for the config values this application applies: the always-on-top
+     *  and title-bar button settings of the window, the theme, GPU use, background, filter, post-process, and the two
+     *  post-process render parameters. */
     void registerEvents();
-
-    /** @brief Reads the font rasterizer backend, gamma and contrast from config, applies them to jam::CpuGraphicsEngine, then cascades a LookAndFeel change to every top-level window so the new rasterization repaints. */
-    void setFontRasterization();
-
-    /** @brief Reads Id::embolden from config, applies it to jam::CpuGraphicsEngine, then cascades a LookAndFeel change to every top-level window so the new embolden state repaints. */
-    void setEmbolden();
 
     /** @brief Compiles the configured background shader and installs it on the view, or clears the background when the GPU is unavailable or no project is named. */
     void setBackground();

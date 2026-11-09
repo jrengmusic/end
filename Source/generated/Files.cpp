@@ -36,6 +36,7 @@ namespace files
     const juce::String archiveExtension          { juce::String::fromUTF8 ("zip") };
     const juce::String audioUnitExtension        { juce::String::fromUTF8 ("component") };
     const juce::String settingsFileName          { juce::String::fromUTF8 ("END.settings") };
+    const juce::String themeStyleSheet           { juce::String::fromUTF8 ("style.css") };
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace files

@@ -283,9 +283,10 @@ factory is set only while the GPU is available (`:275-281`).
     (`ConfigDirectory::Config::path`), named by `jam::Format::toFileName`. JAM decides no
     path.
   - `canUseGpu` — the `useGpu` row of the display config.
-- `lookAndFeel.registerTypeface()` runs after the engines exist, then the font
-  rasterization and the emboldening go to `jam::CpuGraphicsEngine`
-  (`Main.cpp:250-267`, `setFontRasterization`, `setEmbolden`).
+- `lookAndFeel.initialiseStyle()` runs after the engines exist and creates the
+  `jam::StyleManager` over the THEMES tree. `lookAndFeel.applyFontStyles()` then
+  gives the font rasterization and the emboldening to `jam::CpuGraphicsEngine`
+  (`Main.cpp:232-233`, `ENDLookAndFeel.cpp`).
 - **Never reset or reconstructed.** The `useGpu` config event re-applies the background
   and the post-process (`Main.cpp`, `registerEvents`); `isGpuAvailable()` selects them.
 
@@ -659,7 +660,7 @@ submits + presents only when the count reaches zero.
 | Both lanes' draw overrides | MESSAGE (JUCE paint dispatch) |
 | `jam::GlyphAtlas` (all methods, explicit doxygen contract) | MESSAGE only |
 | `Graphics::endFrame()` (submit + present) | MESSAGE (LLGC destructor) |
-| `ENDApplication` font-config events (`setFontRasterization`, `setEmbolden`) | MESSAGE (VT listener) |
+| `ENDLookAndFeel` theme event (`registerStyle`, `applyColours`, `applyFontStyles`) | MESSAGE (VT listener) |
 | View shader funnels (`setBackground`/`setPostProcess`, shaderc compile) | MESSAGE (VT listener) |
 | `jam::VulkanShaderComponent` timer → `repaint()` | MESSAGE (juce::Timer) |
 
@@ -693,9 +694,10 @@ markdown files on disk (overlay — ~/.config/end/*.md, themes/<name>/*.md)
   → ConfigModel::getRowValue returns a row's dark value while display.md appearance
     (AUTO follows the OS, via jam::StyleManager::isDark) is dark
   → valueTreePropertyChanged fires on all listeners
-  → each listener reacts: ENDLookAndFeel re-styles; ENDApplication applies the font
-    rasterization, the window flags (alwaysOnTop, titleBarButtons), the theme
-    cascade and the shaders; ENDView applies the background and mouse config.
+  → each listener reacts: ENDLookAndFeel registers the THEMES tree in
+    jam::StyleManager and applies the colours and the font styles; ENDApplication
+    applies the window flags (alwaysOnTop, titleBarButtons), the theme cascade and
+    the shaders; ENDView applies the background and mouse config.
 ```
 
 Config delivery: consumers listen on ConfigModel's tree. No referTo. No manual distribution cascade. Standard JUCE ValueTree listener chain. A load or validation failure's accumulated error text (or the success message on a clean load) is written to `MessageOverlay` via `ENDModel::setMessage`.

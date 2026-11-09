@@ -26,9 +26,35 @@ static juce::String addFileFlex (juce::ValueTree target, const juce::File& flexD
     return errors;
 }
 
+static const juce::String& getOrCreateDefaultText (const juce::String& fileName)
+{
+    static jam::HashMap<juce::String, juce::String> defaultTexts;
+
+    if (defaultTexts.contains (fileName))
+        return defaultTexts.at (fileName);
+
+    jam::Strings styleSheets;
+    styleSheets.add (files::themeStyleSheet);
+
+    defaultTexts.addOrReplace (fileName,
+                               BinaryData::getString (fileName)
+                                   + juce::String::charToString (Chars::newline)
+                                   + jam::MarkdownWriter {}.getText (jam::ConfigDocument::toDocument (jam::Css::getValueTree (jam::Format::toType (Id::settings), styleSheets))));
+
+    return defaultTexts.at (fileName);
+}
+
 static juce::ValueTree getDefaultThemes()
 {
     juce::ValueTree themes { jam::Format::toType (Id::themes) };
+
+    for (auto& [key, stem] : map::FileThemes::getInstance()->get())
+    {
+        const auto fileName { ConfigDirectory::Themes::getName (key) };
+
+        jam::ConfigDocument::getOrCreate (juce::Identifier { fileName }, getOrCreateDefaultText (fileName));
+    }
+
     ConfigDirectory::addDefaultTables (themes, *map::FileThemes::getInstance(), ConfigDirectory::Themes::getName);
 
     themes.appendChild (jam::Model::fromFiles (jam::Format::toType (Id::flex),
@@ -57,7 +83,7 @@ void ConfigTheme::saveToPath (const juce::var& path)
     {
         const auto fileName { ConfigDirectory::Themes::getName (key) };
 
-        jam::ConfigDocument::getOrCreateDefaultFile (dir.getChildFile (fileName), BinaryData::getString (fileName));
+        jam::ConfigDocument::getOrCreateDefaultFile (dir.getChildFile (fileName), getOrCreateDefaultText (fileName));
     }
 
     auto flexDir { jam::File::getOrCreateDirectory (dir, Id::flex) };

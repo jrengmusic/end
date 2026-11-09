@@ -557,3 +557,63 @@ None. Chord handling is resolved by ARCHITECT: *"CommandManager should have "mer
 ### Next Steps
 - Start when ARCHITECT says the cast working-directory change is in. Read the cast SPEC §6.9 text that lands, then do Remaining 2 and 3 with @Engineer, and validate each row by a read.
 
+---
+
+## Handoff to COUNSELOR: Style-Driven Theme — END style.css as SSOT
+
+**From:** COUNSELOR
+**Date:** 2026-11-09
+**Status:** In Progress — code landed, one runtime crash fixed, awaiting ARCHITECT's cast + build
+
+### Read First
+1. `PLAN-style-driven-theme.md` (END root) — the locked plan, all rulings and the canon shape.
+2. `jam_PluginEditorLayout.cpp:83-116`, `:683-690` and `kuassa_PluginEditorLayout.cpp:59-77`, `:599-617` — the two theme lanes; the KANJUT one is the canon shape (BinaryData default + newline + css-built markdown; `ConfigDocument::addTables` merge).
+3. `kuassa_ConfigDocument.cpp:370-392` — the emit contract jam's twin must mirror.
+4. `eve/Source/EVEView.cpp:217-219` and `kuassa/jreng-filter-strip/Source/FilterStripView.cpp:107-114` — the StyleManager registers the css tree directly; JFS runs the XML lane, no markdown round trip for style.
+
+### Context
+The sprint converts END's gfx theme to css-driven styling per the JFS/KANJUT canon: `gfx.css` is the SSOT for the style lane (palette, appearance ids, metrics, fonts); the StyleManager registers the css tree directly (EVE's shape); `theme.md` stays the authored settings default (window/style/font/scrollbar/tab/overlay/pane/menu), disk wins. Three earlier approaches were rejected by ARCHITECT as hacks (runtime css→markdown round trip, jam emit contract changes, duplicate font intern paths) — the working tree now holds the corrected canon shape; jam's emit is reverted to the KANJUT twin.
+
+### Completed
+- **EVE css** — obsidian scaffold removed; all 50 uses re-pointed to EVE's own named palette; zero obsidian anywhere (`eve/Source/layout/style.css`).
+- **END gfx.css** — `:root` palette, `.appearance`/`.appearance.DARK` (scrollbar/TextButton/Label/PopupMenu/PaneComponent/Ansi/TextEditor/Markdown/MermaidDiagram ids + the two PopupMenu rows), `.metrics` (`--ScrollBar--thickness`), 84 `@font-face` rules with the four attributes on the first face (`--rasterizer: freetype; --gamma: 2.2; --contrast: 0.0; --embolden: false;`).
+- **END theme.md** — recreated as the authored settings default: `version: 0.0.1`, `## window`, `## style`, `## font`, `## scrollbar`, `## tab`, `## overlay` (font rows), `## pane`, `## menu`, original values word-for-word.
+- **jam** — `cast/graphics.md` obsidian rows deleted; `addTable` reverted to the KANJUT twin's two-branch shape with the boundary `jassert` (`jam_ConfigDocument.cpp:555-577` vs `kuassa_ConfigDocument.cpp:370-392`); `getTypeName` keeps no assert (ConfigDocument trusts the Validator); `jam::Model::toStrings` (was `toStringArray`) returns `jam::Strings`; `jam_Css` gained the universal numbers-list attribute (`getStyleAttributes`/`getStyleAttributeType` private statics, bare-number tokens only).
+- **END wiring** — `ConfigDirectory`/`ConfigTheme` reverted to BinaryData defaults; `files::themeStyleSheet` (`cast/files.md`); the three dead font ids dropped (`cast/identifiers.md`); glob rows ship both `*.md` and `*.css` (`project-info.md:421-423`); Main's direct style reads deleted; `ENLookAndFeel`: `initialiseStyle()` creates the StyleManager over the css tree (`ENDLookAndFeel.cpp:492-502`), `applyColours` = the one `setAppearance` flow (:504-510), `applyFontStyles` = the StyleTheme shape (:512-523), `getTypefaceForFont` resolves through the manager's interned faces (:178-204), `registerTypeface`/`typefaces` map deleted (one font path), settings read via the original `getRowValue`; the default-LAF install moved into `initialiseStyle`'s tail so the engine's ctor font resolution falls to juce's default (the last crash fix, EVE's canon order).
+- **display.md** — `font rasterizer`/`font gamma`/`font contrast` rows deleted (the css owns them).
+
+### Remaining
+1. ARCHITECT: `cast cast/spell.md` in jam (graphics.md) and end (files.md, identifiers.md, glob rows); build jam and END.
+2. ARCHITECT: reseed — delete `~/.config/end/themes/gfx/theme.md` and `~/.config/end/display.md` (old content fails validation; defaults win; same version never overwrites).
+3. Runtime checks: laf colours from the GFX sheet; fonts and the four attributes through the manager (no double intern); settings from the disk theme.md; no startup assertions.
+4. COUNSELOR: the post-audit doxygen pass (Pathfinder) over the touched headers — `ENDLookAndFeel.h` (ctor/getTypefaceForFont/applyColours/registerEvents/applyFontStyles/initialiseStyle docs stale), `Main.h`, `ConfigDirectory.h`, `ConfigTheme.h`; then @Auditor once, then the sprint log.
+5. EVE build + its runtime check (markdown preview renders with the new named palette).
+
+### Key Decisions
+- *"JFS with KANJUT is the canon contract shape. although JAM is now ahead, JAM shape must conformed to JFS, thus later sync should not break JFS with KANJUT"*
+- *"no such thing as obsidian, no such thing as obsidian colour, everything should be style.css driven as SSOT, exactly like JFS"*
+- *"END gains style.css"*; scope *"END + EVE + jam"*
+- *"project like END, only need to define what it actually need, NOT EVERYTHING, unless END uses EVERYTING for its theme. gfx/theme.md is the shipped default theme"*
+- *"Component always carry its colourId (enum int), StyleManager, StyleCustom build the map, map keyword-int-colour, materialise for usage when setAppearance event driven by init, file watcher from config changes, etc, one SSOT, one flow, one path, unidirectional"*
+- *"no handrolling anything, no hand-authored anything"*
+- theme.md keys: no `colour id`/`font id` words; no bare hex outside `## colours`; no SCREAMING_SNAKE anywhere; exception: XML-conformant parameter values (`AUTO`, `MEDIUM`)
+- *"why round trip? runtime always from theme.md"*; *"there are no guard with ConfigDocument, garbage defensive programming is not allowed. means all check must through Validator. ConfigDocument must trust Validator"*
+- *"NO. this is fucking hack. your implementation is garbage, and you change the whole contract. no duplication allowed. you will break JFS-KANJUT if you changed StyleManager. must be design by contract"*
+- *"what's the established pattern? you only need to extend, why this need to be asked?"*
+
+### Files Modified
+- `eve/Source/layout/style.css` — obsidian removed, named palette.
+- `end/Source/config/theme/gfx/gfx.css` — new; the style lane.
+- `end/Source/config/theme/gfx/theme.md` — recreated; settings default only.
+- `end/Source/config/ConfigDirectory.h/.cpp`, `ConfigTheme.h/.cpp` — reverted to BinaryData flow.
+- `end/Source/lookAndFeel/ENDLookAndFeel.h/.cpp` — css-tree StyleManager, one setAppearance flow, manager font path, original settings reads.
+- `end/Source/Main.cpp` — registerTypeface call removed; initialiseStyle/applyFontStyles kept.
+- `end/cast/files.md`, `cast/identifiers.md`, `project-info.md`, `Source/config/display.md` — data edits above.
+- `jam/cast/graphics.md`, `jam_markdown/document/jam_ConfigDocument.cpp`, `jam_web/css/jam_Css.h/.cpp`, `jam_data_structures/model/jam_Model.h` — lexicon rows out, emit reverted to the twin, numbers-list support, `toStrings`.
+
+### Open Questions
+None. The design is settled by the canon reads and ARCHITECT's rulings.
+
+### Next Steps
+- Trigger: ARCHITECT runs the cast + build (Remaining 1) and reports the result. On a clean run, COUNSELOR continues with the doxygen pass, the audit, and the sprint log.
+
