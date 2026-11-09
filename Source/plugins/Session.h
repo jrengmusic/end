@@ -139,8 +139,7 @@ private:
      *
      * The file is scanned into the known plugin list. A file that is listed with an unchanged modification time is not tested again.
      * The instance is created asynchronously. addPlugin() runs when it arrives, and only when the pane row still belongs to
-     * the session and still names the same file. When no plugin format reads the file, the call does nothing.
-     * The call asserts when a format reads the file, but the scan finds no plugin type in it.
+     * the session and still names the same file. When no plugin format reads the file, the call does nothing. When the scan finds no plugin type in the file, or the instance is not created, the call writes the failure to the overlay message of the model (ENDModel::setMessage()).
      *
      * @param paneRow  Pane row whose Id::plugin property names the file.
      */

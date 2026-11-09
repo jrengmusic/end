@@ -237,6 +237,7 @@ void EditorView::registerEvents()
                 Nexus::getInstance()->addPluginModule (
                     juce::File { tree.getProperty (Id::plugin).toString() });
 
+            resized();
             createProcessorEditor();
             resized();
 

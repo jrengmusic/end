@@ -111,6 +111,7 @@ juce::String ConfigTheme::loadFromPath (const juce::var& path)
         errors << addFileFlex (disk, dir.getChildFile (Id::flex));
 
         setValuesFrom (themes, disk);
+        addChildrenFrom (themes, disk);
     }
     else
     {

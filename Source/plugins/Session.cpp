@@ -80,19 +80,22 @@ void Session::loadPlugin (const juce::ValueTree& paneRow)
     {
         juce::OwnedArray<juce::PluginDescription> typesFound;
         knownPluginList.scanAndAddFile (file.getFullPathName(), true, typesFound, *format);
-        jassert (not typesFound.isEmpty());
 
         if (not typesFound.isEmpty())
         {
             formatManager.createPluginInstanceAsync (*typesFound.getFirst(), graph.getSampleRate(), graph.getBlockSize(),
-                                                     [this, paneRow, file] (std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String&)
+                                                     [this, paneRow, file] (std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String& error)
             {
-                jassert (instance != nullptr);
-
-                if (instance != nullptr and paneRow.isAChildOf (state)
-                    and juce::File { paneRow.getProperty (Id::plugin).toString() } == file)
+                if (instance == nullptr)
+                    model.setMessage (file.getFullPathName() + Id::diagnosticSeparator + error);
+                else if (paneRow.isAChildOf (state)
+                         and juce::File { paneRow.getProperty (Id::plugin).toString() } == file)
                     addPlugin (paneRow, std::move (instance));
             });
+        }
+        else
+        {
+            model.setMessage (file.getFullPathName());
         }
     }
 }
