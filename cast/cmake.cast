@@ -284,9 +284,12 @@ file(GLOB_RECURSE CAST_SHADER_SOURCES CONFIGURE_DEPENDS
     "${CAST_USER_MODULE_PATH}/resources/shaders/*.comp"
 )
 
+set(CAST_SHADER_SPV_DIR "${CMAKE_CURRENT_BINARY_DIR}/spv")
+file(MAKE_DIRECTORY "${CAST_SHADER_SPV_DIR}")
+
 foreach(CAST_SHADER_SOURCE ${CAST_SHADER_SOURCES})
     get_filename_component(CAST_SHADER_NAME "${CAST_SHADER_SOURCE}" NAME)
-    set(CAST_SHADER_SPV "${CAST_USER_MODULE_PATH}/resources/spv/${CAST_SHADER_NAME}.spv")
+    set(CAST_SHADER_SPV "${CAST_SHADER_SPV_DIR}/${CAST_SHADER_NAME}.spv")
     set(CAST_SHADER_DEPFILE "${CAST_SHADER_SPV}.d")
     list(APPEND CAST_SHADER_SPV_OUTPUTS "${CAST_SHADER_SPV}")
     add_custom_command(
@@ -306,9 +309,7 @@ endforeach()
 # RESOURCES — embedded binary data: shaders, fonts, layout
 # ==============================================================================
 
-file(GLOB CAST_SHADER_SPV_FILES CONFIGURE_DEPENDS "${CAST_USER_MODULE_PATH}/resources/spv/*.spv")
-list(APPEND CAST_SHADER_SPV_FILES ${CAST_SHADER_SPV_OUTPUTS})
-list(REMOVE_DUPLICATES CAST_SHADER_SPV_FILES)
+set(CAST_SHADER_SPV_FILES ${CAST_SHADER_SPV_OUTPUTS})
 
 if(CAST_SHADER_SPV_FILES)
     juce_add_binary_data(jam_vulkan_ShaderData
