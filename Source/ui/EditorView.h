@@ -16,8 +16,7 @@
  * the constructor. The name branch creates the editor, then lays out the pane.
  * addPlugin() sets Id::name after it binds the plugin, so the
  * session holds the plugin at that time. When the Id::plugin of the pane row changes,
- * the editor is destroyed. When the Id::focus of the own row changes, the focus
- * value is written to the pluginState and passed to the hosted plugin through the session.
+ * the editor is destroyed.
  * When the shellExited property of the pluginState changes to true, the pane closes itself.
  *
  * A DropTarget covers the pane. A drag over the pane focuses it. A plugin file dropped on the pane
@@ -167,7 +166,7 @@ private:
     /**
      * @brief Writes one row of the pluginState to the session of the pane.
      *
-     * The call builds a `pluginState` tree with one property, then gives it to the session, which passes it to the PluginState of the pane.
+     * The call gives the row, its value and the identity of the pane to Session::setRow(). It builds no tree itself.
      * The session does nothing when the pane has no PluginState.
      *
      * @param row    Identifier of the row to write.
@@ -186,14 +185,12 @@ private:
     Session& getSession() const;
 
     /**
-     * @brief Fills events with one handler for each of Id::shellExited, Id::plugin, Id::name and Id::focus.
+     * @brief Fills events with one handler for each of Id::shellExited, Id::plugin and Id::name.
      *
      * The Id::shellExited handler invokes closeTerminalPane on this pane, asynchronously, when the value is true.
      * The Id::plugin handler destroys the editor.
      * The Id::name handler runs when the changed tree holds Id::name. When the session holds a PluginState for that pane,
      * it adds the plugin file to the ENAX plugin modules of Nexus. Then it creates the editor and lays out the pane.
-     * When the changed tree is the pane row, it also writes the focus value to the pluginState through setRow().
-     * The Id::focus handler writes the focus value to the pluginState through setRow(), when the changed tree is the pane row.
      */
     void registerEvents();
 
@@ -203,7 +200,7 @@ private:
      * A property with no handler does nothing.
      *
      * @param tree      The ValueTree whose property changed.
-     * @param property  The identifier of the changed property. Id::shellExited, Id::focus, Id::plugin and Id::name have an effect.
+     * @param property  The identifier of the changed property. Id::shellExited, Id::plugin and Id::name have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 

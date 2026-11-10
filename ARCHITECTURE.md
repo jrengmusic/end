@@ -225,15 +225,28 @@ SINGULAR uuid-valued parameters — the value IS the identity,
 writes it in the derived `childAdded` hook, with the survivor on remove, on a
 click inside a child (`OwnerComponent::mouseDown`), and on the focus-move action
 (`MatrixComponent::focusPane`, run by the `map::MatrixCommandId` pane commands,
-`jam_MatrixComponent.cpp:385-406`). Focus is told downward only: on a change of its
-focused-child parameter or of its own row's `jam::ID::focus`, the owner sets each
-child row's `jam::ID::focus` to 1 when the child is focused and its own row is
-focused, else 0 (`OwnerComponent::valueTreePropertyChanged`). ENDView tells the
-active session row (`ENDView.cpp:148`). Keyboard focus never writes the Model.
+`jam_MatrixComponent.cpp:374-395`). Focus is told downward only: on a change of its
+focused-child parameter or of its own row's `Id::focus`, the owner sets each
+child row's `Id::focus` to 1 when the child is focused and its own row is
+focused, else 0 (`OwnerComponent::valueTreePropertyChanged`,
+`jam_OwnerComponent.cpp:110-122`). ENDView tells the active session row
+(`ENDView.cpp:147`). Keyboard focus never writes the Model.
 There is no app-level copy of the focused pane: a consumer reads the active tab's
 focused child (`SessionView::getActiveTabView()->getFocusedChild()`), so a tab
 switch can never leave a stale pane id. No other writer of a `focused*` parameter
 may exist.
+
+**Keyboard focus follows the Model on one chain.** `SessionView::focusPane` asks the
+keyboard focus traverser of the active tab for its default component, and tells that
+component `grabKeyboardFocus()` (`SessionView.cpp:61-71`). The traverser of an
+`OwnerComponent` returns the focused child (`jam_OwnerComponent.cpp:136-142`), so the
+component is the focused pane. `focusPane` runs on a change of `Id::focusedPane` or
+`Id::name` (`SessionView.cpp:101-102`), and after a tab becomes the current tab
+(`SessionView::currentTabChanged`, `SessionView.cpp:56-59`, which
+`TabbedComponent::changeCallback` calls after `layout()`,
+`jam_TabbedComponent.cpp:137-143`). A pane and its corner buttons do not want keyboard
+focus (`jam_PaneComponent.cpp:12-25`, `:119-123`), so JUCE gives the grab to the hosted
+editor, the one child of the pane that wants it.
 
 **No cross-tree references:** ConfigModel → ENDModel dependency is one-way data flow. No upward references.
 
@@ -727,7 +740,7 @@ literal hosting relationship:
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | Plugin's audio clock | The plugin's own clock |
 | PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` when the pane row receives `Id::name`, after layout, and parented by `EditorView` (`EditorView::createProcessorEditor`) |
-| Host automation | ENAX lane only: the pane tells EVE through its host parameters, found by host-visible name only when the pane row's `Id::plugin` is the EVE file (private `EditorView::getParameter`) and written as one gesture (private `EditorView::setParameter`): `width` / `height` on resize (`EditorView::resized`), `focus` from its row (`EditorView::valueTreePropertyChanged`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), `mode` (`EditorView::setMode`, told by the `normal` action) |
+| Host automation | ENAX lane only: END tells EVE through `pluginState` rows, written as plugin state. Only a plugin of the company has a `PluginState` (`Session.cpp:135-143`). `EditorView::setRow` gives one row to `Session::setRow`, which passes a one-property `pluginState` tree to `PluginState::setRows` (`EditorView.cpp:207-210`, `Session.cpp:37-49`, `PluginState.cpp:158-166`). The pane writes `width` / `height` on resize (`EditorView::resized`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), and `mode` (`EditorView::setMode`, told by the `normal` action). `Session` alone writes `focus`: from the pane row's `Id::focus` (`Session.cpp:82-86`) and when the plugin is added (`Session.cpp:142`) |
 
 ### Hosting Contract
 
@@ -815,12 +828,20 @@ hardcoded to END. The contract is formalised and enforced at run time.
   and AU host windows and `NSViewComponentWithParent` are not opaque (same patch,
   `juce_VSTPluginFormat.cpp`, `juce_VST3PluginFormat.cpp`,
   `juce_AudioUnitPluginFormat.mm` hunks).
-- **Focus.** END owns focus. A pane sets its plugin's `focus` host parameter from
-  its row's `Id::focus` (`EditorView::valueTreePropertyChanged`). jam `PluginEditor`
-  grabs keyboard focus only when the parameter turns on (`PluginEditor::addCallbacks`),
-  and EVE passes it to its default component (`EVEView::focusGained`). JUCE's
-  `grabFocus` on the embedded editor's peer makes END's window key and the plugin
-  view the first responder (`juce_NSViewComponentPeer_mac.mm:237-239`, `:1590-1600`).
+- **Focus.** END owns focus. `Session` is the one writer of the plugin's `focus` row.
+  It writes the row from the pane row's `Id::focus` (`Session.cpp:82-86`) and when the
+  plugin is added (`Session.cpp:142`). EVE takes or gives away keyboard focus when its
+  `focus` row changes (`EVEView.cpp:181-187`), and passes it to its default component
+  (`EVEView::focusGained`, `EVEView.cpp:67-74`). A row that is set to an equal value
+  sends no change, so a new editor reads the row itself: it takes keyboard focus when it
+  becomes showing and the row is on (`EVEView::parentHierarchyChanged`,
+  `EVEView.cpp:76-80`). `SessionView::focusPane` gives JUCE
+  keyboard focus to the focused pane of the active tab (`SessionView.cpp:61-71`). The
+  pane wants no keyboard focus, so the hosted editor takes it. On macOS, the VST2 and AU
+  host windows then make the plugin view the first responder
+  (`jam/patch/juce-plugin-window-focus-hook.patch`). The patch acts on macOS only. On
+  Windows the host window takes no keyboard focus, so the `focus` row alone moves the
+  focus there: the row change, and the read of the row when the editor becomes showing.
   The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
   gives the editor focus (`jam_AudioStandaloneApp.cpp:74-78`).
 - **AU registration.** On macOS, when the plugin bundle is a `.component`

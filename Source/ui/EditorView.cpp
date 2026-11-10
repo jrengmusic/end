@@ -206,10 +206,7 @@ void EditorView::close (juce::CommandID command)
 
 void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
 {
-    juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
-
-    rows.setProperty (row, value, nullptr);
-    getSession().setRows (jam::UUID { state.getProperty (Id::id) }, rows);
+    getSession().setRow (jam::UUID { state.getProperty (Id::id) }, row, value);
 }
 
 void EditorView::registerEvents()
@@ -240,16 +237,7 @@ void EditorView::registerEvents()
             resized();
             createProcessorEditor();
             resized();
-
-            if (tree == state)
-                setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
         }
-    });
-
-    events.add (Id::focus, [this] (const juce::Identifier&, juce::ValueTree& tree)
-    {
-        if (tree == state)
-            setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));
     });
 }
 

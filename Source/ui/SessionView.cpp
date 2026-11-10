@@ -53,6 +53,23 @@ void SessionView::childRemoved (jam::UUID uuid, const juce::ValueTree& row)
         commandManager->invokeDirectly (map::CommandId::quit, false);
 }
 
+void SessionView::currentTabChanged (jam::UUID, const juce::String&)
+{
+    focusPane();
+}
+
+void SessionView::focusPane()
+{
+    if (auto* tabView { getActiveTabView() })
+    {
+        if (auto traverser { tabView->createKeyboardFocusTraverser() })
+        {
+            if (auto* defaultComponent { traverser->getDefaultComponent (tabView) })
+                defaultComponent->grabKeyboardFocus();
+        }
+    }
+}
+
 TabView& SessionView::get (jam::UUID uuid)
 {
     return static_cast<TabView&> (OwnerComponent::get (uuid));
@@ -83,6 +100,9 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
             if (tree == child->state or tree.isAChildOf (child->state))
                 applyTabName (uuid);
     }
+
+    if (property == Id::name or property == Id::focusedPane)
+        focusPane();
 }
 
 juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
@@ -120,14 +140,11 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
 void SessionView::applyTabName (jam::UUID uuid)
 {
-    if (getChildren().contains (uuid))
-    {
-        const auto name { getTabName (get (uuid).getValueTree()) };
-        setTabName (uuid, name);
+    const auto name { getTabName (get (uuid).getValueTree()) };
+    setTabName (uuid, name);
 
-        if (auto* tab { getBar().getTabButton (uuid) })
-            tab->label.setText (name, juce::dontSendNotification);
-    }
+    if (auto* tab { getBar().getTabButton (uuid) })
+        tab->label.setText (name, juce::dontSendNotification);
 }
 
 void SessionView::lookAndFeelChanged()

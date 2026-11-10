@@ -2,6 +2,69 @@
 
 ---
 
+## Sprint 100: Selection Above the Cell Background, One Author of the Plugin `focus` Row, NORMAL Entry at the Terminal Cursor ✅
+
+**Date:** 2026-11-11
+**Duration:** 02:02 recorded before one compaction (2026-11-10T17:01Z to 19:03Z). The time after the compaction is not measured.
+**Scope (ARCHITECT):** three runtime defects: the selection highlight is hidden on cells that have a background; keyboard focus is lost after a tab close, a new tab, and a hide and show of the plugin window; NORMAL mode starts at the top when the default mode is TERMINAL. Contract: *"no hack, no patch, no manual flags, no manual state management"*; *"SSOT parameter with Model, listener react. be careful because there's also event coming from juce native component interaction"*; *"SSOT callback with CommandManager"*; *"direct lookup SSOT command"*; *"we dont fight juce nor reinvent new pattern, new semantics, we integrate seamlessly to established UNIDIRECTIONAL data flow pattern"*; *"FULLY EVENT DRIVEN. listener react"*. Rulings: the selection paints *"After the runs"*; *"make only ONE sole author. Orchestrator always TELL"*; *"Session could set the parameter, then SessionView could forward unidirectional chain, per juce native contract"*; the parameter is *"Plugin's focus row"*; *"Pane wants no focus"*; finding 5: *"5. FIX IT"*, then *"why we must patch juce?"*; *"you update auditor role"*.
+
+### Agents Participated
+- COUNSELOR — the cause reads, the plan, every validation read, the audit triage, the `ARCHITECTURE.md` edits, the `auditor.md` edit, this log.
+- Pathfinder (haiku) — discovery reads (paint order, focus chain, VST2 open and close, plugin formats, the JUCE hierarchy and grab paths), the doxygen passes.
+- Engineer (sonnet) — the jam, END and EVE code changes. One run (Windows hunks for the JUCE focus patch) was stopped before any write, after ARCHITECT's question.
+- Auditor (opus) ×1 — one pass, 20 findings.
+
+### Files Modified (13 total)
+**jam:**
+- `jam_gui/widgets/jam_TextEditor.cpp:2090-2128` — `Content::paint` draws the background, the graphics and the fills. `Content::paintOverChildren` draws the runs, then the selection, the active list, the visual-block fill, the caret and the link labels. The opaque cell background of `GlyphArrangement::Run::paint` (`jam_GlyphArrangement.cpp:647-666`) no longer covers the selection.
+- `jam_gui/widgets/jam_TextEditor.cpp:2183-2200` — `paintActiveList` tests `getMode() == map::EditorMode::open` itself.
+- `jam_gui/widgets/jam_TextEditor.cpp:471-474`, `:893-910` — the `Id::normal` action only sets the mode. The `Id::mode` reaction calls `setCursorToTerminal()` when the mode is `normal` and `Id::defaultMode` is `terminal`. A host that writes the mode row gets the same cursor placement as the key.
+- `jam_gui/layout/jam_PaneComponent.cpp:12-25`, `:119-123` — both constructors lost `setWantsKeyboardFocus (true)`. `CornerButton` calls `setWantsKeyboardFocus (false)`.
+- `jam_gui/widgets/jam_TextEditor.h`, `jam_gui/layout/jam_PaneComponent.h` — doxygen.
+
+**end:**
+- `Source/plugins/Session.h`, `Session.cpp:43-49`, `:68-93`, `:142` — public `setRow (uuid, row, value)`; private `registerEvents()` with the `events` map (`Id::plugin`, `Id::focus`); `valueTreePropertyChanged` dispatches through it; `addPlugin` writes the `focus` row from the pane row. `Session` is the one writer of the plugin's `focus` row.
+- `Source/ui/EditorView.h`, `EditorView.cpp:207-210` — both focus writes deleted; `setRow` forwards to `Session::setRow`.
+- `Source/ui/SessionView.h`, `SessionView.cpp:56-71`, `:90-103`, `:141-148` — `currentTabChanged` and the `Id::name` / `Id::focusedPane` changes call `focusPane()`, which grabs the keyboard focus for the default component of the active tab. The `applyTabName` guard is removed.
+- `ARCHITECTURE.md` — Singular focus, the new paragraph "Keyboard focus follows the Model on one chain", the Host automation row, the Focus bullet (`:831`).
+
+**eve:**
+- `Source/EVEView.h:82-91`, `EVEView.cpp:76-80` — `parentHierarchyChanged()` override. A new editor grabs the keyboard focus when it becomes showing and its `focus` row is on.
+
+**carol (ARCHITECT's instruction):**
+- `~/.carol/agents/auditor.md:67-77`, `:100-104` — Lean ladder step 5 is a finding only with a stated split and a quoted contract check; the Auditor reads `## Lean rulings` before the audit.
+
+### Alignment Check
+- [x] BLESSED principles followed — S: one writer of the plugin's `focus` row. E: focus flows Model → `Session` → plugin row → editor; views grab, they write nothing. Stateless: no flag added.
+- [x] NAMES.md adhered — `setRow` joins `setRows`; `registerEvents` / `events` from the `EditorView` family; `focusPane` chosen by ARCHITECT.
+- [x] MANIFESTO.md principles applied
+- [ ] No build of the EVE change. The jam and END changes ran on macOS (ARCHITECT: *"runtime so far no issue. doxygen clean."*). Windows is not tested.
+
+### Problems Solved
+- **Selection hidden.** `paintSelection` ran in `Content::paint`, under the runs. The runs paint an opaque cell background (`jam_Colours.cpp:15`). The selection now paints after the runs.
+- **Focus lost.** Three facts: an equal value sends no event (`jam_Model.cpp:266-267`); the macOS VST2 host window closes and opens the plugin editor on hide and show (`juce_VSTPluginFormat.cpp:154-161`; `juce_audio_plugin_client_VST2.cpp:1545`, `:1524`); the focus write ran before `layout()` (`jam_TabbedComponent.cpp:139-140`). The exact cause of the close-then-new-tab case was not proven by a static read.
+- **NORMAL at the top.** Under END, `normal` wrote only the mode row (`ENDView.cpp:313-329`). The cursor placement lived only in jam's `normal` action. It now lives in the `Id::mode` reaction.
+- **Finding 5, Windows.** `juce-plugin-window-focus-hook.patch` acts under `JUCE_MAC` only, so the host window takes no keyboard focus on Windows. No JUCE patch was added. JUCE calls `parentHierarchyChanged()` on the child editor when the VST2 wrapper is shown (`juce_Component.cpp:583-584`, `:1637`, `:1647-1649`); `visibilityChanged()` does not reach the child (`:577`). The override tests `isShowing()` because the callback also runs earlier (`:738`) and `grabKeyboardFocus()` asserts `isShowing() || isOnDesktop()` (`:3033`). The grab reaches `SetFocus (hwnd)` (`juce_Windowing_windows.cpp:1643-1649`, `:2355-2359`).
+- **Audit, 20 findings.** Resolved: 1, 3, 5, 8, 11, 13, 16. Closed by ruling: 4, 10. Rejected with a refuting read: 2, 6, 7, 9, 12, 14, 17, 18, 19, 20. Finding 15 (`jam_TextEditor.cpp` size): ARCHITECT: *"NEVER RAISE AS ISSUE AGAIN. NEVER."*
+- **`Session.h:167-168`** (a `plugin` row with no value finds no format): confirmed for VST, VST3, AU and CLAP (`juce_VSTPluginFormatHeadless.cpp:110-121`, `juce_VST3PluginFormatHeadless.cpp:116-121`, `juce_AudioUnitPluginFormatHeadless.mm:153-165`, `jam_ClapPluginFormat.cpp:212-216`). No change.
+- **Mistake owned.** COUNSELOR read code files for context with its own hands; context reads go to Pathfinder.
+
+### State for Continuation
+- Build EVE, then END (END embeds the EVE archive). Check the EVE change on macOS: hide and show the plugin window, close a tab, open a tab; the focused pane takes the keys.
+- Windows: test the focus chain (`EVEView.cpp:76-80`, `SessionView.cpp:61-71`). It was never run there.
+- Regenerate doxygen in EVE (`ninja doxygen`) and read the warning count for `EVEView.h:82-91`.
+- `auditor.md:100-104` has no effect yet: no `## Lean rulings` section exists, and jam has no `ARCHITECTURE.md`. The `jam::TextEditor` entry waits for ARCHITECT's word.
+- Stale documents, not corrected: `eve/PLAN-Grand-Scheme.md:1149-1151`; `ARCHITECTURE.md` lines outside the focus regions (found near `:189-191`, `:216-218`, `:740`, `:759-778` before this sprint's edits; read them again before use).
+- END log hygiene still open: the consumed handoffs at the end of this file.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 99: ENAX Plugin Format Is One Word — `pluginFormat`, Generated `pluginBundle.cmake`, Bundle From the Zip ✅
 
 **Date:** 2026-11-09
@@ -264,157 +327,6 @@
 ### Debts Deferred
 - `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
 - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
-
----
-
-## Sprint 95: Prefix Layer in jam CommandManager, One-Way Focus Told by the Owner, Audit Sweep, Lane → TextBlock ✅
-
-**Date:** 2026-11-02
-**Duration:** two sessions (one compaction). The start and end times are not recorded.
-**Scope (ARCHITECT):** the prefix-layer key method in jam `CommandManager`; focus told one way by the owner (*"UNIDIRECTIONAL"*); `/audit` over the unlogged work, every validated finding resolved; the corner-button bug ARCHITECT surfaced; the doxygen pass; this log.
-
-### Agents Participated
-- COUNSELOR — every brief and validation read, the DCF triage of each Auditor and Pathfinder finding, the small edits named below, SPEC/ARCHITECTURE/README/DEBT, END `CLAUDE.md` Version Rule, this log.
-- Pathfinder (haiku) — discovery reads (TextEditor jobs, cast key tables), the whatdbg corner trace, the doxygen pass and its correction pass.
-- Engineer (sonnet) — CommandManager layers, focus, MatrixComponent `setRow`/orientation, TabView gesture, renames (`node` → `plugin`, `applyZoom` → `setZoom`), the `TextEditorLane` extraction and the Lane → Block rename.
-- Auditor (opus) — one pass over the unlogged work.
-
-### Files Modified
-**jam:**
-- `jam_gui/commands/jam_CommandManager.h` / `.cpp` — private `juce::Timer`; `sequenceLength`, `defaultSequenceTimeout` (1000); `keyPresses` built once in `setKeyPresses` (`Id::sequenceTimeout`, `Id::layer` per row); `invokeKey (key, componentState)` enters a layer, matches a sequence or a key press per layer and mode, clears on a state change; `isInLayer`, `isLayer`, `hasSequence`, `getKey`, `setSequence`, `timerCallback`. ARCHITECT: *"prefix is only tell to "enter a layer", while "gg" is on "default layer""*.
-- `cast/gui.md` — Ids `layer`, `sequence`, `sequenceTimeout`, `editorBlocks` (was `editorLanes`); `TextEditorCommandId::prefix` 0x4800016; `normal` key `]`, lone backtick row; `## textEditorLayers` (23 rows) with its brief; sequence wording. `cast/spell.md` — `@textEditorLayer`, counts 23.
-- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — `getDefaultKeys` adds `Id::layer`; `pendingChord` gone; lane layout moved out; every `lane` identifier renamed to the block family (`addBlocks`, `setBlocks`, `setLiveBlock`, `removeHeadBlocks`, `getBlockNumber`, `getBlockNumberAt`, `getBlockStart`, `getBlockTop`); unused `editorMode` holder removed (`map::EditorMode` is read only by its enum constants).
-- `jam_gui/widgets/jam_TextBlock.h` / `.cpp` (new) — the old nested `Lane` and its static layout functions (`setBlock`, `setRows`, `setLineRows`, `setTableRows`, `setGridRows`, `setImageRows`, `addRowHeights`, `addRuns`, `getContentWidth`, `isGridLine`, `getGutterWidth`) moved verbatim; Auditor #17 (LANGUAGE.md:35: *"If the object has more than one responsibility, decompose it into objects"*). Name ruled by ARCHITECT: *"TextBlock?"*, *"in the codebase Block is used everywhere"*.
-- `jam_terminal/document/jam_TerminalSwap.h` / `.cpp` — `linesPerLane` → `linesPerBlock`.
-- `user-modules-info.md:1030`, `:1063` — submodule rows for `jam_TextBlock.h` / `.cpp` (cast writes the include region from them).
-- `jam_gui/layout/jam_OwnerComponent.h` / `.cpp` — `addMouseListener (this, true)`; `mouseDown` sets the focused child; `add`/`remove` write no focus and grab nothing; `valueTreePropertyChanged` writes `Id::focus` to each child from the focused-child parameter and own `Id::focus`.
-- `jam_gui/layout/jam_OwnedComponent.*` — focus handlers removed (the owner tells).
-- `jam_gui/layout/jam_MatrixComponent.h` / `.cpp` — `childAdded` focuses and lays out (ruling (b)); `childRemoved` focuses the survivor; private `setRow` serves `split`, `rotate`, `childRemoved`; orientation stored as an int key.
-- `jam_gui/layout/jam_PaneEdge.h` — `int newOrientation`, `Parameter<int>`; `jam_TabbedComponent.cpp` — `changeCallback` without grab.
-- `jam_gui/layout/jam_PaneComponent.cpp:133-135` — corner menus take the mouse (`setInterceptsMouseClicks (false, false)` removed); `juce::Button` hovers and clicks by itself (`juce_Button.cpp:467`, `:484-497`).
-- `jam_gui/windows/jam_Window.h` / `.cpp` — `visibilityChanged` sets the macOS buttons; `const juce::String& name`.
-- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp` — engine rule installs context-factory, peer-deleted, key and mouse hooks; keys rule removes `normal` and `prefix`.
-- `jam_plugin_bootstrap/view/jam_PluginEditor.h` / `.cpp` — focus callback grabs when the focus parameter is true; key listener gone; `applyZoom` → `setZoom` (ARCHITECT: *"there is no fucking apply apply bullshit, those are parameter contract. set** not fucking apply"*).
-- Doxygen pass and correction pass over every header above.
-
-**end:**
-- `Source/config/keys.md` — `layer` column, 11 `prefix` rows, `prefix` and `sequenceTimeout` rows. `cast/bimaps.md` — `prefix` 0x4700020. `cast/identifiers.md` — `joinPreview`, `swapPick` rows removed.
-- `Source/ui/ENDView.h` / `.cpp` — `newSession` tells the session row `Id::focus`; zoom actions through `setZoom`; `normal` action → `setMode`; `getBackgroundRenderParams` removed; unused `position` holder removed.
-- `Source/ui/EditorView.h` / `.cpp` — `setZoom`, `setMode`; private `getParameter`/`setParameter`; the row's `Id::focus` sets the plugin's `focus` parameter; the hosted editor goes to the back (`addAndMakeVisible (*editor, 0)`, `:141`) so the pane's corner menus are on top.
-- `Source/ui/TabView.h` / `.cpp` — `getEdge`, `isInward`; gesture from the event payload; directional swap options; the pane found with `findParentComponentOfClass` (`:96`, `:105`, `:147-149`); redundant `overlayAxisLine` and `position` holders removed (`jam_MessageOverlay.cpp:67`, `jam_MatrixComponent.h:206` hold them).
-- `Source/ui/SessionView.*` — `setZoom`. `Source/plugins/Session.*`, `Nexus.*` — `node` → `plugin`, `audioInputId`, `audioOutputId`, `midiInputId`; `applyToPlugins` deleted. `Source/Main.cpp` — `getPostProcessRenderParams` removed.
-- `SPEC.md`, `ARCHITECTURE.md`, `README.md`, `DEBT.md`, `CLAUDE.md` (Version Rule: always 0.0.1).
-
-**eve:**
-- `Source/layout/parameters.md` — `focus` bool row. `Source/layout/ViewLayout.md` — `sequenceTimeout` row, keys prose, version `0.0.1` (ARCHITECT: *"CHANGE MOTHERFUCKER"*).
-- `SPEC.md` (focus, blocks), `PLAN-Grand-Scheme.md` §4.3.
-
-### Alignment Check
-- [x] BLESSED principles followed — focus flows one way from the owner; the model holds layer and sequence on the component row.
-- [x] NAMES.md adhered — `node`, `apply` on parameters, and `Lane` removed by ARCHITECT's rulings.
-- [x] MANIFESTO.md principles applied
-- [ ] No build. Cast not re-run in jam, end, eve. ARCHITECT runs cast, builds and tests.
-
-### Problems Solved
-- **Prefix keys.** The backtick enters the `prefix` layer; sequences live in the default layer; a key with no match in a layer is dropped.
-- **Focus.** Owners tell `Id::focus`; children never grab; END tells the plugin's `focus` parameter.
-- **Auditor findings.** Resolved: #1, #2, #3, #4, #5, #7, #14, #15, #16 (setRow, orientation), #17 (TextBlock), #18, #21, D1–D18. Rejected by read with clause: #6, #8 (each table one fact, keyed once by `TextEditorCommandId`, `gui.md:266`), #10, #11, #12, #13, #16 join length (cause fixed, a count remains), #19 (transient colour, MANIFESTO S), #20.
-- **Pathfinder findings.** F2 unused holders: three removed (`TabView.h` ×2, `ENDView.h` position, `TextEditor.h` editorMode), the others back a `getInstance()` read. F1 rejected (state is the Model row, `jam_CommandManager.cpp:113-114`). F3 rejected (MANIFESTO D). F4 = the cast include region (`user-modules-info.md`).
-- **Corner buttons hidden.** The pane's corner menus were added before the hosted editor, which went in front (`jam_PaneComponent.cpp:136`, `EditorView.cpp:141`), and they refused the mouse (`jam_PaneComponent.cpp:134`).
-- **Mistakes owned.** Focus patches to working code (reverted), a ViewLayout version bump (reverted), `swapPick`/`joinPreview` and the `"swap:"` string (removed), and a wrong claim that nothing JUCE can draw over a hosted editor (withdrawn).
-
-### State for Continuation
-- Run `cast cast/spell.md` in jam (include region from `user-modules-info.md:1030`, `:1063`; `Id::editorBlocks`), end, eve. Then build.
-- Test on a hosted pane: corner hover icon, left/right click menu, corner drag split/join (`EditorView.cpp:141`, `jam_PaneComponent.cpp:133-135`, `TabView.cpp:94-167`).
-- Regenerate doxygen (`ninja doxygen`, jam `<leader>bd`) and read the warning count.
-
-### Debts Paid
-- `DEBT-20261025T214955` (eve) — OSC command names reach the commands: the command FIFO drains into `EVEView::invokeCommand` (`eve/Source/EVEView.cpp:249-288`).
-
-### Debts Deferred
-- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86 (ARCHITECT).
-
----
-
-## Sprint 94: ENAX Plan 2 — Owner-Scoped Command Ids, Per-Instance Mode, END Drives the Plugin by Host Parameter; Wholesale Audit ✅
-
-**Date:** 2026-11-02
-**Duration:** one session. The start and end times are not recorded.
-**Plan:** `PLAN-enax-command-id.md` (locked), with the open items of Sprint 93 folded in by ARCHITECT's order: *"fold outstanding to PLAN 2, execution"*, *"/audit wholesale until /log"*. Plan 1 Steps 9 and 10 are Plan 2 Steps 11 and 10.
-
-### Agents Participated
-- COUNSELOR — the fold (`PLAN-enax-command-id.md`), every brief and validation read, the trace spec, the small edits named below, SPEC/ARCHITECTURE/eve SPEC, the Auditor triage, this log.
-- Pathfinder (haiku) — discovery reads (jam key path, cast tables, END host, file watcher, AU format, MoltenVK, command tables), the Step 1 trace run, the doxygen pass.
-- Engineer (sonnet) — Steps 2–9, 11, the Auditor fixes, the one-TU moves, `rm` of four files.
-- Librarian (haiku) — FSEvents dispatch-queue ownership (SDK headers, LLVM, Git, fswatch, Chromium).
-- Auditor (opus) — one wholesale pass over Plan 1 and Plan 2: 38 findings.
-
-### Files Modified
-**end:**
-- `PLAN-enax-command-id.md` — fold: per-instance mode (Step 2), paste moved to the TextEditor (Step 9), Step 11 (format from the file), Step 12 (watcher teardown), Step 10 docs; every citation re-read after `6c017a1`.
-- `Source/plugins/Session.cpp:44-54` — `pluginFormatName` is the `getName()` of the first format whose `fileMightContainThisPluginType` accepts the file (`juce_AudioPluginFormatManager.cpp:139-152`); the hardcoded VST name is gone. `Session.h:46-51` — `applyToPlugins`.
-- `Source/ui/ENDView.cpp` — one TU (CODING): the bodies of `ENDActions.cpp` and `EventRegistration.cpp` moved in (635 lines). `normal` action sets the focused plugin's `Mode` parameter (`:442-460`). Zoom actions set the plugin's `Zoom` parameter by a normalised `zoomStep`, every pane or the focused pane when `exclusiveZoom` (`:297-354`). `closeTab` removes the plugins of the closed tab (`:208-226`).
-- `Source/ui/EventRegistration.cpp` — deleted. `Source/action/ENDActions.cpp` / `.h` — only `ENDActions::run` (moved out of the header).
-- `Source/ui/EditorView.h` / `.cpp` — pane `Id::zoom` and `defaultZoom`/`zoomMin`/`zoomMax` deleted; `getParameter` by host-visible name with `compare` (`:98-108`); width/height through `jam::Format::toParameterName`; listens to its own row.
-- `Source/ui/TabView.cpp:203`, `:227`, `Source/lookAndFeel/ENDLookAndFeel.h` / `.cpp` — `getCodeMetrics()` takes no zoom; `drawPaneOutline` asserts the downcast.
-- `Source/plugins/Nexus.cpp:123-124` — named archive and AU extensions.
-- `cast/bimaps.md` (`normal 0x470001f`), `cast/identifiers.md` (`exclusiveZoom`), `cast/cmake.cast:306` (`CAST_PLUGINS_HASH` on `Nexus.cpp` only).
-- `Source/config/keys.md` (`normal` = `` `] ``, zoom descriptions), `Source/config/display.md` (`zoomStep` normalised, `exclusiveZoom`).
-- `SPEC.md`, `ARCHITECTURE.md` — host format, keys, commands, host parameters, ENAX ids and hooks, focus chain, pane rows under EDGE rows, every stale `pluginId`/scan/CLAP line; each line cites code.
-- Headers: doc pass (`EditorView.h`, `Session.h`, `Nexus.h`, `ENDView.h`, `ENDLookAndFeel.h`, `ENDActions.h`).
-
-**jam:**
-- `cast/gui.md` — `EditorMode` 0-based (`:232-234`); `copy`, `paste` ids; `## TextEditorCommandId` (`0x48…`), `## textEditorKeys mac` / `windows`, `## textEditorModes` (`:253-435`). `cast/plugin_bootstrap.md` — `## PluginEditorCommandId` (`0x49…`), `## pluginEditorKeys`; `master` moved to `cast/core.md:108`. `cast/spell.md:134-136`, `:937-964`, `:1411-1431`; `cast/code.cast` — `platform-value-lookup-table`.
-- `jam_gui/commands/jam_CommandManager.h` / `.cpp` — no shared `mode`; `setKeyPresses` builds the sheet once (one row per key and mode, `Id::id`, `Id::mode` key); `invokeKey` matches chords and key descriptions by the caller's own mode; only modeless rows enter the shared key mappings; `getCommandForName` public.
-- `jam_gui/widgets/jam_TextEditor.h` / `.cpp` — mode key; `jam::Model::Object` with its own `mode` Value and a `ValueAttachment` on `MODE`; no own key binding; TextEditorCommandId commands; `getDefaultKeys`; `copy`; `paste` (bracketed when DEC 2004). `jam_TextEditorStatusBar.cpp` — mode key.
-- `jam_gui/layout/jam_OwnedComponent`, `jam_OwnerComponent`, `jam_PaneComponent` — bodies in new `.cpp` files (`jam_gui.cpp:6-8`); the owner writes focus 0 to the previous child only; `cornerJustifications` defined in the `.cpp`.
-- `jam_terminal/keyboard/jam_TerminalKeyboard.h` — `bracketedPasteStart`, `bracketedPasteEnd`.
-- `jam_core/text/jam_Format.h` / `.cpp` — `toParameterName`. `jam_core/file/jam_Listener.cpp` — no unschedule before invalidate; the queue and the paths are released. `jam_core/utilities/jam_PluginHostType.cpp` — format.
-- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h` / `.cpp` — hooks read END's variables through their addresses at each call; the keys rule takes the key sheet and drops `normal`; `addOrReplace` ranges. `layout/jam_PluginEditorLayout.h` — `keys` (TextEditor defaults, host rule applied). `parameter/jam_ParameterLayout.h` / `.cpp` — `toParameterName`. `view/jam_PluginEditor.h` / `.cpp` — PluginEditorCommandId commands, `getDefaultKeys`, the one binder `addCommands` after `initialiseView`, reload through it. `PluginHostType` per-event sites made static (`jam_PluginEditor.cpp`, `jam_AudioModel.cpp`, `jam_PopupMenu.h`, `jam_ViewEditor.cpp`, `jam_ViewPanel.cpp`). Doc pass over the touched headers, `jam_ViewManager.h`, `jam_ModelLayout.h`.
-
-**eve:**
-- `Source/EVEView.cpp` — one TU (the bodies of `EVEViewComponents.cpp`, `EVEViewPanelCallbacks.cpp`, `EVEViewRegistration.cpp` moved in, files deleted, `project-info.md` rows removed); commands = PluginEditor's + EVE's; shell commands by any registered name (`:150-151` before the move). `EVEViewComponents` `setMode` call removed.
-- `cast/identifiers.md` — `## CommandId` keeps `clear`, `preview`. `Source/layout/ViewLayout.md` — version 0.0.2, keys keep `clear`, `preview`. `Source/layout/parameters.md` — `mode` choice, default 2.
-- `Source/EVETerminalProcessor.cpp` — quits only in the standalone app; no manual `cancelPendingUpdate`.
-- `SPEC.md` — keys summary, command protocol, mode parameter, terminal consumers. `Source/EVEView.h` — doc pass.
-
-### Alignment Check
-- [x] BLESSED principles followed — the mode lives in each instance's node; one key entry per caller; END tells by host parameter.
-- [x] NAMES.md adhered — `candidate`, shadowing locals and "resolve" prose corrected in-sprint.
-- [x] MANIFESTO.md principles applied
-- [ ] No build. Cast was not re-run. ARCHITECT runs `cast` (jam, eve, end), builds and tests.
-
-### Problems Solved
-- **Mode per binary.** `CommandManager::mode` was one Value per binary; the last bound editor owned every pane's mode. The mode now lives only in each editor's node and the host parameter.
-- **Command id collision.** JUCE asserts on two commands with one id (`juce_ApplicationCommandManager.cpp:61`, `:71`). TextEditor ids are `0x48…`, PluginEditor ids `0x49…`; the tables are read by row through `Bimap::indexOf`.
-- **SharedInstance lifetime.** The new maps had no live holder at first use (layout constructor); members and function-local static holders added.
-- **FSEventStream assertion.** The destructor unscheduled the stream before `FSEventStreamInvalidate`; the SDK forbids it (`FSEvents.h:1209-1213`). The queue leak is closed (`queue.h:1057-1060`).
-- **Pane format.** `EVE.vst3` and `EVE.component` load through the format that accepts the file.
-- **Auditor (38 findings).** Fixed: 1, 3, 4, 5, 6, 7, 8, 9, 11, 15, 19, 21, 22, 25 (own row), 28, 34, 35, 36, 37, 38. Rejected by read: 13 (END is the source of both ranges), 15 out-parameter (ruling *"Registry returns value … through jam::Function::Map argument forwarding"*, `PLAN-enax-plugin-host-type.md:180`), 17 (sibling `spell.md:133`), 18 (`#else` keeps Linux compiling), 20 (ruled in Sprint 93), 23 (creation), 26 (MANIFESTO E example asserts and nests), 27 (a third-party plugin can have no editor), 29 (numbers only), 30 (END tells), 31, 32 (*"it STILL HANDLE its own hjlk per its state"*), 33 (no read confirms).
-
-### State for Continuation
-- ARCHITECT: run `cast cast/spell.md` in jam, eve and end; build; test the Plan 2 ARCHITECT Gate (`PLAN-enax-command-id.md`) for `EVE.vst`, `EVE.vst3`, `EVE.component`.
-- Step 1 trace: the 2026-11-02 run had no key input (`END outcome=timeout stops=0`, spec `scratchpad/trace-keypath.json`). It runs again with ARCHITECT at the keyboard. Auditor finding 2 (a lone `` ` `` under END is lost: END keeps it as its chord prefix, `ENDView.cpp:71`, and never forwards it) is a key-path fix, and the plan requires a trace stop for each key fix (`PLAN-enax-command-id.md:67`).
-- Rulings that conflict with the locked plan or CONTRACT (stop set, both citations):
-  1. Finding 14 — *"if it was jam wiget parameter then it must be at jam"* (`PLAN-enax-command-id.md:23`) against Plan 2 Step 6.1 (`mode` in `eve/Source/layout/parameters.md`, like `zoom` at `:11`).
-  2. Finding 16 — MANIFESTO S (a value appearing more than once) against Plan 2 Step 3.2 (full `textEditorKeys mac` / `windows` tables, `jam/cast/gui.md:290-399`).
-  3. Finding 10 — *"must be crossplatfrom"* (`PLAN-enax-plugin-host-type.md:33`) against the macOS-only focus patch (`jam/patch/juce-plugin-window-focus-hook.patch`) and DEBT-20260912T150000.
-  4. Finding 12 — Plan 2 constraint *"`jam_gui` never names `jam_plugin_bootstrap`"* (`:35`) against the guarded `TextEditor::bindToModel (…, AudioModel&)` (`jam_TextEditor.h:142-154`).
-  5. Finding 24 — END is the size author (`PLAN-enax-plugin-host-type.md:180`) against `PluginEditor::resized` writing `Width`/`Height` too (`jam_PluginEditor.cpp` `resized`).
-  6. Finding 25 — `EditorView` reaches `Nexus::getInstance()` (`EditorView.cpp:31`, `:79`) against ARCHITECTURE.md "never by members reaching sideways, upward, or across".
-- L crossings after the one-TU moves: `ENDView.cpp` 635 lines, `jam_TextEditor.cpp` ~1720 lines (MANIFESTO L: rethink the decomposition).
-- MoltenVK: `Class MVKBlockObserver is implemented in both …/END and …/EVE.vst/Contents/MacOS/EVE` on each EVE load (END run log 2026-11-02 06:02:34). END and EVE each link `libMoltenVK.a` (`end/CMakeLists.txt:333-341`, `eve/CMakeLists.txt:401-409`). Recorded as the Plan 1 gate asks (`PLAN-enax-plugin-host-type.md:229`).
-- `ViewLayout.md` version 0.0.2 replaces each user's seeded `~/.config/end/eve.md` on first load.
-- Doxygen not regenerated (`ninja doxygen`).
-
-### Debts Paid
-- `DEBT-20261025T214955` — Action List replaced by CommandManager: END dispatches through `jam::CommandManager` and the action map behind `perform` (`ENDView.h:69`, `ENDView.cpp:116-119`).
-- `DEBT-20261009T112447` — END keys through `jam::CommandManager` (`ENDView.cpp:17-18`, `:69-72`).
-
-### Debts Deferred
-- `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
 
 ---
 

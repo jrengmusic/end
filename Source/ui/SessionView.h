@@ -14,6 +14,9 @@
  * @class SessionView
  * @brief Owns one session's TabView tabs and drives the tab bar's depth,
  *        position, and per-tab displayed name from config and state.
+ *
+ * It gives the keyboard focus to the focused pane of the active tab when that pane changes,
+ * when the plugin of a pane gets its name, and when the current tab changes.
  */
 class SessionView
     : public jam::TabbedComponent
@@ -64,6 +67,7 @@ private:
      *
      * A tab holds the tree when the tree is its row or a row under it. The name is reapplied when the property is
      * Id::name or Id::focusedPane, or when the tree is a pluginState row.
+     * Then focusPane() runs when the property is Id::name or Id::focusedPane.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property.
@@ -100,6 +104,25 @@ private:
      */
     void childRemoved (jam::UUID uuid, const juce::ValueTree& row) override;
 
+    /**
+     * @brief Gives the keyboard focus to the focused pane of the new current tab.
+     *
+     * jam::TabbedComponent calls it after the new current tab is laid out and visible. The call does not use the parameters.
+     *
+     * @param newCurrentTab      Identity of the new current tab. Not used.
+     * @param newCurrentTabName  Displayed name of the new current tab. Not used.
+     */
+    void currentTabChanged (jam::UUID newCurrentTab, const juce::String& newCurrentTabName) override;
+
+    /**
+     * @brief Grabs the keyboard focus for the default component of the active tab.
+     *
+     * The default component comes from the keyboard focus traverser of the tab. The traverser returns the focused child
+     * of the tab when the tab holds one. The call does nothing when no tab is active or the traverser returns no component.
+     * It writes nothing to the Model.
+     */
+    void focusPane();
+
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;
 
@@ -113,7 +136,7 @@ private:
     juce::String getTabName (const juce::ValueTree& tabState) const;
 
     /** @brief Applies the resolved tab name to both the tab-bar name and label.
-     *  @param uuid Identity of the tab to update.
+     *  @param uuid Identity of a mounted tab. The call looks the tab up with get(), so the tab must be mounted.
      */
     void applyTabName (jam::UUID uuid);
 

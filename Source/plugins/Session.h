@@ -19,7 +19,8 @@
  * A plugin loads asynchronously. A change of the Id::plugin property of a pane row
  * starts the load of that file, and the instance joins the graph when it is created.
  * The session listens to the sessions row, the parent of the session row.
- * It reacts to a change of the Id::plugin property of a pane row. It does not handle the removal of a tab.
+ * It reacts to a change of the Id::plugin property of a pane row, and to a change of the Id::focus property of a pane row.
+ * For a plugin of the company, it writes the Id::focus value to the focus row of the hosted plugin. It does not handle the removal of a tab.
  * TabView::childRemoved() removes the plugins of its panes through removePlugin().
  */
 class Session : private juce::ValueTree::Listener
@@ -84,6 +85,18 @@ public:
     void setRows (jam::UUID uuid, const juce::ValueTree& rows);
 
     /**
+     * @brief Writes one row of the pluginState of a pane.
+     *
+     * The call builds a `pluginState` tree with one property, then passes it to setRows().
+     * The call does nothing when the pane has no PluginState.
+     *
+     * @param uuid   Identity of the pane.
+     * @param row    Identifier of the row to write.
+     * @param value  Value of the row.
+     */
+    void setRow (jam::UUID uuid, const juce::Identifier& row, const juce::var& value);
+
+    /**
      * @brief Erases the PluginState of a pane, then removes the plugin instance bound to the pane from the graph.
      *
      * The graph node is removed only when a plugin is bound to @p uuid.
@@ -115,7 +128,8 @@ private:
      * @brief Adds a created plugin instance to the graph, and binds it to its pane.
      *
      * The instance enables all its buses. For a plugin of the company, the call creates the PluginState of the pane and
-     * writes the pluginState rows of the pane to the plugin before the instance joins the graph.
+     * writes the pluginState rows of the pane to the plugin, then writes the focus row from the Id::focus property of the pane row,
+     * before the instance joins the graph.
      * The instance then joins the graph, and connects to the audio and MIDI processors.
      * The graph node is stored under the identity of the pane. The name of the processor is then written to
      * Id::name of the pane row. The pane creates its editor when that property arrives.
@@ -146,14 +160,23 @@ private:
     void loadPlugin (const juce::ValueTree& paneRow);
 
     /**
-     * @brief Reloads the plugin of a pane when the pane row names another file.
+     * @brief Fills events with one handler for each of Id::plugin and Id::focus.
      *
-     * The old instance leaves the graph. The Id::name property of the pane row is removed. The pane
-     * creates its editor again when the new instance is added. A change of any other property has no effect.
-     * A `plugin` row with no value finds no format, so nothing loads and the pane is a blank canvas.
+     * The Id::plugin handler acts on a descendant of the session row. It removes the plugin of the pane, removes the Id::name
+     * property of the pane row, then starts the load of the file that the pane row names. The old instance leaves the graph,
+     * and the pane creates its editor again when the new instance is added. A `plugin` row with no value finds no format,
+     * so nothing loads and the pane is a blank canvas.
+     * The Id::focus handler acts on a pane row under the session row. It writes the focus value through setRow().
+     */
+    void registerEvents();
+
+    /**
+     * @brief Runs the handler that registerEvents() stored for the changed property.
      *
-     * @param tree      Tree whose property changed. Only a descendant of the session row is handled.
-     * @param property  Identifier of the changed property. Only Id::plugin has an effect.
+     * A property with no handler does nothing.
+     *
+     * @param tree      Tree whose property changed. Each handler checks that the tree lies under the session row.
+     * @param property  Identifier of the changed property. Id::plugin and Id::focus have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
@@ -186,6 +209,9 @@ private:
 
     /** @brief PluginState of each hosted plugin of the company, keyed by the identity of its pane. addPlugin() creates it and removePlugin() erases it. */
     jam::HashMap<jam::UUID, std::unique_ptr<PluginState>> pluginStates;
+
+    /** @brief Handlers keyed by the changed property. registerEvents() fills them. valueTreePropertyChanged() calls the handler of the changed property with the tree. */
+    jam::Function::Map<juce::Identifier, jam::Function::pointerCapacity, void (juce::ValueTree&)> events;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)
