@@ -16,7 +16,7 @@ static juce::MemoryBlock getStateInformation (juce::AudioPluginInstance& instanc
     return wrapper;
 }
 
-static juce::MemoryBlock getChunkState (juce::AudioPluginInstance& instance)
+static juce::MemoryBlock getChunkState (const juce::String&, juce::AudioPluginInstance& instance)
 {
     juce::MemoryBlock block;
     instance.getVSTClient()->getChunkData (block, false);
@@ -24,12 +24,12 @@ static juce::MemoryBlock getChunkState (juce::AudioPluginInstance& instance)
     return block;
 }
 
-static void setChunkState (juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
+static void setChunkState (const juce::String&, juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
 {
     instance.getVSTClient()->setChunkData (juce::Span<const std::byte> { static_cast<const std::byte*> (block.getData()), block.getSize() }, false);
 }
 
-static juce::MemoryBlock getComponentState (juce::AudioPluginInstance& instance)
+static juce::MemoryBlock getComponentState (const juce::String&, juce::AudioPluginInstance& instance)
 {
     const auto wrapper { getStateInformation (instance) };
     const auto xml { juce::AudioProcessor::getXmlFromBinary (wrapper.getData(), static_cast<int> (wrapper.getSize())) };
@@ -41,7 +41,7 @@ static juce::MemoryBlock getComponentState (juce::AudioPluginInstance& instance)
     return block;
 }
 
-static void setComponentState (juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
+static void setComponentState (const juce::String&, juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
 {
     const auto wrapper { getStateInformation (instance) };
     const auto xml { juce::AudioProcessor::getXmlFromBinary (wrapper.getData(), static_cast<int> (wrapper.getSize())) };
@@ -56,7 +56,7 @@ static void setComponentState (juce::AudioPluginInstance& instance, const juce::
 }
 
 #if JUCE_MAC
-static juce::MemoryBlock getAudioUnitState (juce::AudioPluginInstance& instance)
+static juce::MemoryBlock getAudioUnitState (const juce::String&, juce::AudioPluginInstance& instance)
 {
     const auto wrapper { getStateInformation (instance) };
     const std::unique_ptr<std::remove_pointer_t<CFStringRef>, decltype (&CFRelease)> key {
@@ -70,7 +70,7 @@ static juce::MemoryBlock getAudioUnitState (juce::AudioPluginInstance& instance)
     return juce::MemoryBlock { CFDataGetBytePtr (state), static_cast<size_t> (CFDataGetLength (state)) };
 }
 
-static void setAudioUnitState (juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
+static void setAudioUnitState (const juce::String&, juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
 {
     const auto wrapper { getStateInformation (instance) };
     const std::unique_ptr<std::remove_pointer_t<CFStringRef>, decltype (&CFRelease)> key {
@@ -91,54 +91,54 @@ static void setAudioUnitState (juce::AudioPluginInstance& instance, const juce::
 }
 #endif
 
-static juce::MemoryBlock getRawState (juce::AudioPluginInstance& instance)
+static juce::MemoryBlock getRawState (const juce::String&, juce::AudioPluginInstance& instance)
 {
     return getStateInformation (instance);
 }
 
-static void setRawState (juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
+static void setRawState (const juce::String&, juce::AudioPluginInstance& instance, const juce::MemoryBlock& block)
 {
     instance.setStateInformation (block.getData(), static_cast<int> (block.getSize()));
 }
 
-static const jam::Function::Map<juce::String, juce::MemoryBlock>& getStateReads()
+static const auto& getStateReads()
 {
-    static const jam::Function::Map<juce::String, juce::MemoryBlock> reads {
+    static const auto reads (
         []
         {
-            jam::Function::Map<juce::String, juce::MemoryBlock> table;
+            jam::Function::Map<juce::String, jam::Function::pointerCapacity, juce::MemoryBlock (juce::AudioPluginInstance&)> reads;
 
-            table.add<juce::AudioPluginInstance&> (juce::VSTPluginFormat::getFormatName(), getChunkState);
-            table.add<juce::AudioPluginInstance&> (juce::VST3PluginFormat::getFormatName(), getComponentState);
+            reads.add (juce::VSTPluginFormat::getFormatName(), getChunkState);
+            reads.add (juce::VST3PluginFormat::getFormatName(), getComponentState);
 #if JUCE_MAC
-            table.add<juce::AudioPluginInstance&> (juce::AudioUnitPluginFormat::getFormatName(), getAudioUnitState);
+            reads.add (juce::AudioUnitPluginFormat::getFormatName(), getAudioUnitState);
 #endif
-            table.add<juce::AudioPluginInstance&> (jam::ClapPluginFormat::getFormatName(), getRawState);
+            reads.add (jam::ClapPluginFormat::getFormatName(), getRawState);
 
-            return table;
+            return reads;
         }()
-    };
+    );
 
     return reads;
 }
 
-static const jam::Function::Map<juce::String, void>& getStateWrites()
+static const auto& getStateWrites()
 {
-    static const jam::Function::Map<juce::String, void> writes {
+    static const auto writes (
         []
         {
-            jam::Function::Map<juce::String, void> table;
+            jam::Function::Map<juce::String, jam::Function::pointerCapacity, void (juce::AudioPluginInstance&, const juce::MemoryBlock&)> writes;
 
-            table.add<juce::AudioPluginInstance&, const juce::MemoryBlock&> (juce::VSTPluginFormat::getFormatName(), setChunkState);
-            table.add<juce::AudioPluginInstance&, const juce::MemoryBlock&> (juce::VST3PluginFormat::getFormatName(), setComponentState);
+            writes.add (juce::VSTPluginFormat::getFormatName(), setChunkState);
+            writes.add (juce::VST3PluginFormat::getFormatName(), setComponentState);
 #if JUCE_MAC
-            table.add<juce::AudioPluginInstance&, const juce::MemoryBlock&> (juce::AudioUnitPluginFormat::getFormatName(), setAudioUnitState);
+            writes.add (juce::AudioUnitPluginFormat::getFormatName(), setAudioUnitState);
 #endif
-            table.add<juce::AudioPluginInstance&, const juce::MemoryBlock&> (jam::ClapPluginFormat::getFormatName(), setRawState);
+            writes.add (jam::ClapPluginFormat::getFormatName(), setRawState);
 
-            return table;
+            return writes;
         }()
-    };
+    );
 
     return writes;
 }
@@ -162,7 +162,7 @@ void PluginState::setRows (const juce::ValueTree& rows)
     rows.writeToStream (stream);
     stream.flush();
 
-    getStateWrites().get (instance.getPluginDescription().pluginFormatName, instance, std::as_const (block));
+    getStateWrites().get (instance.getPluginDescription().pluginFormatName, instance, block);
 }
 
 void PluginState::audioProcessorParameterChanged (juce::AudioProcessor*, int, float) {}

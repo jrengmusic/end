@@ -124,34 +124,34 @@ void EditorView::getCommandInfo (juce::CommandID commandID, juce::ApplicationCom
 
 bool EditorView::perform (const InvocationInfo& info)
 {
-    static const jam::Function::Map<juce::CommandID, void> paneCommands {
+    static const jam::Function::Map<juce::CommandID, jam::Function::pointerCapacity, void (EditorView&)> paneCommands (
         []
         {
-            jam::Function::Map<juce::CommandID, void> table;
+            jam::Function::Map<juce::CommandID, jam::Function::pointerCapacity, void (EditorView&)> table;
 
-            table.add<EditorView&> (map::CommandId::closeTerminal,
-                                    [] (EditorView& pane)
-                                    {
-                                        pane.state.removeProperty (Id::plugin, nullptr);
-                                    });
+            table.add (map::CommandId::closeTerminal,
+                       [] (const juce::CommandID&, EditorView& pane)
+                       {
+                           pane.state.removeProperty (Id::plugin, nullptr);
+                       });
 
-            table.add<EditorView&> (map::CommandId::closePane,
-                                    [] (EditorView& pane)
-                                    {
-                                        pane.findParentComponentOfClass<jam::OwnerComponent>()->remove (
-                                            jam::UUID { pane.state.getProperty (Id::id) });
-                                    });
+            table.add (map::CommandId::closePane,
+                       [] (const juce::CommandID&, EditorView& pane)
+                       {
+                           pane.findParentComponentOfClass<jam::OwnerComponent>()->remove (
+                               jam::UUID { pane.state.getProperty (Id::id) });
+                       });
 
-            table.add<EditorView&> (map::CommandId::closeTerminalPane,
-                                    [] (EditorView& pane)
-                                    {
-                                        pane.invokeDirectly (map::CommandId::closeTerminal, false);
-                                        pane.invokeDirectly (map::CommandId::closePane, false);
-                                    });
+            table.add (map::CommandId::closeTerminalPane,
+                       [] (const juce::CommandID&, EditorView& pane)
+                       {
+                           pane.invokeDirectly (map::CommandId::closeTerminal, false);
+                           pane.invokeDirectly (map::CommandId::closePane, false);
+                       });
 
             return table;
         }()
-    };
+    );
 
     paneCommands.get (info.commandID, *this);
 
@@ -162,28 +162,28 @@ void EditorView::setZoom (juce::CommandID command, float step)
 {
     static constexpr float defaultZoom { 1.0f };
 
-    static const jam::Function::Map<juce::CommandID, float> zoomValues {
+    static const jam::Function::Map<juce::CommandID, jam::Function::pointerCapacity, float (float, float)> zoomValues (
         []
         {
-            jam::Function::Map<juce::CommandID, float> table;
-            table.add<float, float> (map::CommandId::zoomIn,
-                                     [] (float zoom, float zoomStep)
-                                     {
-                                         return zoom + zoomStep;
-                                     });
-            table.add<float, float> (map::CommandId::zoomOut,
-                                     [] (float zoom, float zoomStep)
-                                     {
-                                         return zoom - zoomStep;
-                                     });
-            table.add<float, float> (map::CommandId::zoomReset,
-                                     [] (float, float)
-                                     {
-                                         return defaultZoom;
-                                     });
+            jam::Function::Map<juce::CommandID, jam::Function::pointerCapacity, float (float, float)> table;
+            table.add (map::CommandId::zoomIn,
+                       [] (const juce::CommandID&, float zoom, float zoomStep)
+                       {
+                           return zoom + zoomStep;
+                       });
+            table.add (map::CommandId::zoomOut,
+                       [] (const juce::CommandID&, float zoom, float zoomStep)
+                       {
+                           return zoom - zoomStep;
+                       });
+            table.add (map::CommandId::zoomReset,
+                       [] (const juce::CommandID&, float, float)
+                       {
+                           return defaultZoom;
+                       });
             return table;
         }()
-    };
+    );
 
     const auto zoom { static_cast<float> (
         state.getChildWithName (jam::Format::toType (Id::pluginState))
@@ -214,13 +214,13 @@ void EditorView::setRow (const juce::Identifier& row, const juce::var& value)
 
 void EditorView::registerEvents()
 {
-    events.add (Id::shellExited, [this] (juce::ValueTree& tree)
+    events.add (Id::shellExited, [this] (const juce::Identifier&, juce::ValueTree& tree)
     {
         if (static_cast<bool> (tree.getProperty (Id::shellExited)))
             invokeDirectly (map::CommandId::closeTerminalPane, true);
     });
 
-    events.add (Id::plugin, [this] (juce::ValueTree&)
+    events.add (Id::plugin, [this] (const juce::Identifier&, juce::ValueTree&)
     {
         if (editor != nullptr)
         {
@@ -229,7 +229,7 @@ void EditorView::registerEvents()
         }
     });
 
-    events.add (Id::name, [this] (juce::ValueTree& tree)
+    events.add (Id::name, [this] (const juce::Identifier&, juce::ValueTree& tree)
     {
         if (tree.hasProperty (Id::name))
         {
@@ -246,7 +246,7 @@ void EditorView::registerEvents()
         }
     });
 
-    events.add (Id::focus, [this] (juce::ValueTree& tree)
+    events.add (Id::focus, [this] (const juce::Identifier&, juce::ValueTree& tree)
     {
         if (tree == state)
             setRow (Id::focus, static_cast<int> (tree.getProperty (Id::focus)));

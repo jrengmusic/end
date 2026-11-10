@@ -103,7 +103,7 @@ void ConfigModel::loadFromPath()
     appModel.setMessage (message);
 }
 
-juce::Identifier ConfigModel::getEventKey (const jam::Function::Map<juce::Identifier, void (juce::ValueTree&)>& events,
+juce::Identifier ConfigModel::getEventKey (const Events& events,
                                            const juce::ValueTree& tree,
                                            const juce::Identifier& property)
 {

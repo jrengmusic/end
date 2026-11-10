@@ -249,10 +249,14 @@ private:
     jam::HashMap<jam::UUID, std::unique_ptr<SessionView>> sessions;
     /** @brief Model attachments of the session views, keyed by session identity. */
     jam::HashMap<jam::UUID, std::unique_ptr<jam::Model::Attachment>> attachments;
-    /** @brief Event callbacks keyed by the property or the tree type that changed. */
-    jam::Function::Map<juce::Identifier, void (juce::ValueTree&)> events;
+    /** @brief Event callbacks keyed by the property, the tree type, or the parent tree type of the changed tree. `valueTreePropertyChanged()` looks the key up with `ConfigModel::getEventKey()`. */
+    ConfigModel::Events events;
+    /** @brief Member function of TabView that resizes a child by a step along an axis. The pane resize commands store `reducePane` and `expandPane`. */
+    using PaneResize = void (TabView::*) (jam::UUID, const juce::Identifier&, float);
+    /** @brief Inline capacity of a command callback. The capacity is the size of a tuple of the captures of the pane resize commands: `this`, an axis identifier and a PaneResize. The tuple size counts the closure padding. */
+    static constexpr size_t commandCapacity { sizeof (std::tuple<ENDView*, juce::Identifier, PaneResize>) };
     /** @brief Command callbacks keyed by command id. The register functions add them, and perform() runs them. */
-    jam::Function::Map<juce::CommandID, void> commands;
+    jam::Function::Map<juce::CommandID, commandCapacity, void ()> commands;
 
     /** @brief Message overlay, shown above the sessions. */
     jam::MessageOverlay messageOverlay;

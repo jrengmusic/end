@@ -507,7 +507,7 @@ void ENDLookAndFeel::loadGraphics()
 void ENDLookAndFeel::registerEvents()
 {
     events.add (jam::Format::toType (Id::theme),
-                [this] (juce::ValueTree&)
+                [this] (const juce::Identifier&, juce::ValueTree&)
                 {
                     jam::StyleManager::getInstance()->registerStyle (config.getChildWithName (jam::Format::toType (Id::themes)));
                     applyColours();
@@ -516,7 +516,7 @@ void ENDLookAndFeel::registerEvents()
                 });
 
     events.add (jam::Format::toType (Id::appearance),
-                [this] (juce::ValueTree&)
+                [this] (const juce::Identifier&, juce::ValueTree&)
                 {
                     applyColours();
                 });

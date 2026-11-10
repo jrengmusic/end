@@ -58,6 +58,9 @@ class ConfigModel
     , public jam::File::Watcher::Listener
 {
 public:
+    /** @brief Handler map of the config events. Each handler receives its key and the changed tree. */
+    using Events = jam::Function::Map<juce::Identifier, jam::Function::pointerCapacity, void (juce::ValueTree&)>;
+
     //==========================================================================
     /**
         @brief Construct the model — adopts the CONFIG tree that getDefaultConfig() builds in the init-list,
@@ -101,12 +104,12 @@ public:
         The property is the key when @p events registers it. Otherwise the key is the type of @p tree.
         When that key has no handler, the key is the type of the parent of @p tree.
 
-        @param events    Handlers keyed by property name or tree type.
+        @param events    Handlers keyed by property name, tree type, or parent tree type.
         @param tree      Tree whose property changed.
         @param property  Property that changed.
         @return The key to look up in @p events.
     */
-    static juce::Identifier getEventKey (const jam::Function::Map<juce::Identifier, void (juce::ValueTree&)>& events,
+    static juce::Identifier getEventKey (const Events& events,
                                          const juce::ValueTree& tree,
                                          const juce::Identifier& property);
 

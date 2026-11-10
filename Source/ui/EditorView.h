@@ -219,7 +219,7 @@ private:
     std::unique_ptr<juce::AudioProcessorEditor> editor;
 
     /** @brief Handlers of the pane row, keyed by the changed property. registerEvents() fills them, and valueTreePropertyChanged() runs them. */
-    jam::Function::Map<juce::Identifier, void (juce::ValueTree&)> events;
+    jam::Function::Map<juce::Identifier, jam::Function::pointerCapacity, void (juce::ValueTree&)> events;
 
     /** @brief Drop target that covers the pane. It stays above the hosted editor. */
     DropTarget dropTarget;

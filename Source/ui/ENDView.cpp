@@ -163,13 +163,13 @@ void ENDView::addPane (const juce::Identifier& edge, const juce::String& directo
 void ENDView::registerApplicationActions()
 {
     commands.add (map::CommandId::quit,
-                  [this]
+                  [] (const juce::CommandID&)
                   {
                       juce::JUCEApplication::getInstance()->systemRequestedQuit();
                   });
 
     commands.add (map::CommandId::reload,
-                  [this]
+                  [this] (const juce::CommandID&)
                   {
                       config.loadFromPath();
                   });
@@ -178,7 +178,7 @@ void ENDView::registerApplicationActions()
 void ENDView::registerTabActions()
 {
     commands.add (map::CommandId::newTab,
-                  [this]
+                  [this] (const juce::CommandID&)
                   {
                       if (auto* sessionView { getActiveSessionView() })
                       {
@@ -192,14 +192,14 @@ void ENDView::registerTabActions()
                   });
 
     commands.add (map::CommandId::nextTab,
-                  [this]
+                  [this] (const juce::CommandID&)
                   {
                       if (auto* sessionView { getActiveSessionView() })
                           sessionView->nextTab();
                   });
 
     commands.add (map::CommandId::prevTab,
-                  [this]
+                  [this] (const juce::CommandID&)
                   {
                       if (auto* sessionView { getActiveSessionView() })
                           sessionView->prevTab();
@@ -234,7 +234,7 @@ void ENDView::registerZoomActions()
     for (const juce::CommandID command : { map::CommandId::zoomIn, map::CommandId::zoomOut, map::CommandId::zoomReset })
     {
         commands.add (command,
-                      [this, command]
+                      [this] (const juce::CommandID& command)
                       {
                           const float step { config.getRowValue (jam::Format::toType (Id::display), Id::zoomStep) };
 
@@ -259,7 +259,7 @@ void ENDView::registerJoinActions()
     for (const auto& [direction, actionId] : TabView::getJoinCommands())
     {
         commands.add (actionId,
-                      [this, direction = direction]
+                      [this, direction = direction] (const juce::CommandID&)
                       {
                           if (auto* tabView { getActiveTabView() })
                               tabView->join (direction);
@@ -279,7 +279,7 @@ void ENDView::registerSwapActions()
     for (const auto& [actionId, direction] : swapDirections)
     {
         commands.add (actionId,
-                      [this, direction = direction]
+                      [this, direction = direction] (const juce::CommandID&)
                       {
                           if (auto* tabView { getActiveTabView() })
                               tabView->swap (direction);
@@ -289,8 +289,6 @@ void ENDView::registerSwapActions()
 
 void ENDView::registerResizeActions()
 {
-    using PaneResize = void (TabView::*) (jam::UUID, const juce::Identifier&, float);
-
     static const std::array<std::tuple<juce::CommandID, juce::Identifier, PaneResize>, 4> paneResizes {{
         { map::CommandId::reducePaneWidth, Id::width, &TabView::reducePane },
         { map::CommandId::reducePaneHeight, Id::height, &TabView::reducePane },
@@ -301,7 +299,7 @@ void ENDView::registerResizeActions()
     for (const auto& [actionId, axis, resize] : paneResizes)
     {
         commands.add (actionId,
-                      [this, axis = axis, resize = resize]
+                      [this, axis = axis, resize = resize] (const juce::CommandID&)
                       {
                           if (auto* tabView { getActiveTabView() })
                           {
@@ -322,7 +320,7 @@ void ENDView::registerModeActions()
     for (const auto& [actionId, mode] : paneModes)
     {
         commands.add (actionId,
-                      [this, mode = mode]
+                      [this, mode = mode] (const juce::CommandID&)
                       {
                           if (auto* tabView { getActiveTabView() })
                               tabView->getFocusedPane().setMode (mode);
@@ -340,7 +338,7 @@ void ENDView::registerSplitActions()
     for (const auto& [actionId, edge] : splitEdges)
     {
         commands.add (actionId,
-                      [this, edge = edge]
+                      [this, edge = edge] (const juce::CommandID&)
                       {
                           addPane (edge, getFocusedDirectory());
                       });
@@ -350,7 +348,7 @@ void ENDView::registerSplitActions()
 void ENDView::registerLoadPluginActions()
 {
     commands.add (map::CommandId::loadPlugin,
-                  [this]
+                  [this] (const juce::CommandID&)
                   {
                       if (auto* tabView { getActiveTabView() })
                           tabView->loadPlugin();
@@ -362,7 +360,7 @@ void ENDView::registerCloseActions()
     for (const juce::CommandID command : { map::CommandId::closeTerminal, map::CommandId::closePane, map::CommandId::closeTerminalPane })
     {
         commands.add (command,
-                      [this, command]
+                      [this] (const juce::CommandID& command)
                       {
                           if (auto* tabView { getActiveTabView() })
                               tabView->getFocusedPane().close (command);
@@ -398,13 +396,13 @@ void ENDView::registerActions()
 void ENDView::registerGraphicsEvents()
 {
     for (const auto& id : { jam::Format::toType (Id::backgroundOpacity), jam::Format::toType (Id::frameRate), jam::Format::toType (Id::backgroundResolution) })
-        events.add (id, [this] (juce::ValueTree&) { setBackgroundParams(); });
+        events.add (id, [this] (const juce::Identifier&, juce::ValueTree&) { setBackgroundParams(); });
 }
 
 void ENDView::registerMouseEvents()
 {
     for (const auto& id : { jam::Format::toType (Id::enabled), jam::Format::toType (Id::imouse), jam::Format::toType (Id::orbit), jam::Format::toType (Id::reset) })
-        events.add (id, [this] (juce::ValueTree&) { setMouseConfig(); });
+        events.add (id, [this] (const juce::Identifier&, juce::ValueTree&) { setMouseConfig(); });
 }
 
 void ENDView::registerEvents()
@@ -412,7 +410,7 @@ void ENDView::registerEvents()
     registerGraphicsEvents();
     registerMouseEvents();
 
-    events.add (jam::Format::toType (Id::keys), [this] (juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
+    events.add (jam::Format::toType (Id::keys), [this] (const juce::Identifier&, juce::ValueTree& tree) { commandManager->setKeyPresses (tree.getParent()); });
 }
 
 void ENDView::setBackground (std::unique_ptr<jam::VulkanShader> shader)

@@ -1390,7 +1390,7 @@
 
 @font-face {
     font-family: mono;
-    src: url(fonts/DisplayMonoMedium.ttf);
+    src: url(fonts/DisplayMonoBook.ttf);
     --height: 12;
     --kerning: 0;
 }
