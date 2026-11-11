@@ -34,3 +34,4 @@ docs/
 
 # Unpacked hosted plugin bundles (binaries over the GitHub file size limit)
 Source/plugins/EVE v0.0.1 macOS/
+Source/plugins/*.zip
