@@ -5,20 +5,19 @@
 
 static decltype (juce::ComponentPeer::externalKeyPressedCallback) keyPressedCallback { [] (const juce::KeyPress& key) -> bool
 {
-    if (auto* window { juce::TopLevelWindow::getActiveTopLevelWindow() })
-    {
-        if (auto* peer { window->getPeer() })
-            return peer->handleKeyPress (key);
-    }
+    auto state { ENDModel::getInstance()->getChildWithName (jam::Format::toType (Id::window)) };
 
-    return false;
+    return jam::SharedInstance<jam::CommandManager>::getInstance()->invokeKey (key, state, true);
 } };
 
 static decltype (juce::ComponentPeer::externalMouseEventCallback) mouseEventCallback { [] (juce::MouseInputSource::InputSourceType type, juce::Point<float> position, juce::ModifierKeys modifiers, float pressure, float orientation, juce::int64 time, juce::PenDetails pen, int touchIndex)
 {
-    if (auto* window { juce::TopLevelWindow::getActiveTopLevelWindow() })
+    auto& desktop { juce::Desktop::getInstance() };
+    auto* componentAtPosition { desktop.findComponentAt (position.roundToInt()) };
+
+    if (auto* component { componentAtPosition != nullptr ? componentAtPosition : desktop.getMainMouseSource().getComponentUnderMouse() })
     {
-        if (auto* peer { window->getPeer() })
+        if (auto* peer { component->getPeer() })
             peer->handleMouseEvent (type, peer->globalToLocal (position), modifiers, pressure, orientation, time, pen, touchIndex);
     }
 } };

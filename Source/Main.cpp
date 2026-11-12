@@ -209,6 +209,11 @@ void ENDApplication::initialise (const juce::String& commandLine)
 
     window->setVisible (true);
 
+#if JUCE_WINDOWS
+    if (auto* peer { window->getPeer() })
+        jam::StyleWindow::setForeground (*peer);
+#endif
+
     registerEvents();
     config.addListener (this);
     setBackground();

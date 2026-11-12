@@ -10,7 +10,7 @@
 
 ## Identity
 
-END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:66-76`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
+END is a **JUCE GUI application** and an audio plugin host, end to end (VST2, VST3, AU and CLAP, `Nexus.cpp:65-75`), GPU-rendered through `jam::VulkanGraphicsEngine`. Its default plugin is EVE, under the ENAX contract (see "ENAX" below). See SPEC.md Section 0 for priority order and rationale.
 
 ---
 
@@ -71,7 +71,7 @@ window (jam::Window holding ENDView; created in initialise(), Main.cpp:237-240)
       Session via Nexus::getSession() and calls createEditorAndMakeActive(),
       parenting the returned juce::AudioProcessorEditor as its sole child
       (EditorView::valueTreePropertyChanged, createProcessorEditor,
-      EditorView.cpp:172-214). The pane exists before its plugin loads; the
+      EditorView.cpp:231-263). The pane exists before its plugin loads; the
       editor follows.
 ```
 
@@ -167,7 +167,7 @@ dead). Describes the landed code:
   directly in SessionView's children — owner-as-owned), `PANE` ↔
   `EditorView : jam::PaneComponent` (build-or-adopts its PANE row; when the
   row receives `Id::name`, it resolves the owning Session and parents that
-  plugin's own `juce::AudioProcessorEditor`, `EditorView.cpp:172-214`).
+  plugin's own `juce::AudioProcessorEditor`, `EditorView.cpp:231-263`).
 - **`jam::Model::Component<Derived>` (jam_Model.h) — CRTP build-or-adopt.**
   The 4-param ctor `(model, parentState, type, uuid)` searches
   `parentState`'s direct children for `type` + matching `jam::ID::id`:
@@ -198,7 +198,7 @@ dead). Describes the landed code:
 - **Nexus = host.** Owns `ENDModel`, every `Session`
   (`createSession`/`getSession`/`removeSession`/`getActiveSession`), the
   `juce::AudioPluginFormatManager` with JUCE's default formats and
-  `jam::ClapPluginFormat` (`Nexus.cpp:77-87`), the one
+  `jam::ClapPluginFormat` (`Nexus.cpp:68-74`), the one
   `juce::AudioProcessorGraph`, and the ENAX extensions. SESSION row
   placement under SESSIONS happens in `createSession` — engine-side
   authorship, the host verb.
@@ -740,13 +740,13 @@ literal hosting relationship:
 | ParameterAttachment | `jam::Model::ParameterAttachment` |
 | Plugin's audio clock | The plugin's own clock |
 | PluginEditor | The hosted plugin's own `juce::AudioProcessorEditor`, created via `createEditorAndMakeActive()` when the pane row receives `Id::name`, after layout, and parented by `EditorView` (`EditorView::createProcessorEditor`) |
-| Host automation | ENAX lane only: END tells EVE through `pluginState` rows, written as plugin state. Only a plugin of the company has a `PluginState` (`Session.cpp:135-143`). `EditorView::setRow` gives one row to `Session::setRow`, which passes a one-property `pluginState` tree to `PluginState::setRows` (`EditorView.cpp:207-210`, `Session.cpp:37-49`, `PluginState.cpp:158-166`). The pane writes `width` / `height` on resize (`EditorView::resized`), `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), and `mode` (`EditorView::setMode`, told by the `normal` action). `Session` alone writes `focus`: from the pane row's `Id::focus` (`Session.cpp:82-86`) and when the plugin is added (`Session.cpp:142`) |
+| Host automation | ENAX lane only: END tells EVE through `pluginState` rows, written as plugin state. Only a plugin of the company has a `PluginState` (`Session.cpp:135-143`). `EditorView::setRow` gives one row to `Session::setRow`, which passes a one-property `pluginState` tree to `PluginState::setRows` (`EditorView.cpp:209-212`, `Session.cpp:37-49`, `PluginState.cpp:158-166`). The pane writes `width` / `height` on resize (`EditorView::resized`) from the same rectangle that places the hosted editor: the local bounds of the pane reduced by the inset. Under VST2 on Windows, the host child window takes the physical size that the plugin reports with `effEditGetRect`, so the host window and the plugin window have one size at any scale (`jam/patch/juce-plugin-window-size-hook.patch`). `zoom` (`EditorView::setZoom`, told by `ENDView::registerZoomActions` through `SessionView::setZoom` and `TabView::setZoom`), and `mode` (`EditorView::setMode`, told by the `normal` action). `Session` alone writes `focus`: from the pane row's `Id::focus` (`Session.cpp:82-86`) and when the plugin is added (`Session.cpp:142`) |
 
 ### Hosting Contract
 
 - END hosts any VST2, VST3 or AU plugin. CLAP follows later.
 - One load path: the `loadPlugin (plugin)` action writes the plugin file into `Id::plugin` of the focused pane row. The default argument is the bundle that `Nexus::getOrCreatePlugin` returns, the first entry of the plugin archive. A dropped plugin file is the override. `Session` reacts to that Model event.
-- One split path: `newPane (edge)` splits the focused pane in half, or adds a pane. The split keys, `newTab` and a file drop each run `newPane`, then `loadPlugin` (`ENDView.cpp:172-186`, `:358-371`, `EditorView.cpp:74-85`). The corner drag calls `TabView::split (edge, proportion)`, then runs `loadPlugin` (`TabView.cpp:133-150`).
+- One split path: `newPane (edge)` splits the focused pane in half, or adds a pane. The split keys, `newTab` and a file drop each run `newPane`, then `loadPlugin` (`ENDView.cpp:172-186`, `:358-371`, `EditorView.cpp:87-95`). The corner drag calls `TabView::split (edge, proportion)`, then runs `loadPlugin` (`TabView.cpp:133-150`).
 - EVE is known: `Nexus::registerEVE` lists EVE's description at construction, so the first EVE load runs no scan.
 - `EditorView::DropTarget` sits in front of every child of a pane. A file drag that enters it focuses the pane. A plugin file dropped on it runs `newPane (pane.getEdge (point))`, then `loadPlugin (path)`.
 - A resizable editor takes the inner pane area. Any other editor sits at the inset position. Fitting a fixed-size editor into its pane is open debt (`DEBT.md`).
@@ -767,30 +767,29 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`jam_PluginHostType.cpp:6-39`).
 - **Channel.** END exports one C function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-32`). It returns `Nexus::getExtension (id)`: the
-  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:160-169`).
-  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:80-86`).
-- **Ids** (`jam/cast/core.md:74-83`), their values (`Nexus.cpp:7-35`) and their
-  registration (`Nexus::registerExtensions`, `Nexus.cpp:61-75`), each
+  `Nexus::extensions` entry, or nullptr for an absent id (`Nexus.cpp:151-160`).
+  `Nexus::extensions` is also passed to `jam::ClapPluginFormat` (`Nexus.cpp:68-74`).
+- **Ids** (`jam/cast/core.md:71-76`), their values (`Nexus.cpp:6-28`) and their
+  registration (`Nexus::registerExtensions`, `Nexus.cpp:53-63`), each
   the address of a host variable of the matching type:
   - `Id::enaxContextFactory` → `&juce::ComponentPeer::externalContextFactory`
   - `Id::enaxPeerDeleted` → `&juce::ComponentPeer::externalPeerDeletedCallback`
-  - `Id::enaxKeyPressed` → `&keyPressedCallback`, which forwards the key to the
-    active top-level window's peer (`Nexus.cpp:7-16`).
+  - `Id::enaxKeyPressed` → `&keyPressedCallback`, which tells END's one key entry:
+    `jam::CommandManager::invokeKey` with the window row of `ENDModel`, the same
+    state that `ENDView::keyPressed` passes (`Nexus.cpp:6-11`, `ENDView.cpp:55-58`).
+    It does not use the keyboard focus state of END. The matched command is posted
+    (`invokeKey (key, state, true)`), so a command that deletes the plugin editor runs
+    after the plugin's `ComponentPeer::handleKeyPress` returns
+    (`jam/patch/juce-key-pressed-hook.patch`).
   - `Id::enaxMouseEvent` → `&mouseEventCallback`, which forwards the mouse event to
-    the active top-level window's peer (`Nexus.cpp:18-25`).
-  - `Id::enaxDisplayBounds` → `&displayBoundsGetter`, the total bounds of the
-    displays (`Nexus.cpp:27`).
-  - `Id::enaxPaneUuid` → `&paneUuidGetter`, the id of the pane whose plugin is
-    loading (`Nexus.cpp:28`, `Nexus::getLoadingPane`, `:149-153`). The pane UUID is
-    the plugin UUID.
-  - `Id::enaxStartDirectory` → `&startDirectoryGetter`. END copies the `cwd` of the
-    pane row into the caller's buffer (`Nexus.cpp:30`, `ENDView.cpp:404-408`).
-  - `Id::enaxTerminalReport` → `&terminalReportCallback`. END writes the report
-    (`title`, `foregroundProcess` or `cwd`) to the pane row
-    (`Nexus.cpp:29`, `ENDView::registerTerminalActions`). The name `Id::enax` marks the
-    pane row as an ENAX plugin. `EditorView::isENAX` reads that mark.
+    the peer of the END component at the screen position of the event
+    (`juce::Desktop::findComponentAt`, `Nexus.cpp:13-23`). When no END component is
+    at that position (outside every END window, or, on Windows, where another window
+    covers it: `juce_Windowing_windows.cpp:1517-1520`), the event goes to the peer of
+    the component under END's main mouse source, so a button release outside END
+    ends END's drag (`juce_MouseInputSourceImpl.h:326-357`).
   - Profiler builds only: `Id::enaxPromptPainted` → `&promptPaintedCallback` and
-    `Id::enaxManifestFile` → `&manifestFileGetter` (`Nexus.cpp:32-35`, `:71-74`).
+    `Id::enaxManifestFile` → `&manifestFileGetter` (`Nexus.cpp:25-28`, `:59-62`).
 - **Rules.** `jam::ENAXClientExtensions` is a mixin of the plugin's processor
   (`EVEProcessor.h:9`). Its constructor calls `PluginHostType().isEND()` once and,
   only under END, registers the END callback of each rule in
@@ -798,9 +797,9 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`jam_ENAXClientExtensions.cpp:5-107`, `.h:58`). `set (rule, callback, args…)` runs the
   END callback, or else the caller's `callback` (`jam_ENAXClientExtensions.h:36-43`).
   `getExtension` finds `enax_get_extension` in the host executable
-  (`jam_ENAXClientExtensions.cpp:110-124`). Each hook reads END's variable through
+  (`jam_ENAXClientExtensions.cpp:67-81`). Each hook reads END's variable through
   its address at each call, so the plugin keeps no copy of END's value
-  (`jam_ENAXClientExtensions.cpp:15-37`).
+  (`jam_ENAXClientExtensions.cpp:9-31`).
   - `Id::engine`: under END, the plugin reads END's context factory, peer-deleted,
     key and mouse callbacks; its peer hooks forward to END. Elsewhere, it creates its
     own `VulkanGraphicsEngine`. The processor gives this rule to
@@ -808,19 +807,11 @@ hardcoded to END. The contract is formalised and enforced at run time.
     `jam_plugin_bootstrap` names no host type. The CPU engine is created in every host
     (`jam_PluginEditorLayout.h:141-147`). The key hook gives END every key before
     the plugin's components (`jam/patch/juce-key-pressed-hook.patch:21-23`).
-  - `Id::keys`: under END, the text editor's `normal` and `prefix` rows leave the
-    default key sheet, so the hosted text editor holds no layer binding; elsewhere
-    nothing (`jam_ENAXClientExtensions.cpp:39-45`). The plugin's concrete editor applies
+  - `Id::keys`: under END, the text editor's `normal`, `prefix` and `open` rows leave
+    the default key sheet, so the hosted text editor holds no layer binding; elsewhere
+    nothing (`jam_ENAXClientExtensions.cpp:33-39`). The plugin's concrete editor applies
     the rule to the text editor's defaults (`EVEView::getViewDefaultKeys`).
-  - `Id::size`: under END, the plugin's `width` and `height` parameter ranges run from
-    `jam::PaneComponent::minimumPaneExtent` to END's display bounds
-    (`jam_ENAXClientExtensions.cpp:47-57`).
-  - The constructor reads END's pane UUID once (`Id::enaxPaneUuid`, `.cpp:9-13`).
-  - `Id::terminalReport`: under END, the plugin tells END the pane UUID, the report
-    name and the report text (`.cpp:59-66`).
-  - `Id::startDirectory`: under END, the plugin takes the `cwd` of its pane row as the
-    start directory of the shell, when that path is a directory (`.cpp:68-82`).
-  - Profiler builds only: `Id::promptPainted` and `Id::manifestFile` (`.cpp:84-106`).
+  - Profiler builds only: `Id::promptPainted` and `Id::manifestFile` (`.cpp:41-62`).
 - **Transparency.** The VST2 and VST3 plugin editor wrappers are opaque, as JUCE
   ships them, except under END
   (`jam/patch/juce-plugin-transparency-hook.patch`:
@@ -848,12 +839,12 @@ hardcoded to END. The contract is formalised and enforced at run time.
   (`files::audioUnitExtension`), the `Nexus` constructor registers that one bundle in
   the process after `Nexus::getOrCreatePlugin` unpacks it: `CFBundleCreate`, the plist
   `AudioComponents` entries, `CFBundleGetFunctionPointerForName` with `factoryFunction`,
-  then `AudioComponentRegister` (`Nexus::registerEVE`, `Nexus.cpp:78-95`;
-  `Nexus::registerAudioUnit`, `:259-267`). No other bundle
+  then `AudioComponentRegister` (`Nexus::registerEVE`, `Nexus.cpp:77-94`;
+  `Nexus::registerAudioUnit`, `:258-266`). No other bundle
   loads. Nexus owns each bundle for the process (`Nexus.h:111`).
 
 The View is detachable. `EditorView` creates the hosted editor once, when its
-row receives `Id::name` (`EditorView.cpp:172-198`); `Session` (and its plugin instances)
+row receives `Id::name` (`EditorView.cpp:231-263`); `Session` (and its plugin instances)
 survives `EditorView` destruction — its subtree in `ENDModel` is complete with
 zero Views. (See "Session Layer" above.)
 

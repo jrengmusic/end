@@ -43,13 +43,11 @@ public:
     ~EditorView() override;
 
     /**
-     * @brief Lays out the pane, then places the hosted editor inside it when the session holds the plugin of the pane.
+     * @brief Lays out the pane, then places the hosted editor inside it.
      *
-     * The inset is the pane padding plus two outline line thicknesses. A resizable editor takes the pane bounds reduced by the inset.
-     * Any other editor sits at the inset position from the top left corner.
-     * The function writes the width and the height rows of the pluginState from the pane bounds, reduced by the inset.
-     * Both rows are written in one pluginState tree, passed by one call to Session::setRows. The rows are written only when
-     * Session::contains() reports the pane.
+     * The inset is the pane padding of the look and feel plus two outline line thicknesses, rounded to whole pixels.
+     * When Session::contains() reports the pane, the editor bounds are the local bounds reduced by the inset, and the editor takes them when it exists.
+     * One call to Session::setRows() then writes the width and the height of the editor bounds to the pluginState.
      */
     void resized() override;
 
@@ -154,14 +152,13 @@ private:
         void filesDropped (const juce::StringArray& files, int x, int y) override;
     };
 
-    juce::Rectangle<int> getEditorBounds (int inset) const;
-
     /**
-     * @brief Places the hosted editor inside the pane outline.
+     * @brief Places the hosted editor at the editor bounds of the pane.
      *
-     * A resizable editor takes the pane bounds reduced by @p inset on each side. Any other editor moves to (inset, inset).
+     * A resizable editor takes @p bounds as its bounds. Any other editor moves its top left corner to the position of @p bounds.
+     * The call asserts that the editor exists.
      *
-     * @param inset  Distance in pixels between the pane bounds and the editor.
+     * @param bounds  Editor bounds in the coordinates of the pane, as the local bounds reduced by the inset give them.
      */
     void setEditorBounds (juce::Rectangle<int> bounds);
 
@@ -222,8 +219,6 @@ private:
 
     /** @brief Drop target that covers the pane. It stays above the hosted editor. */
     DropTarget dropTarget;
-
-    juce::NativeScaleFactorNotifier scaleNotifier { this, [this] (float) { resized(); } };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorView)

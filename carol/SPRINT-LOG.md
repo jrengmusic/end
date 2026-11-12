@@ -2,6 +2,74 @@
 
 ---
 
+## Sprint 101: END to the Front at Launch, Keys and Mouse Without the Active Window, Audit of Two Sprints, VST2 Host Window at the Plugin's Size ✅
+
+**Date:** 2026-11-13
+**Duration:** not recorded. The session ran over one compaction.
+**Scope (ARCHITECT):** *"let's fix window focus and prefix keyboard not working"* (Windows, END hosts EVE as VST2). Then *"/audit 2"*: *"2 sprint: this one and last logged (havent been audited)"*. Then *"no risks allowed"* and *"clean up until /log no gate"*. Then the black lines at custom scales: *"HOST know its size always at any arbitrary scale"*; *"so can we solve this by patch? to enforce enax VST2 to scale with the exact SSOT method?"*; *"patch contract: must be as MINIMAL as possible"*. Contract rulings: *"END is the host, the owner, the orchestrator, END must be at DESKTOP IN FRONT FIRST"*; *"FULLY EVENT DRIVEN, nothing need to be handrolled"*; *"PATCHING juce IS FUCKING TRIVIAL. but it's not the best solution, it's always last resort."*
+
+### Agents Participated
+- COUNSELOR — cause reads, every validation read, the triage of three audits, `ARCHITECTURE.md` edits, trivial fixes, this log.
+- Pathfinder (haiku) — discovery reads (launch chain, focus, key and mouse callbacks, close-pane chain, VST2, VST3 and AU size chains), two doxygen passes.
+- Engineer (sonnet) — the Nexus callbacks, the jam foreground call, the risk fixes, the shell scripts, the VST2 size patch and the grid deletion.
+- Auditor (opus) ×3 — this sprint (END, jam) and the URI and pane-size sprint of the handoff below.
+
+### Files Modified (27 total)
+**jam:**
+- `jam_gui/windows/jam_StyleWindow.h:54-64`, `.cpp:39-42` — `setForeground (juce::ComponentPeer&) noexcept`: `SetForegroundWindow` on the peer's window. JUCE shows a window with `SW_SHOWNA` (`juce_Windowing_windows.cpp:1270`), which does not activate it.
+- `jam_gui/windows/jam_Window.h`, `.cpp` — a `parentHierarchyChanged` foreground call was added, then deleted. It also fired on peer re-creation and on `setAlwaysOnTop` (`juce_Component.cpp:738`, `:1041`), and for every `jam::Window` (`DebugConsole`, `DebugModelMonitor`, `ModalWindow`). Net: no change.
+- `jam_gui/commands/jam_CommandManager.h:44-65`, `.cpp:43`, `:61` — `invokeKey (key, componentState, asynchronously)`; the matched command runs through `invokeDirectly (id, asynchronously)`.
+- `jam_gui/widgets/jam_TextEditor.cpp:615`, `:636`, `:658` — pass `false`. `jam_TextEditor.h:463-466`, `:1017-1024` — doxygen corrected to the code.
+- `patch/juce-plugin-window-size-hook.patch` (new) — in `VSTPluginWindow::componentMovedOrResized` (Windows), the embedded host window takes the physical size of the plugin's `effEditGetRect` with `SetWindowPos`. `user-modules-info.md:1369` — its patch row.
+
+**end:**
+- `Source/Main.cpp:212-215` — after `window->setVisible (true)`, Windows: `jam::StyleWindow::setForeground (*peer)`. END, the owner of its window, tells it once.
+- `Source/plugins/Nexus.cpp:6-11` — the ENAX key callback passes the `window` row of `ENDModel` to `invokeKey (key, state, true)`. It no longer reads JUCE's active top-level window.
+- `Source/plugins/Nexus.cpp:13-23` — the ENAX mouse callback sends the event to the peer of `Desktop::findComponentAt`, else to the peer of the component under END's main mouse source.
+- `Source/ui/ENDView.cpp:57` — `invokeKey (key, state, false)`.
+- `Source/ui/EditorView.h`, `.cpp` — the pixel grid is deleted (`getEditorBounds`, `scaleNotifier`). The editor bounds are the local bounds reduced by the inset (`EditorView.cpp:59`). `setEditorBounds` asserts the editor (`:99`). Doxygen corrected.
+- `Source/ui/SessionView.cpp:133-134` — the tab name reads `cwd` through `juce::URL::getLocalFile()`, after `isLocalFile()`. `removeEscapeChars` turned `+` into a space.
+- `ARCHITECTURE.md` — the ENAX section: the key and mouse bullets; four extensions and four client rules that the code does not have were deleted; every `Nexus.cpp`, `jam_ENAXClientExtensions.cpp` and `EditorView.cpp` citation corrected; the Host automation row (`:743`) records the VST2 size patch.
+
+**eve:**
+- `Source/EVEView.h`, `.cpp` — `getUrl()` is the one reader of the `url` row. `openFile()` tests `isLocalFile()` once. `openFile (const juce::File&, terminal)` builds no second `juce::File`. The `markdown` command tests `isLocalFile()` before `getLocalFile()` (`juce_URL.cpp:415-421` asserts otherwise). `keyPressed` passes `false` to `invokeKey`. Doxygen corrected.
+- `Source/EVETerminalProcessor.cpp:416-430` — the profile branch writes the `cwd` URI of the manifest folder. `EVETerminalProcessor.h:295`, `:298-299` — doxygen.
+- `Source/shell/eve:17-30` — `_eve_cwd` lives here, next to `_eve_path`. A UNC folder gives `file://server/share`. `zsh_integration.zsh:4-6` sources `eve` and has no copy of `_eve_encode` or `_eve_cwd`. `bash_integration.bash:31-37` has no copy of `_eve_cwd`. `powershell_integration.ps1:15-17` uses `$PWD.ProviderPath` and gives the UNC form.
+- `SPEC.md:227` — the OSC 7 row: the raw `file://` URI, without decoding.
+
+### Alignment Check
+- [x] BLESSED principles followed — E: END tells its window once (orchestrator tells); the key and mouse callbacks read no JUCE focus state. S: one reader of `url` and `cwd`, one copy of the shell helpers, one size for the VST2 host window and the plugin window.
+- [x] NAMES.md adhered — `setForeground` joins `setButtons` / `setMenu`; `asynchronously` is JUCE's parameter name; `getUrl` joins the `get` family.
+- [x] MANIFESTO.md principles applied
+- [ ] Nothing of the risk fixes, the doxygen passes or the VST2 size patch is built. ARCHITECT built and ran only the foreground call (then in `jam::Window`) and the Nexus key callback: *"window and keyboard fixed."*
+
+### Problems Solved
+- **END never at front.** JUCE shows with `SW_SHOWNA` and has no `SetForegroundWindow` (`juce_Windowing_windows.cpp:1270`; `Process::makeForegroundProcess` is empty, `:5603-5604`). `toFront (true)` gives only `BringWindowToTop`; ARCHITECT's run: *"NOT IN THE FUCKING FRONT"*. END now calls `SetForegroundWindow` once, after the show.
+- **Prefix keys and Ctrl+T dead.** The ENAX callbacks used JUCE's active top-level window, which is empty while EVE's child window holds focus (`juce_TopLevelWindowManager.h:62-77`, `:128-143`). They now read the Model and the desktop.
+- **Ctrl+W inside the plugin's key call.** The close chain was synchronous to `editor.reset()` while the plugin's `ComponentPeer::handleKeyPress` was on the stack. A key from the plugin now posts its command.
+- **Mouse release outside END.** `MouseInputSourceImpl::handleEvent` needs an END peer for the button-up (`juce_MouseInputSourceImpl.h:326-357`); the fallback gives it one.
+- **Black lines at the pane edges, at any scale.** Under VST2 the plugin owns its size (`effEditGetRect`, `audioMasterSizeWindow`); the host follows. EVE's window is `round (w × s)` and its report is the same (`juce_PluginScaleFactorUtilities.h:128`, zero origin; `juce_Windowing_windows.cpp:1348`). The host converted the report to logical with a ceiling and back with `getSmallestIntegerContainer` at its position (`juce_VSTPluginFormat.cpp:130`; `juce_HWNDComponent_windows.cpp:60`), so the black `ViewComponent` (`juce_VSTPluginFormat.cpp:674-687`) showed one or two pixels. The grid hid this only at standard scales: at 110 % (106 DPI) its step was 48 logical pixels. The patch gives the host window the reported physical size; the grid is deleted. VST3 (host owns the size, `IPlugView::onSize`) and AU were read; no format change.
+- **Audit, this sprint, jam (6 findings and 1 outside the set).** Resolved: 5 (`noexcept`). Rejected: 1 (CODING "Narrow pointer scope"; ARCHITECT: *"previously already adhere to coding standard instead you churn delete rewrite garbage"*), 2 (`toFront (true)` disproved by run), 3, 4, 6, the `jam_Platform.h` include (the Windows header wrapper, `jam_Platform.h:14-24`).
+- **Audit, this sprint, END (6).** Resolved: F3, F4, F6 (`ARCHITECTURE.md`). Rejected: F1 (narrow pointer scope), F2 (two copies). F5 (no finding). Risks resolved: foreground on every hierarchy change and for every `jam::Window`, B1 (mouse release), B2 (Ctrl+W). Rejected: B3 (no side sets a global scale).
+- **Audit, last sprint (16).** Resolved: F1 (grid replaced by the patch), F3, F6, F7, F8, F9, F12, F13, F15. Rejected: F2 (no move without a resize), F4, F5, F10, F11 (the PLAN locks the escape set; the one reader gives one file), F14 (the PCH skip costs time only when `Nexus.cpp` recompiles), F16 (no clause).
+- **Doxygen.** Two passes, each block read against the code. Pathfinder finding "no writer of the root `outputBlock`" rejected: `jam_TextEditor.cpp:1035` writes it.
+- **Mistakes owned.** A question a read answered; manual callbacks proposed; `toFront (true)` claimed to work; the macOS Hammerspoon listener called the owner of "to front"; an unneeded git read; an Auditor guard finding accepted against CODING; "two rulings cannot both hold" for the black lines (false: the cause is the VST2 contract and JUCE's roundings); a VST2-only, operating-system read proposed; a question that CONTRACT answered (MANIFESTO S, E).
+
+### State for Continuation
+- Run `cast cast/spell.md` in END and in EVE so the JUCE copy takes `juce-plugin-window-size-hook.patch`. Then build EVE, then END.
+- Windows runtime checks: END at front at launch; Ctrl+W from EVE closes the pane with no assert; a drag that ends outside END ends; no black line at the pane edges at 125 %, 150 % and a custom scale; markdown links open; a UNC folder gives the right tab name; zsh in EVE has `_eve_encode` and `_eve_cwd` from `eve`.
+- The size patch has no ENAX gate: it applies to every VST2 plugin that END hosts on Windows. Plugins that do not answer `supportsViewDpiScaling` still run JUCE's `resizeToFit` polling, which calls `updateHWNDBounds` (`juce_VSTPluginFormat.cpp:556-576`).
+- Regenerate doxygen (END `ninja doxygen`; jam and EVE `<leader>bd`) and read the warning count.
+- Open from the handoff below: profile pane creation and close on Windows with scout (no Windows manifest); scout launch-time optimisation; the Windows key routes 2-4 (not traced again after ARCHITECT's *"window and keyboard fixed"*).
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 100: Selection Above the Cell Background, One Author of the Plugin `focus` Row, NORMAL Entry at the Terminal Cursor ✅
 
 **Date:** 2026-11-11
@@ -253,78 +321,6 @@
 
 ### Debts Deferred
 - `DEBT-20261103T195500` — fit of plugin editors to the pane (ARCHITECT, 2026-11-04).
-- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
-
----
-
-## Sprint 96: END and EVE Config — Named Light/Dark Palette, One Load Path, Pane Padding, Canon Settings Lane, Keyword Key Form ✅
-
-**Date:** 2026-11-03
-**Duration:** several sessions (compactions). The start and end times are not recorded.
-**Scope (ARCHITECT):** PLAN/RFC hygiene; END and EVE config cleaned (END carries no markdown, mermaid or terminal config; EVE organised like END; colours as names with `light | dark`; every key lower-case words formatted by the reader); one SSOT load path with version front matter, `Document::Validator`, errors in an overlay, the binary default as fallback, no assert on user input; pane padding as config. Then the amendment: *"KANJUT PluginEditorLayout is the canon"*, *"no bloating Style concern into PluginEditorLayout"*, *"hardcoding case into generated definition is the problem. format case is C++ responsibility always"*. `/audit` with every validated finding resolved; the doxygen pass; this log.
-
-### Agents Participated
-- COUNSELOR — PLAN and its amendment, every validation read, the DCF triage of both audits, small edits named below, this log.
-- Pathfinder (haiku) — discovery maps (KANJUT canon diff, hard-coded keyword forms, END/EVE config-tree readers, map value readers), the doxygen pass.
-- Engineer (sonnet) — implementation of PLAN steps, amendment K1–K8, both audit fix rounds.
-- Auditor (opus) — two passes (before and after the amendment).
-
-### Files Modified
-**jam:**
-- `jam_core/utils/jam_Id.h`, `jam_Id.cpp` (new), `jam_core.cpp` — `Id::toTag` gives one tag from any form of a keyword through `Format::toWords`; bodies moved to the `.cpp` (CODING one object one translation unit).
-- `jam_core/text/jam_Format.h` / `.cpp` — `toWords (std::string_view) -> std::string`: any case to lower-case words, no juce::String (ARCHITECT: *"NOT with juce::String"*); `isNumber` strict.
-- `jam_markdown/document/jam_ConfigDocument.h` / `.cpp` — `light`/`dark` columns; colour by hex, `colours` table, then `map::ColourNames`; `getRowKey` returns the tag (private); `getConfigRow` compares tags and never builds an empty Identifier; writer writes words; `getOrCreateDefaultFile` (version gate); `addTables` validates, checks the header set, then `getTableFailures` (duplicate, unknown key, numbers count, unresolved reference) against the default tree built once.
-- `jam_markdown/document/jam_ConfigValidator.cpp` — rules as `get*Failures` file-statics; strict number, integer through `std::from_chars`, colour, key (empty or no words), choices; well-formed set texts.
-- `jam_data_structures/model/jam_Model.h` / `.cpp` — static `setValuesFrom (target, source)`.
-- `jam_web/css/jam_Css.h` / `.cpp` — every custom-property name, `var()` value, metric, window and fonts attribute id stored as `Id::toType (name)`; `stripCustomPropertyPrefix` deleted.
-- `jam_style/style_manager/jam_StyleManager.h` / `.cpp` — every lookup formats its name at the owner; `setAppearance` matches `map::ColourId` in O(1) through `Format::toWords`; font aliases keyed by tag; `setAppearance (int64)`.
-- `jam_style/jam_StyleCustom.*` — `getPanePadding`; `jam_StyleVariDisplay.cpp`, `jam_StylePopupTextBox.cpp` — alias compare through `Id::toType`.
-- `jam_gui/style/jam_StyleTheme.h` / `.cpp` — `setFontRasterization`, `setEmbolden` (the canon place; text compare as the canon).
-- `jam_gui/commands/jam_CommandManager.*` — command and row match through `Id::toType`; key rows and layers stored as tags; `mode` assert removed (a settings rule checks it).
-- `jam_gui/layout/jam_Viewport.cpp` — scroll rows by tag; ordered ranges, no `jmap` on an empty range. `jam_gui/layout/jam_PaneComponent.h` — `edgePadding` deleted.
-- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h` / `.cpp`, `jam_SettingsDocument.h` / `.cpp` — back on the KANJUT canon text; markdown lane: version gate, `addTables` overlay on the binary default, errors in `Id::message`, rules through `getConfigRow`, new rules `appearance`, `rasterizer`, `src`, `mode`; XML lane verbatim canon; `addParameters` adds tags; `setSettingsValue` writes a new key as words and never dereferences a missing table.
-- `jam_plugin_bootstrap/view/jam_PluginEditor.cpp`, `jam_ViewManager.cpp` — zoom step, scaling, size by tag; zoom applies only for a positive step; `lookAndFeelChanged` calls the theme; one key form for component parameters.
-- `cast/style.md` (`ColourId`, `FontId` values are lower-case words), `cast/terminal.md` (`TerminalIndexed` values; `AnsiColour` added then removed), `cast/spell.md`, `cast/core.md` (fail texts `failNotNumber`, `failNotColour`, `failEmptyKey`, `failTableStructure`, `failNoWords`, `failCountMismatch`, `failUnknownKey`, `failDuplicateKey`, `failUnknownReference`, `failMissingDirectory`).
-- `resources/markdown.css` — one `mono` (ARCHITECT: *"there's only ONE `mono`"*).
-
-**end:**
-- `Source/config/display.md`, `keys.md`, `theme/gfx/theme.md` — front matter `version: 0.0.1`; keys in words; `## colours` palette; `light | dark`; `## code` deleted; embolden in `## font`; editor colours in `## tab`; `## pane padding`; `appearance` row.
-- `Source/config/ConfigModel.h` / `.cpp` — one load path through `ConfigDocument::addTables`; `getRowValue` reads by tag and picks `dark`; no copy of the config tree; missing theme folder reports an error.
-- `Source/lookAndFeel/ENDLookAndFeel.*`, `Source/Main.cpp`, `Source/ui/ENDView.cpp` — event keys in tag form; one dispatch through `getEventKey`; `getPanePadding`.
-- `Source/ui/EditorView.*` — hosted editor inside the outline; `TabView.cpp` — previews show pixel size.
-- `cast/identifiers.md`, `SPEC.md`, `ARCHITECTURE.md`, `README.md`, `CLAUDE.md`, `PLAN-end-eve-config.md`; deleted `PLAN-enax-plugin-host-type.md`, `PLAN-enax-command-id.md`, `INVENTORY-end-plugin-host.md`, `carol/HANDOFF.md`.
-
-**eve:**
-- `Source/layout/ViewLayout.md` — keys in words; `Source/layout/style.css`, `Source/textEditor.css` — colour names, one `mono`.
-- `Source/EVEView.*` — message overlay fed by the `message` component property; empty FIFO names build nothing. `Source/EVETerminalProcessor.*` — the command event captures its tag once (audio thread); `addCommand` removed.
-- `SPEC.md`, `README.md`, `PLAN-Grand-Scheme.md` amendment; deleted `HANDOFF-profiling.md`, `PLAN-eve-terminal-protocol.md`.
-
-**kuassa, cast, ggwp, scout:** `markdown.css` — the `--mono` duplicate removed.
-
-### Alignment Check
-- [x] BLESSED principles followed — one definition per keyword; C++ formats; the binary default owns every row.
-- [x] NAMES.md adhered — names added in resolution recorded in the PLAN (`getMergedValue`, `aliasType`, `getTableFailures`).
-- [x] MANIFESTO.md principles applied
-- [ ] Doxygen not regenerated; ARCHITECT regenerates and reads the warning count.
-
-### Problems Solved
-- **Style translation layer.** COUNSELOR designed a css↔config translation in `PluginEditorLayout` without reading the KANJUT canon; removed, the four bootstrap files restored to the canon.
-- **Keyword forms.** Cast tables hard-coded the css var form; the md reader invented camelCase. Now one tag form from any input (`Id::toTag`), definitions are lower-case words, every reader formats.
-- **Crashes surfaced by ARCHITECT.** `findColour` and `getFontsStyleValue` asserts (key round trip), `events.get` by a raw id, `getOrCreateTypeface` (font-face attributes are header columns, raw), prefix-layer `perform` false (layers stored raw).
-- **Audit 1.** 34 findings triaged. **Audit 2.** 44 findings: accepted 1–9, 11–17, 19, 22, 25, 28, 29, 31, 32 (partly), 34, 44; rejected 10, 18, 20, 21, 23, 24, 26, 27, 32 (EVE text source), 33, 35–43, each with its read in `PLAN-end-eve-config.md` "Audit 2 triage".
-- **Mistakes owned.** The translation layer; the camelCase key; a wrong claim of the text of `Id::UIScale`; line-count-driven split requests; stale background agents; font-face attributes formatted.
-
-### State for Continuation
-- Run `cast cast/spell.md` in jam (cast tables `ColourId`, `FontId`, `TerminalIndexed`, `core.md` texts, `AnsiColour` removed), end, eve. Then build.
-- Test from an empty `~/.config/end/` (shaders kept): EVE and END launch; an invalid eve.md shows the error in the overlay and keeps the defaults (`jam_PluginEditorLayout.cpp:49-77`).
-- Regenerate doxygen (`ninja doxygen`, jam `<leader>bd`; jam `docs/xml/index.xml` was 0 bytes during the audit).
-- Pathfinder note, not fixed (file outside the sprint set): `jam_MarkdownDocument.h` doc of `getTableRows (const Element&)` says an empty array for a table with no header row; `jam_MarkdownDocument.cpp:124-135` keeps every non-border row.
-
-### Debts Paid
-- None
-
-### Debts Deferred
 - `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
 - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
 

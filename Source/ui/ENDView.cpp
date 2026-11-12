@@ -54,7 +54,7 @@ void ENDView::resized()
 
 bool ENDView::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return commandManager->invokeKey (key, state);
+    return commandManager->invokeKey (key, state, false);
 }
 
 void ENDView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
