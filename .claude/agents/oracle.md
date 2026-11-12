@@ -1,1 +1,1 @@
-/Users/jreng/.carol/agents/oracle.md
+C:/Users/jreng/.carol/agents/oracle.md

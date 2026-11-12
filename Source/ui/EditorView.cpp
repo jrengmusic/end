@@ -56,15 +56,15 @@ void EditorView::resized()
             static_cast<float> (static_cast<jam::StyleCustom&> (getLookAndFeel()).getPanePadding())
             + outlineSides * jam::PaneComponent::lineThickness) };
 
-        if (editor != nullptr)
-            setEditorBounds (inset);
+        const auto bounds { getEditorBounds (inset) };
 
-        const auto inner { getLocalBounds().reduced (inset) };
+        if (editor != nullptr)
+            setEditorBounds (bounds);
 
         juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
 
-        rows.setProperty (Id::width, inner.getWidth(), nullptr);
-        rows.setProperty (Id::height, inner.getHeight(), nullptr);
+        rows.setProperty (Id::width, bounds.getWidth(), nullptr);
+        rows.setProperty (Id::height, bounds.getHeight(), nullptr);
         session.setRows (uuid, rows);
     }
 }
@@ -94,12 +94,34 @@ void EditorView::DropTarget::filesDropped (const juce::StringArray& files, int x
     matrix.get (matrix.split (edge)).getValueTree().setProperty (Id::plugin, juce::File { files[0] }.getFullPathName(), nullptr);
 }
 
-void EditorView::setEditorBounds (int inset)
+juce::Rectangle<int> EditorView::getEditorBounds (int inset) const
+{
+    if (auto* peer { getPeer() })
+    {
+        jassert (juce::approximatelyEqual (getDesktopScaleFactor(), 1.0f));
+
+        static constexpr int referenceDotsPerInch { 96 };
+
+        const auto peerArea { peer->getAreaCoveredBy (*this) };
+        const auto inner { peerArea.reduced (inset) };
+        const int gridStep { referenceDotsPerInch / std::gcd (juce::roundToInt (peer->getPlatformScaleFactor() * referenceDotsPerInch), referenceDotsPerInch) };
+        const int left { (inner.getX() + gridStep - 1) / gridStep * gridStep };
+        const int top { (inner.getY() + gridStep - 1) / gridStep * gridStep };
+        const int right { inner.getRight() / gridStep * gridStep };
+        const int bottom { inner.getBottom() / gridStep * gridStep };
+
+        return juce::Rectangle<int>::leftTopRightBottom (left, top, right, bottom).translated (- peerArea.getX(), - peerArea.getY());
+    }
+
+    return getLocalBounds().reduced (inset);
+}
+
+void EditorView::setEditorBounds (juce::Rectangle<int> bounds)
 {
     if (editor->isResizable())
-        editor->setBounds (getLocalBounds().reduced (inset));
+        editor->setBounds (bounds);
     else
-        editor->setTopLeftPosition (inset, inset);
+        editor->setTopLeftPosition (bounds.getPosition());
 }
 
 void EditorView::lookAndFeelChanged() { resized(); }

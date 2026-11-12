@@ -141,7 +141,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${CAST_SOURCE_FILES})
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:<:::precompiledHeader:::$<ANGLE-R>>")
 
-if(APPLE)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE "SHELL:-Xclang -fno-pch-timestamp")
 endif()
 
@@ -257,6 +257,19 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:${CAST_RELEASE_COMPILE_FLAGS}>
     $<$<CONFIG:Debug>:${CAST_DEBUG_COMPILE_FLAGS}>
 )
+
+if(MSVC AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wno-missing-field-initializers
+        -Wno-overloaded-virtual
+        -Wno-ignored-qualifiers
+        -Wno-unused-lambda-capture
+        -Wno-unused-private-field
+        -Wno-unused-but-set-variable
+        -Wno-unused-variable
+        -Wno-unused-function
+    )
+endif()
 
 target_link_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:${CAST_RELEASE_LINK_FLAGS}>
@@ -381,7 +394,7 @@ foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
 endforeach()
 string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
 
-set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"")
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"" SKIP_PRECOMPILE_HEADERS ON)
 
 juce_add_binary_data(${PROJECT_NAME}_BinaryData
     NAMESPACE "BinaryData"

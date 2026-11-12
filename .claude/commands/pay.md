@@ -1,1 +1,1 @@
-/Users/jreng/.carol/commands/pay.md
+C:/Users/jreng/.carol/commands/pay.md

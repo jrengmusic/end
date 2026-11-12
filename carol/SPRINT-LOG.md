@@ -529,3 +529,98 @@ None. The design is settled by the canon reads and ARCHITECT's rulings.
 ### Next Steps
 - Trigger: ARCHITECT runs the cast + build (Remaining 1) and reports the result. On a clean run, COUNSELOR continues with the doxygen pass, the audit, and the sprint log.
 
+## Handoff to COUNSELOR: Windows Runtime Defects of END Hosting EVE — Pane Size, Keyboard Routes, Build Warning, OMP
+
+**From:** COUNSELOR
+**Date:** 2026-11-13
+**Status:** In Progress — pane-size fix, PCH fix and OMP fix landed, not yet built; keyboard design not yet planned
+
+### Read First
+1. `PLAN-file-uri-one-flow.md` (END root) — the locked and executed plan of this session's first part (one `file://` URI form, one reader `juce::URL::getLocalFile()`).
+2. `Source/ui/EditorView.cpp:41-70`, `:97-125` and `EditorView.h:157`, `:166`, `:226` — the pixel-grid placement that makes END the one author of the hosted editor's size.
+3. `jam/jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp:5-39` and `Source/plugins/Nexus.cpp:6-15`, `:54-64` — the ENAX key route, the one route that the keyboard fix keeps.
+4. Build JUCE copy `C:\Users\jreng\AppData\Local\cast\juce\b1501cf634ada382e5d91018efaae42c68178593a6a4f839fcb8ea0c1dcb554b\modules`: `juce_gui_basics/native/juce_WindowsHooks_windows.cpp:54-66`, `juce_gui_basics/native/juce_Windowing_windows.cpp:1856-1918`, `:2983-3125`, `:3877-3898`, `juce_audio_processors/format_types/juce_VSTPluginFormat.cpp:412-431`, `:578-608` — the four Windows key routes.
+
+### Context
+ARCHITECT reported runtime defects of END hosting EVE (VST2) on Windows: black lines at the pane edges, a markdown-link crash, a Ctrl+W assert, a `TRAPWINCH: command not found: omp_repaint_prompt` line in panes, a `CAST_PLUGINS_HASH` PCH warning, keyboard commands that fail (prefix "`" then "-" or "\" does not split; Ctrl+T opens fzf in zsh, not a new tab), and slow pane creation and close. ARCHITECT states that focus and keyboard have no issue on macOS. The markdown crash was fixed earlier in the session (the URI plan). ARCHITECT reported after a build: *"split only works with dragging from corner. keyboard is still messy. previous pane still showing OMP error. new instance pane and closing is SUPER FUCKING UNBEARABLY SLOW"*.
+
+### Completed
+- **URI one flow (earlier in this session, per `PLAN-file-uri-one-flow.md`).** Shell OSC 7 lines write `file:///<path>` with no host. The encoders escape `% ; # ?` and control bytes. `jam_TerminalProcessor.cpp` stores the raw URI, and `getUriPath` is deleted. The readers use `juce::URL::getLocalFile()`: `jam_TextEditor.cpp:1040`, `EVEView.cpp:579-582`, `EVETerminalProcessor.cpp:440-441`. `SessionView.cpp:133` uses `juce::URL::removeEscapeChars (juce::URL {...}.getFileName())`. ARCHITECT confirmed that markdown links open.
+- **`cwd` is a URI from session start.** `EVETerminalProcessor.cpp:442-444` writes `juce::URL { startDirectory }.toString (false)` into `Id::cwd`.
+- **The rounding patch is withdrawn.** `jam/patch/juce-plugin-window-size-hook.patch` is deleted. Its row in `jam/user-modules-info.md` is removed (the row was the last of the patch table). ARCHITECT: *"no fucking patch and hack"*.
+- **Pane size, one author (END).**
+  - Cause, cited: END wrote the `width`/`height` rows (`EditorView.cpp:62-68`, `ARCHITECTURE.md:743`), but sized only the editor position (`setTopLeftPosition`, old `EditorView.cpp:97-103`).
+  - The host editor took its size from EVE's `audioMasterSizeWindow` reply. The physical size passed through three roundings: `toNearestIntEdges` (`juce_PluginScaleFactorUtilities.h:127`), `getSmallestIntegerContainer` (`juce_VSTPluginFormat.cpp:127-130`, `juce_Rectangle.h:1025`), and floor/ceil with position (`juce_HWNDComponent_windows.cpp:60`).
+  - The chain is synchronous (`EditorView.cpp:64-68` → `PluginState.cpp:158-166` → `juce_VSTPluginFormatImpl.h:1953-1960` → `EVEProcessor.cpp:168-187` → `EVEView.cpp:179-182` → `VST2.cpp:1015-1061` → `juce_VSTPluginFormat.cpp:140-151`).
+  - Fix: `EditorView::getEditorBounds (int inset)` (`EditorView.cpp:97-117`) snaps the editor rectangle to whole physical pixels. It works in peer coordinates (`peer->getAreaCoveredBy`) with `gridStep = 96 / gcd (roundToInt (scale × 96), 96)`, so every JUCE rounding gets whole numbers.
+  - `setEditorBounds (juce::Rectangle<int>)` (`:119-125`) and the rows take the same rectangle (`:59-68`).
+  - `juce::NativeScaleFactorNotifier scaleNotifier` (`EditorView.h:226`) calls `resized()` on a scale change or a peer change.
+  - EVE code is unchanged, so EVE in other hosts and standalone keeps its behaviour. COUNSELOR read every line.
+- **PCH warning.** `cast/cmake.cast:397` sets `SKIP_PRECOMPILE_HEADERS ON` on `Nexus.cpp`, next to its per-source `CAST_PLUGINS_HASH` define. Cause: the define is on `Nexus.cpp` only, while the target PCH is built without it (`CMakeLists.txt:285`, `build.ninja:52-55`, `:188-190`).
+- **OMP `TRAPWINCH` error.**
+  - Cause: zsh resolved `oh-my-posh` to `C:\Users\jreng\.local\bin\oh-my-posh.exe` 29.9.0, which defines no `omp_repaint_prompt`.
+  - The winget copy 32.0.0 (`WindowsApps`) defines it at init lines 744-747. `zshrc:181` was written for it.
+  - The stale copy came from `bootstrap-windows.sh` (curl download, skipped when the file exists).
+  - Fix: the stale exe is deleted. The bootstrap download block and the unused `OMP_ARCH` values are removed. Step 12 lists `winget install JanDeDobbeleer.OhMyPosh` (`bootstrap-windows.sh:677`). `WINDOWS-SETUP.md:61` no longer lists oh-my-posh among the script installs.
+- **Keyboard — evidence collected, no code change.** A whatdbg trace with ARCHITECT's real typing (Debug END, 2026-11-13 12:08) shows one keystroke ("t") reaching `ENDView::keyPressed` → `CommandManager::invokeKey` four times, by four routes:
+  1. EVE's `WindowsHooks` hook → `offerKeyMessageToJUCEWindow` → `doKeyDown` → ENAX callback → END.
+  2. `vstHookWndProc` `SendMessage` to END's window → END `doKeyChar`.
+  3. `vstHookWndProc` `CallWindowProc` → EVE `doKeyChar` → ENAX → END.
+  4. EVE `forwardMessageToParent` `PostMessage` → END's queue → END `doKeyChar`.
+- **Key route rules, by code.**
+  - Routes 2-4 run only when route 1 does not consume the message (`juce_WindowsHooks_windows.cpp:58-63`).
+  - Route 2 exists because EVE answers `effKeysRequired` with 1 (`eve/project-info.md:108` → `juce_audio_plugin_client_VST2.cpp:1856` → `juce_VSTPluginFormat.cpp:412`, `:427-431`). The macOS branch installs no hook (`:357-359`).
+  - Each `invokeKey` call writes the layer/sequence state (`jam_CommandManager.cpp:57-58`, `:111-119`).
+- **Ruled out by reads.** `keys.md` cells reach END as `` ` ``, `\`, `-` (`jam_MarkdownInlineParser.cpp:378-407`, `:1293-1306`; `jam_ConfigDocument.cpp:59-60`). The keyboard layout is US (KBDUS.DLL), so backtick is not a dead key.
+
+### Remaining
+1. ARCHITECT: run `cast cast/spell.md` in END and in EVE. Both `CMakeLists.txt` still list the deleted `juce-plugin-window-size-hook.patch` (END `CMakeLists.txt:136`, EVE `CMakeLists.txt:158`), so configure fails until cast runs. Then build END (it builds EVE).
+2. ARCHITECT runtime check: pane edges show no black line at a fractional Windows scale; the `CAST_PLUGINS_HASH` warning is gone; new shells show no `TRAPWINCH` error.
+3. COUNSELOR, keyboard (Windows only):
+   - Pathfinder reads EVE's key-to-PTY path: `EVEView::keyPressed` (`EVEView.cpp:82-87`), the focused `jam::TextEditor` `keyPressed`/`TextInputTarget`, the PTY write, and the return value for a printable key. The dispatch was stopped by ARCHITECT and must run again.
+   - Then write a PLAN that keeps the ENAX callback as the one route and closes routes 2-4 at their JUCE seams, with no patch, and no change to EVE in other hosts. Gate the PLAN with ARCHITECT.
+   - Do not run more click/key tests. ARCHITECT's observation is the evidence.
+4. COUNSELOR, slowness: profile pane creation and close on Windows with scout (profile skill). No Windows manifest exists: every `benchmark/*.md` command is the macOS `END.app` path. Log evidence: in the Debug build under the debugger, END's log starts at 12:27:13 and EVE's at 12:27:56.
+5. COUNSELOR: fix the validated audit items of the URI sprint:
+   - `SessionView.cpp:133` turns `+` into a space (`removeEscapeChars`, `juce_URL.cpp:963`).
+   - `EVEView.cpp:542`/`:546` parse `Id::url` twice, with a File↔string round trip into `openFile`.
+6. COUNSELOR: the post-audit doxygen pass (Pathfinder). Stale blocks: `EditorView.h` docs of `resized` and `setEditorBounds` (still describe `inset`), `EVEView.h:289-291`, `EVETerminalProcessor.h:298`, `jam_TextEditor.h:1022-1023`, `eve/SPEC.md:227` (OSC 7 row says "decoded path"). Then @Auditor once, after ARCHITECT's runtime test, then the sprint log on ARCHITECT's `/log`.
+7. Pending from earlier: scout launch-time optimisation (item 3 of the session's first request).
+
+### Key Decisions
+- *"use juce API to its fullest extent, fix any terminal command that use it crossplatform, SSOT"*
+- *"UNIDIRECTIONAL, ONE FLOW"*
+- *"ok add one to fix black lines. resizing must be SSOT, should not disagree between host and client. must be crossplatform."*
+- *"no fucking patch and hack. i told you no patch, you insist on patch."*
+- *"i thought it was explicitly RULED OUT, when END is the host, END always TOLD EVE THE SIZE. there's no disagreement, this is ENAX contract, not the EVERYTHING PLUGIN lane"*
+- *"our DESIGN with working with juce ALWAYS SEAMLESS INTEGRATION. we never want to fight juce. patch is the only last inevitably option when there is no other seam, juce reached its design limit"*
+- *"be careful with the design. this only END-EVE host client contract? what will you break when EVE loaded on other host? standalone?"*
+- *"fix it, why do i always need to repeat"* (the PCH warning)
+- *"fix this so no more confusion"* (the oh-my-posh version)
+- *"FACTS: - no issue with focus on mac - no issue with keyboard on mac"*
+- *"DESIGN BY CONTRACT NON NEGOTIABLE"*
+- *"dont waste my tokens for audit. i havent even tested runtime"*
+
+### Files Modified
+- `end/Source/ui/EditorView.h`, `EditorView.cpp` — `getEditorBounds`, `setEditorBounds (juce::Rectangle<int>)`, `scaleNotifier`; rows from the snapped rectangle.
+- `end/cast/cmake.cast` — `SKIP_PRECOMPILE_HEADERS ON` on `Nexus.cpp`.
+- `end/Source/ui/SessionView.cpp` — directory name from `juce::URL` (URI plan).
+- `end/PLAN-file-uri-one-flow.md` — new; the URI plan.
+- `eve/Source/shell/zsh_integration.zsh`, `bash_integration.bash`, `powershell_integration.ps1`, `eve` — OSC 7 `file:///` form; encoders escape `% ; # ?`.
+- `eve/Source/EVEView.cpp` — `getUrlFile` through `juce::URL::getLocalFile()`.
+- `eve/Source/EVETerminalProcessor.cpp` — start directory from the `cwd` URI; `cwd` written as a URI at `openTTY`.
+- `jam/jam_terminal/processor/jam_TerminalProcessor.h`, `.cpp` — OSC 7 stores the raw URI; `getUriPath` deleted.
+- `jam/jam_gui/widgets/jam_TextEditor.cpp` — `cwd` read through `juce::URL::getLocalFile()`.
+- `jam/patch/juce-plugin-window-size-hook.patch` — created, then deleted (no net change); its `jam/user-modules-info.md` row is also gone.
+- `~/.config/bootstrap-windows.sh` — oh-my-posh curl block and `OMP_ARCH` removed; winget line added; comments updated.
+- `~/.config/WINDOWS-SETUP.md` — oh-my-posh removed from the script-installed list.
+- `C:\Users\jreng\.local\bin\oh-my-posh.exe` — deleted (stale 29.9.0).
+
+### Open Questions
+- The seam for each of key routes 2-4 (EVE's `effKeysRequired` reply and the VST2 host hook, the `CallWindowProc` re-entry, EVE's `forwardMessageToParent`). Decider: ARCHITECT, through the keyboard PLAN.
+- Saved sessions from the old build hold per-block `cwd` rows in path form. There is no migration (CAROL forbids legacy compatibility). Decider: ARCHITECT, if the Ctrl+W assert still shows.
+
+### Next Steps
+- Trigger: ARCHITECT runs cast and the build (Remaining 1) and reports the runtime result (Remaining 2).
+- In parallel, COUNSELOR runs again the EVE key-to-PTY read (Remaining 3) and presents the keyboard PLAN for approval.
+

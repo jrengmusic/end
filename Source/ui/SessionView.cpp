@@ -130,7 +130,7 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
                 return paneTitle;
         }
 
-        const juce::String directoryName { juce::File { pluginState.getProperty (Id::cwd).toString() }.getFileName() };
+        const juce::String directoryName { juce::URL::removeEscapeChars (juce::URL { pluginState.getProperty (Id::cwd).toString() }.getFileName()) };
 
         return directoryName.isNotEmpty() ? directoryName : sourcePane.getProperty (Id::name).toString();
     }

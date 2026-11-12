@@ -154,6 +154,8 @@ private:
         void filesDropped (const juce::StringArray& files, int x, int y) override;
     };
 
+    juce::Rectangle<int> getEditorBounds (int inset) const;
+
     /**
      * @brief Places the hosted editor inside the pane outline.
      *
@@ -161,7 +163,7 @@ private:
      *
      * @param inset  Distance in pixels between the pane bounds and the editor.
      */
-    void setEditorBounds (int inset);
+    void setEditorBounds (juce::Rectangle<int> bounds);
 
     /**
      * @brief Writes one row of the pluginState to the session of the pane.
@@ -220,6 +222,8 @@ private:
 
     /** @brief Drop target that covers the pane. It stays above the hosted editor. */
     DropTarget dropTarget;
+
+    juce::NativeScaleFactorNotifier scaleNotifier { this, [this] (float) { resized(); } };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorView)

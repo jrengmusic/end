@@ -92,13 +92,13 @@ if(APPLE)
     )
 elseif(WIN32)
     set(CAST_RELEASE_COMPILE_FLAGS
-/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/W4;/FC;/wd4661;/O2;/GL
+/W4;/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/FC;/wd4661;/O2;/GL
     )
     set(CAST_RELEASE_LINK_FLAGS
 /LTCG;/OPT:REF;/OPT:ICF
     )
     set(CAST_DEBUG_COMPILE_FLAGS
-/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/W4;/FC;/wd4661;/Od
+/W4;/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/FC;/wd4661;/Od
     )
 endif()
 
@@ -114,7 +114,7 @@ set(CAST_VULKAN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../Vulkan")
 # JUCE — patched working copy, exact version gate
 # ==============================================================================
 
-set(CAST_JUCE_VERSION 8.0.14)
+set(CAST_JUCE_VERSION 8.0.17)
 
 find_package(Git REQUIRED)
 
@@ -283,7 +283,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${CAST_SOURCE_FILES})
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:<JuceHeader.h$<ANGLE-R>>")
 
-if(APPLE)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE "SHELL:-Xclang -fno-pch-timestamp")
 endif()
 
@@ -311,7 +311,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Release>:NDEBUG=1>"                                      # Release configuration
     "CAST_CONFIG_DIRECTORY=.config/$<IF:$<CONFIG:Debug>,dev,end>"        # Config root relative to home, by build type
     "$<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN=1>"                    # Exclude rarely used Windows headers
-    "$<$<PLATFORM_ID:Windows>:NOMINMAX=1>"                               # No Windows min/max macros
     "$<$<PLATFORM_ID:Windows>:_WIN32_IE=0x0A00>"                         # Windows IE platform version
     "$<$<PLATFORM_ID:Windows>:JUCE_CORE_INCLUDE_NATIVE_HEADERS=1>"       # Native platform headers in juce_core
     "$<$<PLATFORM_ID:Windows>:JUCE_GRAPHICS_INCLUDE_DIRECT2D_HELPERS=1>" # Direct2D helper visibility, from the framework patch
@@ -446,6 +445,19 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:${CAST_RELEASE_COMPILE_FLAGS}>
     $<$<CONFIG:Debug>:${CAST_DEBUG_COMPILE_FLAGS}>
 )
+
+if(MSVC AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wno-missing-field-initializers
+        -Wno-overloaded-virtual
+        -Wno-ignored-qualifiers
+        -Wno-unused-lambda-capture
+        -Wno-unused-private-field
+        -Wno-unused-but-set-variable
+        -Wno-unused-variable
+        -Wno-unused-function
+    )
+endif()
 
 target_link_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:${CAST_RELEASE_LINK_FLAGS}>
@@ -592,7 +604,7 @@ foreach(CAST_PLUGIN_FILE ${CAST_PLUGIN_FILES})
 endforeach()
 string(SHA256 CAST_PLUGINS_HASH "${CAST_PLUGINS_HASH_CONCAT}")
 
-set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"")
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Source/plugins/Nexus.cpp" PROPERTIES COMPILE_DEFINITIONS "CAST_PLUGINS_HASH=\"${CAST_PLUGINS_HASH}\"" SKIP_PRECOMPILE_HEADERS ON)
 
 juce_add_binary_data(${PROJECT_NAME}_BinaryData
     NAMESPACE "BinaryData"
