@@ -2,6 +2,41 @@
 
 ---
 
+## Sprint 103: Each Config File Parsed Once, Validated at the Parse ✅
+
+**Date:** 2026-11-14
+**Duration:** one session, from 2026-11-13 00:18 UTC. Not measured. `jam/carol/SPRINT-LOG.md` Sprint 187 is the primary record.
+**Scope:** `jam/PLAN-document-contract.md` Step 13 (RFC `jam/RFC-config-document-parse-once.md` Q1–Q4). ARCHITECT: *"Full END one-parse"*; *"Caller memoizes"*.
+
+### Agents Participated
+- COUNSELOR: delegation, the read of each return, this log.
+- Engineer (sonnet): the config changes, END with EVE build.
+- Pathfinder (haiku): reads, the doxygen pass.
+
+### Files Modified
+- `Source/config/ConfigDirectory.h`, `.cpp` — `addFileTables` takes `getFile` and `getDefaultText`; each file goes through `ConfigDocument::getOrCreateFileDocument`; nullptr adds the `ConfigDocument::isValid` message. The second `ConfigValidator` run is deleted.
+- `Source/config/ConfigModel.h`, `.cpp` — `saveToPath` keeps only the directory creation. `ConfigModel.h:16-17` doxygen corrected.
+- `Source/config/ConfigTheme.h`, `.cpp` — `saveToPath` keeps directories and flex files. `getOrCreateDefaultText (fileName)` replaces `getDefaultText`; `:53-58` passes a lambda (G2). `:30` reads `CssDocument::parse (…)->getValueTree`. `addFileFlex` gives `XmlDocument::isValid` on nullptr.
+- `Source/ui/ENDView.cpp` — callers of the pointer-returning `getOrCreate` and `parse`.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Each config file was parsed in `loadFromPath` and again in `saveToPath`, and validated twice. Now one parse per file per load, validated at the parse.
+
+### State for Continuation
+- The default theme style tree goes through `CssDocument::getOrCreate (name, text)`, once per process. No read shows that the CssWriter output of the default document equals `themeStyleSheet`, so the round trip is memoized, not removed (PLAN Step 13, Q3).
+- Behaviour change: an invalid config file is not overwritten when its version is old; it is reported.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 102: EVE Launch Time — Config Documents Built Once and Read in Place, Key Index, No Theme Round Trips ✅
 
 **Date:** 2026-11-13

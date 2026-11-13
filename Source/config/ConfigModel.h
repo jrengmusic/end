@@ -12,9 +12,9 @@
            drives the ConfigTheme and ConfigShader sub-models.
 
     @par Build-in-ctor composition
-    getDefaultThemes() and getDefaultConfig() build a fresh tree on each call, through ConfigDirectory::addDefaultTables.
-    addDefaultTables reads each default document from the memoized @c jam::ConfigDocument::getOrCreate, so each
-    BinaryData file is parsed one time per process.
+    getDefaultConfig() builds a fresh tree on each call, through ConfigDirectory::addDefaultTables.
+    The callback of getDefaultConfig reads each default document from @c jam::ConfigDocument::getOrCreate, which stores
+    each valid document by name. A document that fails to parse is not stored, so the next call parses it again.
     @c theme is a member object whose constructor adopts the THEMES subtree of getDefaultThemes().
     @c background (BACKGROUND) and @c postProcessing (POST_PROCESSING) are member objects whose
     constructors adopt an empty tree of their own type; their content is read by @c loadFromPath().
@@ -30,18 +30,18 @@
     @c appendChild — all are single-rooted subtrees, so no unwrapping is needed.
 
     @par Init (in constructor body)
-    1. @c loadFromPath()   — calls @c saveToPath() first, which writes the root markdown defaults to
-       @c ConfigDirectory::Config::path. Then reads markdown from disk and overlays via @c setValuesFrom.
+    1. @c loadFromPath()   — calls @c saveToPath() first, which creates @c ConfigDirectory::Config::path. Then reads the
+       root markdown files through @c ConfigDirectory::addFileTables and overlays via @c setValuesFrom.
     2. @c startWatcher()   — installs @c jam::File::Watcher on @c ConfigDirectory::Config::path.
 
     @par Composition via jam::ConfigDocument and jam::Model::fromFiles
     @c jam::ConfigDocument::getOrCreate builds the default documents, memoized one per BinaryData name.
     @c jam::ConfigDocument::parse builds the documents of the disk files. @c jam::Model::fromFiles builds
     the FLEX child from SVG files. These are the SSOT builders.
-    Each bimap key of a markdown registry resolves to one markdown file. Its document, memoized for the defaults
-    and parsed for the disk files, goes through ConfigDirectory::addFileTables. The document must pass the rules of
-    @c jam::ConfigValidator {}.getRules() and the rules of its default document. When it passes, its tables are
-    appended to the target tree. When it fails, the whole document is rejected and its error is added to the errors.
+    Each bimap key of a markdown registry resolves to one markdown file. ConfigDirectory::addFileTables parses it through
+    @c jam::ConfigDocument::getOrCreateFileDocument, which writes the default text when the file's version is older than
+    the default's. The document must pass the row rules and the table rule of @c jam::ConfigValidator against its default
+    document. When it passes, its tables are appended to the target tree. When it fails, its error is added to the errors.
     @c jam::Model::fromFiles sets one raw-string property per map entry on a fresh @p rootTag tree,
     key = stem, value = @c read(key). It does no parsing.
 
@@ -121,11 +121,11 @@ private:
     jam::SharedInstance<map::Appearance> appearance { std::in_place };
 
     /**
-        @brief Creates the config directory, then writes the root markdown defaults from BinaryData to @c ConfigDirectory::Config::path.
+        @brief Creates the config directory at @c ConfigDirectory::Config::path.
 
-        Each file of @c map::FileConfig goes through @c jam::ConfigDocument::getOrCreateDefaultFile, which writes
-        the BinaryData default when @c jam::Format::isVersionOld reports the file's version as older than the default's
-        version. The theme is not saved here: loadResources() saves it through ConfigTheme::saveToPath().
+        It writes no config file. The config files are written by ConfigDirectory::addFileTables, through
+        @c jam::ConfigDocument::getOrCreateFileDocument, when a file's version is older than its default's. The theme is
+        saved by loadResources() through ConfigTheme::saveToPath().
     */
     void saveToPath();
 

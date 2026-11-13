@@ -55,8 +55,9 @@ static void addTables (juce::ValueTree target, juce::ValueTree tree)
 juce::String ConfigDirectory::addFileTables (juce::ValueTree target,
                                              const jam::Bimap<int>& files,
                                              const std::function<juce::String (int)>& getName,
-                                             const std::function<juce::String (const juce::String&)>& read,
+                                             const std::function<juce::File (const juce::String&)>& getFile,
                                              const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
+                                             const std::function<juce::String (const juce::String&)>& getDefaultText,
                                              const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree)
 {
     juce::String errors {};
@@ -65,18 +66,25 @@ juce::String ConfigDirectory::addFileTables (juce::ValueTree target,
     {
         const auto fileName { getName (key) };
         const auto& document { getDefaultDocument (fileName) };
-        const auto readDocument { jam::ConfigDocument::parse (read (fileName), fileName) };
-        jam::Document::Validator::Rules defaultRules {};
-        jam::ConfigValidator::addRules (defaultRules, document);
-        jam::ConfigValidator::addTableRules (defaultRules, document);
+        const auto file { getFile (fileName) };
 
-        const auto validation { jam::Document::Validator::isValid (jam::ConfigValidator {}.getRules(), readDocument) };
-        const auto defaultValidation { validation.wasOk() ? jam::Document::Validator::isValid (defaultRules, readDocument) : validation };
+        if (const auto readDocument { jam::ConfigDocument::getOrCreateFileDocument (file, document, [&getDefaultText, &fileName] { return getDefaultText (fileName); }) }; readDocument != nullptr)
+        {
+            jam::Document::Validator::Rules defaultRules {};
+            jam::ConfigValidator::addRules (defaultRules, document);
+            jam::ConfigValidator::addTableRules (defaultRules, document);
 
-        if (defaultValidation.wasOk())
-            addTables (target, getTree (readDocument));
+            const auto defaultValidation { jam::Document::Validator::isValid (defaultRules, *readDocument) };
+
+            if (defaultValidation.wasOk())
+                addTables (target, getTree (*readDocument));
+            else
+                errors << defaultValidation.getErrorMessage() << juce::String::charToString (Chars::newline);
+        }
         else
-            errors << defaultValidation.getErrorMessage() << juce::String::charToString (Chars::newline);
+        {
+            errors << jam::ConfigDocument::isValid (file.loadFileAsString(), file.getFullPathName()).getErrorMessage() << juce::String::charToString (Chars::newline);
+        }
     }
 
     return errors;
@@ -85,11 +93,10 @@ juce::String ConfigDirectory::addFileTables (juce::ValueTree target,
 void ConfigDirectory::addDefaultTables (juce::ValueTree target,
                                         const jam::Bimap<int>& files,
                                         const std::function<juce::String (int)>& getName,
-                                        const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
-                                        const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree)
+                                        const std::function<juce::ValueTree (const juce::String&)>& getDefaultTree)
 {
     for (auto& [key, stem] : files.get())
     {
-        addTables (target, getTree (getDefaultDocument (getName (key))));
+        addTables (target, getDefaultTree (getName (key)));
     }
 }
