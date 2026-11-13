@@ -2,6 +2,71 @@
 
 ---
 
+## Sprint 102: EVE Launch Time — Config Documents Built Once and Read in Place, Key Index, No Theme Round Trips ✅
+
+**Date:** 2026-11-13
+**Duration:** not recorded. The session ran over two compactions.
+**Scope (ARCHITECT):** *"let's fix eve loading time, then end loading eve time. must be as FAST as we can. profile with scout"*; *"Standalone EVE launch"*. Contract rulings: *"Markdown parser is not only cast, IT IS EVERYTHING JAM PROJECT USES as manifest. this is kernel module, synced to KANJUT"*; *"fuck the doc. code speaks to compiler. runtime undoubtedly FUCKING SLOW. meaning CODE IS WRONG ... FIX THE CAUSE, NOT THE FUCKING SYMPTOMS. FIX THE DESIGN, DESIGN BY CONTRACT"*; *"DOCUMENT CONTRACT ALWAYS NON-NEGOTIABLE: - built complete AST once - memoized, cached - state update - 0 rules"*; *"consumer/reader/parser/writer/etc always only consume TRUSTING VALID data"*. Choices: theme round trips *"Both (Recommended)"*; validator *"Validator reads document"*; key lookup *"Key index at parse"*. Log: *"no need audit, we'll audit wholesale when all optimized"*.
+
+### Agents Participated
+- COUNSELOR — cause reads, every validation read, the briefs, the scout result reads, small fixes named below, this log.
+- Pathfinder (haiku) — scout runs (Release, 11 epochs), the theme-tree hash checks, one whatdbg crash trace, git status reads.
+- Engineer (sonnet) — key stamping, the direct style tree, the shared CssWriter helpers, parse-once settings files, the validator document reads, the key index, profiler zones.
+
+### Files Modified (24 total)
+**jam:**
+- `jam_markdown/document/jam_ConfigDocument.cpp:33-55` — `parse` stamps `Id::key` (the key tag) on every table and every row, in the creation pass. `getRowKey` reads the stamp (`get`, no check). `addProperty` takes the headers once per table.
+- `jam_markdown/document/jam_ConfigDocument.h`, `.cpp:216-270` — the key index: private `configRows` (key tag → data rows, document order), `addRowKey` (stamp, then index; header rows and empty keys are not indexed), `getConfigRows (keyTag)`, the overload `getConfigRow (table, keyTag)` through `Element::parent`, and `getConfigRow (tableId, key)` over the index.
+- `jam_markdown/document/jam_ConfigDocument.cpp:327-554` — `getValueTree (rootType, sheet)` builds the style tree from the config tables: `addSheetTree`, `addColourProperties`, `addMetricProperties`, `addFontsTree`, `addFontsProperties`, `addFaceTree`, `addWindowTree`, `addWidgetTrees`, `addAliasProperties`, `addRecordTrees`. Keys come from the stamps.
+- `jam_markdown/document/jam_CssWriter.cpp` — `getCamelName`, `getRecordHeaders`, `getAttributeHeaders` moved to `jam_ConfigDocument.cpp:327-355`; both files use the one copy (unity order `jam_markdown.cpp:9`, `:12`).
+- `jam_markdown/document/jam_ConfigValidator.cpp` — the default-value, reference, source and unknown-key checks read the default `ConfigDocument` (`getConfigRow`, `getConfigRows`); no `juce::ValueTree`. `RowCheck` takes the default table. `hasReference` looks up the key index; the `DARK` case reads `map::Appearance`. `getDefaultTable` compares the stamped keys.
+- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h`, `.cpp` — `getThemeSettings` returns the `toDocument` result as a `SettingsDocument` (no markdown write and reparse). `getStyleTree` calls `ConfigDocument::getValueTree (rootType, sheet)` (no CSS text and parse). File-static `getOrCreateFileDocument` parses each settings and theme file once and writes the default text only when the file version is old. `getSettingsTree` takes the parsed user document.
+- `jam_markdown/document/jam_MarkdownBlockParser.cpp` — a key-tag stamp was added, then removed (kernel parser contract). Net: no change.
+- `cast/plugin_bootstrap.md`, `generated/jam_PluginBootstrap.*` — profiler ids of the layout stages and validation.
+- `cast/vulkan.md`, `generated/jam_Vulkan.*`, `jam_vulkan/context/jam_VulkanMsaaCalibration.cpp`, `jam_vulkan/engine/jam_VulkanGraphicsEngine.cpp` — Vulkan start-up profiler zones.
+
+**eve:**
+- `Source/EVEProcessor.h`, `.cpp`, `Source/EVETerminalProcessor.cpp`, `Source/EVEView.cpp`, `cast/identifiers.md`, `Source/generated/Identifiers.*` — launch profiler zones and their ids (`launchPrompt`, `processorLayout`, `processorEditor`, `ttyOpen` and others).
+- `benchmark/launch-windows.md`, `benchmark/launch-windows.sh` (new) — the Windows launch manifest (Release profile build through `## toolchain`) and the profiler shell script.
+
+**end:**
+- `benchmark/pane-windows.md` (new) — the Windows manifest for END loading EVE. Not run.
+
+### Alignment Check
+- [x] BLESSED principles followed — E (Complete at Creation): keys and the key index are built in the parse; readers read them in place and check nothing. S: one copy of the CssWriter helpers; `map::Appearance` is the one source of `DARK`.
+- [x] NAMES.md adhered — new names join existing families (`getConfigRow`/`getConfigRows`, `add*Properties`/`add*Tree`, `getOrCreate*`).
+- [x] MANIFESTO.md principles applied
+- [ ] Not audited. ARCHITECT: *"no need audit, we'll audit wholesale when all optimized"*.
+- [ ] No doxygen on the new and changed members; the doxygen pass waits for the audit.
+
+### Problems Solved
+- **EVE launch, scout medians (Release, 11 epochs, Windows).** `processor layout` 1.182 s → 152 ms. `layout theme tree` 1.140 s → 113 ms. `layout settings tree` 1.037 s → 76 ms. `validator is valid` 628 ms → 12.5 ms, plus `validator default rules` 10.1 ms. `layout style tree` 394 ms → 52 ms.
+- **Keys computed again by every reader.** The key tag is now stamped once at parse (`jam_ConfigDocument.cpp:33-55`), not in the kernel parser.
+- **Theme text round trips.** The theme default went CSS → markdown text → parse, and the style tree went config → CSS text → parse. Both are now direct. The new theme tree is byte-identical to the old one (SHA-256 of the written XML, 82,275 bytes).
+- **Files parsed three times.** `getOrCreateDefaultFile` parsed the file and the default text for the version, then `getSettingsTree` parsed the file again. Now one parse per file; the theme markdown text (51 ms) is built only to write an old file.
+- **Validator rebuilt the default tree in five rules.** It now reads the default document. The first rewrite was slower (88 ms: `getTableRows`/`getTableHeaders` arrays built in nested loops); the key index made it O(1).
+- **Launch crash (access violation).** A file-scope `static const auto darkTag { Format::toTag (Id::dark) }` ran before `Id::dark` (another translation unit, `generated/jam_Style.cpp:27`) was built. Replaced by `map::Appearance::getInstance()->get (map::Appearance::dark)` with a local owner.
+- **Mistakes owned.** The kernel Markdown parser was changed (reverted on ARCHITECT's ruling); readers with `find`/`isNotEmpty` checks (moved to creation); a brief that put a static at file scope; a `getDarkTag()` function where a local static was enough; `darkTag` built again what `map::Appearance` holds; an Engineer name outside the brief (`defaultRows`) rewritten.
+
+### State for Continuation
+- Not audited, no doxygen pass. Stale or missing docs: `ConfigDocument::getRowKey`, `getConfigRow` (both), `getConfigRows`, `getValueTree (rootType, sheet)`, `addProperty`; `PluginEditorLayout::getThemeSettings`, `getStyleTree`, `getSettingsTree` (`@param userDocument`).
+- Temporary profiler zones stay for the next optimisation: `layoutDefaultFile`, `validatorDefaultRules` (`jam_PluginEditorLayout.cpp`), and the other launch zones in jam and EVE. `Id::settingsDocumentParse` has no user left (`cast/plugin_bootstrap.md:79`).
+- `getUnknownKeyFailures` still builds `Format::toTag (Id::any)` as a local static (`jam_ConfigValidator.cpp`).
+- `ConfigDocument::getValueTree (rootType, sheet)` equals the CSS path for valid cells only. Not reproduced: multi-token window and font-attribute cells, quoted cells, non-`0x` colour text, duplicate widget tables, a table named `appearance`.
+- KANJUT is not on this machine (`D:\Poems\kuassa\user_modules` absent). The `ConfigDocument` key stamps and key index need the KANJUT sync check.
+- END's own theme keeps its CSS round trip (`end/Source/config/ConfigTheme.cpp:29-32`).
+- Next hot zones (ms): `layout style tree` 52, `tty open` 42, `vulkan flush recording` 30, `layout default tree` 25, `layout user tree` 27, `layout theme settings` 18, `layout documents` 17, `layout default file` 16.
+- `launchPrompt` (OSC 133 A) is not detected, so `epoch` still holds the 5 s `read` of `launch-windows.sh`.
+- Not done: `end/benchmark/pane-windows.md` (END loading EVE); the Ctrl+W markdown preview crash with EVE in END.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 101: END to the Front at Launch, Keys and Mouse Without the Active Window, Audit of Two Sprints, VST2 Host Window at the Plugin's Size ✅
 
 **Date:** 2026-11-13
@@ -256,73 +321,6 @@
 - `DEBT-20261103T195500` — fit of plugin editors to the pane (deferred by ARCHITECT).
 - `DEBT-20261025T135707` — END hosts EVE as CLAP; ENAX's CLAP format is future work (ARCHITECT, 2026-11-01).
 - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT: *"windows build still miles ahead. defer."*).
-
----
-
-## Sprint 97: One Load Path, Async Instance, Drop Target in Front, EVE Known, Editor Once, OMP Race, Model-Driven Tabs ✅
-
-**Date:** 2026-11-04
-**Duration:** several sessions (compactions). The start and end times are not recorded.
-**Scope (ARCHITECT):** `PLAN-load-plugin.md` (parent `PLAN-instant-plugin-loading.md` rows 5 and 6, Step 12). *"loading plugin, ANY PLUGIN including EVE is ONE PATH. one SSOT unique commandId"*; *"files::evePlugin is default args"*; *"drop file is override"*; *"blank component to front. always in front of everything, this is the FileDragAndDropTarget"*; *"split with direction should be command. load plugin is command. drag and mouse up call the chain"*; *"EVE is a plugin binary carried by END itself. it is KNOWN"*; *"editor must be created only ONCE"*; *"fix the OMP bug (init race)"*; *"remove all ode instrumentation"*; *"isn't tab could be fully event driven from Model?"*; *"proceed until /log no gate."* Fit of plugin editors deferred to DEBT.
-
-### Agents Participated
-- COUNSELOR — PLAN and its amendments, every validation read, the DCF triage of the audit, small edits named below, scout manifests, `ARCHITECTURE.md`, `DEBT.md`, this log.
-- Pathfinder (haiku) — discovery reads (JUCE drag path, hosted-editor scale path, VST2 editor build, jam TTY, ENAX size path, layout listener order), whatdbg trace, two scout runs, the doxygen pass.
-- Librarian (haiku) — AppKit drag destination routing.
-- Engineer (sonnet) — every code change below.
-- Auditor (opus) — one pass, 28 findings.
-
-### Files Modified
-**end:**
-- `Source/plugins/Nexus.h` / `.cpp` — `knownPluginList`; `registerExtensions`, `addFormats`, `registerEVE` (EVE description listed at construction: `pluginFormatName`, `fileOrIdentifier`, `lastFileModTime`); `removeSession` deleted (no caller); `createSession` passes the sessions row.
-- `Source/plugins/Session.h` / `.cpp` — load from the pane row event `Id::plugin` (`loadPlugin`, async `createPluginInstanceAsync`, the Model decides a late instance); `addPlugin` / `addConnections`; static `getPluginFormat (formatManager, file)` plus the member; `removePlugins (row)`; listens on the parent sessions row, `valueTreeChildRemoved` removes a closed tab's plugins after its editors; `jassert` on missing format, empty scan, null instance.
-- `Source/ui/ENDView.h` / `.cpp` — `newPane (edge)` splits in half or adds; `loadPlugin (plugin)` writes `Id::plugin` of the focused pane from `getPath (Id::plugins).getChildFile (plugin)`; `newTab` and the split keys run `newPane` then `loadPlugin (files::evePlugin)`; `closeTab` removes the focused tab row only; actions split by responsibility (`registerApplicationActions`, `registerFocusActions`, `registerJoinActions`, `registerSwapActions`, `registerResizeActions`, `registerProfilerActions`); `getActiveTabView`.
-- `Source/ui/EditorView.h` / `.cpp` — editor created on `Id::name` after layout; `DropTarget` (nested `juce::Component` + `juce::FileDragAndDropTarget`) in front of every child, focuses its pane on drag enter, drop runs `newPane (getEdge)` then `loadPlugin (path)`; `setEditorBounds` two branches (transform removed); `getParameter` const, ENAX lane only (pane row `Id::plugin` is the EVE file), `compareIgnoreCase`; master formatting and `getWidthName` deleted.
-- `Source/ui/TabView.h` / `.cpp` — adopt constructor; `add` void; no longer a drop target; corner split runs `loadPlugin (files::evePlugin)`; `getJoinDirections`, `getJoinAction` (one join table).
-- `Source/ui/SessionView.h` / `.cpp` — tabs follow the Model: `add` appends a tab row, `remove` removes it, `valueTreeChildAdded` / `valueTreeChildRemoved` mount and unmount `TabView`, last tab runs `quit`.
-- `Source/Main.h` / `.cpp` — `settings` (`END.settings`): window state restored before show, saved at shutdown.
-- `cast/identifiers.md` (`loadPlugin`, `plugin`; `bottom` moved to jam), `cast/files.md` (`settings file name`); `benchmark/pane.md`, `split.md` (cast rows for EVE and END, baselines); `ARCHITECTURE.md` (Hosting Contract); `DEBT.md`; `PLAN-load-plugin.md`.
-
-**jam:**
-- `jam_gui/layout/jam_PaneComponent.h` / `.cpp` — `getEdge (point)` through `juce::Line::isPointAbove`.
-- `jam_gui/widgets/jam_TextEditor.cpp` — `bindToModel` no longer writes the winsize (OMP race).
-- `jam_core/text/jam_Format.cpp` — an empty group yields the name alone. `jam_plugin_bootstrap/parameter/jam_ParameterLayout.cpp` — groups only for non-empty cells.
-- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.cpp` — instrumentation removed (memo of `PLAN-settings-once.md` in place).
-- `patch/juce-plugin-editor-once-hook.patch` (new: `handleOpenEditor` keeps the editor that `effEditGetRect` built); `patch/juce-plugin-view-scale-hook.patch` deleted; `user-modules-info.md:1371`; `cast/data_structures.md` (`bottom`).
-- Doxygen on every changed header.
-
-**eve:**
-- `Source/layout/parameters.md` — empty group cells (no master). `EVEProcessor.cpp`, `EVETerminalProcessor.cpp`, `EVEView.cpp` — instrumentation removed.
-
-### Alignment Check
-- [x] BLESSED principles followed — one load path, one split path, the Model decides late instances, tabs follow the Model, JUCE gives the close order.
-- [x] NAMES.md adhered — new names from established families, recorded in the PLAN.
-- [x] MANIFESTO.md principles applied
-- [ ] Doxygen not regenerated; ARCHITECT regenerates and reads the warning count.
-
-### Problems Solved
-- **Cold start.** The first EVE load scanned EVE (339 ms). EVE is now listed at startup: `new pane` 308.9 ms → 0.030 ms, `session plugin` 244.6 ms → 0.020 ms (`benchmark/pane-load-report.md`).
-- **Editor built twice** by the JUCE VST2 client (`effEditGetRect` then `effEditOpen`): one-line jam patch.
-- **OMP help and `%`.** The bind wrote a 110×37 winsize before the pane size; the second restart sent `SIGWINCH` into the user's `TRAPWINCH` before OMP's first `precmd`. Fix ruled by ARCHITECT: no write at bind.
-- **Drop over a plugin.** A drop target in front of each pane, from ARCHITECT's design.
-- **Close crash** (`HashMap::at`) gone after the command chain; ARCHITECT confirmed.
-- **Audit.** 28 findings: resolved 2, 3, 4, 7, 8, 9, 10, 11, 16, 18, 19, 20, 21, 22, 27, 28 (tabs); rejected 1, 12 (ARCHITECT's `toFront`), 5, 6, 13, 14, 15, 17, 23, 24, 25, 26, each with its clause or ruling in this session. Doxygen pass finding C1 rejected (MANIFESTO D).
-- **Mistakes owned.** Claims from training data about AppKit drag routing and overlays; a z-order chosen against *"always in front of everything"*; `setTransform` on a hosted editor against JUCE's contract; a scout run from the wrong folder; a position argument raised as a blocker; a Model-driven pane design that the row moves of `MatrixComponent` forbid, corrected to tabs.
-
-### State for Continuation
-- Run `cast` in jam, eve and end (patch list changed: `juce-plugin-editor-once-hook.patch` in, scale patch out), then build.
-- Runtime check: no OMP help and no `%` above the first prompt (Debug too); one EVE view build per pane; drop on a pane centre; tab close order (editor before plugin); last tab quits.
-- Regenerate doxygen (`ninja doxygen`; jam `<leader>bd`).
-- Panes stay imperative: `MatrixComponent` moves live pane rows by detach and re-add, so `closePane` keeps `getChildCount() > 1` → `closeTab`.
-- Known gap (ARCHITECT chose it): when a terminal's final bounds equal the default layout, no winsize is written.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- `DEBT-20261103T195500` — fit of plugin editors to the pane (ARCHITECT, 2026-11-04).
-- `DEBT-20261025T135707` — END hosts EVE as CLAP (ARCHITECT, 2026-11-01).
-- `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (ARCHITECT).
 
 ---
 
