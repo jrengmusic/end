@@ -28,6 +28,7 @@ static void (*manifestFileGetter) (char*, size_t) { [] (char* hostFile, size_t n
 #endif
 
 Nexus::Nexus()
+    : juce::Thread (ProjectInfo::projectName)
 {
     registerExtensions();
 
@@ -37,8 +38,18 @@ Nexus::Nexus()
     model.createAndAddParameter<jam::Parameter<int64_t>> (
         sessionsTree, Id::focusedSession, jam::UUID::none().value);
 
-    addFormats();
-    deviceManager.initialiseWithDefaultDevices (2, 2);
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::nexusFormats };
+#endif
+        addFormats();
+    }
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::nexusDeviceTypes };
+#endif
+        deviceManager.getAvailableDeviceTypes();
+    }
     player.setProcessor (&graph);
     audioInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode))->nodeID;
@@ -46,8 +57,27 @@ Nexus::Nexus()
         juce::AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode))->nodeID;
     midiInputId = graph.addNode (std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor> (
         juce::AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode))->nodeID;
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::nexusRegisterEVE };
+#endif
+        registerEVE();
+    }
+    startThread();
+}
+
+void Nexus::run()
+{
+#if JUCE_WINDOWS
+    const jam::ComApartment apartment;
+#endif
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::nexusAudioDevice };
+#endif
+        deviceManager.initialiseWithDefaultDevices (2, 2);
+    }
     deviceManager.addAudioCallback (&player);
-    registerEVE();
 }
 
 void Nexus::registerExtensions()
@@ -109,6 +139,7 @@ void Nexus::addPluginModule (const juce::File& file)
 
 Nexus::~Nexus()
 {
+    waitForThreadToExit (-1);
     deviceManager.removeAudioCallback (&player);
     player.setProcessor (nullptr);
 }

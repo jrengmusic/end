@@ -77,15 +77,26 @@ juce::String ConfigModel::loadResources (const juce::ValueTree& config)
 
 void ConfigModel::loadFromPath()
 {
-    saveToPath();
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::configSave };
+#endif
+        saveToPath();
+    }
 
     juce::ValueTree disk { jam::Format::toType (Id::config) };
-    juce::String errors { ConfigDirectory::addFileTables (disk,
-        *map::FileConfig::getInstance(),
-        ConfigDirectory::Config::getName,
-        [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); },
-        getDefaultDocument,
-        getConfigTree) };
+    juce::String errors {};
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::configTables };
+#endif
+        errors << ConfigDirectory::addFileTables (disk,
+            *map::FileConfig::getInstance(),
+            ConfigDirectory::Config::getName,
+            [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); },
+            getDefaultDocument,
+            getConfigTree);
+    }
 
     auto config { getDefaultConfig() };
 
@@ -93,7 +104,12 @@ void ConfigModel::loadFromPath()
 
     // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
     // notifications and consumers must read fresh source at that point.
-    errors << loadResources (config);
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::configResources };
+#endif
+        errors << loadResources (config);
+    }
 
     setValuesFrom (config);
 

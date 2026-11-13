@@ -618,3 +618,89 @@ ARCHITECT reported runtime defects of END hosting EVE (VST2) on Windows: black l
 - Trigger: ARCHITECT runs cast and the build (Remaining 1) and reports the runtime result (Remaining 2).
 - In parallel, COUNSELOR runs again the EVE key-to-PTY read (Remaining 3) and presents the keyboard PLAN for approval.
 
+---
+
+## Handoff to COUNSELOR: END Loading EVE Under One Second — Profiling Paused for the Document Contract
+
+**From:** COUNSELOR
+**Date:** 2026-11-13
+**Status:** Blocked — on ARCHITECT's document contract enforcement (macOS session)
+
+### Read First
+1. `jam/RFC-config-document-parse-once.md` — the ConfigDocument findings handed to the document contract work. Its scout table is the baseline for the config zones.
+2. This entry, `### Remaining`.
+3. `~/.carol/skills/profile/SKILL.md` `## Builds` — the cast-only profile build, rewritten this session.
+4. `end/benchmark/pane-windows-report.md` and `eve/benchmark/launch-windows-report.md` — the latest medians.
+
+### Context
+ARCHITECT asked for EVE launch and END-loading-EVE under one second, prompt ready to type, with no black pane. Sprint 102 cut EVE's layout parse. This session moved END's audio device open to a thread, built the Vulkan device in parallel on Windows, made the VST2 host panes transparent in END, and profiled the rest. ARCHITECT then took the config document path to the macOS session: *"config document optimization delegated. out of your scope."* and *"i will fix Document contract enforcement first, this also profiled and measured so will affect our work here. we will continue to optimize EVE and END after that."*
+
+### Completed
+- **Vulkan device in parallel on Windows.** `jam_VulkanGraphicsEngine.cpp:18` sets `externalContextFactory` on every OS. The Windows wait in `getOrCreate` is gone (`.h`). `createContext` marks the GPU unavailable and repaints when no device exists yet (`.cpp:489-493`).
+- **No black host pane in END.** `jam/patch/juce-plugin-transparency-hook.patch` hunk on `juce_VSTPluginFormat.cpp`: `ViewComponent` and `Inner` are not opaque under `PluginHostType().isEND()` and paint black only when opaque. A PrintWindow capture showed the theme background (`scratchpad/end-profile-window.png`). ARCHITECT has not checked it at runtime.
+- **END audio device on its own thread.** `Nexus` is a `juce::Thread`. `Nexus::run` opens `jam::ComApartment`, then `initialiseWithDefaultDevices (2, 2)` and `addAudioCallback` (`end/Source/plugins/Nexus.cpp:69-81`). `~Nexus` waits for it (`:142`). Device types stay on the message thread: the WASAPI type owns a `DeviceChangeDetector` (`juce_WASAPI_windows.cpp:1886`).
+- **`jam::ComApartment`** moved to `jam_core/native/jam_ComApartment_windows.h/.cpp`, rows in `jam/user-modules-info.md`.
+- **Window added to the desktop after its setup.** `jam_gui/windows/jam_Window.cpp`: the `DocumentWindow` base gets `addToDesktop = false`, and the constructor calls `addToDesktop()` at its end.
+- **Profile builds go only through cast.** New `end/profile-info.md` (lane `profile`: `pluginBundle.cmake` with `CAST_LANE=profile`, jam spell, `Builds/Profile`). New `eve/profile-info.md` (lanes `vst-profile`, `standalone-profile`). `@profile-info` index rows in `end/cast/spell.md` and `eve/cast/spell.md`. Each scout manifest has one toolchain row: `cast | ../cast/spell.md --profile` (`end/benchmark/pane-windows.md`, `pane-windows-build.md`) or `--standalone-profile` (`eve/benchmark/launch-windows.md`). Cast reads every `## toolchain` table (`cast/Source/Processor.cpp:66`). Both runs exited 0; END's run packed `EVE v0.0.1 Windows scout.zip` through EVE's `--vst-profile` lane. `Source/generated/*` now comes from cast in both projects.
+- **Measurements (scout, Release, 11 epochs, Windows, medians).**
+  - END: epoch 2.77 s; application members 684 ms; config save 3.5 ms; config tables 2.8 ms; theme save 127 ms; theme load 289 ms; config resources 412 ms; nexus device types 49 ms; application window 234 ms; pane prompt (view construction → prompt painted) 240 ms; graph node 128 ms; pane editor 120 ms; nexus audio device 1.62 s (own thread).
+  - The prompt shows at about 1.0 s after the members zone starts. The rest of the epoch is the quit: `~Nexus` `waitForThreadToExit (-1)` waits for the 1.6 s device open.
+  - EVE standalone: epoch 1.27 s; launch prompt 0.82 s; processor layout 170 ms; processor prepare 175 ms = buffer prepare 125 ms (rows prepare 116 ms, swap prepare 10 ms, processor reset 0.01 ms) + tty open 48 ms; device open ~0; queues prepare 0.13 ms; processor delete 81 ms; standalone shutdown 186 ms.
+- **Cause of `rows prepare` (read, not measured per part).** `virtualBlockSize` is 65536 on every OS (`eve/Source/EVETerminalProcessor.cpp:5`). The ring holds `blocksPerVblank × 65536 + rows` transit rows (`:528`), and `prepareRows` reserves every slot's arrays (`jam_TerminalBuffer.cpp:46-48`, `jam_AttributedString.cpp:157-164`). 65536 is the TTY read chunk on every OS: the processor asks `65536 - pendingBytes` (`jam_TerminalProcessor.cpp:72-73`); Windows `ReadFile` asks `readBuffer.getSize()` = 65536 (`jam_TerminalTTY_windows.cpp:850`); POSIX `::read` takes `maxBytes` (`jam_TerminalTTY_posix.cpp:320`). Rationale: `eve/SPEC.md:125-135` and commit `d1e2679`.
+
+### Remaining
+1. ARCHITECT: document contract enforcement (macOS). It covers `jam/RFC-config-document-parse-once.md`.
+2. COUNSELOR, after the pull: re-measure both. Commands: `scout D:/Poems/dev/end/benchmark/pane-windows.md` from `end/benchmark`, and `scout D:/Poems/dev/eve/benchmark/launch-windows.md` from `eve/benchmark`. Compare `theme save`, `theme load`, `config resources`, `application members`, `processor layout`.
+3. ARCHITECT: the decision on EVE's 116 ms `rows prepare` (Open Questions 1).
+4. COUNSELOR: the remaining END zones — `application window` 234 ms, `graph node` 128 ms, `pane editor` 120 ms. EVE's zones are not visible in END's run: `Profiler::writeSamples` replaces the samples file (`jam_Profiler.cpp:174`), and only the standalone app writes EVE's.
+5. COUNSELOR: the zsh marks in END. zsh in END emits no OSC 7 and no 133;A that reaches EVE (`EVE VST.ode`). With END's environment, zsh registers `_eve_precmd`, which prints them. Next read: a whatdbg trace of a Debug END-hosted EVE at the OSC dispatch (`jam_TerminalProcessor.cpp:430-436`).
+6. Engineer, before the sprint log: remove every temporary profiler zone and its id.
+   - END: `applicationBackground`, `applicationInitialise`, `applicationMembers`, `applicationShutdown`, `applicationWindow`, `graphicsEngine`, `nexusAudioDevice`, `nexusDeviceTypes`, `nexusFormats`, `nexusRegisterEVE`, `configResources`, `configSave`, `configTables`, `themeLoad`, `themeSave`, and the `panePrompt.emplace` in `ENDView::registerProfilerActions`.
+   - EVE: `deviceOpen`, `deviceStart`, `queuesPrepare`, `bufferPrepare`, `rowsPrepare`, `swapPrepare`, `processorReset`.
+   - jam: `ttyClose`, `ttyClosePseudoConsole`, `ttyExitPseudoConsole`, `ttyTerminate`.
+   - The earlier launch zones of Sprint 102.
+7. Pathfinder, post-audit doxygen pass. Stale blocks:
+   - `jam_VulkanGraphicsEngine.h:47-50`, `:125-129`.
+   - `end/Source/plugins/Nexus.h` (class, constructor, destructor).
+   - `jam_TerminalTTY.h:76-77` and `eve/Source/EVETerminalProcessor.h:304`: both say `bufferSize` bounds one read; POSIX reads `maxBytes` (`jam_TerminalTTY_posix.cpp:320`).
+   - `jam_TerminalSwap.h:40` vs `:45`.
+   - `jam_TerminalBuffer.h:186-187` (`write` ready "when the handle goes out of scope"; `jam_TerminalBuffer.cpp:33` drops the handle at once).
+8. ARCHITECT: runtime check of the transparent pane in END (Completed 2).
+9. @Auditor once, then the sprint log on ARCHITECT's `/log`. Earlier threads still open: the intermittent quit hang with real zsh; the Ctrl+W markdown preview crash with EVE in END.
+
+### Key Decisions
+- *"let's fix eve loading time, then end loading eve time. must be as FAST as we can. profile with scout"*
+- *"HOW DO WE MAKE THIS LOAD ENTIRELY LESS THAN 1s? Why we still have black panel edges?"*; *"THE REAL USAGE IS END HOST EVE"*; *"there are no black pane should ever exists"*
+- *"ensure the transparency patch is small surface and END only"*
+- END opens its sound card *"On a background thread"* (AskUserQuestion answer).
+- *"DOCUMENT CONTRACT ALWAYS NON-NEGOTIABLE: built complete AST once, memoized, cached, state update, 0 rules"*
+- *"config document optimization delegated. out of your scope."*
+- *"you build project with cast, jam always automatically built"*; *"NEVER FUCKING USE MANUAL NINJA. ALWAYS WITH CAST"*
+- *"NO. no touching project-info.md"*; *"you only need to write profile-info.md whatever as the manifest to build the profiling build with cast"*
+- *"i will fix Document contract enforcement first, this also profiled and measured so will affect our work here. we will continue to optimize EVE and END after that."*
+
+### Files Modified
+- `jam/jam_vulkan/engine/jam_VulkanGraphicsEngine.h`, `.cpp` — parallel device build on Windows.
+- `jam/patch/juce-plugin-transparency-hook.patch` — END-only transparent `ViewComponent` and `Inner`.
+- `jam/jam_core/native/jam_ComApartment_windows.h`, `.cpp` (new); `jam/jam_core/jam_core.h`, `.cpp`; `jam/user-modules-info.md` — `ComApartment` in jam_core.
+- `jam/jam_terminal/image/native/jam_TerminalImageSequence_windows.cpp` — local `ComApartment` deleted.
+- `jam/jam_gui/windows/jam_Window.cpp` — `addToDesktop` after setup.
+- `jam/jam_terminal/tty/native/jam_TerminalTTY_windows.cpp`, `jam/cast/terminal.md`, `jam/generated/jam_Terminal.*` — temporary TTY close zones.
+- `jam/RFC-config-document-parse-once.md` (new).
+- `end/Source/plugins/Nexus.h`, `.cpp` — audio device thread; temporary zones.
+- `end/Source/Main.h`, `.cpp`, `end/Source/config/ConfigModel.cpp`, `ConfigTheme.cpp`, `end/Source/ui/ENDView.cpp`, `end/cast/identifiers.md`, `end/Source/generated/Identifiers.*` — temporary zones.
+- `end/profile-info.md` (new), `end/cast/spell.md` — the `profile` lane.
+- `end/benchmark/pane-windows.md`, `pane-windows-build.md` (new), `pane-windows.sh` (new) — the END benchmark, cast toolchain row, and `133;A` shell.
+- `eve/profile-info.md` (new), `eve/cast/spell.md` — the `vst-profile` and `standalone-profile` lanes.
+- `eve/benchmark/launch-windows.md` — cast toolchain row.
+- `eve/Source/EVETerminalProcessor.cpp`, `eve/cast/identifiers.md`, `eve/Source/generated/Identifiers.*` — temporary prepare zones.
+- `~/.carol/skills/profile/SKILL.md` — cast-only toolchain example and `## Builds` text.
+
+### Open Questions
+1. EVE's 116 ms `rows prepare`. Options: a smaller `virtualBlockSize` (`EVETerminalProcessor.cpp:5`); a cap on the rows one `process` writes into the ring, so the ring holds rows plus a fixed transit count; or keep the sizing and move `prepare` off the path to the prompt. Decider: ARCHITECT.
+2. The quit waits up to 1.6 s for the device thread (`Nexus.cpp:142`). Whether that matters is ARCHITECT's call.
+
+### Next Steps
+- Trigger: ARCHITECT says the document contract work is pulled to this machine.
+- Then COUNSELOR runs Remaining 2, and continues with Remaining 3 and 4.
+

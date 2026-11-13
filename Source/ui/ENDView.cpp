@@ -214,6 +214,8 @@ void ENDView::registerProfilerActions()
     const auto profilerTable { manifest.getChildWithName (jam::Format::toType (Id::profiler)) };
     const int panes { static_cast<int> (profilerTable[jam::Format::toType (Id::panes)]) };
 
+    panePrompt.emplace (Id::panePrompt);
+
     nexus.onPromptPainted = [this, panes]
     {
         panePrompt.reset();

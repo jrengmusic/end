@@ -31,10 +31,18 @@ namespace Id
 
     const juce::Identifier alwaysOnTop                     { juce::String::fromUTF8 ("alwaysOnTop") };
     const juce::Identifier alwaysVisible                   { juce::String::fromUTF8 ("alwaysVisible") };
+    const juce::Identifier applicationBackground           { juce::String::fromUTF8 ("applicationBackground") };
+    const juce::Identifier applicationInitialise           { juce::String::fromUTF8 ("applicationInitialise") };
+    const juce::Identifier applicationMembers              { juce::String::fromUTF8 ("applicationMembers") };
+    const juce::Identifier applicationShutdown             { juce::String::fromUTF8 ("applicationShutdown") };
+    const juce::Identifier applicationWindow               { juce::String::fromUTF8 ("applicationWindow") };
     const juce::Identifier backgroundOpacity               { juce::String::fromUTF8 ("backgroundOpacity") };
     const juce::Identifier backgroundResolution            { juce::String::fromUTF8 ("backgroundResolution") };
     const juce::Identifier button                          { juce::String::fromUTF8 ("button") };
     const juce::Identifier buttonOn                        { juce::String::fromUTF8 ("buttonOn") };
+    const juce::Identifier configResources                 { juce::String::fromUTF8 ("configResources") };
+    const juce::Identifier configSave                      { juce::String::fromUTF8 ("configSave") };
+    const juce::Identifier configTables                    { juce::String::fromUTF8 ("configTables") };
     const juce::Identifier enabled                         { juce::String::fromUTF8 ("enabled") };
     const juce::Identifier exclusiveZoom                   { juce::String::fromUTF8 ("exclusiveZoom") };
     const juce::Identifier filter                          { juce::String::fromUTF8 ("filter") };
@@ -44,9 +52,14 @@ namespace Id
     const juce::Identifier frameRate                       { juce::String::fromUTF8 ("frameRate") };
     const juce::Identifier graphNode                       { juce::String::fromUTF8 ("graphNode") };
     const juce::Identifier graphics                        { juce::String::fromUTF8 ("graphics") };
+    const juce::Identifier graphicsEngine                  { juce::String::fromUTF8 ("graphicsEngine") };
     const juce::Identifier imouse                          { juce::String::fromUTF8 ("imouse") };
     const juce::Identifier mouse                           { juce::String::fromUTF8 ("mouse") };
     const juce::Identifier newPane                         { juce::String::fromUTF8 ("newPane") };
+    const juce::Identifier nexusAudioDevice                { juce::String::fromUTF8 ("nexusAudioDevice") };
+    const juce::Identifier nexusDeviceTypes                { juce::String::fromUTF8 ("nexusDeviceTypes") };
+    const juce::Identifier nexusFormats                    { juce::String::fromUTF8 ("nexusFormats") };
+    const juce::Identifier nexusRegisterEVE                { juce::String::fromUTF8 ("nexusRegisterEVE") };
     const juce::Identifier orbit                           { juce::String::fromUTF8 ("orbit") };
     const juce::Identifier outline                         { juce::String::fromUTF8 ("outline") };
     const juce::Identifier pane                            { juce::String::fromUTF8 ("pane") };
@@ -82,6 +95,8 @@ namespace Id
     const juce::Identifier textOff                         { juce::String::fromUTF8 ("textOff") };
     const juce::Identifier textOn                          { juce::String::fromUTF8 ("textOn") };
     const juce::Identifier theme                           { juce::String::fromUTF8 ("theme") };
+    const juce::Identifier themeLoad                       { juce::String::fromUTF8 ("themeLoad") };
+    const juce::Identifier themeSave                       { juce::String::fromUTF8 ("themeSave") };
     const juce::Identifier themes                          { juce::String::fromUTF8 ("themes") };
     const juce::Identifier titleBarButtons                 { juce::String::fromUTF8 ("titleBarButtons") };
     const juce::Identifier useGpu                          { juce::String::fromUTF8 ("gpu") };

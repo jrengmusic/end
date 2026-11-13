@@ -68,6 +68,9 @@ ConfigTheme::ConfigTheme()
 
 void ConfigTheme::saveToPath (const juce::var& path)
 {
+#if JAM_USING_PROFILER
+    const jam::Profiler::Zone zone { Id::themeSave };
+#endif
     const juce::File dir { ConfigDirectory::Themes::getPath (path.toString()) };
 
     jam::File::getOrCreateDirectory (dir.getParentDirectory(), dir.getFileName());
@@ -93,6 +96,9 @@ void ConfigTheme::saveToPath (const juce::var& path)
 
 juce::String ConfigTheme::loadFromPath (const juce::var& path)
 {
+#if JAM_USING_PROFILER
+    const jam::Profiler::Zone zone { Id::themeLoad };
+#endif
     const juce::File dir { ConfigDirectory::Themes::getPath (path.toString()) };
     auto themes { getDefaultThemes() };
     juce::String errors {};

@@ -41,6 +41,7 @@ private:
 
 #if JAM_USING_PROFILER
     jam::Profiler profiler { jam::Profiler::defaultCapacity };
+    std::optional<jam::Profiler::Zone> applicationMembers { std::in_place, Id::applicationMembers };
 #endif
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };

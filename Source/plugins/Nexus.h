@@ -14,7 +14,8 @@
  * One graph and one format manager serve every session. Each session holds the
  * hosted plugin of each of its panes, inside this graph.
  */
-class Nexus : public jam::Instance<Nexus>
+class Nexus : public jam::Instance<Nexus>,
+              private juce::Thread
 {
 public:
     /**
@@ -100,6 +101,8 @@ public:
 #endif
 
 private:
+    void run() override;
+
     /**
      * @brief Makes the bundle of one embedded plugin archive available in the plugins folder, unpacking the archive only when needed.
      *

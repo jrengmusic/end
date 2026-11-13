@@ -167,7 +167,14 @@ void ENDApplication::setPostProcessParams()
 
 void ENDApplication::shutdown()
 {
-    settings.setValue (Id::window.toString(), window->getWindowStateAsString());
+#if JAM_USING_PROFILER
+    {
+        const jam::Profiler::Zone zone { Id::applicationShutdown };
+#endif
+        settings.setValue (Id::window.toString(), window->getWindowStateAsString());
+#if JAM_USING_PROFILER
+    }
+#endif
 
 #if JAM_USING_PROFILER
     profiler.drain();
@@ -183,6 +190,11 @@ bool ENDApplication::moreThanOneInstanceAllowed() { return true; }
 //==============================================================================
 void ENDApplication::initialise (const juce::String& commandLine)
 {
+#if JAM_USING_PROFILER
+    applicationMembers.reset();
+    const jam::Profiler::Zone zone { Id::applicationInitialise };
+#endif
+
 #if JUCE_WINDOWS
     {
         HANDLE job { CreateJobObject (nullptr, nullptr) };
@@ -197,27 +209,42 @@ void ENDApplication::initialise (const juce::String& commandLine)
         }
     }
 #endif
-    initialiseVulkan();
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::graphicsEngine };
+#endif
+        initialiseVulkan();
+    }
 
-    window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
-                                            ProjectInfo::projectName,
-                                            static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::alwaysOnTop)),
-                                            static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::titleBarButtons)));
-    window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::applicationWindow };
+#endif
+        window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
+                                                ProjectInfo::projectName,
+                                                static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::alwaysOnTop)),
+                                                static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::titleBarButtons)));
+        window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
 
-    window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
+        window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
 
-    window->setVisible (true);
+        window->setVisible (true);
 
 #if JUCE_WINDOWS
-    if (auto* peer { window->getPeer() })
-        jam::StyleWindow::setForeground (*peer);
+        if (auto* peer { window->getPeer() })
+            jam::StyleWindow::setForeground (*peer);
 #endif
+    }
 
-    registerEvents();
-    config.addListener (this);
-    setBackground();
-    setPostProcess();
+    {
+#if JAM_USING_PROFILER
+        const jam::Profiler::Zone zone { Id::applicationBackground };
+#endif
+        registerEvents();
+        config.addListener (this);
+        setBackground();
+        setPostProcess();
+    }
 }
 
 void ENDApplication::initialiseVulkan()
