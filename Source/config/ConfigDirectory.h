@@ -103,16 +103,20 @@ public:
 
     /** @brief Appends the children of the tree of each valid file of @p files to @p target.
      *
-     *  Each file is read through @p read and parsed as a config document. The document must pass the rules of
-     *  jam::ConfigValidator. It must then pass the rules of the default document of the same file name, which
-     *  @p getDefaultDocument returns. A document that passes both appends the children of the tree that @p getTree
-     *  builds to @p target. A document that fails either is not appended, and its validation message is added to the result.
+     *  Each file is read through @p getFile and parsed by jam::ConfigDocument::getOrCreateFileDocument. When the version of
+     *  the parsed file is older than the version of its default document, that function writes @p getDefaultText of the file
+     *  name to the file, and parses the written text. The document must pass the row rules and the table rule of
+     *  jam::ConfigValidator, built against the default document of the same file name, which @p getDefaultDocument returns.
+     *  A document that passes appends the children of the tree that @p getTree builds to @p target. A document that fails
+     *  the rules is not appended, and its validation message is added to the result. When the file yields no document, the
+     *  message of jam::ConfigDocument::isValid for its text is added to the result.
      *
      *  @param target              Tree that receives the children.
      *  @param files               Registry of bimap keys to file stems.
      *  @param getName             Returns the extensioned filename of a key.
-     *  @param read                Returns the text of a file, given its filename.
+     *  @param getFile             Returns the file of an extensioned filename.
      *  @param getDefaultDocument  Returns the default config document of a filename.
+     *  @param getDefaultText      Returns the default text of a filename, written to its file when the file's version is older.
      *  @param getTree             Builds the tree of a parsed config document. Its children are appended to @p target.
      *  @return                    The validation messages of the rejected files, each followed by a newline.
      *                             Empty when every file passes.
@@ -120,26 +124,24 @@ public:
     static juce::String addFileTables (juce::ValueTree target,
                                        const jam::Bimap<int>& files,
                                        const std::function<juce::String (int)>& getName,
-                                       const std::function<juce::String (const juce::String&)>& read,
+                                       const std::function<juce::File (const juce::String&)>& getFile,
                                        const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
+                                       const std::function<juce::String (const juce::String&)>& getDefaultText,
                                        const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree);
 
     /** @brief Appends the children of the tree of the default document of each file of @p files to @p target.
      *
-     *  @p getDefaultDocument returns the default document of a filename, and @p getTree builds its tree.
-     *  No rule runs on the default documents.
+     *  @p getDefaultTree returns the tree of the default document of a filename. No rule runs on the default documents.
      *
-     *  @param target              Tree that receives the children.
-     *  @param files               Registry of bimap keys to file stems.
-     *  @param getName             Returns the extensioned filename of a key.
-     *  @param getDefaultDocument  Returns the default config document of a filename.
-     *  @param getTree             Builds the tree of a parsed config document. Its children are appended to @p target.
+     *  @param target          Tree that receives the children.
+     *  @param files           Registry of bimap keys to file stems.
+     *  @param getName         Returns the extensioned filename of a key.
+     *  @param getDefaultTree  Returns the tree of the default document of a filename. Its children are appended to @p target.
      */
     static void addDefaultTables (juce::ValueTree target,
                                   const jam::Bimap<int>& files,
                                   const std::function<juce::String (int)>& getName,
-                                  const std::function<const jam::ConfigDocument& (const juce::String&)>& getDefaultDocument,
-                                  const std::function<juce::ValueTree (const jam::ConfigDocument&)>& getTree);
+                                  const std::function<juce::ValueTree (const juce::String&)>& getDefaultTree);
 
     //==========================================================================
     /** @brief Read from disk and overlay into @c state.
@@ -149,14 +151,11 @@ public:
      */
     virtual juce::String loadFromPath (const juce::var& path) = 0;
 
-    /** @brief Writes the default assets of the directory to disk.
+    /** @brief Writes the default flex assets of the directory to disk, in a subclass that overrides it.
      *
      *  The base implementation writes nothing. ConfigTheme overrides it.
-     *  ConfigTheme creates the theme directory and its flex/ subdirectory when they are absent.
-     *  It writes each theme markdown default through @c jam::ConfigDocument::getOrCreateDefaultFile.
-     *  That function replaces a file whose version is older than the default version.
-     *  It writes each flex SVG default only when its file is absent.
-     *  ConfigShader does not override this function, so it uses the no-op.
+     *  The override creates the theme directory and its flex/ subdirectory when they are absent, and writes each flex SVG
+     *  default only when its file is absent. It writes no markdown file.
      *
      *  @param path  Active config value passed by the owning ConfigModel.
      */

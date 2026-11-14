@@ -14,7 +14,7 @@
     A FLEX child (from @c map::FileFlex SVGs) is appended to the THEMES tree beside the THEME tables.
     @c ConfigModel attaches the whole @c theme.state THEMES
     subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
-    @c loadFromPath() overlays @c state. @c saveToPath() writes the default files and does not read @c state.
+    @c loadFromPath() overlays @c state. @c saveToPath() writes the default flex SVG files and does not read @c state.
 
     @see ConfigDirectory
     @see ConfigModel
@@ -35,8 +35,8 @@ public:
      *  Starts from the defaults of getDefaultThemes(). Locates the theme directory via
      *  @c ConfigDirectory::Themes::getPath. When the directory exists, builds a disk tree of THEMES from its
      *  markdown files through addFileTables, and of FLEX from its flex/ files through addFileFlex.
-     *  A flex SVG that fails @c jam::XmlValidator keeps its binary default, and its path and the validation
-     *  message are added to the errors. The disk tree overlays the defaults, and the result overlays @c state
+     *  A flex SVG that fails @c jam::XmlDocument::parse keeps its binary default. Its path, the diagnostic separator,
+     *  and the @c jam::XmlDocument::isValid message are added to the errors. The disk tree overlays the defaults, and the result overlays @c state
      *  with @c setValuesFrom. When the directory is missing, adds a missing-directory error, and the defaults
      *  still overlay @c state. Sends a property change for @c jam::Format::toType (Id::theme) in both cases.
      *
@@ -45,13 +45,12 @@ public:
      */
     juce::String loadFromPath (const juce::var& path) override;
 
-    /** @brief Writes the default theme files to the active theme directory.
+    /** @brief Writes the default flex SVG files to the active theme directory.
      *
      *  Gets or creates the theme directory and its @c flex/ subdirectory.
-     *  Writes each theme markdown file of @c map::FileThemes through
-     *  @c jam::ConfigDocument::getOrCreateDefaultFile, which writes the default text of that file when the
-     *  file's version is older than the default's version.
      *  Writes each flex SVG file of @c map::FileFlex only when the file is absent, from its BinaryData text.
+     *  It writes no markdown file. The markdown files are written by @c ConfigDirectory::addFileTables, through
+     *  @c jam::ConfigDocument::getOrCreateFileDocument, when a file's version is older than its default's.
      *
      *  @param path  Active theme name from ConfigModel.
      */

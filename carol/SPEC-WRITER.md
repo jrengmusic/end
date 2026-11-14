@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/SPEC-WRITER.md
+/Users/jreng/.carol/SPEC-WRITER.md

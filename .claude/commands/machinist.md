@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/machinist.md
+/Users/jreng/.carol/commands/machinist.md

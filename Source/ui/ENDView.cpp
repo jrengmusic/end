@@ -210,24 +210,28 @@ void ENDView::registerTabActions()
 void ENDView::registerProfilerActions()
 {
     const auto manifestFile { Nexus::getManifestFile() };
-    const auto manifest { jam::ConfigDocument::parse (manifestFile.loadFileAsString(), manifestFile.getFullPathName()).getValueTree (Id::manifest) };
-    const auto profilerTable { manifest.getChildWithName (jam::Format::toType (Id::profiler)) };
-    const int panes { static_cast<int> (profilerTable[jam::Format::toType (Id::panes)]) };
 
-    panePrompt.emplace (Id::panePrompt);
-
-    nexus.onPromptPainted = [this, panes]
+    if (const auto document { jam::ConfigDocument::parse (manifestFile.loadFileAsString(), manifestFile.getFullPathName()) }; document != nullptr)
     {
-        panePrompt.reset();
+        const auto manifest { document->getValueTree (Id::manifest) };
+        const auto profilerTable { manifest.getChildWithName (jam::Format::toType (Id::profiler)) };
+        const int panes { static_cast<int> (profilerTable[jam::Format::toType (Id::panes)]) };
 
-        if (auto* tabView { getActiveTabView() })
+        panePrompt.emplace (Id::panePrompt);
+
+        nexus.onPromptPainted = [this, panes]
         {
-            if (tabView->getNumChildren() < panes)
-                commandManager->invokeDirectly (map::CommandId::splitVertical, false);
-            else
-                commandManager->invokeDirectly (map::CommandId::quit, false);
-        }
-    };
+            panePrompt.reset();
+
+            if (auto* tabView { getActiveTabView() })
+            {
+                if (tabView->getNumChildren() < panes)
+                    commandManager->invokeDirectly (map::CommandId::splitVertical, false);
+                else
+                    commandManager->invokeDirectly (map::CommandId::quit, false);
+            }
+        };
+    }
 }
 #endif
 

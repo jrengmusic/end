@@ -7,14 +7,14 @@ static juce::ValueTree getConfigTree (const jam::ConfigDocument& document)
 
 static const jam::ConfigDocument& getDefaultDocument (const juce::String& fileName)
 {
-    return jam::ConfigDocument::getOrCreate (juce::Identifier { fileName });
+    return *jam::ConfigDocument::getOrCreate (juce::Identifier { fileName });
 }
 
 static juce::ValueTree getDefaultConfig()
 {
     juce::ValueTree config { jam::Format::toType (Id::config) };
     ConfigDirectory::addDefaultTables (config, *map::FileConfig::getInstance(), ConfigDirectory::Config::getName,
-                                      getDefaultDocument, getConfigTree);
+                                      [] (const juce::String& fileName) { return getConfigTree (getDefaultDocument (fileName)); });
 
     return config;
 }
@@ -47,14 +47,6 @@ void ConfigModel::saveToPath()
 {
     jam::File::getOrCreateDirectory (
         ConfigDirectory::Config::path.getParentDirectory(), ConfigDirectory::Config::path.getFileName());
-
-    for (auto& [key, stem] : map::FileConfig::getInstance()->get())
-    {
-        const auto fileName { ConfigDirectory::Config::getName (key) };
-
-        jam::ConfigDocument::getOrCreateDefaultFile (ConfigDirectory::Config::path.getChildFile (fileName),
-                                                     BinaryData::getString (fileName));
-    }
 }
 
 juce::String ConfigModel::loadResources (const juce::ValueTree& config)
@@ -93,8 +85,9 @@ void ConfigModel::loadFromPath()
         errors << ConfigDirectory::addFileTables (disk,
             *map::FileConfig::getInstance(),
             ConfigDirectory::Config::getName,
-            [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName).loadFileAsString(); },
+            [] (const juce::String& fileName) { return ConfigDirectory::Config::getPath (fileName); },
             getDefaultDocument,
+            [] (const juce::String& fileName) { return BinaryData::getString (fileName); },
             getConfigTree);
     }
 
