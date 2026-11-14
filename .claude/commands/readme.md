@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/readme.md
+/Users/jreng/.carol/commands/readme.md

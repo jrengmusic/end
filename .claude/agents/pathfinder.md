@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/agents/pathfinder.md
+/Users/jreng/.carol/agents/pathfinder.md

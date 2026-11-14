@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/rfc.md
+/Users/jreng/.carol/commands/rfc.md

@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/truth.md
+/Users/jreng/.carol/commands/truth.md
