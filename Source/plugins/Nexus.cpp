@@ -69,7 +69,7 @@ Nexus::Nexus()
 void Nexus::run()
 {
 #if JUCE_WINDOWS
-    const jam::ComApartment apartment;
+    const jam::ScopedComInitialiser comInitialiser;
 #endif
     {
 #if JAM_USING_PROFILER
