@@ -1,4 +1,5 @@
 {
+  "respectGitignore": false,
   "statusLine": {
     "type": "command",
     "command": "~/.carol/bin/carol-statusline.sh"
