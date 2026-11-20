@@ -27,10 +27,16 @@ static void (*promptPaintedCallback)() { [] { Nexus::getInstance()->onPromptPain
 static void (*manifestFileGetter) (char*, size_t) { [] (char* hostFile, size_t numBytes) { Nexus::getManifestFile().getFullPathName().copyToUTF8 (hostFile, numBytes); } };
 #endif
 
+static int (*serverPortGetter)() { [] { return Nexus::getInstance()->getServerPort(); } };
+
 Nexus::Nexus()
-    : juce::Thread (ProjectInfo::projectName)
+    : juce::Thread (ProjectInfo::projectName),
+      server (model.state)
 {
     registerExtensions();
+
+    [[maybe_unused]] const bool isListening { server.beginWaitingForSocket (anyPort, jam::ValueTreeConnection::loopbackAddress) };
+    jassert (isListening);
 
     model.getOrCreateChildWithName (jam::Format::toType (Id::window));
 
@@ -86,6 +92,7 @@ void Nexus::registerExtensions()
     extensions.try_emplace (Id::enaxPeerDeleted, &juce::ComponentPeer::externalPeerDeletedCallback);
     extensions.try_emplace (Id::enaxKeyPressed, &keyPressedCallback);
     extensions.try_emplace (Id::enaxMouseEvent, &mouseEventCallback);
+    extensions.try_emplace (Id::enaxServerPort, &serverPortGetter);
 #if JAM_USING_PROFILER
     extensions.try_emplace (Id::enaxPromptPainted, &promptPaintedCallback);
     extensions.try_emplace (Id::enaxManifestFile, &manifestFileGetter);
@@ -147,8 +154,11 @@ Nexus::~Nexus()
 Session& Nexus::createSession()
 {
     jam::UUID sessionUuid;
+    juce::ValueTree row { jam::Format::toType (Id::session) };
+    row.setProperty (Id::id, sessionUuid.value, nullptr);
+
     auto [entry, inserted] =
-        sessions.try_emplace (sessionUuid, std::make_unique<Session> (sessionUuid, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
+        sessions.try_emplace (sessionUuid, std::make_unique<Session> (row, model, model.getChildWithName (jam::Format::toType (Id::sessions)), graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList));
     jassert (inserted);
     auto& [key, session] = *entry;
 
@@ -179,6 +189,45 @@ Session& Nexus::getActiveSession() const
     return getSession (jam::UUID (focusedSessionParameter->getValue()));
 }
 
+juce::ValueTree Nexus::getSessionsState() const
+{
+    auto saved { model.getChildWithName (jam::Format::toType (Id::sessions)).createCopy() };
+
+    for (const auto& [sessionUuid, session] : sessions)
+        session->setPluginStates (saved);
+
+    return saved;
+}
+
+void Nexus::setSessionsState (juce::ValueTree saved)
+{
+    jassert (saved.hasType (jam::Format::toType (Id::sessions)));
+
+    if (saved.hasType (jam::Format::toType (Id::sessions)))
+    {
+        auto sessionsTree { model.getChildWithName (jam::Format::toType (Id::sessions)) };
+
+        while (saved.getNumChildren() > 0)
+        {
+            auto row { saved.getChild (0) };
+            saved.removeChild (0, nullptr);
+            sessionsTree.appendChild (row, nullptr);
+
+            const jam::UUID sessionUuid { static_cast<int64_t> (row.getProperty (Id::id)) };
+            const auto [entry, inserted] { sessions.try_emplace (sessionUuid, std::make_unique<Session> (row, model, sessionsTree, graph, audioInputId, audioOutputId, midiInputId, formatManager, knownPluginList)) };
+            jassert (inserted);
+        }
+
+        sessionsTree.setProperty (Id::cwd, saved.getProperty (Id::cwd), nullptr);
+
+        auto* focusedSessionParameter { model.getParameter<jam::Parameter<int64_t>> (
+            jam::Format::toType (Id::sessions), Id::focusedSession) };
+        jassert (focusedSessionParameter != nullptr);
+
+        focusedSessionParameter->setValue (static_cast<int64_t> (saved.getProperty (Id::focusedSession)));
+    }
+}
+
 const void* Nexus::getExtension (const char* id) const
 {
     if (auto found { extensions.find (juce::String (id)) }; found != extensions.end())
@@ -189,6 +238,8 @@ const void* Nexus::getExtension (const char* id) const
 
     return nullptr;
 }
+
+int Nexus::getServerPort() const noexcept { return server.getBoundPort(); }
 
 #if JAM_USING_PROFILER
 juce::File Nexus::getManifestFile()

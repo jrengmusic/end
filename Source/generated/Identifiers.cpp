@@ -44,7 +44,6 @@ namespace Id
     const juce::Identifier configSave                      { juce::String::fromUTF8 ("configSave") };
     const juce::Identifier configTables                    { juce::String::fromUTF8 ("configTables") };
     const juce::Identifier enabled                         { juce::String::fromUTF8 ("enabled") };
-    const juce::Identifier exclusiveZoom                   { juce::String::fromUTF8 ("exclusiveZoom") };
     const juce::Identifier filter                          { juce::String::fromUTF8 ("filter") };
     const juce::Identifier focusedBackground               { juce::String::fromUTF8 ("focusedBackground") };
     const juce::Identifier focusedOutline                  { juce::String::fromUTF8 ("focusedOutline") };
@@ -70,18 +69,19 @@ namespace Id
     const juce::Identifier panes                           { juce::String::fromUTF8 ("panes") };
     const juce::Identifier paneStep                        { juce::String::fromUTF8 ("paneStep") };
     const juce::Identifier plugin                          { juce::String::fromUTF8 ("plugin") };
-    const juce::Identifier pluginState                     { juce::String::fromUTF8 ("pluginState") };
     const juce::Identifier plugins                         { juce::String::fromUTF8 ("plugins") };
+    const juce::Identifier port                            { juce::String::fromUTF8 ("port") };
     const juce::Identifier postProcessing                  { juce::String::fromUTF8 ("postProcessing") };
     const juce::Identifier postProcessingOpacity           { juce::String::fromUTF8 ("postProcessingOpacity") };
     const juce::Identifier postProcessingResolution        { juce::String::fromUTF8 ("postProcessingResolution") };
     const juce::Identifier profiler                        { juce::String::fromUTF8 ("profiler") };
     const juce::Identifier reset                           { juce::String::fromUTF8 ("reset") };
+    const juce::Identifier server                          { juce::String::fromUTF8 ("server") };
     const juce::Identifier session                         { juce::String::fromUTF8 ("session") };
     const juce::Identifier sessionPlugin                   { juce::String::fromUTF8 ("sessionPlugin") };
     const juce::Identifier sessions                        { juce::String::fromUTF8 ("sessions") };
     const juce::Identifier shaderFormat                    { juce::String::fromUTF8 ("shaderFormat") };
-    const juce::Identifier splitLine                       { juce::String::fromUTF8 ("splitLine") };
+    const juce::Identifier state                           { juce::String::fromUTF8 ("state") };
     const juce::Identifier successMessage                  { juce::String::fromUTF8 ("successMessage") };
     const juce::Identifier tab                             { juce::String::fromUTF8 ("tab") };
     const juce::Identifier tabBar                          { juce::String::fromUTF8 ("tabBar") };
@@ -101,7 +101,6 @@ namespace Id
     const juce::Identifier titleBarButtons                 { juce::String::fromUTF8 ("titleBarButtons") };
     const juce::Identifier useGpu                          { juce::String::fromUTF8 ("gpu") };
     const juce::Identifier zoom                            { juce::String::fromUTF8 ("zoom") };
-    const juce::Identifier zoomStep                        { juce::String::fromUTF8 ("zoomStep") };
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Id

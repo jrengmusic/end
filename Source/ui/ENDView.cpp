@@ -28,7 +28,7 @@ ENDView::ENDView()
         {
             setMouseConfig();
 
-            addSession();
+            addSessions();
             commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
             grabKeyboardFocus();
         });
@@ -130,9 +130,22 @@ TabView* ENDView::getActiveTabView() const noexcept
     return nullptr;
 }
 
-void ENDView::addSession()
+void ENDView::addSessions()
 {
-    auto& session { nexus.createSession() };
+    const auto sessionsTree { model.getChildWithName (jam::Format::toType (Id::sessions)) };
+
+    if (sessionsTree.getNumChildren() == 0)
+        nexus.createSession();
+
+    for (auto row : sessionsTree)
+        addSessionView (nexus.getSession (jam::UUID { row.getProperty (Id::id) }));
+
+    if (getActiveTabView() == nullptr)
+        commandManager->invokeDirectly (map::CommandId::newTab, false);
+}
+
+void ENDView::addSessionView (Session& session)
+{
     const jam::UUID sessionUuid { static_cast<int64_t> (session.state.getProperty (Id::id)) };
 
     auto [entry, inserted] = sessions.try_emplace (
@@ -146,18 +159,16 @@ void ENDView::addSession()
                              std::make_unique<jam::Model::Attachment> (*sessionView));
     sessionView->getValueTree().setProperty (Id::focus, sessionView.get() == getActiveSessionView() ? 1 : 0, nullptr);
     resized();
-
-    commandManager->invokeDirectly (map::CommandId::newTab, false);
 }
 
-void ENDView::addPane (const juce::Identifier& edge, const juce::String& directory)
+void ENDView::addPane (const juce::Identifier& edge)
 {
 #if JAM_USING_PROFILER
     const jam::Profiler::Zone zone { Id::newPane };
     panePrompt.emplace (Id::panePrompt);
 #endif
     if (auto* tabView { getActiveTabView() })
-        tabView->addPane (edge, directory);
+        tabView->addPane (edge);
 }
 
 void ENDView::registerApplicationActions()
@@ -182,12 +193,11 @@ void ENDView::registerTabActions()
                   {
                       if (auto* sessionView { getActiveSessionView() })
                       {
-                          const auto directory { getFocusedDirectory() };
                           jam::UUID uuid {};
                           sessionView->add (uuid);
 
                           const juce::Identifier edge {};
-                          addPane (edge, directory);
+                          addPane (edge);
                       }
                   });
 
@@ -234,31 +244,6 @@ void ENDView::registerProfilerActions()
     }
 }
 #endif
-
-void ENDView::registerZoomActions()
-{
-    for (const juce::CommandID command : { map::CommandId::zoomIn, map::CommandId::zoomOut, map::CommandId::zoomReset })
-    {
-        commands.add (command,
-                      [this] (const juce::CommandID& command)
-                      {
-                          const float step { config.getRowValue (jam::Format::toType (Id::display), Id::zoomStep) };
-
-                          if (auto* sessionView { getActiveSessionView() })
-                          {
-                              if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::exclusiveZoom)))
-                              {
-                                  if (auto* tabView { sessionView->getActiveTabView() })
-                                      tabView->getFocusedPane().setZoom (command, step);
-                              }
-                              else
-                              {
-                                  sessionView->setZoom (command, step);
-                              }
-                          }
-                      });
-    }
-}
 
 void ENDView::registerJoinActions()
 {
@@ -346,7 +331,7 @@ void ENDView::registerSplitActions()
         commands.add (actionId,
                       [this, edge = edge] (const juce::CommandID&)
                       {
-                          addPane (edge, getFocusedDirectory());
+                          addPane (edge);
                       });
     }
 }
@@ -369,31 +354,22 @@ void ENDView::registerCloseActions()
                       [this] (const juce::CommandID& command)
                       {
                           if (auto* tabView { getActiveTabView() })
-                              tabView->getFocusedPane().close (command);
+                              tabView->getFocusedPane().invokeDirectly (command, false);
                       });
     }
-}
-
-juce::String ENDView::getFocusedDirectory() const
-{
-    if (auto* tabView { getActiveTabView() })
-        return tabView->getFocusedPane().getValueTree().getChildWithName (jam::Format::toType (Id::pluginState)).getProperty (Id::cwd).toString();
-
-    return juce::String {};
 }
 
 void ENDView::registerActions()
 {
     registerApplicationActions();
     registerTabActions();
-    registerZoomActions();
-    registerModeActions();
     registerSplitActions();
     registerLoadPluginActions();
     registerCloseActions();
     registerJoinActions();
     registerSwapActions();
     registerResizeActions();
+    registerModeActions();
 #if JAM_USING_PROFILER
     registerProfilerActions();
 #endif

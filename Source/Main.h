@@ -46,25 +46,32 @@ private:
 
     jam::SharedInstance<jam::VulkanShaderFormat> shaderFormat { std::in_place };
     jam::SharedInstance<jam::SharedDocuments> documents { std::in_place };
-
-    // Nexus MUST construct before ConfigModel: ConfigModel::appModel is an
-    // ENDModel& bound via *ENDModel::getInstance() in its own member
-    // initializer, evaluated at ConfigModel construction time — ENDModel
-    // (owned by Nexus) must already exist or that dereference is undefined
-    // behaviour.
-    Nexus nexus;
+    ENDModel model;
     ConfigModel config;
     ENDLookAndFeel lookAndFeel;
 
     //==============================================================================
     /**
-     * @brief Window state file of END in the config directory, END.settings.
+     * @brief Settings file of END in the config directory, END.settings.
      *
-     * initialise() restores the window from the window key of this file, and shutdown() writes the window state to it.
+     * getOrCreateWindow() restores the window from the window key of this file, and destroyWindow() writes the window state to it.
+     * host() reads the sessions key, and writes the port key in server mode. shutdown() writes the sessions key.
      */
     juce::PropertiesFile settings { ConfigDirectory::Config::getPath (files::settingsFileName),
                                     juce::PropertiesFile::Options {} };
 
+    /** @brief Command-line argument that makes the process start as the server. launch() passes it to the process that it starts. */
+    static constexpr const char* serverArgument { "--server" };
+    /** @brief Suffix that the project name takes to name the lock of the server. */
+    static constexpr const char* serverLockSuffix { ".server" };
+
+    /** @brief Inter-process lock that names the one server process. host() takes it in server mode, before the engine and Nexus are built. launch() tests it. */
+    juce::InterProcessLock serverLock { juce::String { ProjectInfo::projectName } + serverLockSuffix };
+    /** @brief Nexus of the application. host() builds it when the application hosts. */
+    std::unique_ptr<Nexus> nexus;
+    /** @brief Client connection that launch() opens to the running server. The application owns it, and it is destroyed with the application. */
+    std::unique_ptr<jam::ValueTreeConnection> launchConnection;
+    /** @brief Window of the application, created by getOrCreateWindow() and destroyed by destroyWindow(). */
     std::unique_ptr<jam::Window> window;
 
     /** @brief Callbacks for the config properties and tables this application applies, keyed by property, tree type or parent tree type. valueTreePropertyChanged() dispatches through it. */
@@ -72,6 +79,42 @@ private:
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
+
+    /**
+     * @brief Starts the server process when no server holds the lock. Otherwise it sends a launch request to the running server, then quits.
+     *
+     * Without a server, the call releases the lock, starts this executable as a detached process with the server argument,
+     * and quits. With a server, the call connects launchConnection to the port that the settings hold, then quits asynchronously.
+     */
+    void launch();
+
+    /**
+     * @brief Hosts the application as the server or as a client.
+     *
+     * In server mode, the call takes serverLock before it builds the engine and Nexus. When another process holds the lock,
+     * the call quits. Otherwise the call builds the engine and Nexus, then restores the sessions from the settings. It registers
+     * the events, writes the port to the settings in server mode, and creates the window.
+     *
+     * @param isServer  True when the application runs as the server.
+     */
+    void host (bool isServer);
+
+    /**
+     * @brief Returns the window, which the call creates when it does not exist.
+     *
+     * Creating the window makes the ENDView, restores the window state from the settings, shows the window, and applies the
+     * background and the post-process chain. The window then listens to the config.
+     *
+     * @return The window.
+     */
+    jam::Window& getOrCreateWindow();
+
+    /**
+     * @brief Saves the window state to the settings, then destroys the window. The application keeps running.
+     *
+     * The window stops listening to the config before it is destroyed.
+     */
+    void destroyWindow();
 
     /** @brief Creates the engine through jam::VulkanGraphicsEngine::getOrCreate, with the pipeline cache under the
      *  config directory and the GPU setting of the display table, then calls initialiseStyle() of the look and feel.
@@ -81,6 +124,18 @@ private:
 
     void
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /**
+     * @brief Brings the window to the front when an end row is added under the model root.
+     *
+     * A second process requests a launch by sending its whole model root through launchConnection. The server attaches
+     * that root under its model root as an end row, and this call then shows the window. On macOS, the call also shows the
+     * dock icon and makes the process the foreground process.
+     *
+     * @param parentTree  Tree that gained the child.
+     * @param child       Added child.
+     */
+    void valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child) override;
 
     /** @brief Populates @ref events with the callbacks for the config values this application applies: the always-on-top
      *  and title-bar button settings of the window, the theme, GPU use, background, filter, post-process, and the two

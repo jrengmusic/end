@@ -44,6 +44,18 @@ void ENDApplication::valueTreePropertyChanged (juce::ValueTree& tree,
         events.get (key, tree);
 }
 
+void ENDApplication::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child)
+{
+    if (parentTree == model.state and child.hasType (jam::Format::toType (Id::end)))
+    {
+        getOrCreateWindow().toFront (true);
+#if JUCE_MAC
+        juce::Process::setDockIconVisible (true);
+        juce::Process::makeForegroundProcess();
+#endif
+    }
+}
+
 void ENDApplication::registerEvents()
 {
     events.add (jam::Format::toType (Id::alwaysOnTop),
@@ -171,7 +183,22 @@ void ENDApplication::shutdown()
     {
         const jam::Profiler::Zone zone { Id::applicationShutdown };
 #endif
-        settings.setValue (Id::window.toString(), window->getWindowStateAsString());
+        if (window != nullptr)
+            destroyWindow();
+        model.state.removeListener (this);
+
+        if (nexus != nullptr)
+        {
+            juce::MemoryBlock savedSessions;
+
+            {
+                juce::MemoryOutputStream stream { savedSessions, false };
+                nexus->getSessionsState().writeToStream (stream);
+            }
+
+            settings.setValue (Id::sessions.toString(), savedSessions.toBase64Encoding());
+            settings.saveIfNeeded();
+        }
 #if JAM_USING_PROFILER
     }
 #endif
@@ -182,7 +209,20 @@ void ENDApplication::shutdown()
 #endif
 }
 
-void ENDApplication::systemRequestedQuit() { quit(); }
+void ENDApplication::systemRequestedQuit()
+{
+    if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::server)) and window != nullptr)
+    {
+        destroyWindow();
+#if JUCE_MAC
+        juce::Process::setDockIconVisible (false);
+#endif
+    }
+    else
+    {
+        quit();
+    }
+}
 const juce::String ENDApplication::getApplicationName() { return ProjectInfo::projectName; }
 const juce::String ENDApplication::getApplicationVersion() { return ProjectInfo::versionString; }
 bool ENDApplication::moreThanOneInstanceAllowed() { return true; }
@@ -209,42 +249,112 @@ void ENDApplication::initialise (const juce::String& commandLine)
         }
     }
 #endif
+
+    const bool isServer { static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::server)) };
+
+    if (isServer and not commandLine.contains (serverArgument))
+        launch();
+    else
+        host (isServer);
+}
+
+void ENDApplication::host (bool isServer)
+{
+    const bool isHosting { not isServer or serverLock.enter (0) };
+
+    if (isHosting)
     {
+        {
 #if JAM_USING_PROFILER
-        const jam::Profiler::Zone zone { Id::graphicsEngine };
+            const jam::Profiler::Zone zone { Id::graphicsEngine };
 #endif
-        initialiseVulkan();
+            initialiseVulkan();
+        }
+
+        nexus = std::make_unique<Nexus>();
+        model.state.addListener (this);
+
+        juce::MemoryBlock savedSessions;
+
+        if (settings.containsKey (Id::sessions.toString()) and savedSessions.fromBase64Encoding (settings.getValue (Id::sessions.toString())))
+            nexus->setSessionsState (juce::ValueTree::readFromData (savedSessions.getData(), savedSessions.getSize()));
+
+        registerEvents();
+
+        if (isServer)
+        {
+            settings.setValue (Id::port.toString(), nexus->getServerPort());
+            settings.saveIfNeeded();
+        }
+
+        getOrCreateWindow();
     }
-
+    else
     {
+        quit();
+    }
+}
+
+void ENDApplication::launch()
+{
+    if (serverLock.enter (0))
+    {
+        serverLock.exit();
+
+        jam::ChildProcess::startDetached ({ juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName().toStdString(), serverArgument });
+        quit();
+    }
+    else
+    {
+        launchConnection = std::make_unique<jam::ValueTreeConnection> (model.state);
+        launchConnection->connectToSocket (jam::ValueTreeConnection::loopbackAddress, settings.getIntValue (Id::port.toString()), jam::ValueTreeConnection::connectTimeoutMs);
+
+        juce::MessageManager::callAsync ([] { quit(); });
+    }
+}
+
+jam::Window& ENDApplication::getOrCreateWindow()
+{
+    if (window == nullptr)
+    {
+        {
 #if JAM_USING_PROFILER
-        const jam::Profiler::Zone zone { Id::applicationWindow };
+            const jam::Profiler::Zone zone { Id::applicationWindow };
 #endif
-        window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
-                                                ProjectInfo::projectName,
-                                                static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::alwaysOnTop)),
-                                                static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::titleBarButtons)));
-        window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
+            window = std::make_unique<jam::Window> (std::make_unique<ENDView>(),
+                                                    ProjectInfo::projectName,
+                                                    static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::alwaysOnTop)),
+                                                    static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::titleBarButtons)));
+            window->addKeyListener (static_cast<ENDView*> (window->getContentComponent()));
 
-        window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
+            window->restoreWindowStateFromString (settings.getValue (Id::window.toString()));
 
-        window->setVisible (true);
+            window->setVisible (true);
 
 #if JUCE_WINDOWS
-        if (auto* peer { window->getPeer() })
-            jam::StyleWindow::setForeground (*peer);
+            if (auto* peer { window->getPeer() })
+                jam::StyleWindow::setForeground (*peer);
 #endif
+        }
+
+        {
+#if JAM_USING_PROFILER
+            const jam::Profiler::Zone zone { Id::applicationBackground };
+#endif
+            config.addListener (this);
+            setBackground();
+            setPostProcess();
+        }
     }
 
-    {
-#if JAM_USING_PROFILER
-        const jam::Profiler::Zone zone { Id::applicationBackground };
-#endif
-        registerEvents();
-        config.addListener (this);
-        setBackground();
-        setPostProcess();
-    }
+    return *window;
+}
+
+void ENDApplication::destroyWindow()
+{
+    config.removeListener (this);
+    settings.setValue (Id::window.toString(), window->getWindowStateAsString());
+    window.reset();
 }
 
 void ENDApplication::initialiseVulkan()

@@ -22,13 +22,6 @@ Active theme directory name and window chrome and lifecycle toggles.
 | size              | numbers | 640, 480 |         | Initial window size in pixels {width,      |
 |                   |         |          |         | height}.                                   |
 +-------------------+---------+----------+---------+--------------------------------------------+
-| zoom step         | float   | 0.1      |         | Normalised step of the plugin's zoom       |
-|                   |         |          |         | parameter that zoom in and zoom out add or |
-|                   |         |          |         | subtract (keys.md).                        |
-+-------------------+---------+----------+---------+--------------------------------------------+
-| exclusive zoom    | bool    | false    |         | false zooms every pane; true zooms the     |
-|                   |         |          |         | focused pane only.                         |
-+-------------------+---------+----------+---------+--------------------------------------------+
 | pane step         | float   | 0.05     |         | Proportion step applied by the reduce pane |
 |                   |         |          |         | width, reduce pane height, expand pane     |
 |                   |         |          |         | width and expand pane height actions       |
@@ -52,6 +45,11 @@ Active theme directory name and window chrome and lifecycle toggles.
 |                   |         |          |         | true, use GPU if available with CPU        |
 |                   |         |          |         | fallback. When false, force CPU rendering  |
 |                   |         |          |         | (no blur, no transparency).                |
++-------------------+---------+----------+---------+--------------------------------------------+
+| server            | bool    | false    |         | Run END as a background server. Quit       |
+|                   |         |          |         | closes the window and keeps END and its    |
+|                   |         |          |         | shells running. The next launch attaches a |
+|                   |         |          |         | new window to the running server.          |
 +-------------------+---------+----------+---------+--------------------------------------------+
 | appearance        | string  | AUTO     | AUTO,   | Which theme.md column END uses: light,     |
 |                   |         |          | LIGHT,  | dark, or AUTO to follow the OS.            |

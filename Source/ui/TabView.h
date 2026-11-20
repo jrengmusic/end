@@ -48,15 +48,14 @@ public:
     ~TabView() override = default;
 
     /**
-     * @brief Splits the pane graph at an edge, or adds a pane when the edge is invalid.
+     * @brief Splits the pane graph at an edge, or adds a pane when the edge is invalid. Then it loads the plugin into the focused pane.
      *
      * A split uses jam::MatrixComponent::defaultProportion as its proportion.
-     * The focused pane after the call gets @p directory as the `cwd` property of its pluginState, then loadPlugin() runs.
+     * The plugin is the one that loadPlugin() names.
      *
-     * @param edge        Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane.
-     * @param directory   Working directory written to the `cwd` property.
+     * @param edge        Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
      */
-    void addPane (const juce::Identifier& edge, const juce::String& directory);
+    void addPane (const juce::Identifier& edge);
 
     /**
      * @brief Sets the plugin property of the focused pane to the full path of the plugin bundle
@@ -89,13 +88,6 @@ public:
      * @return The focused EditorView.
      */
     EditorView& getFocusedPane();
-
-    /**
-     * @brief Applies a zoom command to the zoom row of each pane of the tab.
-     * @param command  Zoom command id: zoomIn, zoomOut or zoomReset.
-     * @param step     Zoom step that the command uses.
-     */
-    void setZoom (juce::CommandID command, float step);
 
     /**
      * @brief Shows the split or join preview while a corner drag passes splitDragThreshold, and hides it otherwise.
@@ -136,13 +128,21 @@ public:
 
 protected:
     /**
-     * @brief Mints an EditorView for uuid and wires its corner menu to
-     *        this tab's Area Options handlers.
+     * @brief Mints an EditorView for uuid, which builds a new pane row under the tab row. It wires the corner menu of the
+     *        pane to this tab's Area Options handlers.
      *
-     * @param uuid Identity to bind the new pane to.
+     * @param uuid Identity of the new pane row.
      * @return The newly constructed EditorView, owned by the caller.
      */
     std::unique_ptr<jam::OwnedComponent> createChild (jam::UUID uuid) override;
+
+    /**
+     * @brief Builds an EditorView over an existing pane row, and wires its corner menu to this tab's Area Options handlers.
+     *
+     * @param row  Existing pane row that the EditorView adopts.
+     * @return The newly constructed EditorView, owned by the caller.
+     */
+    std::unique_ptr<jam::OwnedComponent> createChild (const juce::ValueTree& row) override;
 
     /**
      * @brief Collapses the pane graph, removes the plugin of the pane, and removes the tab row when no pane remains.
@@ -158,6 +158,14 @@ protected:
 private:
     /** @brief Mints a new pane and mounts it as a child of the graph. */
     void add();
+
+    /**
+     * @brief Sets the corner menu of a pane. The menu builds the Area Options popup of this tab,
+     *        and its result runs the Area Options handler of this tab.
+     *
+     * @param child  Pane whose corner menu is set.
+     */
+    void setCornerMenus (EditorView& child);
 
     /** @brief Command manager that invokes the Area Options commands and the corner drag commands. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };

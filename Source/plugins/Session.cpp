@@ -1,6 +1,6 @@
 #include "plugins/Session.h"
 
-Session::Session (jam::UUID newUuid,
+Session::Session (const juce::ValueTree& row,
                   ENDModel& newModel,
                   juce::ValueTree newSessionsState,
                   juce::AudioProcessorGraph& newGraph,
@@ -9,7 +9,8 @@ Session::Session (jam::UUID newUuid,
                   juce::AudioProcessorGraph::NodeID newMidiInputId,
                   juce::AudioPluginFormatManager& newFormatManager,
                   juce::KnownPluginList& newKnownPluginList)
-    : sessionsState (newSessionsState),
+    : state (row),
+      sessionsState (newSessionsState),
       model (newModel),
       graph (newGraph),
       audioInputId (newAudioInputId),
@@ -18,9 +19,10 @@ Session::Session (jam::UUID newUuid,
       formatManager (newFormatManager),
       knownPluginList (newKnownPluginList)
 {
-    model.createAndAddParameter<jam::Parameter<int64_t>> (state, Id::id, newUuid.value);
+    model.createAndAddParameter<jam::Parameter<int64_t>> (state, Id::id, static_cast<int64_t> (state.getProperty (Id::id)));
     registerEvents();
     sessionsState.addListener (this);
+    loadPlugins (state);
 }
 
 Session::~Session()
@@ -28,24 +30,13 @@ Session::~Session()
     sessionsState.removeListener (this);
 }
 
-juce::AudioProcessor& Session::getPlugin (jam::UUID uuid) { return *graph.getNodeForId (plugins.at (uuid))->getProcessor(); }
+juce::AudioPluginInstance& Session::getPlugin (jam::UUID uuid) { return static_cast<juce::AudioPluginInstance&> (*graph.getNodeForId (plugins.at (uuid))->getProcessor()); }
 
 bool Session::contains (jam::UUID uuid) const { return plugins.contains (uuid); }
 
-bool Session::hasPluginState (jam::UUID uuid) const { return pluginStates.contains (uuid); }
-
-void Session::setRows (jam::UUID uuid, const juce::ValueTree& rows)
+juce::ValueTree Session::getTerminal (const juce::ValueTree& paneRow)
 {
-    if (pluginStates.contains (uuid))
-        pluginStates.at (uuid)->setRows (rows);
-}
-
-void Session::setRow (jam::UUID uuid, const juce::Identifier& row, const juce::var& value)
-{
-    juce::ValueTree rows { jam::Format::toType (Id::pluginState) };
-
-    rows.setProperty (row, value, nullptr);
-    setRows (uuid, rows);
+    return paneRow.getChildWithName (jam::Format::toType (Id::plugin)).getChild (0).getChildWithName (jam::Format::toType (Id::terminal));
 }
 
 juce::AudioPluginFormat* Session::getPluginFormat (const juce::AudioPluginFormatManager& formatManager, const juce::File& file)
@@ -69,12 +60,13 @@ void Session::registerEvents()
 {
     events.add (Id::plugin, [this] (const juce::Identifier&, juce::ValueTree& tree)
     {
-        if (tree.isAChildOf (state))
+        if (tree.hasType (jam::Format::toType (Id::pane)) and tree.isAChildOf (state))
         {
             const jam::UUID uuid { tree.getProperty (Id::id) };
 
             removePlugin (uuid);
             tree.removeProperty (Id::name, nullptr);
+            tree.removeChild (tree.getChildWithName (jam::Format::toType (Id::plugin)), nullptr);
             loadPlugin (tree);
         }
     });
@@ -82,7 +74,28 @@ void Session::registerEvents()
     events.add (Id::focus, [this] (const juce::Identifier&, juce::ValueTree& tree)
     {
         if (tree.hasType (jam::Format::toType (Id::pane)) and tree.isAChildOf (state))
-            setRow (jam::UUID { tree.getProperty (Id::id) }, Id::focus, tree.getProperty (Id::focus));
+        {
+            auto terminal { getTerminal (tree) };
+
+            if (terminal.isValid())
+            {
+                terminal.setProperty (Id::focus, tree.getProperty (Id::focus), nullptr);
+
+                if (static_cast<bool> (tree.getProperty (Id::focus)))
+                    sessionsState.setProperty (Id::cwd, terminal.getProperty (Id::cwd), nullptr);
+            }
+        }
+    });
+
+    events.add (Id::cwd, [this] (const juce::Identifier&, juce::ValueTree& tree)
+    {
+        if (tree.hasType (jam::Format::toType (Id::terminal)) and tree.isAChildOf (state))
+        {
+            const auto paneRow { tree.getParent().getParent().getParent() };
+
+            if (static_cast<bool> (paneRow.getProperty (Id::focus)))
+                sessionsState.setProperty (Id::cwd, tree.getProperty (Id::cwd), nullptr);
+        }
     });
 }
 
@@ -124,6 +137,17 @@ void Session::loadPlugin (const juce::ValueTree& paneRow)
     }
 }
 
+void Session::loadPlugins (const juce::ValueTree& row)
+{
+    for (const auto child : row)
+    {
+        if (child.hasType (jam::Format::toType (Id::pane)) and child.hasProperty (Id::plugin))
+            loadPlugin (child);
+
+        loadPlugins (child);
+    }
+}
+
 void Session::addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPluginInstance> instance)
 {
 #if JAM_USING_PROFILER
@@ -132,14 +156,15 @@ void Session::addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPlu
     const jam::UUID uuid { paneRow.getProperty (Id::id) };
     instance->enableAllBuses();
 
-    if (instance->getPluginDescription().manufacturerName.compare (ProjectInfo::companyName) == 0)
+    if (paneRow.hasProperty (Id::state))
     {
-        const auto [entry, inserted] { pluginStates.try_emplace (uuid, std::make_unique<PluginState> (*instance, paneRow)) };
-        const auto& [key, pluginState] { *entry };
+        const auto* savedState { paneRow.getProperty (Id::state).getBinaryData() };
+        jassert (savedState != nullptr);
 
-        jassert (inserted);
-        pluginState->setRows (paneRow.getChildWithName (jam::Format::toType (Id::pluginState)));
-        setRow (uuid, Id::focus, paneRow.getProperty (Id::focus));
+        if (savedState != nullptr)
+            instance->setStateInformation (savedState->getData(), static_cast<int> (savedState->getSize()));
+
+        paneRow.removeProperty (Id::state, nullptr);
     }
 
     auto plugin { graph.addNode (std::move (instance)) };
@@ -150,7 +175,23 @@ void Session::addPlugin (juce::ValueTree paneRow, std::unique_ptr<juce::AudioPlu
 
     addConnections (plugin->nodeID);
 
-    paneRow.setProperty (Id::name, plugin->getProcessor()->getName(), nullptr);
+    auto& processor { getPlugin (uuid) };
+
+    juce::MemoryBlock block;
+
+    if (auto* client { processor.getVSTClient() }; client != nullptr and client->getChunkData (block, false))
+    {
+        const auto chunk { juce::ValueTree::readFromData (block.getData(), block.getSize()) };
+
+        if (chunk.hasProperty (Id::id))
+        {
+            juce::ValueTree held { chunk.getType() };
+            held.setProperty (Id::id, chunk.getProperty (Id::id), nullptr);
+            paneRow.getOrCreateChildWithName (jam::Format::toType (Id::plugin), nullptr).appendChild (held, nullptr);
+        }
+    }
+
+    paneRow.setProperty (Id::name, processor.getName(), nullptr);
 }
 
 void Session::addConnections (juce::AudioProcessorGraph::NodeID pluginId)
@@ -174,11 +215,28 @@ void Session::addConnections (juce::AudioProcessorGraph::NodeID pluginId)
 
 void Session::removePlugin (jam::UUID uuid)
 {
-    pluginStates.erase (uuid);
-
     if (plugins.contains (uuid))
     {
         graph.removeNode (plugins.at (uuid));
         plugins.erase (uuid);
+    }
+}
+
+void Session::setPluginStates (juce::ValueTree sessions) const
+{
+    for (const auto& [uuid, nodeId] : plugins)
+    {
+        auto paneRow { jam::Model::getChildWithID (sessions, juce::var (uuid.value)) };
+        jassert (paneRow.isValid());
+
+        if (paneRow.isValid())
+        {
+            juce::MemoryBlock block;
+            graph.getNodeForId (nodeId)->getProcessor()->getStateInformation (block);
+
+            paneRow.setProperty (Id::state, juce::var (block), nullptr);
+            paneRow.removeChild (paneRow.getChildWithName (jam::Format::toType (Id::plugin)), nullptr);
+            paneRow.removeProperty (Id::name, nullptr);
+        }
     }
 }

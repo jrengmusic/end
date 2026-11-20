@@ -23,7 +23,11 @@ class SessionView
 {
 public:
     /**
-     * @brief Constructs the view of a session. Its tab bar starts with zero depth.
+     * @brief Adopts the session row and mounts a TabView for each tab row under it. The tab bar starts with zero depth.
+     *
+     * Adding a tab makes it the current tab. The constructor therefore restores the focused tab that the row held before the
+     * adds, then makes that tab current when it is mounted.
+     *
      * @param newModel      Owning model.
      * @param sessionState  Row of the session that holds the tabs.
      */
@@ -48,13 +52,6 @@ public:
      */
     TabView* getActiveTabView() noexcept;
 
-    /**
-     * @brief Sets the zoom parameter of each pane of each tab of the session with a zoom command.
-     * @param command  Zoom command name.
-     * @param step     Zoom step that the command uses.
-     */
-    void setZoom (juce::CommandID command, float step);
-
 private:
     /** @brief Command manager of the session view. childRemoved() invokes the quit command through it when the last tab leaves the session. */
     jam::SharedInstance<jam::CommandManager> commandManager { std::in_place };
@@ -63,11 +60,11 @@ private:
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
     /**
-     * @brief Reapplies the displayed name of each tab that holds the changed tree.
+     * @brief Reapplies the displayed name of each tab that holds the changed tree, then runs focusPane().
      *
-     * A tab holds the tree when the tree is its row or a row under it. The name is reapplied when the property is
-     * Id::name or Id::focusedPane, or when the tree is a pluginState row.
-     * Then focusPane() runs when the property is Id::name or Id::focusedPane.
+     * The call first runs the base handler of jam::OwnerComponent. It then acts only when the property is Id::name or
+     * Id::focusedPane, and the changed tree is a tab row or a pane row.
+     * A tab holds the tree when the tree is its row or a row under it. The name of each such tab is reapplied.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property.
@@ -76,10 +73,9 @@ private:
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
-     * @brief Mounts a TabView for each tab row added to the session row.
+     * @brief Mounts the TabView of a tab row that is added directly under the session row.
      *
-     * The tab bar label writes its text to the Id::name of the tab row. The tab then takes its displayed name, and the
-     * tab bar takes its depth and position from the theme.
+     * Any other added child has no effect.
      *
      * @param parentTree  Tree that gained the child. Only the session row mounts tabs.
      * @param child       Added child. A tab row is mounted.
@@ -126,12 +122,12 @@ private:
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;
 
-    /** @brief Resolves a tab's displayed name, so that the tab shows the work of its focused pane.
+    /** @brief Resolves a tab's displayed name.
      *
-     *  The tab's own rename wins when set. Otherwise the title of the focused pane wins, then its foreground process name,
-     *  then the file name of its cwd, then its own name. Each step is skipped when it is empty.
+     *  The rename of the tab row wins when it is not empty. Otherwise the call returns the Id::name of the first descendant row of the
+     *  tab whose Id::id property equals the Id::focusedPane property of the tab row. It returns an empty string when no such row exists.
      *  @param tabState The tab's own ValueTree row.
-     *  @return The resolved name, or an empty string when no step holds a value.
+     *  @return The resolved name, or an empty string when neither holds a value.
      */
     juce::String getTabName (const juce::ValueTree& tabState) const;
 
@@ -139,6 +135,15 @@ private:
      *  @param uuid Identity of a mounted tab. The call looks the tab up with get(), so the tab must be mounted.
      */
     void applyTabName (jam::UUID uuid);
+
+    /**
+     * @brief Mounts the TabView of a tab row in the tab bar, then applies its displayed name and the depth and position of the theme.
+     *
+     * The tab button label writes its text to the Id::name property of the tab row whenever the text changes.
+     *
+     * @param tabRow  Row of the tab to mount.
+     */
+    void addTabView (const juce::ValueTree& tabRow);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SessionView)

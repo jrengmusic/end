@@ -14,8 +14,8 @@ CLAP"*.
 
 END is a **JUCE GUI application** that hosts audio plugins in a tabbed, splittable
 pane workspace, rendered by the JAM Vulkan engine. The formats are VST2, VST3 and AU
-through JUCE and CLAP through jam_clap (`Nexus::addFormats`, `Nexus.cpp:66-76`). Each new
-pane loads EVE (`Session.cpp:71-126`, `cast/files.md:31`). EVE is checked in one format
+through JUCE and CLAP through jam_clap (`Nexus::addFormats`). Each new
+pane loads EVE (`TabView::loadPlugin`, `Session::loadPlugin`, `Session::addPlugin`). EVE is checked in one format
 at a time. ARCHITECT: *"ALL formats means ONE at a time, for EVE. any valid audio format
 SHOULD WORK. any 3rd audio plugin with "ALL FORMAT" must be able to be loaded in END."*
 
@@ -36,9 +36,9 @@ system, the rendering engine, and the plugin lifecycle. Plugins supply content.
 2. **Audio plugin host.** JUCE's formats and jam_clap host the plugins. One plugin
    instance per pane, each a node of one audio graph. The host stays
    content-ignorant. ENAX is formalised later with CLAP (`DEBT.md`,
-   DEBT-20261025T135707). END now holds `title`, `foregroundProcess` and `cwd` in the
-   `pluginState` child of each pane row, because the hosted plugin tells them
-   (`EditorView.cpp:26-27`).
+   DEBT-20261025T135707). The tree of a hosted plugin that runs jam is attached under the
+   `plugin` child of its pane row. It is then a part of the tree of END (section 1.5, plugin
+   state).
 3. **GPU-first rendering.** The JAM Vulkan engine renders every window. Shader
    pipeline (Shadertoy background, Slang post-process, OBJ mesh) is host-level
    decoration.
@@ -65,15 +65,14 @@ Application → Config → Nexus → Session → hosted audio plugins (EditorVie
 - **Config** (`Source/config/`) — ConfigDirectory, its subclasses ConfigTheme and
   ConfigShader, and ConfigModel. Four-phase lifecycle. Data source is markdown.
 - **Nexus** (`Source/plugins/Nexus.h`) — host singleton. Owns the sessions Model
-  state (`Id::sessions` tree: the `focusedSession` parameter, `Nexus.cpp:37-39`), the
-  plugin format manager, the one audio graph, and the ENAX extensions
-  (`Nexus.h:153`). Offloads the plugin from BinaryData to `~/.config/end/plugins/`
-  (`Nexus::getOrCreatePlugin`, `Nexus.cpp:170-211`).
+  state (`Id::sessions` tree: the `focusedSession` parameter, `Nexus` constructor), the
+  plugin format manager, the one audio graph, the ENAX extensions (`Nexus::extensions`) and
+  the `jam::ValueTreeServer` of the lane. Offloads the plugin from BinaryData to
+  `~/.config/end/plugins/` (`Nexus::getOrCreatePlugin`).
 - **Session** — uuid-keyed container of hosted plugin instances for one window's
   session. A write of `Id::plugin` to a PANE row runs `loadPlugin (paneRow)`, which creates
   the plugin asynchronously; the creation callback runs `addPlugin (paneRow, instance)`
-  (`Session.cpp:59-69`, `:71-126`). `removePlugin (uuid)` removes the node
-  (`Session.cpp:147-156`).
+  (`Session::registerEvents`, `Session::loadPlugin`). `removePlugin (uuid)` removes the node.
 - **EditorView panes** — each pane hosts one plugin editor
   (`juce::AudioProcessorEditor` from the hosted instance). A pane with no loaded
   plugin renders bare (outline only).
@@ -251,45 +250,72 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
 ### 1.5 Plugin Hosting — JUCE Formats, jam_clap and ENAX
 
 - Formats: JUCE's default formats (VST2, VST3, AU) and `jam::ClapPluginFormat`
-  (`Nexus::addFormats`, `Nexus.cpp:66-76`; `Nexus::registerExtensions` fills the
-  extensions that it passes, `Nexus.cpp:54-64`).
+  (`Nexus::addFormats`; `Nexus::registerExtensions` fills the extensions that it passes).
 - Plugins live in `~/.config/end/plugins/`. END's CMake embeds exactly one plugin
   archive, the one of the host platform (`cast/cmake.cast:356-371`).
   `Nexus::getOrCreatePlugin` unpacks it from BinaryData when the build-time hash of the
   archive differs from the stamp file, or when its bundle is absent, and returns the
-  bundle that the archive carries: its first entry (`Nexus.cpp:170-211`). The format
+  bundle that the archive carries: its first entry. The format
   is the `pluginFormat` row of `project-info.md` (`CLAUDE.md`, ENAX Plugin Format). On
   macOS, when that bundle is a `.component`, the `Nexus` constructor registers that one
-  bundle in the process after the offload (`Nexus::registerEVE`, `Nexus.cpp:78-95`;
-  `Nexus::registerAudioUnit`, `:259-267`). Formats are tested one at a time, so no other
+  bundle in the process after the offload (`Nexus::registerEVE`,
+  `Nexus::registerAudioUnit`). Formats are tested one at a time, so no other
   bundle loads. ARCHITECT: *"i dont want to put "END's in-house plugin" into system
   audio plugins path"*.
 - A write of `Id::plugin` to a PANE row makes `Session::loadPlugin` create the plugin
   asynchronously (`createPluginInstanceAsync`). The creation callback runs
-  `Session::addPlugin`, which adds the plugin as a node of the one graph
-  (`Session.cpp:59-69`, `:71-126`). The format is the first registered format whose
-  `fileMightContainThisPluginType` accepts the plugin file (`Session.cpp:42-57`).
+  `Session::addPlugin`, which adds the plugin as a node of the one graph. The format is the
+  first registered format whose `fileMightContainThisPluginType` accepts the plugin file
+  (`Session::getPluginFormat`).
   Each plugin owns its clock.
 - `EditorView::createProcessorEditor` hosts the instance's `AudioProcessorEditor`
-  when the pane row receives `Id::name` (`EditorView.cpp:265-276`). Resizable editors
+  when the pane row receives `Id::name` (`EditorView::registerEvents`). Resizable editors
   track the pane bounds.
 - **Host identity.** END is a known JUCE host: `juce::PluginHostType::END` and
   `isEND()` (`jam/patch/juce-plugin-host-type-hook.patch`). ARCHITECT: *"we NEED END
   as one of the KNOWN type, this is the SSOT seam"*.
 - **ENAX channel.** END exports one function, `enax_get_extension (const char* id)`
   (`Main.cpp:29-32`). It returns the `Nexus::extensions` entry for the id, or
-  nullptr. The ids are the context factory, the peer-deleted callback, the key hook and
-  the mouse hook. A profiler build adds `enax.prompt-painted` and `enax.manifest-file`.
+  nullptr. The ids are the context factory, the peer-deleted callback, the key hook, the
+  mouse hook and `enax.server-port`, the address of the lane. A profiler build adds `enax.prompt-painted` and `enax.manifest-file`.
   State never crosses here. ARCHITECT: *"must be cross format. hence this is END's contract
   as host to have ONE EXACT SEAM to handle all format, the only exceptions when there's a
   format that legitimately could not adhere to design, then ENAX is the path"*.
-- **State seam.** `PluginState` (`plugins/PluginState.cpp`) is the one seam for the state of
-  a hosted instance, in every format. `Session` owns one for each instance from the same
-  company (`Session::addPlugin`). Its `juce::AudioProcessorListener` receives
-  `audioProcessorChanged`, reads the raw state through one format lookup, and copies the
-  `pluginState` rows to the `pluginState` child of the pane row. Each changed row gives one
-  `valueTreePropertyChanged`. `setRows` writes rows through the same lookup. VST2 uses the
-  chunk, VST3 the `IComponent` data, AU the `jucePluginState` key, CLAP the raw state.
+- **Plugin state.** The tree of a hosted plugin is attached to the tree of END, under the
+  `plugin` child of its pane row. It is then the tree of END. END listens to it and writes to
+  it. The plugin tree stays in sync. ARCHITECT: *"EVE tree is SSOT / EVE tree attached to
+  END's tree / END's tree is the whole state. / the whole state could run in background as
+  daemon."*; *"when END load EVE, EVE's tree attached to END, now it's END's tree. END can
+  listen and do whatever, EVE always synced. that's the contract"*; *"ONE SHAPE, ONE PATH, ONE
+  LANE, ONE SERIALISATION, ONE SSOT."*
+  - The lane. END is always the IPC server. `Nexus` owns one `jam::ValueTreeServer` on the
+    tree of `ENDModel`. It listens on the loopback address, on a port that the system gives.
+    ARCHITECT: *"END is always IPC server / Daemon is IPC server on background"*. The port
+    reaches the plugin through the ENAX extension `enax.server-port`. The ENAX rule `server`
+    connects the plugin's own `jam::ValueTreeConnection`, which syncs the model tree of the
+    plugin. The connection is one `juce::InterprocessConnection` and one
+    `juce::ValueTreeSynchroniser`. Each change of a tree reaches the other side as the encoded
+    change of the synchroniser. The synchroniser does not send a change back to the side that
+    applied it (`jam/patch/juce-value-tree-synchroniser-hook.patch`). When
+    `setStateInformation` swaps the model root, the connection follows the new root through
+    `valueTreeRedirected`. Audio never crosses the lane. Every host-to-plugin value crosses
+    this lane. ARCHITECT: *"enax extension or IPC, CHOOSE ONE FOR ALL"*; *"nothing wrong with
+    IPC, it's our lane for parameters that is not AudioParameter"*.
+  - Identity. The plugin writes one `jam::UUID` on its model root as `id`. `Session::addPlugin`
+    reads the raw chunk one time (`getChunkData`). It appends a held row with the type and the
+    `id` of that chunk as the `plugin` child of the pane row. The first message of the
+    connection is the complete tree of the plugin. The server connection creates its
+    synchroniser first. Then it replaces the held row with the synced tree. A tree with no `id`
+    goes under the root of END's tree. Every reaction is a `juce::ValueTree::Listener` event.
+    ARCHITECT: *"why dont we trust ValueTreeSynchroniser? ValuTree::Listener?"*.
+  - END to plugin. At the attach, `EditorView::valueTreeChildAdded` writes on the attached
+    `terminal` row, in this order: the `cwd` of a new pane row, the `focus` of the pane row,
+    then `width` and `height`. Later, END writes `focus` (`Session::registerEvents`), `mode`
+    from the `normal` and `open` commands (`EditorView::setMode`), an empty `markdownFile`
+    from the close key (`closeTerminalPane`), and the size (`EditorView::resized`).
+    `Session::getTerminal` gives the `terminal` row of a pane. ARCHITECT: *"END will be the
+    sole author of winsize"*.
+  - A plugin that does not run jam has no connection and no held row.
 - **ENAX rules.** The plugin side, `jam::ENAXClientExtensions`, holds the END-only
   rules in one table, selected by one `isEND()` probe. Outside END, the plugin keeps
   its standalone contract. ARCHITECT: *"as standalone, plugins that loaded into
@@ -303,12 +329,16 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
   binding; END's prefix layer and its `normal` and `open` commands drive the mode. The plugin's concrete editor applies the rule to the text
   editor's defaults before it binds (`EVEView::getViewDefaultKeys`). ARCHITECT: *"when EVE (with
   its TextEditor) hosted in END, it SHOULD NOT register any keyboard shortcut for any
-  state-command, BUT we KEPT the state machine"*. A close key reads the `markdownFile` row of
-  the pane's `pluginState`. A non-empty row: END writes it empty, and the pane stays. ARCHITECT:
-  *"cmd+w should close whelmed first."*; *"EVE could have parameter if whelmed is opened, END
-  always know its chilren state"*.
-- **Focus.** END owns focus. The focused pane writes the `focus` row of its plugin
-  from its pane row (`EditorView::valueTreePropertyChanged`). EVE grabs keyboard focus
+  state-command, BUT we KEPT the state machine"*.
+- **Close.** The close key closes in this order: the plugin's markdown view, then the pane,
+  then the tab, then the application. When the `markdownFile` of the attached tree is not
+  empty, END writes it empty on the attached tree (EVE: *"a host clears it to close the view"*). Otherwise END
+  closes the pane. ARCHITECT: *"close hierarchy always pane - tab - quit app"*; *"dont give
+  all cmd+w to EVE, pass it through"*.
+- **Focus.** END owns focus. `jam::OwnerComponent` writes the `focus` of each pane row: the
+  focused child of a focused owner. When the `focus` of a pane row changes, `Session` writes it
+  on the attached tree of that pane (`Session::registerEvents`). When the tree attaches,
+  `EditorView::valueTreeChildAdded` writes the current value. EVE grabs keyboard focus
   only when the row turns on (`EVEView::registerTerminalEvents`), and
   passes it to its default component (`EVEView::focusGained`). The plugin never
   decides focus itself. ARCHITECT: *"when hosted at END the FOCUS parameter always
@@ -327,25 +357,85 @@ END, the plugin creates its own `VulkanGraphicsEngine`
 
 ### 1.7 Plugin State and Tab Names
 
-END holds the state of its plugin in the `pluginState` child of each pane row. ARCHITECT:
-*"END is the host. it holds its plugin instance stateInfo."*; *"the correct design is not
-`terminal`, but the state instance of `EVE`. `EVE` could be any plugin"*. `terminal` is EVE's own
-tree. EVE maps it to `pluginState` at `getStateInformation` and `setStateInformation`.
+END holds the tree of its plugin under the `plugin` child of each pane row (section 1.5,
+plugin state). ARCHITECT: *"END is the host. it holds its plugin instance stateInfo."*;
+*"session restoration with daemon, definitely NEED ALL"*.
 
-- `PluginState` replaces the rows of that child from the plugin (section 1.5).
-- A new pane takes the `cwd` of the focused pane of its tab (`getInheritedDirectory`).
-- A new tab takes the `cwd` of the focused pane of the active tab (`ENDView`, the `newTab`
-  command).
-- `Session::addPlugin` writes the `pluginState` child to the plugin before `graph.addNode`, so
-  the shell starts in that `cwd`.
-- A plugin from another company has no `PluginState`, and its pane holds no rows from it.
-- END holds the module of each plugin with a `PluginState` until `Nexus` ends (`Nexus::addPluginModule`).
+- **Save.** At shutdown, the process that hosts writes `Nexus::getSessionsState` to the
+  `sessions` key of `END.settings`. It is a copy of the sessions tree. On each pane with a
+  plugin, the copy holds the blob that `getStateInformation` gives, as `state`. The copy has no
+  `plugin` child and no `name` on that pane (`Session::setPluginStates`). END never parses the
+  blob. ARCHITECT: *"why we cant simply call setStateInfo() and getStateInfo() as is? why create
+  workaround it?"*.
+- **Restore.** `ENDApplication::host` reads that key before it builds the window.
+  `Nexus::setSessionsState` moves each saved session row into the sessions tree and creates its
+  `Session`. The `Session` loads the plugin of each pane (`Session::loadPlugins`).
+  `Session::addPlugin` gives the `state` of the pane row to `setStateInformation` before the
+  graph adds the plugin, then removes it. The plugin's connection follows the restored root, so
+  the first sync carries the restored tree. The window builds from the rows (section 1.8).
+
+- END has no start directory setting. ARCHITECT: *"END has no cwd config. END runtime state track
+  last focused eve cwd, and tell eve to start at cwd, default always eve config. there is no
+  fallback."*
+- `Session` keeps the `cwd` of the last focused terminal as the `cwd` row of the sessions row.
+  It writes the row when a pane gets focus, and when the `cwd` of the terminal of the focused
+  pane changes (`Session::registerEvents`).
+- The new-row constructor of `EditorView` writes that row to every new pane row as `cwd`,
+  when it is not empty: an added pane, a split, a corner drag and a file drop all build their
+  pane there. At the attach, `EditorView::valueTreeChildAdded` writes it on the `terminal`
+  row of the plugin, before the size, and removes it from the pane row. A restored pane
+  comes through the adopt constructor and keeps its own saved `cwd`. ARCHITECT: *"Own saved
+  cwd"*. A restore also brings back the `cwd` row of the sessions row
+  (`Nexus::setSessionsState`).
+- EVE writes the start directory of its own config in its constructor. ARCHITECT: *"eve has
+  its own config. nothing about that changed whatever the host is"*.
+- Under END, EVE writes no editor size: the ENAX rule `size` replaces EVE's own size write.
+  EVE opens its shell only when the winsize is valid and `cwd` is not empty
+  (`EVETerminalProcessor::prepare`). For a new pane, the first valid winsize comes from END's
+  size, and END writes `cwd` before the size. Thus a new pane's shell starts at END's size,
+  in END's directory. A restored pane carries the saved `winsize`, `width` and `height`,
+  which END wrote before the save (`parameters.md:57`, `EVETerminalProcessor::setState`). Its
+  shell starts at the saved size, and END's first size write at the attach then resizes it.
+- END holds the module of each plugin until `Nexus` ends (`Nexus::addPluginModule`).
   END's graphics context interns a typeface that the plugin built, and JUCE unloads a
   bundle whose retain count is 1 (`juce_VSTPluginFormatImpl.h:785-786`).
-- The tab name order is: rename, title, application name (`foregroundProcess`), last
-  folder of `cwd`, plugin name (`SessionView::getTabName`, `SessionView.cpp:88-119`).
-  A change of the rename, the focused pane or a report applies the tab name
-  (`SessionView.cpp:76-86`, `:121-131`).
+- The tab name is the rename, or else the `name` of the focused pane row, which is the plugin
+  name (`SessionView::getTabName`). A change of `name` or `focusedPane` on a tab row or a
+  pane row applies the tab name (`SessionView::valueTreePropertyChanged`).
+
+### 1.8 Server Mode
+
+The lane is the same in every mode. Only the life of the IPC server changes. ARCHITECT: *"ONE
+SHAPE, ONE PATH, ONE LANE, ONE SERIALISATION, ONE SSOT. the difference only the IPC server
+lifecycle either live and die with the app, or running on bg"*.
+
+- The `server` row of the `display` table of `display.md` is a bool. Its default is false.
+  ARCHITECT: *"for `standalone` mode, default server is false"*.
+- **`server` false (standalone).** The server lives and dies with the application. A quit ends
+  the whole application. ARCHITECT: *"cmd+q close immediately, the app, the whole app."* The
+  window close, the `quit` command and the close of the last tab take the same quit path
+  (`ENDApplication::systemRequestedQuit`).
+- **`server` true.** ARCHITECT: *"`server` mode enabled, it run on background with lock file,
+  per app END instance"*. A quit destroys the window and hides the Dock icon. The process keeps
+  `Nexus`, the audio graph, the editors and the shells. ARCHITECT: *"for Daemon mode, it
+  destroy the GUI, keeping process running bg."* A quit that the system asks for when no
+  window exists ends the process.
+- **Launch with `server` true.** ARCHITECT: *"running new instance always check whether Daemon
+  running on bg, attach, create new GUI from server (this is still isomorphic to tmux)"*.
+  `ENDApplication::launch` takes the lock `END.server` (`juce::InterProcessLock`).
+  - The lock is free. The launch releases it, starts the same executable with `--server` as a
+    detached child (`jam::ChildProcess::startDetached`), and quits. The server is never the
+    process that the system launched. The server starts `Nexus`, writes its port to the
+    `port` key of `END.settings`, takes the lock for its life, and builds its window.
+  - The lock is held. The launch reads the port, connects a `jam::ValueTreeConnection` on its
+    own `ENDModel` tree, and quits. The root of that tree is `end`, with no `id`, so the
+    server puts it under the root of END's tree. `ENDApplication::valueTreeChildAdded` sees
+    that `end` child. It builds the window if none exists, shows the Dock icon, and brings the
+    process to the front.
+- **The window is a materialisation of the tree.** A new window builds its sessions, tabs,
+  panes with their seams, and editors from the existing rows (`ENDView::addSessions`,
+  `SessionView`, `jam::MatrixComponent::addChildrenFromState`, `EditorView::initialise`). It
+  creates a first tab only when the focused session has none.
 
 ---
 
@@ -395,20 +485,20 @@ tree. EVE maps it to `pluginState` at `getStateInformation` and `setStateInforma
 - **A shell exit closes its pane.** The `shellExited` row reaches the `terminal` child of the
   pane row. `EditorView` invokes `closeTerminalPane` on itself asynchronously, so the removal runs
   outside the plugin's call stack. ARCHITECT: *"`exit` should close END's pane (exit eve)"*.
-- **END tells a hosted plugin through rows.** ENDView tells the panes; it never reaches into a
-  plugin. `EditorView::setRow` builds a `pluginState` tree with the one row, and `Session::setRows`
-  writes it through `PluginState`. The mode keys are jam's `map::EditorMode`.
-  - `zoomIn` / `zoomOut` add or subtract `zoomStep` (`display.md`) to the `zoom` row.
-    `zoomReset` sets its default value (`EditorView::setZoom`). EVE holds the limit. The targets
-    are every pane of the session (`SessionView::setZoom` → `TabView::setZoom`), or the focused
-    pane only when `exclusiveZoom` is true.
-  - `normal` and `open` set the `mode` row of the focused plugin to the matching key of
+- **END tells a hosted plugin through the host lane.** ENDView tells the panes; it never reaches
+  into a plugin. Each tell is a write on the attached tree (section 1.5, plugin state). The mode
+  keys are jam's `map::EditorMode`.
+  - `normal` and `open` tell the `mode` row of the focused plugin the matching key of
     `map::EditorMode` (`EditorView::setMode`).
-  - `focus` follows the pane row.
-  - `EditorView::resized` writes the `width` and `height` rows from the pane bounds.
-    `EditorView::setEditorBounds` only moves an editor that is not resizable, such as the VST2
-    host window, so the plugin sets its own size from the rows.
-    ARCHITECT: *"it's still the same tree but adhere to how audio plugin host-client contract"*.
+  - `focus` follows the `focus` of the pane row.
+  - Size is the `width` and `height` rows of the attached `terminal` row. `EditorView::resized`
+    writes the pane bounds, reduced by the inset, into them. It writes them again when a new tree
+    attaches under the `plugin` row of the pane (`EditorView::valueTreeChildAdded`), because the
+    attached tree holds EVE's default size. A hosted VST2 editor is not resizable by its host, so
+    the rows are the one way that the pane size reaches the plugin. EVE sets the size of its editor
+    from the rows, and its text editor writes its own winsize from that size. ARCHITECT: *"END will
+    be the sole author of winsize, the pane size down to text editor size - winsize"*. END also
+    sets the editor bounds (`EditorView::setEditorBounds`).
 - Splits and pane verbs act on the active tab's focused pane, the TAB row's
   `focusedPane` — never on positional or last-created assumptions.
 - The pane menu's splits invoke the same `splitVertical` and `splitHorizontal` commands
@@ -427,7 +517,7 @@ Iteration proceeds both ways between host and plugins:
    SPEC is preserved verbatim as eve's baseline: `dev/eve/SPEC.md`.
 3. **whelmed** — markdown editor/viewer as an audio plugin.
 4. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
-   live editors, session persistence.
+   live editors. Session persistence is built (section 1.7).
 5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
    through the host's engine.
 

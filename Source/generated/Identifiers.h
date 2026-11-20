@@ -48,7 +48,6 @@ extern const juce::Identifier configResources;
 extern const juce::Identifier configSave;
 extern const juce::Identifier configTables;
 extern const juce::Identifier enabled;
-extern const juce::Identifier exclusiveZoom;
 extern const juce::Identifier filter;
 extern const juce::Identifier focusedBackground;
 extern const juce::Identifier focusedOutline;
@@ -74,18 +73,19 @@ extern const juce::Identifier panePrompt;
 extern const juce::Identifier panes;
 extern const juce::Identifier paneStep;
 extern const juce::Identifier plugin;
-extern const juce::Identifier pluginState;
 extern const juce::Identifier plugins;
+extern const juce::Identifier port;
 extern const juce::Identifier postProcessing;
 extern const juce::Identifier postProcessingOpacity;
 extern const juce::Identifier postProcessingResolution;
 extern const juce::Identifier profiler;
 extern const juce::Identifier reset;
+extern const juce::Identifier server;
 extern const juce::Identifier session;
 extern const juce::Identifier sessionPlugin;
 extern const juce::Identifier sessions;
 extern const juce::Identifier shaderFormat;
-extern const juce::Identifier splitLine;
+extern const juce::Identifier state;
 extern const juce::Identifier successMessage;
 extern const juce::Identifier tab;
 extern const juce::Identifier tabBar;
@@ -105,7 +105,6 @@ extern const juce::Identifier themes;
 extern const juce::Identifier titleBarButtons;
 extern const juce::Identifier useGpu;
 extern const juce::Identifier zoom;
-extern const juce::Identifier zoomStep;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Id

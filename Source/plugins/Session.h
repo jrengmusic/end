@@ -7,38 +7,40 @@
 #include <JuceHeader.h>
 #include "end/ENDModel.h"
 #include "generated/Generated.h"
-#include "plugins/PluginState.h"
 
 /**
  * @class Session
  * @brief Holds the hosted juce::AudioPluginInstance of each pane in one
  *        session, keyed by the pane's own identity. The audio graph owns the
  *        instances. The session keeps the `juce::AudioProcessorGraph::NodeID` of each instance.
- *        For a plugin of the company, the session also keeps the `PluginState` of the pane, which holds the pluginState rows of that pane.
  *
  * A plugin loads asynchronously. A change of the Id::plugin property of a pane row
  * starts the load of that file, and the instance joins the graph when it is created.
  * The session listens to the sessions row, the parent of the session row.
- * It reacts to a change of the Id::plugin property of a pane row, and to a change of the Id::focus property of a pane row.
- * For a plugin of the company, it writes the Id::focus value to the focus row of the hosted plugin. It does not handle the removal of a tab.
+ * It reacts to a change of the Id::plugin and Id::focus properties of a pane row, and to a change of the Id::cwd property
+ * of a terminal row under the session.
+ * The session owns no connection. The plugin connects to the server of END, and the server attaches the tree
+ * of the plugin under the plugin row of the pane.
  * TabView::childRemoved() removes the plugins of its panes through removePlugin().
  */
 class Session : private juce::ValueTree::Listener
 {
 public:
     /**
-     * @brief Adds the identity parameter to the session row, and listens to the sessions row that holds it.
-     * @param newUuid                  Identity of the session.
-     * @param newModel                 Model that creates the identity parameter.
-     * @param newSessionsState         Sessions row, the parent of the session row. The session listens to it.
-     * @param newGraph                 Audio graph that owns the plugin instances.
-     * @param newAudioInputId          Identity of the audio input processor in the graph.
-     * @param newAudioOutputId         Identity of the audio output processor in the graph.
-     * @param newMidiInputId           Identity of the MIDI input processor in the graph.
-     * @param newFormatManager         Format manager that creates the plugin instances.
-     * @param newKnownPluginList       Known plugin list that receives each scanned plugin file.
+     * @brief Adopts the session row. It binds state to the row, creates the identity parameter from the row, registers the
+     *        events, listens to the sessions row, then starts the load of the plugin of each pane row under the session row.
+     *
+     * @param row                 Session row to adopt.
+     * @param newModel            Model that creates the identity parameter of the row.
+     * @param newSessionsState    Sessions row, the parent of the session row.
+     * @param newGraph            Audio graph that owns the plugin instances.
+     * @param newAudioInputId     Identity of the audio input processor in newGraph.
+     * @param newAudioOutputId    Identity of the audio output processor in newGraph.
+     * @param newMidiInputId      Identity of the MIDI input processor in newGraph.
+     * @param newFormatManager    Format manager that creates the plugin instances.
+     * @param newKnownPluginList  Known plugin list that receives the scanned plugin files.
      */
-    Session (jam::UUID newUuid,
+    Session (const juce::ValueTree& row,
              ENDModel& newModel,
              juce::ValueTree newSessionsState,
              juce::AudioProcessorGraph& newGraph,
@@ -59,7 +61,7 @@ public:
      * @param uuid Identity of the pane the plugin is bound to.
      * @return The bound plugin instance.
      */
-    juce::AudioProcessor& getPlugin (jam::UUID uuid);
+    juce::AudioPluginInstance& getPlugin (jam::UUID uuid);
 
     /** @brief Answers whether a pane has a bound plugin instance.
      *  @param uuid Identity of the pane.
@@ -68,42 +70,35 @@ public:
     bool contains (jam::UUID uuid) const;
 
     /**
-     * @brief Answers whether a pane has a PluginState. Only a plugin of the company has one.
-     * @param uuid Identity of the pane.
-     * @return True when a PluginState is held for uuid.
-     */
-    bool hasPluginState (jam::UUID uuid) const;
-
-    /**
-     * @brief Writes the pluginState rows to the PluginState of a pane.
+     * @brief Removes the graph node of the plugin bound to a pane, then forgets its identity.
      *
-     * The call does nothing when the pane has no PluginState.
-     *
-     * @param uuid  Identity of the pane.
-     * @param rows  Tree whose properties are the pluginState rows to write.
-     */
-    void setRows (jam::UUID uuid, const juce::ValueTree& rows);
-
-    /**
-     * @brief Writes one row of the pluginState of a pane.
-     *
-     * The call builds a `pluginState` tree with one property, then passes it to setRows().
-     * The call does nothing when the pane has no PluginState.
-     *
-     * @param uuid   Identity of the pane.
-     * @param row    Identifier of the row to write.
-     * @param value  Value of the row.
-     */
-    void setRow (jam::UUID uuid, const juce::Identifier& row, const juce::var& value);
-
-    /**
-     * @brief Erases the PluginState of a pane, then removes the plugin instance bound to the pane from the graph.
-     *
-     * The graph node is removed only when a plugin is bound to @p uuid.
+     * The call does nothing when no plugin is bound to @p uuid. The graph releases the instance when it removes the node.
      *
      * @param uuid Identity of the pane whose plugin instance is removed.
      */
     void removePlugin (jam::UUID uuid);
+
+    /**
+     * @brief Writes the state of each bound plugin onto its pane row in a sessions row, as binary data in Id::state.
+     *
+     * The pane row is found by identity through Model::getChildWithID(). The Id::plugin child of the pane row holds the live
+     * replica of the plugin, so the call removes it from the sessions row. The call also removes the Id::name property of the pane row.
+     * Nexus::getSessionsState() calls it on a copy of the sessions row.
+     *
+     * @param sessions  Sessions row that receives the states.
+     */
+    void setPluginStates (juce::ValueTree sessions) const;
+
+    /**
+     * @brief Returns the terminal row of the plugin replica under a pane row.
+     *
+     * The replica is the first child of the plugin row of the pane, and the call returns its terminal child.
+     * The call returns an invalid tree when the pane row has no plugin row, or the replica has no terminal child.
+     *
+     * @param paneRow  Pane row whose plugin replica is read.
+     * @return The terminal row, or an invalid tree.
+     */
+    static juce::ValueTree getTerminal (const juce::ValueTree& paneRow);
 
     /**
      * @brief Returns the first plugin format of a manager that can read a plugin file.
@@ -121,18 +116,18 @@ public:
     juce::AudioPluginFormat* getPluginFormat (const juce::File& file) const;
 
     /** @brief Tree of the session row. Its identity parameter holds the session identity. */
-    juce::ValueTree state { jam::Format::toType (Id::session) };
+    juce::ValueTree state;
 
 private:
     /**
-     * @brief Adds a created plugin instance to the graph, and binds it to its pane.
+     * @brief Adds a created plugin instance to the graph under the identity of its pane, then connects it to the audio and MIDI processors.
      *
-     * The instance enables all its buses. For a plugin of the company, the call creates the PluginState of the pane and
-     * writes the pluginState rows of the pane to the plugin, then writes the focus row from the Id::focus property of the pane row,
-     * before the instance joins the graph.
-     * The instance then joins the graph, and connects to the audio and MIDI processors.
-     * The graph node is stored under the identity of the pane. The name of the processor is then written to
-     * Id::name of the pane row. The pane creates its editor when that property arrives.
+     * The call enables all buses of the instance. When the pane row holds Id::state, the call restores that state into the
+     * instance, then removes the property. The graph then adds the node. The node is stored under the identity of the pane.
+     * When the instance returns a VST2 client and the client returns a chunk with an Id::id, the call appends a held row
+     * under the plugin row of the pane. The held row has the type of the chunk and holds only that Id::id. The server replaces
+     * the held row with the full tree of the plugin when the plugin connects.
+     * The name of the processor is then written to Id::name of the pane row. The pane creates its editor when that property arrives.
      *
      * @param paneRow   Pane row that receives the instance.
      * @param instance  Created plugin instance. The graph takes ownership.
@@ -160,23 +155,35 @@ private:
     void loadPlugin (const juce::ValueTree& paneRow);
 
     /**
-     * @brief Fills events with one handler for each of Id::plugin and Id::focus.
+     * @brief Starts the load of each pane row in the subtree of a row that has an Id::plugin property.
      *
-     * The Id::plugin handler acts on a descendant of the session row. It removes the plugin of the pane, removes the Id::name
-     * property of the pane row, then starts the load of the file that the pane row names. The old instance leaves the graph,
-     * and the pane creates its editor again when the new instance is added. A `plugin` row with no value finds no format,
-     * so nothing loads and the pane is a blank canvas.
-     * The Id::focus handler acts on a pane row under the session row. It writes the focus value through setRow().
+     * The call visits every descendant of @p row. The constructor calls it with the session row.
+     *
+     * @param row  Root of the subtree to visit.
+     */
+    void loadPlugins (const juce::ValueTree& row);
+
+    /**
+     * @brief Fills events with one handler for each of Id::plugin, Id::focus and Id::cwd.
+     *
+     * The Id::plugin handler acts on a pane row under the session row. It removes the plugin of the pane, removes the Id::name
+     * property of the pane row, removes the plugin row of the pane, then starts the load of the file that the pane row names.
+     * The load runs only when a plugin format reads that file.
+     * The Id::focus handler acts on a pane row under the session row. It writes the focus value to the terminal row of the pane.
+     * When the pane is focused, it also writes the cwd of that terminal row to the sessions row.
+     * The Id::cwd handler acts on a terminal row under the session row. When the pane of that row is focused, it writes the cwd
+     * of the row to the sessions row.
      */
     void registerEvents();
 
     /**
      * @brief Runs the handler that registerEvents() stored for the changed property.
      *
-     * A property with no handler does nothing.
+     * A property with no handler does nothing. The Id::plugin and Id::focus handlers act on a pane row under the session row.
+     * The Id::cwd handler acts on a terminal row under the session row.
      *
-     * @param tree      Tree whose property changed. Each handler checks that the tree lies under the session row.
-     * @param property  Identifier of the changed property. Id::plugin and Id::focus have an effect.
+     * @param tree      Tree whose property changed.
+     * @param property  Identifier of the changed property. Id::plugin, Id::focus and Id::cwd have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
@@ -206,9 +213,6 @@ private:
 
     /** @brief Identity of each hosted plugin in the graph, keyed by the identity of its pane. */
     jam::HashMap<jam::UUID, juce::AudioProcessorGraph::NodeID> plugins;
-
-    /** @brief PluginState of each hosted plugin of the company, keyed by the identity of its pane. addPlugin() creates it and removePlugin() erases it. */
-    jam::HashMap<jam::UUID, std::unique_ptr<PluginState>> pluginStates;
 
     /** @brief Handlers keyed by the changed property. registerEvents() fills them. valueTreePropertyChanged() calls the handler of the changed property with the tree. */
     jam::Function::Map<juce::Identifier, jam::Function::pointerCapacity, void (juce::ValueTree&)> events;

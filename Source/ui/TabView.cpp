@@ -5,7 +5,8 @@ TabView::TabView (jam::Model& newModel, juce::ValueTree existingState)
     : jam::MatrixComponent (newModel, existingState)
 {
     setName (jam::Format::toType (Id::tab).toString());
-    model.createAndAddParameter<jam::ParameterText> (state, Id::name, juce::String {});
+    model.createAndAddParameter<jam::ParameterText> (state, Id::name, state.getProperty (Id::name).toString());
+    addChildrenFromState();
 }
 
 //==============================================================================
@@ -16,14 +17,13 @@ void TabView::add()
     MatrixComponent::add (uuid, createChild (uuid));
 }
 
-void TabView::addPane (const juce::Identifier& edge, const juce::String& directory)
+void TabView::addPane (const juce::Identifier& edge)
 {
     if (edge.isValid())
         split (edge);
     else
         add();
 
-    getFocusedPane().getValueTree().getOrCreateChildWithName (jam::Format::toType (Id::pluginState), nullptr).setProperty (Id::cwd, directory, nullptr);
     loadPlugin();
 }
 
@@ -37,10 +37,24 @@ std::unique_ptr<jam::OwnedComponent> TabView::createChild (jam::UUID uuid)
 {
     auto child { std::make_unique<EditorView> (model, state, uuid) };
 
-    child->setCornerMenuFactory ([this] { return buildAreaOptionsMenu(); });
-    child->setCornerMenuAction ([this] (int result) { handleAreaOptionsResult (result); });
+    setCornerMenus (*child);
 
     return child;
+}
+
+std::unique_ptr<jam::OwnedComponent> TabView::createChild (const juce::ValueTree& row)
+{
+    auto child { std::make_unique<EditorView> (model, row) };
+
+    setCornerMenus (*child);
+
+    return child;
+}
+
+void TabView::setCornerMenus (EditorView& child)
+{
+    child.setCornerMenuFactory ([this] { return buildAreaOptionsMenu(); });
+    child.setCornerMenuAction ([this] (int result) { handleAreaOptionsResult (result); });
 }
 
 //==============================================================================
@@ -76,12 +90,6 @@ EditorView& TabView::get (jam::UUID uuid)
 EditorView& TabView::getFocusedPane()
 {
     return get (getFocusedChild());
-}
-
-void TabView::setZoom (juce::CommandID command, float step)
-{
-    for (const auto& [uuid, child] : getChildren())
-        static_cast<EditorView&> (*child).setZoom (command, step);
 }
 
 juce::Identifier TabView::getEdge (const jam::PaneComponent& pane, juce::Point<int> mouseDownPosition, juce::Point<int> offset) const

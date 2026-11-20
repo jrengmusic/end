@@ -9,7 +9,8 @@
 /**
  * @class Nexus
  * @brief Application root of END: the audio graph, the plugin formats, the
- *        model of the sessions, and the host extensions that the hosted plugins read.
+ *        model of the sessions, the server that the hosted plugins connect to,
+ *        and the host extensions that the hosted plugins read.
  *
  * One graph and one format manager serve every session. Each session holds the
  * hosted plugin of each of its panes, inside this graph.
@@ -58,11 +59,40 @@ public:
     Session& getActiveSession() const;
 
     /**
+     * @brief Returns a copy of the sessions row, with the state of each hosted plugin written onto its pane row.
+     *
+     * The sessions row of the model is not changed. Each session writes its plugin states onto the copy through setPluginStates().
+     *
+     * @return The copy of the sessions row.
+     */
+    juce::ValueTree getSessionsState() const;
+
+    /**
+     * @brief Restores the sessions from a saved sessions row. The call asserts that @p saved has the sessions type,
+     *        and it restores the sessions only when @p saved has that type.
+     *
+     * Each child row of @p saved moves under the sessions row of the model, and a Session adopts it. The cwd and the focused
+     * session of @p saved are then written to the model.
+     *
+     * @param saved  Saved sessions row. Its children are moved out of it.
+     */
+    void setSessionsState (juce::ValueTree saved);
+
+    /**
      * @brief Returns the host extension with an identifier.
      * @param id  Identifier of the extension.
      * @return The extension, or nullptr when the host has no extension with that identifier.
      */
     const void* getExtension (const char* id) const;
+
+    /**
+     * @brief Returns the port that the server listens on. The port is known after the server binds in the constructor.
+     *
+     * The server port extension returns this value to the hosted plugins. In server mode, the application writes it to the settings.
+     *
+     * @return The bound port.
+     */
+    int getServerPort() const noexcept;
 
     /**
      * @brief Holds the bundle or the library of an ENAX plugin module for the lifetime of Nexus, once per file.
@@ -138,8 +168,8 @@ private:
     /**
      * @brief Registers the host callbacks and getters that the hosted plugins read through the host extensions.
      *
-     * The registry holds the context factory, the peer deleted callback, the key press callback and the mouse event callback.
-     * With the profiler, it also holds the prompt-painted callback and the manifest file getter.
+     * The registry holds the context factory, the peer deleted callback, the key press callback, the mouse event callback
+     * and the server port getter. With the profiler, it also holds the prompt-painted callback and the manifest file getter.
      */
     void registerExtensions();
 
@@ -162,6 +192,8 @@ private:
     /** @brief Website of the product. The CLAP format receives it as the host URL. */
     static constexpr const char* hostUrl { ProjectInfo::productWebsite };
 
+    static constexpr int anyPort { 0 };
+
 #if JUCE_MAC
     /**
      * @brief Bundles of the registered Audio Unit components and of the ENAX plugin modules.
@@ -180,7 +212,7 @@ private:
     juce::StringArray pluginModules;
 
     /** @brief Model that holds the window row and the sessions tree. The sessions tree holds the focusedSession parameter. */
-    ENDModel model;
+    ENDModel& model { *ENDModel::getInstance() };
 
     /** @brief Host extensions keyed by identifier. Each value points to the callback or getter that the host reads. */
     jam::HashMap<juce::String, const void*> extensions;
@@ -205,11 +237,18 @@ private:
     /**
      * @brief Sessions keyed by identity. Each session is owned here.
      *
-     * The member is declared after `graph`. A session holds a PluginState that refers to a plugin instance the graph owns.
-     * Members are destroyed in the reverse order of their declaration, so the sessions and their PluginState states are
-     * released before the graph releases the instances.
+     * The member is declared after `graph`. Each session holds the plugin instances of its panes, which the graph owns.
+     * Members are destroyed in the reverse order of their declaration, so the sessions are released before the graph
+     * releases the instances.
      */
     jam::HashMap<jam::UUID, std::unique_ptr<Session>> sessions;
+
+    /**
+     * @brief Server that the hosted plugins connect to. It attaches the tree of each plugin under the root of the model.
+     *
+     * The member is declared after `sessions`, so it is destroyed before the sessions. Its destructor stops the server.
+     */
+    jam::ValueTreeServer server;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

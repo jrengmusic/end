@@ -4,6 +4,16 @@ SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
     : jam::TabbedComponent { newModel, sessionState }
 {
     setTabBarDepth (0);
+
+    const auto focused { getFocusedChild() };
+
+    for (auto tab : state)
+        addTabView (tab);
+
+    setFocusedChild (focused);
+
+    if (getChildren().contains (focused))
+        setCurrentTab (focused);
 }
 
 void SessionView::add (jam::UUID uuid)
@@ -16,24 +26,27 @@ void SessionView::add (jam::UUID uuid)
 void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child)
 {
     if (parentTree == state and child.hasType (jam::Format::toType (Id::tab)))
+        addTabView (child);
+}
+
+void SessionView::addTabView (const juce::ValueTree& tabRow)
+{
+    const jam::UUID uuid { static_cast<int64_t> (tabRow.getProperty (Id::id)) };
+
+    OwnerComponent::add (uuid, std::make_unique<TabView> (model, tabRow));
+
+    auto* tabView { &get (uuid) };
+
+    if (auto* tab { getBar().getTabButton (uuid) })
     {
-        const jam::UUID uuid { static_cast<int64_t> (child.getProperty (Id::id)) };
-
-        OwnerComponent::add (uuid, std::make_unique<TabView> (model, child));
-
-        auto* tabView { &get (uuid) };
-
-        if (auto* tab { getBar().getTabButton (uuid) })
+        tab->label.onTextChange = [tabView, tab]
         {
-            tab->label.onTextChange = [tabView, tab]
-            {
-                tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
-            };
-        }
-
-        applyTabName (uuid);
-        lookAndFeelChanged();
+            tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
+        };
     }
+
+    applyTabName (uuid);
+    lookAndFeelChanged();
 }
 
 void SessionView::valueTreeChildRemoved (juce::ValueTree& parentTree, juce::ValueTree& child, int)
@@ -84,25 +97,19 @@ TabView* SessionView::getActiveTabView() noexcept
                : nullptr;
 }
 
-void SessionView::setZoom (juce::CommandID command, float step)
-{
-    for (const auto& [uuid, child] : getChildren())
-        static_cast<TabView&> (*child).setZoom (command, step);
-}
-
 void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if (property == Id::name or property == Id::focusedPane or tree.hasType (jam::Format::toType (Id::pluginState)))
+    if ((property == Id::name or property == Id::focusedPane)
+        and (tree.hasType (jam::Format::toType (Id::tab)) or tree.hasType (jam::Format::toType (Id::pane))))
     {
         for (const auto& [uuid, child] : getChildren())
             if (tree == child->state or tree.isAChildOf (child->state))
                 applyTabName (uuid);
-    }
 
-    if (property == Id::name or property == Id::focusedPane)
         focusPane();
+    }
 }
 
 juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
@@ -120,20 +127,7 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
     if (sourcePane.isValid())
     {
-        const auto pluginState { sourcePane.getChildWithName (jam::Format::toType (Id::pluginState)) };
-
-        for (const auto& id : { Id::title, Id::foregroundProcess })
-        {
-            const juce::String paneTitle { pluginState.getProperty (id).toString() };
-
-            if (paneTitle.isNotEmpty())
-                return paneTitle;
-        }
-
-        const juce::URL cwd { pluginState.getProperty (Id::cwd).toString() };
-        const juce::String directoryName { cwd.isLocalFile() ? cwd.getLocalFile().getFileName() : juce::String {} };
-
-        return directoryName.isNotEmpty() ? directoryName : sourcePane.getProperty (Id::name).toString();
+        return sourcePane.getProperty (Id::name).toString();
     }
 
     return juce::String {};

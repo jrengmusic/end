@@ -12,12 +12,15 @@
  * @brief One pane in a TabView's graph, wrapping a hosted plugin's own
  *        juce::AudioProcessorEditor.
  *
- * The editor is created when the pane row receives Id::name. It is not created in
- * the constructor. The name branch creates the editor, then lays out the pane.
+ * The editor is created when the pane row receives Id::name. initialise(), which each constructor runs,
+ * creates it only when the row already holds Id::name. The name branch creates the editor, then lays out the pane.
  * addPlugin() sets Id::name after it binds the plugin, so the
  * session holds the plugin at that time. When the Id::plugin of the pane row changes,
  * the editor is destroyed.
- * When the shellExited property of the pluginState changes to true, the pane closes itself.
+ * The server attaches the tree of the plugin under the plugin row of the pane. When that tree arrives,
+ * valueTreeChildAdded() writes the cwd of the pane row to the terminal row, then removes it from the pane row. It then
+ * writes the focus of the pane row to the terminal row, and writes the size through resized().
+ * When the Id::shellExited property of a tree under the pane row changes to true, the pane closes itself.
  *
  * A DropTarget covers the pane. A drag over the pane focuses it. A plugin file dropped on the pane
  * splits the focused pane at the drop edge, and the file loads into the new pane.
@@ -29,9 +32,10 @@ class EditorView
 {
 public:
     /**
-     * @brief Builds or adopts the pane row under the tab, listens to it, and mounts the drop target.
+     * @brief Builds the pane row under the tab row, or matches the row with the same identity, then runs initialise().
      *
-     * The editor is not created here.
+     * When the cwd of the sessions row is not empty, the call writes that cwd to the cwd of the pane row. The sessions row is
+     * the grandparent of the tab row. valueTreeChildAdded() moves the cwd to the terminal row when the plugin tree attaches.
      *
      * @param model     Model that owns the pane parameters.
      * @param tabState  Tree of the tab that holds the pane row.
@@ -39,15 +43,24 @@ public:
      */
     EditorView (jam::Model& model, juce::ValueTree tabState, jam::UUID uuid);
 
+    /**
+     * @brief Adopts an existing pane row, then runs initialise(). The call writes no cwd.
+     *
+     * @param model  Model that owns the pane parameters.
+     * @param row    Existing pane row.
+     */
+    EditorView (jam::Model& model, const juce::ValueTree& row);
+
     /** @brief Stops listening to the pane row and tells the processor that its editor is being deleted. */
     ~EditorView() override;
 
     /**
-     * @brief Lays out the pane, then places the hosted editor inside it.
+     * @brief Lays out the pane, sets the bounds of the drop target, and writes the inset size to the attached terminal row.
      *
+     * The call lays out the pane through jam::PaneComponent and sets the bounds of the drop target to the local bounds of the pane.
      * The inset is the pane padding of the look and feel plus two outline line thicknesses, rounded to whole pixels.
-     * When Session::contains() reports the pane, the editor bounds are the local bounds reduced by the inset, and the editor takes them when it exists.
-     * One call to Session::setRows() then writes the width and the height of the editor bounds to the pluginState.
+     * When Session::contains() reports the pane, the call writes the width and height of the inset area to the terminal row of
+     * the attached plugin, when that row exists. When the pane also holds an editor, the editor bounds are the inset area.
      */
     void resized() override;
 
@@ -88,30 +101,10 @@ public:
     bool perform (const InvocationInfo& info) override;
 
     /**
-     * @brief Writes the zoom row of the pluginState of the pane, which the session passes to the plugin.
-     *
-     * zoomIn adds @p step to the zoom row, zoomOut subtracts it, and zoomReset sets it to 1.0. The row is not clamped.
-     * A zoom row of the pluginState that is absent reads as 1.0.
-     *
-     * @param command  Zoom command: zoomIn, zoomOut or zoomReset.
-     * @param step     Zoom step that zoomIn adds and zoomOut subtracts.
+     * @brief Writes the editor mode to the Id::mode property of the terminal row of the attached plugin, when that row exists.
+     * @param mode  Editor mode, one value of map::EditorMode.
      */
-    void setZoom (juce::CommandID command, float step);
-
-    /**
-     * @brief Writes the mode row of the pluginState of the pane, which the session passes to the plugin.
-     * @param newMode  Editor mode, a constant of `map::EditorMode`.
-     */
-    void setMode (int newMode);
-
-    /**
-     * @brief Closes the markdown file of the pane when one is shown, otherwise runs the command on this pane.
-     *
-     * A non-empty `markdownFile` property of the pluginState gives an empty `markdownFile` row. Otherwise the call invokes @p command on this pane.
-     *
-     * @param command  Close command to invoke when no markdown file is shown.
-     */
-    void close (juce::CommandID command);
+    void setMode (int mode);
 
 private:
     /**
@@ -153,6 +146,14 @@ private:
     };
 
     /**
+     * @brief Registers the events, listens to the pane row, and mounts the drop target.
+     *
+     * When the pane row already holds Id::name, the call registers the plugin file of the row as an ENAX plugin module
+     * of Nexus, then creates the editor.
+     */
+    void initialise();
+
+    /**
      * @brief Places the hosted editor at the editor bounds of the pane.
      *
      * A resizable editor takes @p bounds as its bounds. Any other editor moves its top left corner to the position of @p bounds.
@@ -161,17 +162,6 @@ private:
      * @param bounds  Editor bounds in the coordinates of the pane, as the local bounds reduced by the inset give them.
      */
     void setEditorBounds (juce::Rectangle<int> bounds);
-
-    /**
-     * @brief Writes one row of the pluginState to the session of the pane.
-     *
-     * The call gives the row, its value and the identity of the pane to Session::setRow(). It builds no tree itself.
-     * The session does nothing when the pane has no PluginState.
-     *
-     * @param row    Identifier of the row to write.
-     * @param value  Value of the row.
-     */
-    void setRow (const juce::Identifier& row, const juce::var& value);
 
     /**
      * @brief Returns the session that holds the plugin of this pane.
@@ -186,10 +176,11 @@ private:
     /**
      * @brief Fills events with one handler for each of Id::shellExited, Id::plugin and Id::name.
      *
-     * The Id::shellExited handler invokes closeTerminalPane on this pane, asynchronously, when the value is true.
-     * The Id::plugin handler destroys the editor.
-     * The Id::name handler runs when the changed tree holds Id::name. When the session holds a PluginState for that pane,
-     * it adds the plugin file to the ENAX plugin modules of Nexus. Then it creates the editor and lays out the pane.
+     * The Id::shellExited handler reads the changed tree, which is a tree under the pane row. When its value is true,
+     * the handler invokes closeTerminalPane on this pane, asynchronously.
+     * The Id::plugin handler destroys the editor. It acts only when the changed tree is the pane row itself.
+     * The Id::name handler acts only when the changed tree is the pane row itself, and the row holds Id::name. It adds the
+     * plugin file of the row to the ENAX plugin modules of Nexus, creates the editor, and then runs resized() to lay out the pane.
      */
     void registerEvents();
 
@@ -204,10 +195,24 @@ private:
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
+     * @brief Runs when the plugin row of this pane gains a child. The child is the attached plugin tree.
+     *
+     * When the attached tree holds a terminal row, the call writes the cwd of the pane row to the terminal row, when the pane
+     * row holds a cwd, and removes that cwd from the pane row. It then writes the focus of the pane row to the terminal row,
+     * and runs resized(), which writes the size to the terminal row. Any other child has no effect.
+     *
+     * @param parentTree  Tree that gained the child. Only the plugin row of this pane acts.
+     * @param child       Added child, the attached plugin tree.
+     */
+    void valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child) override;
+
+    /**
      * @brief Creates the editor of the plugin that the session holds for this pane, and mounts it in the pane.
      *
-     * The session must hold the plugin. Session::getPlugin() looks the plugin up with `at` and requires contains() to be true first.
-     * When the plugin returns no editor, the pane mounts none. The drop target moves to the front, above the editor.
+     * The session must hold the plugin. The call does not check it, because Session::getPlugin() looks the plugin up with `at`.
+     * The plugin creates the editor through juce::AudioProcessor::createEditorAndMakeActive(). That call returns nullptr when
+     * the plugin returns no editor, and also when the plugin already has an active editor. The result replaces `editor`, so a
+     * previously held editor is destroyed, also when the result is nullptr. The drop target then moves to the front, above the editor.
      */
     void createProcessorEditor();
 

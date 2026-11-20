@@ -6,20 +6,21 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 97: One Load Path, Async Instance, Drop Target in Front, EVE Known, Editor Once, OMP Race, Model-Driven Tabs ✅ (2026-11-04).
+- **Last sprint:** Sprint 105: One Lane for All Host State, Listener-Only Attach, Native Plugin State and Session Restore ✅ (2026-11-20).
 - **Active debts (`DEBT.md`):**
   - `DEBT-20261103T195500` — fit of plugin editors to the pane (deferred by ARCHITECT)
   - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
   - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
 - **Open PLANs:**
-  - `PLAN-end-eve-config.md` — END and EVE config: lower-case keys, named light/dark palette, one jam load path, pane padding
+  - `PLAN-style-driven-theme.md` — in progress (`carol/SPRINT-LOG.md`)
+  - `PLAN-one-lane-native-state.md` — built (Sprint 105); kept until ARCHITECT confirms the runtime
   - Contract record: `~/Documents/Poems/dev/eve/PLAN-Grand-Scheme.md` §4.3 `[AMENDED 2026-11-01 — ENAX]`
 - **Related projects:** END, EVE, jam, JFS, KANJUT. ARCHITECT: *"JFS with KANJUT should not break. no runtime changes, possibly no code change either. only at framework details implementation synced"*.
 - **WHELMED is not a plugin and not a jam consumer.** Never read it. ARCHITECT: *"whelmed dev will not be developed as plugin. it will absorbed to EVE as EVE native markdown renderer, only with MarkdownComponent."*
 
 ## Layer Order (top → bottom)
 `Application → Config → Nexus → Session → hosted audio plugins (EditorView panes)`  
-Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus::addFormats`, `Nexus.cpp:66-76`; the ENAX extensions: `Nexus::registerExtensions`, `Nexus.cpp:54-64`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
+Hosting: JUCE default formats (VST2, VST3, AU) plus jam_clap (`Nexus::addFormats`; the ENAX extensions: `Nexus::registerExtensions`); one audio graph; each plugin owns its clock; plugins live in `~/.config/end/plugins/`, offloaded from END's BinaryData  
 Graphics: JAM `jam_graphics` + `jam_vulkan` (vulkan-hpp plain `vk::`, vendored SDK 1.4.350; owned by Application: `jam::CpuGraphicsEngine` — Typeface, GlyphAtlas, GlyphArrangement, ImageLoader, CPU image operations, CPU-lane context; `jam::VulkanGraphicsEngine` — Device, per-window Graphics, GPU forms of the image operations)  
 Config: `Source/config/` — ConfigDirectory, ConfigModel (four-phase lifecycle)  
 UI: `Source/ui/` — ENDView, SessionView, TabView, EditorView (jam Owner/Owned composite; panes = binary space graph, `jam::PaneEdge` EDGE rows); `Source/end/` — ENDModel; `Source/plugins/` — Nexus, Session  
@@ -57,5 +58,6 @@ Release (default flow, per host: macOS universal, Windows x64, Windows arm64): m
   - The toolchain rows run it: `cmake -P pluginBundle.cmake` (default), `-DCAST_LANE=debug`, `-DCAST_LANE=no-sign`.
   - The script runs `cast <pluginManifest> --<pluginFormat>[-<lane>]`, before END configures.
   - END's CMake embeds exactly one archive, `<name> v<version> <platform>[ scout].zip` of the host platform, and fails the configure otherwise (`cast/cmake.cast:356-371`). The plugin's `## pack` platform words must equal END's (`macOS`, `Windows`).
-  - `Nexus::getOrCreatePlugin` unpacks that archive and returns the bundle it carries, its first entry (`Nexus.cpp:170-211`). `Nexus::registerEVE` and `Session` load that file. No bundle name is authored in END.
+  - `Nexus::getOrCreatePlugin` unpacks that archive and returns the bundle it carries, its first entry (`Nexus::getOrCreatePlugin`). `Nexus::registerEVE` and `Session` load that file. No bundle name is authored in END.
 - Format-bound code that is not a word: `juce-plugin-editor-once-hook.patch` (VST2 client) and `juce-plugin-window-focus-hook.patch` (VST2 and AU hosts), in `jam/user-modules-info.md`. A move to VST3 needs their behaviour for VST3. CLAP needs ENAX CLAP first (`DEBT-20261025T135707`).
+- Format-bound code of the lane: `Session::addPlugin` reads the plugin's identity from the raw VST2 chunk (`getVSTClient()->getChunkData`), and `jam::ValueTreeServer::Connection::messageReceived` attaches the synced tree in place of the held row that carries that identity. With `vst3` or `au`, no held row exists, the tree does not attach, END writes no size, and EVE's shell does not start. A move to VST3 or AU needs an identity read for that format (`VST3Client::getPreset`; `AudioUnitClient` has no state call, `juce_AudioPluginExtensions.h:86-100`).

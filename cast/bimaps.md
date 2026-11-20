@@ -73,9 +73,6 @@ The key is the juce::CommandID; the value is the row key.
 | closeTerminalPane | 0x4700024 | `closeTerminalPane` |
 | loadPlugin        | 0x4700025 | `loadPlugin`        |
 | reload            | 0x4700003 | `reload`            |
-| zoomIn            | 0x4700004 | `zoomIn`            |
-| zoomOut           | 0x4700005 | `zoomOut`           |
-| zoomReset         | 0x4700006 | `zoomReset`         |
 | reducePaneWidth   | 0x4700008 | `reducePaneWidth`   |
 | reducePaneHeight  | 0x4700009 | `reducePaneHeight`  |
 | expandPaneWidth   | 0x470000a | `expandPaneWidth`   |

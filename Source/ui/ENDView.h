@@ -111,7 +111,7 @@ private:
     void createAndAttachParameters();
 
     /**
-     * @brief Registers each family of commands into `commands`: application, tab, zoom, mode, split, load plugin, close, join, swap and resize.
+     * @brief Registers each family of commands into `commands`: application, tab, mode, split, load plugin, close, join, swap and resize.
      *
      * The profiler family is registered too when JAM_USING_PROFILER is set.
      */
@@ -123,29 +123,18 @@ private:
     /**
      * @brief Registers newTab, nextTab and prevTab.
      *
-     * newTab adds a tab row to the focused session, then adds a pane without an edge. It sets the cwd of the pluginState row of the
-     * focused pane to the directory of the focused pane of the previously active tab, then loads the default plugin into the new pane.
+     * newTab reads the working directory of the focused pane of the active tab, adds a tab row to the focused session, then adds
+     * a pane without an edge with that directory. The new pane takes the directory as its cwd, then loads the plugin of TabView::loadPlugin().
      * nextTab and prevTab move between the tabs of the focused session.
      */
     void registerTabActions();
 
     /**
-     * @brief Registers zoomIn, zoomOut and zoomReset. Each moves the zoom parameter of the hosted plugins.
+     * @brief Registers splitHorizontal and splitVertical. Each adds a pane to the active tab at its edge.
      *
-     * The step is the `zoomStep` of the display config. With `exclusiveZoom` in the display config, the
-     * focused pane of the active tab moves. Otherwise the focused session view sets the zoom, through SessionView::setZoom().
-     */
-    void registerZoomActions();
-
-    /**
-     * @brief Registers normal, open and list. Each sets the mode of the focused pane of the active tab through EditorView::setMode().
-     */
-    void registerModeActions();
-
-    /**
-     * @brief Registers splitHorizontal and splitVertical. Each splits the focused pane of the active tab, then calls TabView::loadPlugin().
-     *
-     * splitHorizontal splits at the bottom edge. splitVertical splits at the right edge.
+     * splitHorizontal uses the bottom edge, and splitVertical uses the right edge. Each command passes its edge and the
+     * working directory of the focused pane to addPane(). TabView::addPane() then splits the focused pane at the edge, writes
+     * the directory to the cwd of the new focused pane, and runs TabView::loadPlugin().
      */
     void registerSplitActions();
 
@@ -179,10 +168,11 @@ private:
     void registerResizeActions();
 
     /**
-     * @brief Returns the cwd of the focused pane of the active tab.
-     * @return The directory, or an empty string when no tab is active.
+     * @brief Registers normal and open. Each sets the editor mode of the focused pane of the active tab.
+     *
+     * Each command passes its map::EditorMode value to EditorView::setMode().
      */
-    juce::String getFocusedDirectory() const;
+    void registerModeActions();
 
 #if JAM_USING_PROFILER
     /**
@@ -194,11 +184,20 @@ private:
 #endif
 
     /**
-     * @brief Creates a session in Nexus, adds its view, and opens its first tab through the newTab command.
+     * @brief Adds a session view for each session row. It creates the first session when the sessions row has none.
      *
-     * The session view is attached to the model. Its focus property is 1 when the view is the focused session, and 0 otherwise.
+     * When the focused session has no active tab, the call invokes the new tab command.
      */
-    void addSession();
+    void addSessions();
+
+    /**
+     * @brief Adds the view of a session, keyed by its identity, and attaches the view to the model.
+     *
+     * The focus of the view row is 1 when the view is the active session view, and 0 otherwise. The call then lays out the view.
+     *
+     * @param session  Session whose view is added.
+     */
+    void addSessionView (Session& session);
 
     /**
      * @brief Passes an edge to the active tab, which splits at the edge or adds a pane.
@@ -206,9 +205,8 @@ private:
      * With JAM_USING_PROFILER, the call first starts a profiler zone and the pane prompt.
      *
      * @param edge       Edge to split across: Id::left, Id::right, Id::top or Id::bottom. An invalid identifier adds a pane without a split.
-     * @param directory  Directory that the focused pane of the active tab stores as its cwd.
      */
-    void addPane (const juce::Identifier& edge, const juce::String& directory);
+    void addPane (const juce::Identifier& edge);
 
     /** @brief Registers the graphics events and the mouse events. */
     void registerEvents();
