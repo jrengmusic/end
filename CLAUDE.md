@@ -6,11 +6,8 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 105: One Lane for All Host State, Listener-Only Attach, Native Plugin State and Session Restore ✅ (2026-11-20).
-- **Active debts (`DEBT.md`):**
-  - `DEBT-20261103T195500` — fit of plugin editors to the pane (deferred by ARCHITECT)
-  - `DEBT-20261025T135707` — END hosts EVE as CLAP (deferred by ARCHITECT; ENAX's CLAP format is future work)
-  - `DEBT-20260912T150000` — Windows conformance of Sprint 86's jam changes (deferred by ARCHITECT)
+- **Last sprint:** Sprint 106: Windows END Hosts EVE with Shared Vulkan — No Null Factory Call, No Release Hang, One Shell per Pane at Its Real Size ✅ (2026-11-21).
+- **Active debts (`DEBT.md`):** none.
 - **Open PLANs:**
   - `PLAN-style-driven-theme.md` — in progress (`carol/SPRINT-LOG.md`)
   - `PLAN-one-lane-native-state.md` — built (Sprint 105); kept until ARCHITECT confirms the runtime

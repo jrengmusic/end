@@ -387,11 +387,14 @@ plugin state). ARCHITECT: *"END is the host. it holds its plugin instance stateI
   comes through the adopt constructor and keeps its own saved `cwd`. ARCHITECT: *"Own saved
   cwd"*. A restore also brings back the `cwd` row of the sessions row
   (`Nexus::setSessionsState`).
-- EVE writes the start directory of its own config in its constructor. ARCHITECT: *"eve has
-  its own config. nothing about that changed whatever the host is"*.
+- When its Model has no `cwd`, EVE starts its shell in the start directory of its own config
+  (`EVETerminalProcessor::openTTY`). ARCHITECT: *"eve has its own config. nothing about that
+  changed whatever the host is"*; *"no fake cwd"*.
 - Under END, EVE writes no editor size: the ENAX rule `size` replaces EVE's own size write.
-  EVE opens its shell only when the winsize is valid and `cwd` is not empty
-  (`EVETerminalProcessor::prepare`). For a new pane, the first valid winsize comes from END's
+  EVE opens its shell at the first valid winsize in its Model (`EVETerminalProcessor::prepare`).
+  A release of the plugin by the host does not close the shell
+  (`EVETerminalProcessor::releaseResources`). ARCHITECT: *"double shell itself is wrong"*;
+  *"must be deterministic"*. For a new pane, the first valid winsize comes from END's
   size, and END writes `cwd` before the size. Thus a new pane's shell starts at END's size,
   in END's directory. A restored pane carries the saved `winsize`, `width` and `height`,
   which END wrote before the save (`parameters.md:57`, `EVETerminalProcessor::setState`). Its

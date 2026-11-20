@@ -83,6 +83,11 @@ void Nexus::run()
 #endif
         deviceManager.initialiseWithDefaultDevices (2, 2);
     }
+    triggerAsyncUpdate();
+}
+
+void Nexus::handleAsyncUpdate()
+{
     deviceManager.addAudioCallback (&player);
 }
 

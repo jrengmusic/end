@@ -2,6 +2,77 @@
 
 ---
 
+## Sprint 106: Windows END Hosts EVE with Shared Vulkan — No Null Factory Call, No Release Hang, One Shell per Pane at Its Real Size ✅
+
+**Date:** 2026-11-21
+**Duration:** Not measured. Several sessions, joined by context compactions.
+**Scope (ARCHITECT):**
+- `/pay`, `vulkan` (`DEBT-20260912T150000`). The debt text was stale: *"the issue is EVE loaded at END with shared Vulkan"*; *"i have no issue with mac"*; *"one by one. fix the crash first"*.
+- The Release hang: *"release build, hangs at the time terminal created"*. The `/GL` warning: *"fix it and probe the crash"*. PDB flags: *"just add it"*; *"if you need to read eve pdb just add flags"*.
+- The leaked `%` before the prompt. Ruling: *"ViewEditor contract is with plugin_bootstrap. this is kernel modules. it will be synced to KANJUT. JFS will break"*, then *"ViewEditor ctor overload with explicit (width, height)"*.
+- The double shell: *"double shell itself is wrong. why double?"*; *"no fake cwd"*, *"no fake size"*, *"must be deterministic"*; *"TextEditor write to Model isnt it?"*; *"so where is the absolute seam? that works as SSOT?"*, then `/go`.
+- Binding rulings: *"MUST CHECK THOROUGHLY, NEVER GUESS AND SUGGEST MACRO GUARD AT ARBITRARY PLACE"*; *"NEVER FIX THE SYMPTOMS. fix the cause, fix the design, design by contract"*; *"be careful with those changes, i had no issues with mac, ensure it was windows only"*.
+- `/audit doxygen pass then /log no-gate`. *"all DEBT paid"*.
+
+### Agents Participated
+- COUNSELOR: the probe specs and every cause read (VST2 host and client, JUCE graph and player, VirtualDevice, Model restore), every validation read, the audit triage, the SPEC, ARCHITECTURE, CLAUDE.md and `parameters.md` edits, this log.
+- Pathfinder (haiku): whatdbg traces and samples of Release END and EVE, discovery reads, two doxygen passes.
+- Engineer (haiku): the Vulkan, Nexus, ViewEditor, EVEView and EVE shell-seam edits, and the audit fixes.
+- Auditor (opus) ×1: 3 code findings and 9 document findings.
+
+### Files Modified (19 total)
+**jam:**
+- `jam_vulkan/engine/jam_VulkanGraphicsEngine.cpp:133`: `getOrCreateGraphics (juce::ComponentPeer&)` creates Graphics only for a component with non-empty local bounds, on every platform. The Windows `createContext` (`:430-497`) has no check of its own. `.h`: the `getOrCreateGraphics` and `createContext` blocks.
+- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp:23-31`: the context factory forwards to the host factory while it is set. When the host factory is null, it sets the process factory to null, repaints the peer's component and returns nullptr. The patch then gives the peer its default engine. `.h`: the constructor block.
+- `jam_plugin_bootstrap/view/jam_ViewEditor.h`: a `create` overload and a private constructor with explicit `width` and `height`. The existing `create` and constructor are unchanged (kernel, synced to KANJUT).
+
+**END:**
+- `Source/plugins/Nexus.h/.cpp`: Nexus also derives privately from `juce::AsyncUpdater`. `run()` opens the audio devices on the Nexus thread, then triggers the update. `handleAsyncUpdate()` adds the player on the message thread.
+- `project-info.md` `## release`: the Windows `/GL` cell is empty (clang-cl ignored it; LTO comes from `-flto=thin`). The probe rows `debugSymbols` (`/Zi`) and `linkDebugSymbols` (`/debug`) were added for the PDB traces, then removed. ARCHITECT: *"remove /debug and /zi for release as they were"*.
+- `SPEC.md` (EVE's shell start, `cwd` fallback), `ARCHITECTURE.md` (Nexus line refs, the factory set and clear, EVE's factory forward), `CLAUDE.md` (Current State).
+
+**EVE:**
+- `project-info.md`: the probe rows `programDatabase` (Release, Windows, `/Zi` and `/debug`) were added for the PDB traces, then removed. Net: no change.
+- `Source/EVEProcessor.h/.cpp`: the constructor writes no `cwd`. Only `Id::winsize` calls `terminalProcessor.prepare()`.
+- `Source/EVETerminalProcessor.h/.cpp`: the `prepare()` gate is `winsize.isValid()` only. `releaseResources()` stops and closes the clock and keeps the TTY and `ttyResize`. RAII closes them, because they are declared after `device`.
+- `Source/EVEView.h/.cpp`: `initialiseView` builds the view at `jam::ViewEditor::getViewBounds` of the terminal `width`, `height` and `zoom` rows, which is the formula of `resized()`.
+- `Source/layout/parameters.md`: the `width` and `height` descriptions name their three writers. `SPEC.md`: the shell start.
+
+### Alignment Check
+- [x] BLESSED principles followed. D: the readiness of a peer is checked once, at the owner of the create. S: the first valid `winsize` in the Model is the one seam of the shell. The view size has one formula. E: the restore and the host tell; EVE does not ask a host lifecycle for its shell. B: the shell's TTY lives and dies with `EVETerminalProcessor`.
+- [x] NAMES.md adhered. No new names except `viewBounds` (the `getViewBounds` family).
+- [x] MANIFESTO.md principles applied.
+- [ ] Not built after the shell seam, the audit fixes and the owner move. ARCHITECT ran the Release lane after the crash, hang and `%` fixes.
+
+### Problems Solved
+- **Null call at `0x0` (the debt's stack, `jam_ENAXClientExtensions.cpp:23`).** A 0×0 EVE peer reached the Windows `createContext`. The composition create failed, `setGpuAvailable (false)` cleared END's factory (`jam_VulkanGraphicsEngine.cpp:301-303`), and EVE's forward called it. The owner now skips an empty component. EVE's forward also honours a cleared host factory, so any other close of END's gate no longer crashes EVE.
+- **Release hang at terminal creation.** `addAudioCallback` ran on the Nexus thread, and a whatdbg sample pinned the deadlock. It now runs on the message thread through `handleAsyncUpdate`, after the device opens on the Nexus thread. The ruling *"On a background thread"* (sound card) still holds.
+- **The `%` before the prompt.** The first zsh started at EVE's config size, 97×37, which the kernel `ViewEditor` constructor gave the view, while the grid was 74 columns. PROMPT_SP padded 96 spaces and wrapped. EVE now builds the view through the explicit-size overload, at the Model's size. Verified in a Release run: first open at 74×26, 73 spaces, no wrap.
+- **Two shells per pane.** The shell lived between the host's `prepareToPlay` and `releaseResources`. The player attached after EVE's first shell opened. Its `audioDeviceAboutToStart` released and prepared the graph (`juce_AudioProcessorPlayer.cpp:364-371`, `juce_AudioProcessorGraph.cpp:459-483`), and `tty.reset()` killed shell 1. The seam is now the first valid `winsize`, and a host release does not close the shell.
+- **Fake `cwd` and its loop.** The constructor always wrote the config `cwd`, and `openTTY`'s `cwd` write re-triggered `prepare`. Both are gone. `openTTY` falls back to the config start directory when the Model has no local `cwd` (`EVETerminalProcessor.cpp:475-476`).
+- **Audit.** Resolved: F1 (null host factory), F2 (empty bounds at the owner), F3 (one view-size formula), documents F4 to F8, F10 to F12. F9 (stale `DEBT-20260912T150000` text) resolved by the drain. F2 was first rejected against *"ensure it was windows only"*, then corrected after ARCHITECT's *"isnt single check whether peer size is ready crossplatform?"*.
+- **Doxygen.** Two passes, each block read against the code. Pathfinder's "own factory" correction was accepted: `externalContextFactory` is one static pointer for the process (patch `:325`).
+- **Mistakes owned.** A Pathfinder sent with the LSP; scope widened to the Editor debt; a race guessed and a Windows macro guard proposed; `project-info.md` edited by COUNSELOR; two wrong explanations of the `%`; removal of the kernel `setSize` proposed; F2 rejected on a wrong reading of a ruling.
+
+### State for Continuation
+- Build: `cast cast/spell.md --no-sign` (Release) or `cast cast/spell.md --debug` in END. The default lane signs and runs `gh.cmake`.
+- Runtime checks on Windows: one `openTTY` per pane at load; a split keeps one shell per pane; a GPU gate close in END paints EVE with its default engine, with no crash.
+- Runtime check on macOS: a 0×0 peer now gets the CPU context for that frame (`jam_VulkanGraphicsEngine.cpp:133`, `:425-426`).
+- Not addressed (ARCHITECT's report, not ruled): a split resize erases a pane's active prompt until the next input. When a prompt is active and the grid size changes, `TerminalProcessor::reset` erases the screen (`jam_TerminalProcessor.cpp:37-40`). Each resize goes through `device.stop`, `device.open` and `prepare (winsize, history)` (`EVETerminalProcessor.cpp:370`, `:392`, `:536-572`).
+- Restore order: `Model::setValuesFrom` sets one property at a time and notifies at once (`jam_Model.cpp:261-267`). `parameters.md` creates `winsize` (`:57`) before `cwd` (`:59`). So a restored pane can open its shell before its saved `cwd` arrives. Check it against END `SPEC.md` *"Own saved cwd"*.
+- KANJUT `kuassa_ViewEditor.h:35` has no explicit-size `create`. The kernel sync is ARCHITECT's.
+- Regenerate doxygen in jam, END and EVE, and read the warning counts.
+
+### Debts Paid
+- `DEBT-20260912T150000`: Windows END hosting EVE with shared Vulkan. The null factory call, the Release hang, the `%` and the double shell are fixed.
+- `DEBT-20261103T195500`: ARCHITECT: *"all DEBT paid"*.
+- `DEBT-20261025T135707`: ARCHITECT: *"all DEBT paid"*.
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 105: One Lane for All Host State, Listener-Only Attach, Native Plugin State and Session Restore ✅
 
 **Date:** 2026-11-20
@@ -250,74 +321,6 @@
 - Next hot zones (ms): `layout style tree` 52, `tty open` 42, `vulkan flush recording` 30, `layout default tree` 25, `layout user tree` 27, `layout theme settings` 18, `layout documents` 17, `layout default file` 16.
 - `launchPrompt` (OSC 133 A) is not detected, so `epoch` still holds the 5 s `read` of `launch-windows.sh`.
 - Not done: `end/benchmark/pane-windows.md` (END loading EVE); the Ctrl+W markdown preview crash with EVE in END.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
-
----
-
-## Sprint 101: END to the Front at Launch, Keys and Mouse Without the Active Window, Audit of Two Sprints, VST2 Host Window at the Plugin's Size ✅
-
-**Date:** 2026-11-13
-**Duration:** not recorded. The session ran over one compaction.
-**Scope (ARCHITECT):** *"let's fix window focus and prefix keyboard not working"* (Windows, END hosts EVE as VST2). Then *"/audit 2"*: *"2 sprint: this one and last logged (havent been audited)"*. Then *"no risks allowed"* and *"clean up until /log no gate"*. Then the black lines at custom scales: *"HOST know its size always at any arbitrary scale"*; *"so can we solve this by patch? to enforce enax VST2 to scale with the exact SSOT method?"*; *"patch contract: must be as MINIMAL as possible"*. Contract rulings: *"END is the host, the owner, the orchestrator, END must be at DESKTOP IN FRONT FIRST"*; *"FULLY EVENT DRIVEN, nothing need to be handrolled"*; *"PATCHING juce IS FUCKING TRIVIAL. but it's not the best solution, it's always last resort."*
-
-### Agents Participated
-- COUNSELOR — cause reads, every validation read, the triage of three audits, `ARCHITECTURE.md` edits, trivial fixes, this log.
-- Pathfinder (haiku) — discovery reads (launch chain, focus, key and mouse callbacks, close-pane chain, VST2, VST3 and AU size chains), two doxygen passes.
-- Engineer (sonnet) — the Nexus callbacks, the jam foreground call, the risk fixes, the shell scripts, the VST2 size patch and the grid deletion.
-- Auditor (opus) ×3 — this sprint (END, jam) and the URI and pane-size sprint of the handoff below.
-
-### Files Modified (27 total)
-**jam:**
-- `jam_gui/windows/jam_StyleWindow.h:54-64`, `.cpp:39-42` — `setForeground (juce::ComponentPeer&) noexcept`: `SetForegroundWindow` on the peer's window. JUCE shows a window with `SW_SHOWNA` (`juce_Windowing_windows.cpp:1270`), which does not activate it.
-- `jam_gui/windows/jam_Window.h`, `.cpp` — a `parentHierarchyChanged` foreground call was added, then deleted. It also fired on peer re-creation and on `setAlwaysOnTop` (`juce_Component.cpp:738`, `:1041`), and for every `jam::Window` (`DebugConsole`, `DebugModelMonitor`, `ModalWindow`). Net: no change.
-- `jam_gui/commands/jam_CommandManager.h:44-65`, `.cpp:43`, `:61` — `invokeKey (key, componentState, asynchronously)`; the matched command runs through `invokeDirectly (id, asynchronously)`.
-- `jam_gui/widgets/jam_TextEditor.cpp:615`, `:636`, `:658` — pass `false`. `jam_TextEditor.h:463-466`, `:1017-1024` — doxygen corrected to the code.
-- `patch/juce-plugin-window-size-hook.patch` (new) — in `VSTPluginWindow::componentMovedOrResized` (Windows), the embedded host window takes the physical size of the plugin's `effEditGetRect` with `SetWindowPos`. `user-modules-info.md:1369` — its patch row.
-
-**end:**
-- `Source/Main.cpp:212-215` — after `window->setVisible (true)`, Windows: `jam::StyleWindow::setForeground (*peer)`. END, the owner of its window, tells it once.
-- `Source/plugins/Nexus.cpp:6-11` — the ENAX key callback passes the `window` row of `ENDModel` to `invokeKey (key, state, true)`. It no longer reads JUCE's active top-level window.
-- `Source/plugins/Nexus.cpp:13-23` — the ENAX mouse callback sends the event to the peer of `Desktop::findComponentAt`, else to the peer of the component under END's main mouse source.
-- `Source/ui/ENDView.cpp:57` — `invokeKey (key, state, false)`.
-- `Source/ui/EditorView.h`, `.cpp` — the pixel grid is deleted (`getEditorBounds`, `scaleNotifier`). The editor bounds are the local bounds reduced by the inset (`EditorView.cpp:59`). `setEditorBounds` asserts the editor (`:99`). Doxygen corrected.
-- `Source/ui/SessionView.cpp:133-134` — the tab name reads `cwd` through `juce::URL::getLocalFile()`, after `isLocalFile()`. `removeEscapeChars` turned `+` into a space.
-- `ARCHITECTURE.md` — the ENAX section: the key and mouse bullets; four extensions and four client rules that the code does not have were deleted; every `Nexus.cpp`, `jam_ENAXClientExtensions.cpp` and `EditorView.cpp` citation corrected; the Host automation row (`:743`) records the VST2 size patch.
-
-**eve:**
-- `Source/EVEView.h`, `.cpp` — `getUrl()` is the one reader of the `url` row. `openFile()` tests `isLocalFile()` once. `openFile (const juce::File&, terminal)` builds no second `juce::File`. The `markdown` command tests `isLocalFile()` before `getLocalFile()` (`juce_URL.cpp:415-421` asserts otherwise). `keyPressed` passes `false` to `invokeKey`. Doxygen corrected.
-- `Source/EVETerminalProcessor.cpp:416-430` — the profile branch writes the `cwd` URI of the manifest folder. `EVETerminalProcessor.h:295`, `:298-299` — doxygen.
-- `Source/shell/eve:17-30` — `_eve_cwd` lives here, next to `_eve_path`. A UNC folder gives `file://server/share`. `zsh_integration.zsh:4-6` sources `eve` and has no copy of `_eve_encode` or `_eve_cwd`. `bash_integration.bash:31-37` has no copy of `_eve_cwd`. `powershell_integration.ps1:15-17` uses `$PWD.ProviderPath` and gives the UNC form.
-- `SPEC.md:227` — the OSC 7 row: the raw `file://` URI, without decoding.
-
-### Alignment Check
-- [x] BLESSED principles followed — E: END tells its window once (orchestrator tells); the key and mouse callbacks read no JUCE focus state. S: one reader of `url` and `cwd`, one copy of the shell helpers, one size for the VST2 host window and the plugin window.
-- [x] NAMES.md adhered — `setForeground` joins `setButtons` / `setMenu`; `asynchronously` is JUCE's parameter name; `getUrl` joins the `get` family.
-- [x] MANIFESTO.md principles applied
-- [ ] Nothing of the risk fixes, the doxygen passes or the VST2 size patch is built. ARCHITECT built and ran only the foreground call (then in `jam::Window`) and the Nexus key callback: *"window and keyboard fixed."*
-
-### Problems Solved
-- **END never at front.** JUCE shows with `SW_SHOWNA` and has no `SetForegroundWindow` (`juce_Windowing_windows.cpp:1270`; `Process::makeForegroundProcess` is empty, `:5603-5604`). `toFront (true)` gives only `BringWindowToTop`; ARCHITECT's run: *"NOT IN THE FUCKING FRONT"*. END now calls `SetForegroundWindow` once, after the show.
-- **Prefix keys and Ctrl+T dead.** The ENAX callbacks used JUCE's active top-level window, which is empty while EVE's child window holds focus (`juce_TopLevelWindowManager.h:62-77`, `:128-143`). They now read the Model and the desktop.
-- **Ctrl+W inside the plugin's key call.** The close chain was synchronous to `editor.reset()` while the plugin's `ComponentPeer::handleKeyPress` was on the stack. A key from the plugin now posts its command.
-- **Mouse release outside END.** `MouseInputSourceImpl::handleEvent` needs an END peer for the button-up (`juce_MouseInputSourceImpl.h:326-357`); the fallback gives it one.
-- **Black lines at the pane edges, at any scale.** Under VST2 the plugin owns its size (`effEditGetRect`, `audioMasterSizeWindow`); the host follows. EVE's window is `round (w × s)` and its report is the same (`juce_PluginScaleFactorUtilities.h:128`, zero origin; `juce_Windowing_windows.cpp:1348`). The host converted the report to logical with a ceiling and back with `getSmallestIntegerContainer` at its position (`juce_VSTPluginFormat.cpp:130`; `juce_HWNDComponent_windows.cpp:60`), so the black `ViewComponent` (`juce_VSTPluginFormat.cpp:674-687`) showed one or two pixels. The grid hid this only at standard scales: at 110 % (106 DPI) its step was 48 logical pixels. The patch gives the host window the reported physical size; the grid is deleted. VST3 (host owns the size, `IPlugView::onSize`) and AU were read; no format change.
-- **Audit, this sprint, jam (6 findings and 1 outside the set).** Resolved: 5 (`noexcept`). Rejected: 1 (CODING "Narrow pointer scope"; ARCHITECT: *"previously already adhere to coding standard instead you churn delete rewrite garbage"*), 2 (`toFront (true)` disproved by run), 3, 4, 6, the `jam_Platform.h` include (the Windows header wrapper, `jam_Platform.h:14-24`).
-- **Audit, this sprint, END (6).** Resolved: F3, F4, F6 (`ARCHITECTURE.md`). Rejected: F1 (narrow pointer scope), F2 (two copies). F5 (no finding). Risks resolved: foreground on every hierarchy change and for every `jam::Window`, B1 (mouse release), B2 (Ctrl+W). Rejected: B3 (no side sets a global scale).
-- **Audit, last sprint (16).** Resolved: F1 (grid replaced by the patch), F3, F6, F7, F8, F9, F12, F13, F15. Rejected: F2 (no move without a resize), F4, F5, F10, F11 (the PLAN locks the escape set; the one reader gives one file), F14 (the PCH skip costs time only when `Nexus.cpp` recompiles), F16 (no clause).
-- **Doxygen.** Two passes, each block read against the code. Pathfinder finding "no writer of the root `outputBlock`" rejected: `jam_TextEditor.cpp:1035` writes it.
-- **Mistakes owned.** A question a read answered; manual callbacks proposed; `toFront (true)` claimed to work; the macOS Hammerspoon listener called the owner of "to front"; an unneeded git read; an Auditor guard finding accepted against CODING; "two rulings cannot both hold" for the black lines (false: the cause is the VST2 contract and JUCE's roundings); a VST2-only, operating-system read proposed; a question that CONTRACT answered (MANIFESTO S, E).
-
-### State for Continuation
-- Run `cast cast/spell.md` in END and in EVE so the JUCE copy takes `juce-plugin-window-size-hook.patch`. Then build EVE, then END.
-- Windows runtime checks: END at front at launch; Ctrl+W from EVE closes the pane with no assert; a drag that ends outside END ends; no black line at the pane edges at 125 %, 150 % and a custom scale; markdown links open; a UNC folder gives the right tab name; zsh in EVE has `_eve_encode` and `_eve_cwd` from `eve`.
-- The size patch has no ENAX gate: it applies to every VST2 plugin that END hosts on Windows. Plugins that do not answer `supportsViewDpiScaling` still run JUCE's `resizeToFit` polling, which calls `updateHWNDBounds` (`juce_VSTPluginFormat.cpp:556-576`).
-- Regenerate doxygen (END `ninja doxygen`; jam and EVE `<leader>bd`) and read the warning count.
-- Open from the handoff below: profile pane creation and close on Windows with scout (no Windows manifest); scout launch-time optimisation; the Windows key routes 2-4 (not traced again after ARCHITECT's *"window and keyboard fixed"*).
 
 ### Debts Paid
 - None

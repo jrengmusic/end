@@ -16,7 +16,8 @@
  * hosted plugin of each of its panes, inside this graph.
  */
 class Nexus : public jam::Instance<Nexus>,
-              private juce::Thread
+              private juce::Thread,
+              private juce::AsyncUpdater
 {
 public:
     /**
@@ -131,7 +132,19 @@ public:
 #endif
 
 private:
+    /**
+     * @brief Opens the default audio devices with two inputs and two outputs, then triggers the async update.
+     *
+     * The call runs on the thread that the constructor starts. On Windows, it initialises COM for that thread before it opens the devices.
+     */
     void run() override;
+
+    /**
+     * @brief Adds the player as the audio callback of the device manager.
+     *
+     * The message thread runs the call, after run() triggers the update.
+     */
+    void handleAsyncUpdate() override;
 
     /**
      * @brief Makes the bundle of one embedded plugin archive available in the plugins folder, unpacking the archive only when needed.

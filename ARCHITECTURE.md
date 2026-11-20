@@ -53,7 +53,8 @@ window (jam::Window holding ENDView; created in initialise(), Main.cpp:237-240)
     — gui-less. Owns ENDModel (the app SSOT), every end::Session keyed by
       uuid, the juce::AudioPluginFormatManager (JUCE default formats +
       jam::ClapPluginFormat), the one juce::AudioProcessorGraph and its
-      player and device, and the ENAX extensions (Nexus.h:121-122). Each
+      player and device (Nexus.h:235-237), and the ENAX extensions
+      (Nexus.h:220). Each
       hosted plugin owns its own clock.
     |
     v
@@ -279,8 +280,11 @@ This pattern avoids separate width/height parameters that would fire two events 
 Two JAM engines replace JUCE's default renderers for all painting — panes, chrome, and
 the hosted plugins' editors under ENAX. `jam::VulkanGraphicsEngine::createContext`,
 installed as `juce::ComponentPeer::externalContextFactory`
-(`jam_VulkanGraphicsEngine.cpp:18-20`), makes the context of each peer. On Windows the
-factory is set only while the GPU is available (`:275-281`).
+(`jam_VulkanGraphicsEngine.cpp:18`), makes the context of each peer. On Windows,
+`setGpuAvailable` sets the factory while the GPU is available and clears it when the GPU
+gate closes (`:299-305`). Under END, EVE's factory forwards to END's factory. When END's
+factory is clear, EVE clears its own factory, so its peer paints with its default engine
+(`jam_ENAXClientExtensions.cpp`).
 
 ### Ownership / Lifecycle
 
