@@ -2,6 +2,73 @@
 
 ---
 
+## Sprint 107: jam::File::Watcher Rewritten Clean-Room, Gin Remnants Removed, No Kind Prefix in NAMES ✅
+
+**Date:** 2026-11-21
+**Duration:** Not measured. One session, after Sprint 106 in the same session.
+**Scope (ARCHITECT):**
+- The Gin license file: *"delete please"*.
+- The Gin watcher: *"that's exactly how we work here. we vendor, when it reached its limit, not suitable for our domain contract, we evolve, we rewrite our own, but we still keep attributes when we genuienely use it as is. clean it up"*; *"also fix linux?"*; `/go DESIGN BY CONTRRACT` on the plan.
+- The contract files: *"kFSEventStreamEventFlagItemModified fix the @carol/NAMES.md @carol/CODING.md"*.
+- Runtime: *"built clean. reload works."*; *"linux test be tested on linux machine"*.
+- *"add to DEBT"*: three entries. *"/log when you're done"*.
+
+### Agents Participated
+- COUNSELOR: the reads of the old watcher, the owner APIs (`juce::AsyncUpdater`, `juce::Timer`, `jam::AsyncUpdater::Source`) and the consumers; the plan; the rewrite brief; every validation read; the audit and doxygen triage; the registry repair; the NAMES.md and CODING.md edits; this log.
+- Pathfinder (haiku): the consumer discovery, and the doxygen pass of the watcher.
+- Engineer (haiku): the license deletion, the rewrite, the audit fixes, the `carol debt add` run.
+- Auditor (opus) ×1: 10 findings.
+
+### Files Modified (13 total)
+**jam:**
+- `jam_core/file/jam_FileWatcher.h`, `jam_FileWatcher.cpp` (new): `jam::File::Watcher`, a clean-room rewrite. One platform `Source` per folder (macOS FSEvents on its own serial queue; Windows overlapped `ReadDirectoryChangesW` through `jam::AsyncUpdater::Source`; Linux inotify on a `juce::Thread`). Each Source hands events to `addEvent`, which keeps the latest `Event` per file under `pendingLock`. A private `juce::AsyncUpdater` moves the delivery to the message thread, where one `juce::Timer` window delivers all pending events. `sources` is the last member, so the Sources die before the delivery bases. Kept API: `addFolder`, `coalesceEvents`, `addListener`, `removeListener`, `Listener::fileChanged`, the unscoped `Event` values.
+- `jam_core/file/jam_Listener.h`, `jam_Listener.cpp`, `jam_core/file/LICENSE_Gin.txt`: deleted.
+- `jam_core/jam_core.h:112`, `jam_core/jam_core.cpp:7`: the includes of `jam_FileWatcher`.
+- `user-modules-info.md`: the `LICENSE_Gin.txt` row deleted; the rows at `:260`, `:278` renamed.
+- `jam_core/file/jam_File.h:398-399`: `class Watcher;`, and the comment names `jam_FileWatcher.h`.
+
+**CAROL:**
+- `~/.carol/NAMES.md` Rule 2: "No kind prefix" (`k`, `m_`, `g_`, `s_`) and "External names stay as they are" (SDK names such as `kFSEventStreamEventFlagItemModified`).
+- `~/.carol/CODING.md:620`, `:625`: the example `kSomeConstant { 42 }` is now `numBufferedEvents { 16 }`.
+
+**END:**
+- `DEBT.md`: three entries. `CLAUDE.md`: Current State.
+
+### Alignment Check
+- [x] BLESSED principles followed. B: ownership order replaces the `WeakReference` and `callAsync` lifetime guards. E: the Windows wait uses the framework API `jam::AsyncUpdater::Source`; the OS flags map to `Event` through lookup tables. S: one pending map and one coalescing rule for all platforms.
+- [x] NAMES.md adhered. Names come from the jam and JUCE families (`addEvent`, `applyToChanges`, `isWatching`, `fileEvents`, `numBufferedEvents`).
+- [x] MANIFESTO.md principles applied.
+- [ ] Built and run on Windows only (*"built clean. reload works."*). macOS is not built. Linux cannot build (State for Continuation).
+
+### Problems Solved
+- **A verbatim fork under jam's name.** The old header said *"Forked verbatim from FigBug/Gin gin_filesystemwatcher"* (`jam_Listener.h:4-8`, deleted). ARCHITECT's rule keeps an attribution only while the code is used as is. The rewrite holds none of Gin's code, so the license file and the attribution are gone.
+- **Lifetime guards.** Every platform callback posted through `juce::MessageManager::callAsync` with a `juce::WeakReference` (old `jam_Listener.cpp:64`, `:360`). Now the owner's declaration order guarantees that no event reaches a destroyed watcher (MANIFESTO B).
+- **The Linux branch did not compile.** It used `LockFreeQueue<Event>` (old `jam_Listener.cpp:266`), which nothing in jam or JUCE defines. Its mask also left out `IN_CLOSE_WRITE`, which it then tested.
+- **Unused API removed:** `removeFolder`, `removeAllFolders`, `getWatchedFolders`, `Listener::folderChanged` (no caller, no override).
+- **Audit.** Resolved: F1 (Windows read re-issued after every completion, so an aborted read cannot stop the watcher in silence), F2 (no second name buffer), F4 (Linux ends its loop on `IN_IGNORED`), F5 (macOS reports a missing path as deleted), F7 (`or` in the guards), F8 (`class`, not `struct`), F9 for `jam_File.h:398`. Rejected:
+  - F3 (`IN_MODIFY`): the plan added `IN_CLOSE_WRITE` and did not remove `IN_MODIFY`. macOS and Windows also report writes in progress.
+  - F6 (Linux watches one level): ARCHITECT accepted *"It stays non-recursive, as now"* before `/go`.
+  - F9 PLAN citations: they record the state that was read at the time.
+  - F10 (`removeListener` in `~PluginEditor`): existing kernel code outside the sprint; ARCHITECT: *"this is kernel modules. it will be synced to KANJUT"*.
+- **Doxygen pass.** Rejected two Pathfinder findings: the `class Source;` PIMPL declaration (CODING.md:666) and the `-1` of `waitForThreadToExit`, the JUCE "wait for ever" value, as at `Nexus.cpp:154`.
+- **Mistakes owned.** I cited `LICENSE_Gin.txt` as an attribution practice before I read which code it covered. An Engineer edit removed the newline after `user-modules-info.md:298`, which joined the `jam_core.cpp` row to it. I put the line break back.
+
+### State for Continuation
+- **Linux.** jam_core does not compile on Linux. `jam_AsyncUpdater.h:119` declares `open (const AsyncUpdater*, Handle)`, and `Handle` exists only for macOS and Windows (`:75-81`). So the Linux `Source` (`jam_FileWatcher.cpp`) is not built. ARCHITECT: *"linux test be tested on linux machine"*. Also, `run()` reads again with no pause when `::read` keeps failing (`jam_FileWatcher.cpp:423-432`).
+- **macOS.** Build and run: the FSEvents `Source` is new code.
+- Open PLAN files still cite the deleted `jam_Listener.h`: `eve/PLAN-message-thread-no-choke.md:51`, `:65`; `ling/PLAN-ling-6-manifest.md:104`, `:215`; `ling/PLAN-ling-8-daemon.md:75`, `:453`.
+- Regenerate doxygen in jam and read the warning count.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261121T004125`: input lost in a pane until a tab closes or opens.
+- `DEBT-20261121T004127`: a new pane erases the active prompt of the last focused pane.
+- `DEBT-20261121T004129`: the prompt shows before the `time seq` output has finished on screen.
+
+---
+
 ## Sprint 106: Windows END Hosts EVE with Shared Vulkan — No Null Factory Call, No Release Hang, One Shell per Pane at Its Real Size ✅
 
 **Date:** 2026-11-21
@@ -258,69 +325,6 @@
 ### State for Continuation
 - The default theme style tree goes through `CssDocument::getOrCreate (name, text)`, once per process. No read shows that the CssWriter output of the default document equals `themeStyleSheet`, so the round trip is memoized, not removed (PLAN Step 13, Q3).
 - Behaviour change: an invalid config file is not overwritten when its version is old; it is reported.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
-
-## Sprint 102: EVE Launch Time — Config Documents Built Once and Read in Place, Key Index, No Theme Round Trips ✅
-
-**Date:** 2026-11-13
-**Duration:** not recorded. The session ran over two compactions.
-**Scope (ARCHITECT):** *"let's fix eve loading time, then end loading eve time. must be as FAST as we can. profile with scout"*; *"Standalone EVE launch"*. Contract rulings: *"Markdown parser is not only cast, IT IS EVERYTHING JAM PROJECT USES as manifest. this is kernel module, synced to KANJUT"*; *"fuck the doc. code speaks to compiler. runtime undoubtedly FUCKING SLOW. meaning CODE IS WRONG ... FIX THE CAUSE, NOT THE FUCKING SYMPTOMS. FIX THE DESIGN, DESIGN BY CONTRACT"*; *"DOCUMENT CONTRACT ALWAYS NON-NEGOTIABLE: - built complete AST once - memoized, cached - state update - 0 rules"*; *"consumer/reader/parser/writer/etc always only consume TRUSTING VALID data"*. Choices: theme round trips *"Both (Recommended)"*; validator *"Validator reads document"*; key lookup *"Key index at parse"*. Log: *"no need audit, we'll audit wholesale when all optimized"*.
-
-### Agents Participated
-- COUNSELOR — cause reads, every validation read, the briefs, the scout result reads, small fixes named below, this log.
-- Pathfinder (haiku) — scout runs (Release, 11 epochs), the theme-tree hash checks, one whatdbg crash trace, git status reads.
-- Engineer (sonnet) — key stamping, the direct style tree, the shared CssWriter helpers, parse-once settings files, the validator document reads, the key index, profiler zones.
-
-### Files Modified (24 total)
-**jam:**
-- `jam_markdown/document/jam_ConfigDocument.cpp:33-55` — `parse` stamps `Id::key` (the key tag) on every table and every row, in the creation pass. `getRowKey` reads the stamp (`get`, no check). `addProperty` takes the headers once per table.
-- `jam_markdown/document/jam_ConfigDocument.h`, `.cpp:216-270` — the key index: private `configRows` (key tag → data rows, document order), `addRowKey` (stamp, then index; header rows and empty keys are not indexed), `getConfigRows (keyTag)`, the overload `getConfigRow (table, keyTag)` through `Element::parent`, and `getConfigRow (tableId, key)` over the index.
-- `jam_markdown/document/jam_ConfigDocument.cpp:327-554` — `getValueTree (rootType, sheet)` builds the style tree from the config tables: `addSheetTree`, `addColourProperties`, `addMetricProperties`, `addFontsTree`, `addFontsProperties`, `addFaceTree`, `addWindowTree`, `addWidgetTrees`, `addAliasProperties`, `addRecordTrees`. Keys come from the stamps.
-- `jam_markdown/document/jam_CssWriter.cpp` — `getCamelName`, `getRecordHeaders`, `getAttributeHeaders` moved to `jam_ConfigDocument.cpp:327-355`; both files use the one copy (unity order `jam_markdown.cpp:9`, `:12`).
-- `jam_markdown/document/jam_ConfigValidator.cpp` — the default-value, reference, source and unknown-key checks read the default `ConfigDocument` (`getConfigRow`, `getConfigRows`); no `juce::ValueTree`. `RowCheck` takes the default table. `hasReference` looks up the key index; the `DARK` case reads `map::Appearance`. `getDefaultTable` compares the stamped keys.
-- `jam_plugin_bootstrap/layout/jam_PluginEditorLayout.h`, `.cpp` — `getThemeSettings` returns the `toDocument` result as a `SettingsDocument` (no markdown write and reparse). `getStyleTree` calls `ConfigDocument::getValueTree (rootType, sheet)` (no CSS text and parse). File-static `getOrCreateFileDocument` parses each settings and theme file once and writes the default text only when the file version is old. `getSettingsTree` takes the parsed user document.
-- `jam_markdown/document/jam_MarkdownBlockParser.cpp` — a key-tag stamp was added, then removed (kernel parser contract). Net: no change.
-- `cast/plugin_bootstrap.md`, `generated/jam_PluginBootstrap.*` — profiler ids of the layout stages and validation.
-- `cast/vulkan.md`, `generated/jam_Vulkan.*`, `jam_vulkan/context/jam_VulkanMsaaCalibration.cpp`, `jam_vulkan/engine/jam_VulkanGraphicsEngine.cpp` — Vulkan start-up profiler zones.
-
-**eve:**
-- `Source/EVEProcessor.h`, `.cpp`, `Source/EVETerminalProcessor.cpp`, `Source/EVEView.cpp`, `cast/identifiers.md`, `Source/generated/Identifiers.*` — launch profiler zones and their ids (`launchPrompt`, `processorLayout`, `processorEditor`, `ttyOpen` and others).
-- `benchmark/launch-windows.md`, `benchmark/launch-windows.sh` (new) — the Windows launch manifest (Release profile build through `## toolchain`) and the profiler shell script.
-
-**end:**
-- `benchmark/pane-windows.md` (new) — the Windows manifest for END loading EVE. Not run.
-
-### Alignment Check
-- [x] BLESSED principles followed — E (Complete at Creation): keys and the key index are built in the parse; readers read them in place and check nothing. S: one copy of the CssWriter helpers; `map::Appearance` is the one source of `DARK`.
-- [x] NAMES.md adhered — new names join existing families (`getConfigRow`/`getConfigRows`, `add*Properties`/`add*Tree`, `getOrCreate*`).
-- [x] MANIFESTO.md principles applied
-- [ ] Not audited. ARCHITECT: *"no need audit, we'll audit wholesale when all optimized"*.
-- [ ] No doxygen on the new and changed members; the doxygen pass waits for the audit.
-
-### Problems Solved
-- **EVE launch, scout medians (Release, 11 epochs, Windows).** `processor layout` 1.182 s → 152 ms. `layout theme tree` 1.140 s → 113 ms. `layout settings tree` 1.037 s → 76 ms. `validator is valid` 628 ms → 12.5 ms, plus `validator default rules` 10.1 ms. `layout style tree` 394 ms → 52 ms.
-- **Keys computed again by every reader.** The key tag is now stamped once at parse (`jam_ConfigDocument.cpp:33-55`), not in the kernel parser.
-- **Theme text round trips.** The theme default went CSS → markdown text → parse, and the style tree went config → CSS text → parse. Both are now direct. The new theme tree is byte-identical to the old one (SHA-256 of the written XML, 82,275 bytes).
-- **Files parsed three times.** `getOrCreateDefaultFile` parsed the file and the default text for the version, then `getSettingsTree` parsed the file again. Now one parse per file; the theme markdown text (51 ms) is built only to write an old file.
-- **Validator rebuilt the default tree in five rules.** It now reads the default document. The first rewrite was slower (88 ms: `getTableRows`/`getTableHeaders` arrays built in nested loops); the key index made it O(1).
-- **Launch crash (access violation).** A file-scope `static const auto darkTag { Format::toTag (Id::dark) }` ran before `Id::dark` (another translation unit, `generated/jam_Style.cpp:27`) was built. Replaced by `map::Appearance::getInstance()->get (map::Appearance::dark)` with a local owner.
-- **Mistakes owned.** The kernel Markdown parser was changed (reverted on ARCHITECT's ruling); readers with `find`/`isNotEmpty` checks (moved to creation); a brief that put a static at file scope; a `getDarkTag()` function where a local static was enough; `darkTag` built again what `map::Appearance` holds; an Engineer name outside the brief (`defaultRows`) rewritten.
-
-### State for Continuation
-- Not audited, no doxygen pass. Stale or missing docs: `ConfigDocument::getRowKey`, `getConfigRow` (both), `getConfigRows`, `getValueTree (rootType, sheet)`, `addProperty`; `PluginEditorLayout::getThemeSettings`, `getStyleTree`, `getSettingsTree` (`@param userDocument`).
-- Temporary profiler zones stay for the next optimisation: `layoutDefaultFile`, `validatorDefaultRules` (`jam_PluginEditorLayout.cpp`), and the other launch zones in jam and EVE. `Id::settingsDocumentParse` has no user left (`cast/plugin_bootstrap.md:79`).
-- `getUnknownKeyFailures` still builds `Format::toTag (Id::any)` as a local static (`jam_ConfigValidator.cpp`).
-- `ConfigDocument::getValueTree (rootType, sheet)` equals the CSS path for valid cells only. Not reproduced: multi-token window and font-attribute cells, quoted cells, non-`0x` colour text, duplicate widget tables, a table named `appearance`.
-- KANJUT is not on this machine (`D:\Poems\kuassa\user_modules` absent). The `ConfigDocument` key stamps and key index need the KANJUT sync check.
-- END's own theme keeps its CSS round trip (`end/Source/config/ConfigTheme.cpp:29-32`).
-- Next hot zones (ms): `layout style tree` 52, `tty open` 42, `vulkan flush recording` 30, `layout default tree` 25, `layout user tree` 27, `layout theme settings` 18, `layout documents` 17, `layout default file` 16.
-- `launchPrompt` (OSC 133 A) is not detected, so `epoch` still holds the 5 s `read` of `launch-windows.sh`.
-- Not done: `end/benchmark/pane-windows.md` (END loading EVE); the Ctrl+W markdown preview crash with EVE in END.
 
 ### Debts Paid
 - None

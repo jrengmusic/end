@@ -92,10 +92,10 @@ if(APPLE)
     )
 elseif(WIN32)
     set(CAST_RELEASE_COMPILE_FLAGS
-/W4;/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/FC;/Zi;/wd4661;/O2
+/W4;/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/FC;/wd4661;/O2
     )
     set(CAST_RELEASE_LINK_FLAGS
-/LTCG;/OPT:REF;/OPT:ICF;/debug
+/LTCG;/OPT:REF;/OPT:ICF
     )
     set(CAST_DEBUG_COMPILE_FLAGS
 /W4;/wd4456;/wd4459;/wd4100;/wd4189;/wd4505;/wd4267;/wd4065;/wd4244;/wd4996;/wd4611;/wd4324;/wd4200;/wd4702;/permissive-;/Zc:rvalueCast;/FC;/wd4661;/Od
