@@ -213,6 +213,7 @@ private:
      * The plugin creates the editor through juce::AudioProcessor::createEditorAndMakeActive(). That call returns nullptr when
      * the plugin returns no editor, and also when the plugin already has an active editor. The result replaces `editor`, so a
      * previously held editor is destroyed, also when the result is nullptr. The drop target then moves to the front, above the editor.
+     * After that, when `editor` is not null, the pane is showing, and `Id::focus` is true, `editor` grabs keyboard focus.
      */
     void createProcessorEditor();
 

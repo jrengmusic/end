@@ -273,6 +273,9 @@ void EditorView::createProcessorEditor()
     editor.reset (session.getPlugin (uuid).createEditorAndMakeActive());
     addAndMakeVisible (editor.get());
     dropTarget.toFront (false);
+
+    if (editor != nullptr and isShowing() and static_cast<bool> (state.getProperty (Id::focus)))
+        editor->grabKeyboardFocus();
 }
 
 Session& EditorView::getSession() const

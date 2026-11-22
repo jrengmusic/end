@@ -6,9 +6,8 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 107: jam::File::Watcher Rewritten Clean-Room, Gin Remnants Removed, No Kind Prefix in NAMES ✅ (2026-11-21).
+- **Last sprint:** Sprint 108: Cross-Platform VST2 Focus Orchestration, Headless Cygwin PTY, and Audit Clean Sweep ✅ (2026-11-22).
 - **Active debts (`DEBT.md`):**
-  - `DEBT-20261121T004125` — input lost in a pane until a tab closes or opens
   - `DEBT-20261121T004127` — a new pane erases the active prompt of the last focused pane
   - `DEBT-20261121T004129` — the prompt shows before the `time seq` output has finished on screen
 - **Open PLANs:**
@@ -59,5 +58,5 @@ Release (default flow, per host: macOS universal, Windows x64, Windows arm64): m
   - The script runs `cast <pluginManifest> --<pluginFormat>[-<lane>]`, before END configures.
   - END's CMake embeds exactly one archive, `<name> v<version> <platform>[ scout].zip` of the host platform, and fails the configure otherwise (`cast/cmake.cast:356-371`). The plugin's `## pack` platform words must equal END's (`macOS`, `Windows`).
   - `Nexus::getOrCreatePlugin` unpacks that archive and returns the bundle it carries, its first entry (`Nexus::getOrCreatePlugin`). `Nexus::registerEVE` and `Session` load that file. No bundle name is authored in END.
-- Format-bound code that is not a word: `juce-plugin-editor-once-hook.patch` (VST2 client) and `juce-plugin-window-focus-hook.patch` (VST2 and AU hosts), in `jam/user-modules-info.md`. A move to VST3 needs their behaviour for VST3. CLAP needs ENAX CLAP first (`DEBT-20261025T135707`).
+- Format-bound code that is not a word: `juce-plugin-editor-once-hook.patch` (VST2 client) and `juce-plugin-window-focus-hook.patch` (VST2 cross-platform and AU macOS hosts), in `jam/user-modules-info.md`. A move to VST3 needs their behaviour for VST3. CLAP needs ENAX CLAP first.
 - Format-bound code of the lane: `Session::addPlugin` reads the plugin's identity from the raw VST2 chunk (`getVSTClient()->getChunkData`), and `jam::ValueTreeServer::Connection::messageReceived` attaches the synced tree in place of the held row that carries that identity. With `vst3` or `au`, no held row exists, the tree does not attach, END writes no size, and EVE's shell does not start. A move to VST3 or AU needs an identity read for that format (`VST3Client::getPreset`; `AudioUnitClient` has no state call, `juce_AudioPluginExtensions.h:86-100`).

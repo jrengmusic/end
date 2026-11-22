@@ -23,8 +23,7 @@ It is not a terminal emulator. The VT engine, the document model, and the termin
 widgets that earlier versions of this SPEC described now live outside this
 repository. They return as hosted plugins:
 
-- **eve** — the terminal plugin.
-- **whelmed** — the markdown editor/viewer plugin.
+- **eve** — the terminal plugin (includes native markdown rendering).
 
 END supplies the window, the workspace (tabs, panes, splits, focus), the config
 system, the rendering engine, and the plugin lifecycle. Plugins supply content.
@@ -35,8 +34,7 @@ system, the rendering engine, and the plugin lifecycle. Plugins supply content.
    windowing. Every architectural decision starts here.
 2. **Audio plugin host.** JUCE's formats and jam_clap host the plugins. One plugin
    instance per pane, each a node of one audio graph. The host stays
-   content-ignorant. ENAX is formalised later with CLAP (`DEBT.md`,
-   DEBT-20261025T135707). The tree of a hosted plugin that runs jam is attached under the
+   content-ignorant. ENAX is formalised later with CLAP. The tree of a hosted plugin that runs jam is attached under the
    `plugin` child of its pane row. It is then a part of the tree of END (section 1.5, plugin
    state).
 3. **GPU-first rendering.** The JAM Vulkan engine renders every window. Shader
@@ -122,10 +120,11 @@ Contract points that bind END:
   config tree.
 - Focus lane: a click in a pane → `OwnerComponent::mouseDown` writes the TAB
   row's `focusedPane` → the owner tells each pane row `Id::focus` 1 or 0 →
-  `EditorView` sets its plugin's `focus` host parameter
-  (`EditorView::valueTreePropertyChanged`) → jam `PluginEditor` grabs keyboard
-  focus when the parameter turns on (`PluginEditor::addCallbacks`). Actions and
-  splits read the active tab's focused child
+  `Session::registerEvents` (and `EditorView::valueTreeChildAdded` at attach)
+  writes `Id::focus` on the attached terminal row, `EditorView::createProcessorEditor`
+  grabs keyboard focus when the pane is showing and focused, and
+  `VSTPluginWindow::focusGained` hands OS focus to the native plugin view
+  (see §1.5 Focus). Actions and splits read the active tab's focused child
   (`SessionView::getActiveTabView()->getFocusedChild()`). No other copy of the
   focused pane exists.
 
@@ -518,10 +517,9 @@ Iteration proceeds both ways between host and plugins:
 2. **eve** — terminal as an audio plugin, END's default plugin under ENAX. Carries the VT engine, document model,
    CodeView rendering, PTY transport formerly specified here. The terminal-era
    SPEC is preserved verbatim as eve's baseline: `dev/eve/SPEC.md`.
-3. **whelmed** — markdown editor/viewer as an audio plugin.
-4. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
+3. **Host iteration** — plugin lifecycle hardening, focus/keyboard routing with
    live editors. Session persistence is built (section 1.7).
-5. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
+4. **Shared Vulkan engine** (§1.6) — the main goal: plugin instances render
    through the host's engine.
 
 ---

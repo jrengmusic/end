@@ -755,7 +755,7 @@ literal hosting relationship:
 - EVE is known: `Nexus::registerEVE` lists EVE's description at construction, so the first EVE load runs no scan.
 - The lane identity is format-bound: `Session::addPlugin` reads the plugin's `Id::id` from the raw VST2 chunk (`getVSTClient()->getChunkData`), and the server connection attaches the synced tree in place of the held row with that id. With VST3 or AU, no held row exists and the tree does not attach (`CLAUDE.md`, ENAX Plugin Format).
 - `EditorView::DropTarget` sits in front of every child of a pane. A file drag that enters it focuses the pane. A plugin file dropped on it runs `matrix.split (pane.getEdge (point))`, then writes the file to `Id::plugin` of the new pane (`EditorView::DropTarget::filesDropped`). Every new pane comes from the new-row constructor of `EditorView`, which writes the last-focused `cwd` of the sessions row on the new pane row.
-- A resizable editor takes the inner pane area. Any other editor sits at the inset position. Fitting a fixed-size editor into its pane is open debt (`DEBT.md`).
+- A resizable editor takes the inner pane area. Any other editor sits at the inset position.
 - Tabs follow the Model: `SessionView` creates and destroys a `TabView` from the add and remove events of its tab rows. The last tab removed runs `quit`. `Session` listens on the parent `sessions` row, so JUCE destroys a closed tab's editors before `Session` removes its plugins.
 - An instance can later move to its own window (undocked editor) without a new instance, because `Session` owns the instance and the pane owns only the editor.
 
@@ -842,12 +842,13 @@ hardcoded to END. The contract is formalised and enforced at run time.
   becomes showing and the row is on (`EVEView::parentHierarchyChanged`,
   `EVEView.cpp:76-80`). `SessionView::focusPane` gives JUCE
   keyboard focus to the focused pane of the active tab (`SessionView.cpp:61-71`). The
-  pane wants no keyboard focus, so the hosted editor takes it. On macOS, the VST2 and AU
-  host windows then make the plugin view the first responder
-  (`jam/patch/juce-plugin-window-focus-hook.patch`). The patch acts on macOS only. On
-  Windows the host window takes no keyboard focus, so the `focus` row alone moves the
-  focus there: the row change, and the read of the row when the editor becomes showing.
-  The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
+  pane wants no keyboard focus, so the hosted editor takes it. `EditorView::createProcessorEditor`
+  also calls `editor->grabKeyboardFocus()` when `editor` is not null, the pane is showing,
+  and `Id::focus` is true. `jam/patch/juce-plugin-window-focus-hook.patch` sets
+  `setWantsKeyboardFocus (true)` unconditionally on `VSTPluginWindow` and hands focus to
+  the native plugin view in `focusGained`: `makeFirstResponder` on macOS (VST2 and AU),
+  `SetFocus (pluginHWND)` on Windows, and `xembedComponent.grabKeyboardFocus()` on
+  Linux/BSD. The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
   gives the editor focus (`jam_AudioStandaloneApp.cpp:74-78`).
 - **AU registration.** On macOS, when the plugin bundle is a `.component`
   (`files::audioUnitExtension`), the `Nexus` constructor registers that one bundle in

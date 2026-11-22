@@ -2,6 +2,55 @@
 
 ---
 
+## Sprint 108: Cross-Platform VST2 Focus Orchestration, Headless Cygwin PTY, and Audit Clean Sweep ✅
+
+**Date:** 2026-11-22
+**Duration:** 04:10
+
+### Agents Participated
+- COUNSELOR: root-cause synthesis, `PLAN-windows-focus-and-headless-pty.md`, step validations, Auditor triage, root docs sync (`ARCHITECTURE.md`, `SPEC.md`, `CLAUDE.md`, `README.md`), sprint log.
+- Pathfinder (flash): project state discovery, `eve-cygwinPTY.exe` spawn trace, END/EVE/JAM/JUCE Windows focus pipeline trace, Framework Inventory reads, post-audit doxygen passes (`jam_TerminalConsole_windows.h`, `EditorView.h`, `jam_FileWatcher.cpp`).
+- Engineer (inherit): Steps 1–3 implementation, sprint audit Finding 1 fix (`EditorView.cpp:277`), `/audit` fixes (`jam_FileWatcher.h:6`, `jam_FileWatcher.cpp:7,13,432-433`).
+- Auditor (inherit) ×2: sprint audit (1 finding, resolved) and `/audit` sweep (6 findings + 1 bug, all resolved or noted).
+
+### Files Modified (11 total)
+**jam:**
+- `jam_terminal/tty/native/jam_TerminalConsole_windows.cpp:221-225` — passes `CREATE_NO_WINDOW` in `CreateProcessW` when `reference == nullptr`, so `eve-cygwinPTY.exe` runs headless without opening Windows Terminal.
+- `jam_terminal/tty/native/jam_TerminalConsole_windows.h:54-72` — doxygen updated for `createProcess` `CREATE_NO_WINDOW` behavior.
+- `patch/juce-plugin-window-focus-hook.patch:1-56` — sets `setWantsKeyboardFocus (true)` unconditionally in `VSTPluginWindow` constructor and adds one cross-platform `focusGained (FocusChangeType) override` (macOS `makeFirstResponder`, Windows `SetFocus (pluginHWND)`, Linux/BSD `xembedComponent.grabKeyboardFocus()`).
+- `user-modules-info.md:1412` — updated `juce-plugin-window-focus-hook.patch` description row.
+- `jam_core/file/jam_FileWatcher.h:6`, `jam_core/file/jam_FileWatcher.cpp:7,13,419-435` — replaced `or` with `||` in `#if` directives (`CODING.md:38,1072`), added `<errno.h>` and `else if (numBytes == 0 or errno != EINTR) signalThreadShouldExit();` in Linux `Source::run()`, and updated its doxygen block.
+
+**END:**
+- `Source/ui/EditorView.cpp:277-278`, `Source/ui/EditorView.h:209-217` — `createProcessorEditor()` calls `editor->grabKeyboardFocus()` when `editor != nullptr`, `isShowing()`, and `Id::focus` is true; doxygen updated.
+- `ARCHITECTURE.md:758,845-851`, `SPEC.md:26,37,121-130,520-523`, `CLAUDE.md:9-13,62`, `README.md:4,94,117` — synced focus contract, removed stale `DEBT-20261025T135707` and fixed-size editor debt citations, removed WHELMED-as-plugin references.
+- `PLAN-windows-focus-and-headless-pty.md` — sprint plan.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] Build and runtime verification on Windows, macOS, and Linux pending ARCHITECT test (`cast cast/spell.md` in END to refresh patched JUCE cache).
+
+### Problems Solved
+- **Windows Terminal spawned per EVE instance:** `eve-cygwinPTY.exe` (`/subsystem:console`) was spawned by `TerminalCygwinTTY::open` with `reference = nullptr` and without `CREATE_NO_WINDOW`, causing Windows to open a visible default console and steal focus. Fixed in `TerminalConsole::createProcess`.
+- **Windows focus lost (`DEBT-20261121T004125`):** `juce-plugin-window-focus-hook.patch` was `#if JUCE_MAC`-only, so on Windows `VSTPluginWindow` rejected keyboard focus and never called `SetFocus (getPluginHWND())`, and every click forwarded by `externalMouseEventCallback` stole Win32 focus back to END's top-level HWND. Unified `setWantsKeyboardFocus (true)` and `focusGained` cross-platform on `VSTPluginWindow` and handed focus to newly created focused editors in `EditorView::createProcessorEditor()`.
+- **`/audit` clean sweep:** Fixed `#if ... or ...` preprocessor violations in `jam_FileWatcher.h:6` and `jam_FileWatcher.cpp:13`; fixed Linux `::read` EOF/error spin in `jam_FileWatcher.cpp:432-433`; synced `ARCHITECTURE.md`, `SPEC.md`, `CLAUDE.md`, and `README.md`.
+
+### State for Continuation
+- ARCHITECT runs `cast cast/spell.md` in END to re-apply `juce-plugin-window-focus-hook.patch`, builds END + jam, and verifies headless `eve-cygwinPTY.exe` and Windows pane click/focus behavior at runtime.
+- `ninja doxygen` in jam Builds and END Builds to regenerate XML/HTML and confirm zero warnings.
+- Open PLAN files kept at END root awaiting ARCHITECT confirmation to delete: `PLAN-windows-focus-and-headless-pty.md`, `PLAN-one-lane-native-state.md`, `PLAN-style-driven-theme.md`.
+
+### Debts Paid
+- `DEBT-20261121T004125` — unified cross-platform `VSTPluginWindow` focus contract (`setWantsKeyboardFocus (true)` + `focusGained`) and `EditorView::createProcessorEditor()` initial focus grab.
+
+### Debts Deferred
+- `DEBT-20261121T004127` — a new pane erases the active prompt of the last focused pane.
+- `DEBT-20261121T004129` — the prompt shows before the `time seq` output has finished on screen.
+
+---
+
 ## Sprint 107: jam::File::Watcher Rewritten Clean-Room, Gin Remnants Removed, No Kind Prefix in NAMES ✅
 
 **Date:** 2026-11-21
