@@ -177,12 +177,12 @@ private:
      * @brief Fills events with one handler for each of Id::shellExited, Id::plugin, Id::name and Id::focus.
      *
      * The Id::shellExited handler reads the changed tree, which is a tree under the pane row. When its value is true,
-     * the handler invokes closeTerminalPane on this pane, asynchronously.
+     * the handler invokes closeTerminal, then closePane on this pane, both asynchronously.
      * The Id::plugin handler destroys the editor. It acts only when the changed tree is the pane row itself.
      * The Id::name handler acts only when the changed tree is the pane row itself, and the row holds Id::name. It adds the
      * plugin file of the row to the ENAX plugin modules of Nexus, creates the editor, and then runs resized() to lay out the pane.
-     * The Id::focus handler runs when `tree == state`, `editor != nullptr`, `isShowing()`, and `Id::focus` is `true`.
-     * It calls `editor->grabKeyboardFocus()`.
+     * The Id::focus handler repaints the pane when `tree == state`. It calls `editor->grabKeyboardFocus()` only when
+     * `editor != nullptr`, `isShowing()`, and `Id::focus` is `true`.
      */
     void registerEvents();
 
@@ -214,8 +214,9 @@ private:
      * The session must hold the plugin. The call does not check it, because Session::getPlugin() looks the plugin up with `at`.
      * The plugin creates the editor through juce::AudioProcessor::createEditorAndMakeActive(). That call returns nullptr when
      * the plugin returns no editor, and also when the plugin already has an active editor. The result replaces `editor`, so a
-     * previously held editor is destroyed, also when the result is nullptr. The drop target then moves to the front, above the editor.
-     * After that, when `editor` is not null, the pane is showing, and `Id::focus` is true, `editor` grabs keyboard focus.
+     * previously held editor is destroyed, also when the result is nullptr. The call adds the editor, brings the drop target to the front without focus,
+     * and stops the editor from taking keyboard focus on a mouse click. It then runs the Id::focus event of the pane row,
+     * which grabs keyboard focus only when the editor exists, the pane is showing, and Id::focus is true.
      */
     void createProcessorEditor();
 

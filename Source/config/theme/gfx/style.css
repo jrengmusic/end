@@ -6,6 +6,7 @@
     --cavoloNero: #6B9099;
     --clearBlack: #00000000;
     --codeHighlight: #00DDEE20;
+    --corbeau: #0D141F;
     --crystal: #A1D6E5;
     --dolphin: #8CC9D9;
     --gentleCold: #C5F0E9;
@@ -67,6 +68,9 @@
     --TextButton--textColourOnId: var(--blueBikini);
     --Label--backgroundColourId: var(--glassNarwhalGrey);
     --Label--textColourId: var(--paradiso);
+    --Label--backgroundWhenEditingColourId: var(--corbeau);
+    --Label--textWhenEditingColourId: var(--crystal);
+    --Label--outlineWhenEditingColourId: var(--blank);
     --PopupMenu--textColourId: var(--crystal);
     --PopupMenu--highlightedBackgroundColourId: var(--cavoloNero);
     --PopupMenu--backgroundColourId: var(--glassNarwhalGrey);
@@ -92,6 +96,10 @@
     --TextEditor--backgroundColourId: var(--blank);
     --TextEditor--textColourId: var(--crystal);
     --TextEditor--highlightColourId: var(--codeHighlight);
+    --TextEditor--highlightedTextColourId: var(--crystal);
+    --TextEditor--outlineColourId: var(--blank);
+    --TextEditor--focusedOutlineColourId: var(--blank);
+    --TextEditor--shadowColourId: var(--blank);
     --TextEditor--linkLabelBackgroundColourId: var(--crystal);
     --TextEditor--linkLabelTextColourId: var(--bunker);
     --TextEditor--statusBarBackgroundColourId: var(--bunker);

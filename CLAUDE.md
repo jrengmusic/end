@@ -6,10 +6,9 @@
 **Version:** 0.0.1
 
 ## Current State
-- **Last sprint:** Sprint 108: Cross-Platform VST2 Focus Orchestration, Headless Cygwin PTY, and Audit Clean Sweep ✅ (2026-11-22).
+- **Last sprint:** Sprint 110: One Focus Command for Every Pane, Standalone END Never Writes Settings, Rename Editor Focus ✅ (2026-11-24).
 - **Active debts (`DEBT.md`):**
-  - `DEBT-20261121T004127` — a new pane erases the active prompt of the last focused pane
-  - `DEBT-20261121T004129` — the prompt shows before the `time seq` output has finished on screen
+  - `DEBT-20261123T181545` — each daemon instance needs its own settings tree
 - **Open PLANs:**
   - `PLAN-style-driven-theme.md` — in progress (`carol/SPRINT-LOG.md`)
   - `PLAN-one-lane-native-state.md` — built (Sprint 105); kept until ARCHITECT confirms the runtime

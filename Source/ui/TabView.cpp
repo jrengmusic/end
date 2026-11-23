@@ -15,6 +15,7 @@ void TabView::add()
     jam::UUID uuid {};
 
     MatrixComponent::add (uuid, createChild (uuid));
+    focusPane (get (uuid));
 }
 
 void TabView::addPane (const juce::Identifier& edge)

@@ -52,12 +52,15 @@ private:
 
     //==============================================================================
     /**
-     * @brief Settings file of END in the config directory, END.settings.
+     * @brief Settings of END, which hold the window, sessions, and port keys.
      *
-     * getOrCreateWindow() restores the window from the window key of this file, and destroyWindow() writes the window state to it.
+     * In server mode the file is files::settingsFileName in the config directory. Otherwise the file is juce::File {}, which
+     * names no file: juce::PropertiesFile reads no file and writes none, and the keys live only in memory.
+     *
+     * getOrCreateWindow() restores the window from the window key of these settings, and destroyWindow() writes the window state to them.
      * host() reads the sessions key, and writes the port key in server mode. shutdown() writes the sessions key.
      */
-    juce::PropertiesFile settings { ConfigDirectory::Config::getPath (files::settingsFileName),
+    juce::PropertiesFile settings { isServer() ? ConfigDirectory::Config::getPath (files::settingsFileName) : juce::File {},
                                     juce::PropertiesFile::Options {} };
 
     /** @brief Command-line argument that makes the process start as the server. launch() passes it to the process that it starts. */
@@ -89,15 +92,23 @@ private:
     void launch();
 
     /**
+     * @brief Answers whether the application runs as the server.
+     *
+     * initialise(), host(), systemRequestedQuit(), and the settings member all decide the run mode through this call.
+     * It reads the server row of the display table of the config on each call, so the answer follows a change of that row.
+     *
+     * @return True when the server row of the display table is true.
+     */
+    bool isServer() const noexcept;
+
+    /**
      * @brief Hosts the application as the server or as a client.
      *
-     * In server mode, the call takes serverLock before it builds the engine and Nexus. When another process holds the lock,
-     * the call quits. Otherwise the call builds the engine and Nexus, then restores the sessions from the settings. It registers
-     * the events, writes the port to the settings in server mode, and creates the window.
-     *
-     * @param isServer  True when the application runs as the server.
+     * In server mode, which is the state where isServer() is true, the call takes serverLock before it builds the engine and Nexus.
+     * When another process holds the lock, the call quits. Otherwise the call builds the engine and Nexus, then restores the sessions
+     * from the settings. It registers the events, writes the port to the settings in server mode, and creates the window.
      */
-    void host (bool isServer);
+    void host();
 
     /**
      * @brief Returns the window, which the call creates when it does not exist.

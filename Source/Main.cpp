@@ -211,7 +211,7 @@ void ENDApplication::shutdown()
 
 void ENDApplication::systemRequestedQuit()
 {
-    if (static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::server)) and window != nullptr)
+    if (isServer() and getCommandLineParameters().contains (serverArgument) and window != nullptr)
     {
         destroyWindow();
 #if JUCE_MAC
@@ -226,6 +226,11 @@ void ENDApplication::systemRequestedQuit()
 const juce::String ENDApplication::getApplicationName() { return ProjectInfo::projectName; }
 const juce::String ENDApplication::getApplicationVersion() { return ProjectInfo::versionString; }
 bool ENDApplication::moreThanOneInstanceAllowed() { return true; }
+
+bool ENDApplication::isServer() const noexcept
+{
+    return static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::server));
+}
 
 //==============================================================================
 void ENDApplication::initialise (const juce::String& commandLine)
@@ -250,17 +255,15 @@ void ENDApplication::initialise (const juce::String& commandLine)
     }
 #endif
 
-    const bool isServer { static_cast<bool> (config.getRowValue (jam::Format::toType (Id::display), Id::server)) };
-
-    if (isServer and not commandLine.contains (serverArgument))
+    if (isServer() and not commandLine.contains (serverArgument))
         launch();
     else
-        host (isServer);
+        host();
 }
 
-void ENDApplication::host (bool isServer)
+void ENDApplication::host()
 {
-    const bool isHosting { not isServer or serverLock.enter (0) };
+    const bool isHosting { not isServer() or serverLock.enter (0) };
 
     if (isHosting)
     {
@@ -281,7 +284,7 @@ void ENDApplication::host (bool isServer)
 
         registerEvents();
 
-        if (isServer)
+        if (isServer())
         {
             settings.setValue (Id::port.toString(), nexus->getServerPort());
             settings.saveIfNeeded();

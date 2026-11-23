@@ -10,8 +10,6 @@ SessionView::SessionView (jam::Model& newModel, juce::ValueTree sessionState)
     for (auto tab : state)
         addTabView (tab);
 
-    setFocusedChild (focused);
-
     if (getChildren().contains (focused))
         setCurrentTab (focused);
 }
@@ -39,13 +37,17 @@ void SessionView::addTabView (const juce::ValueTree& tabRow)
 
     OwnerComponent::add (uuid, std::make_unique<TabView> (model, tabRow));
 
-    auto* tabView { &get (uuid) };
-
     if (auto* tab { getBar().getTabButton (uuid) })
     {
-        tab->label.onTextChange = [tabView, tab]
+        tab->label.onTextChange = [this, uuid, tab]
         {
-            tabView->state.setProperty (Id::name, tab->label.getText(), nullptr);
+            get (uuid).getValueTree().setProperty (Id::name, tab->label.getText(), nullptr);
+        };
+
+        tab->label.onEditorHide = [this]
+        {
+            if (auto* tabView { getActiveTabView() })
+                tabView->focusPane (tabView->getFocusedPane());
         };
     }
 
@@ -70,23 +72,6 @@ void SessionView::childRemoved (jam::UUID uuid, const juce::ValueTree& row)
         commandManager->invokeDirectly (map::CommandId::quit, false);
 }
 
-void SessionView::currentTabChanged (jam::UUID, const juce::String&)
-{
-    focusPane();
-}
-
-void SessionView::focusPane()
-{
-    if (auto* tabView { getActiveTabView() })
-    {
-        if (auto traverser { tabView->createKeyboardFocusTraverser() })
-        {
-            if (auto* defaultComponent { traverser->getDefaultComponent (tabView) })
-                defaultComponent->grabKeyboardFocus();
-        }
-    }
-}
-
 TabView& SessionView::get (jam::UUID uuid)
 {
     return static_cast<TabView&> (OwnerComponent::get (uuid));
@@ -103,7 +88,7 @@ TabView* SessionView::getActiveTabView() noexcept
 
 void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    OwnerComponent::valueTreePropertyChanged (tree, property);
+    jam::TabbedComponent::valueTreePropertyChanged (tree, property);
 
     const auto isFocusOrName { (property == Id::name or property == Id::focusedPane)
                                and (tree.hasType (jam::Format::toType (Id::tab)) or tree.hasType (jam::Format::toType (Id::pane))) };
@@ -115,9 +100,6 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
         for (const auto& [uuid, child] : getChildren())
             if (tree == child->state or tree.isAChildOf (child->state))
                 applyTabName (uuid);
-
-        if (isFocusOrName)
-            focusPane();
     }
 }
 

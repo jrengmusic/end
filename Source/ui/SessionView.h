@@ -6,7 +6,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "ui/TabView.h"
-#include "config/ConfigModel.h"
 #include "lookAndFeel/ENDLookAndFeel.h"
 #include "generated/Generated.h"
 
@@ -15,8 +14,8 @@
  * @brief Owns one session's TabView tabs and drives the tab bar's depth,
  *        position, and per-tab displayed name from config and state.
  *
- * It gives the keyboard focus to the focused pane of the active tab when that pane changes,
- * when the plugin of a pane gets its name, and when the current tab changes.
+ * It gives no keyboard focus itself, except that the tab label hands the focus back to the focused pane of the
+ * active tab when its editor hides.
  */
 class SessionView
     : public jam::TabbedComponent
@@ -25,8 +24,8 @@ public:
     /**
      * @brief Adopts the session row and mounts a TabView for each tab row under it. The tab bar starts with zero depth.
      *
-     * Adding a tab makes it the current tab. The constructor therefore restores the focused tab that the row held before the
-     * adds, then makes that tab current when it is mounted.
+     * Adding a tab makes it the current tab. The focused tab that the row held becomes current only when it is mounted;
+     * otherwise the last mounted tab stays current.
      *
      * @param newModel      Owning model.
      * @param sessionState  Row of the session that holds the tabs.
@@ -62,9 +61,9 @@ private:
     /**
      * @brief Reapplies the displayed name of each tab that owns the changed tree.
      *
-     * The call first runs the base handler of jam::OwnerComponent.
-     * On a tab or pane row, Id::name or Id::focusedPane reapplies the tab name and calls focusPane().
-     * On a terminal row, Id::title, Id::foregroundProcess, or Id::cwd reapplies the tab name without focusPane().
+     * The call first runs the handler of jam::TabbedComponent, which runs the base handler of jam::OwnerComponent.
+     * On a tab or pane row, Id::name or Id::focusedPane reapplies the tab name.
+     * On a terminal row, Id::title, Id::foregroundProcess, or Id::cwd reapplies the tab name.
      * A tab owns the tree when the tree is its row or a descendant row.
      *
      * @param tree      The ValueTree whose property changed.
@@ -103,25 +102,6 @@ private:
      */
     void childRemoved (jam::UUID uuid, const juce::ValueTree& row) override;
 
-    /**
-     * @brief Gives the keyboard focus to the focused pane of the new current tab.
-     *
-     * jam::TabbedComponent calls it after the new current tab is laid out and visible. The call does not use the parameters.
-     *
-     * @param newCurrentTab      Identity of the new current tab. Not used.
-     * @param newCurrentTabName  Displayed name of the new current tab. Not used.
-     */
-    void currentTabChanged (jam::UUID newCurrentTab, const juce::String& newCurrentTabName) override;
-
-    /**
-     * @brief Grabs the keyboard focus for the default component of the active tab.
-     *
-     * The default component comes from the keyboard focus traverser of the tab. The traverser returns the focused child
-     * of the tab when the tab holds one. The call does nothing when no tab is active or the traverser returns no component.
-     * It writes nothing to the Model.
-     */
-    void focusPane();
-
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;
 
@@ -148,7 +128,7 @@ private:
     /**
      * @brief Mounts the TabView of a tab row in the tab bar, then applies its displayed name and the depth and position of the theme.
      *
-     * The tab button label writes its text to the Id::name property of the tab row whenever the text changes.
+     * The tab button label writes its text to the Id::name property of the tab row whenever the text changes. When the label editor hides, the focused pane of the active tab takes the keyboard focus.
      *
      * @param tabRow  Row of the tab to mount.
      */

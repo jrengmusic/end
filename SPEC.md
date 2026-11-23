@@ -93,15 +93,19 @@ The Owner/Owned composite is jam's layout law:
   `Id::focus` parameter of its own row (`jam_OwnedComponent.cpp:22-38`). It never
   reads or writes keyboard focus. The child stays dumb.
 - `jam::OwnerComponent` owns the focused-child parameter, the one truth of focus.
-  The owner writes it: the derived `childAdded` hook on add
-  (`MatrixComponent::childAdded`; `TabbedComponent` through `changeCallback`), the
-  survivor on remove (`MatrixComponent::childRemoved`), a click inside a child
-  (`OwnerComponent::mouseDown`), and the focus-move action (`MatrixComponent::focusPane`, run by the
-  `map::MatrixCommandId` pane commands, `jam_MatrixComponent.cpp:385-406`).
+  Each container has one writer. ARCHITECT: *"ONE PATH, ONE COMMAND ID, ONE LANE, ONE SSOT"*.
+  - Pane: the command `map::MatrixCommandId::focusPane`. `MatrixComponent::perform` writes the
+    pane that holds `InvocationInfo::originatingComponent`. When that pane is already the focused
+    one, it sends the `Id::focus` change of its row again. A click, a pane direction command, a
+    split, the survivor of a removed pane, a new pane (`TabView::add`), a file drag
+    (`EditorView::DropTarget::fileDragEnter`) and the end of a tab rename
+    (`SessionView::addTabView`) all run `MatrixComponent::focusPane (component)`.
+  - Tab: `TabbedComponent::changeCallback`, from the tab bar.
 - Focus is told downward only. A child row's `Id::focus` is 1 when the child is
-  its owner's focused child and the owner's own row `Id::focus` is 1
+  its owner's focused child and the owner's own row `Id::focus` is 1. The owner writes 0 to the
+  other children first, then 1 to the focused child
   (`OwnerComponent::valueTreePropertyChanged`). ENDView tells the active session
-  row (`ENDView.cpp:147`). Keyboard focus never writes the Model.
+  row (`ENDView::addSessionView`). Keyboard focus never writes the Model.
 - `jam::MatrixComponent` (TabView base) mutates the binary-space graph: `split`
   targets the focused child. An EDGE row holds its head and tail spaces as child
   rows 0 and 1.
@@ -118,13 +122,13 @@ Contract points that bind END:
 - Two independent trees: the runtime Model (Nexus-owned sessions state) and the
   config Model. No config values on the runtime tree, no runtime state on the
   config tree.
-- Focus lane: a click in a pane → `OwnerComponent::mouseDown` writes the TAB
-  row's `focusedPane` → the owner tells each pane row `Id::focus` 1 or 0 →
-  `Session::registerEvents` (and `EditorView::valueTreeChildAdded` at attach)
-  writes `Id::focus` on the attached terminal row, `EditorView::createProcessorEditor`
-  grabs keyboard focus when the pane is showing and focused, and
-  `VSTPluginWindow::focusGained` hands OS focus to the native plugin view
-  (see §1.5 Focus). Actions and splits read the active tab's focused child
+- Focus lane: a click in a pane → `MatrixComponent::mouseDown` runs the `focusPane`
+  command, which writes the TAB row's `focusedPane` → the owner tells each pane row
+  `Id::focus` 1 or 0 → `Session::registerEvents` (and `EditorView::valueTreeChildAdded` at
+  attach) writes `Id::focus` on the attached terminal row, the `Id::focus` event of
+  `EditorView` repaints the pane and grabs keyboard focus for the editor when the pane is
+  showing and focused, and `VSTPluginWindow::focusGained` hands OS focus to the native
+  plugin view (see §1.5 Focus). Actions and splits read the active tab's focused child
   (`SessionView::getActiveTabView()->getFocusedChild()`). No other copy of the
   focused pane exists.
 
@@ -337,9 +341,10 @@ the CPU engine first (`jam_VulkanGraphicsEngine.h:167-170`).
 - **Focus.** END owns focus. `jam::OwnerComponent` writes the `focus` of each pane row: the
   focused child of a focused owner. When the `focus` of a pane row changes, `Session` writes it
   on the attached tree of that pane (`Session::registerEvents`). When the tree attaches,
-  `EditorView::valueTreeChildAdded` writes the current value. EVE grabs keyboard focus
-  only when the row turns on (`EVEView::registerTerminalEvents`), and
-  passes it to its default component (`EVEView::focusGained`). The plugin never
+  `EditorView::valueTreeChildAdded` writes the current value. END gives keyboard focus to the
+  editor of the pane (`EditorView::registerEvents`, the `Id::focus` event). A new EVE editor that
+  becomes showing while its row is on grabs keyboard focus (`EVEView::parentHierarchyChanged`),
+  and passes it to its default component (`EVEView::focusGained`). The plugin never
   decides focus itself. ARCHITECT: *"when hosted at END the FOCUS parameter always
   being told by END always sync with Pane focus … Plugin doesnt grab its own focus,
   only being told"*.
@@ -360,8 +365,14 @@ END holds the tree of its plugin under the `plugin` child of each pane row (sect
 plugin state). ARCHITECT: *"END is the host. it holds its plugin instance stateInfo."*;
 *"session restoration with daemon, definitely NEED ALL"*.
 
+- **Disk only in server mode.** ARCHITECT: *"Daemon SERVER always saves ALL state. standalone
+  also use SERVER but not with daemon, not in background. standalone with its own internal
+  state, internal server should not save settings to disk."* With the `server` row true,
+  `settings` is `END.settings`. With `server` false, `settings` names no file
+  (`juce::File {}`). It holds its keys in memory, reads nothing at launch and writes nothing
+  (`ENDApplication::isServer`). Thus each standalone launch starts with a new Model.
 - **Save.** At shutdown, the process that hosts writes `Nexus::getSessionsState` to the
-  `sessions` key of `END.settings`. It is a copy of the sessions tree. On each pane with a
+  `sessions` key of `settings`. It is a copy of the sessions tree. On each pane with a
   plugin, the copy holds the blob that `getStateInformation` gives, as `state`. The copy has no
   `plugin` child and no `name` on that pane (`Session::setPluginStates`). END never parses the
   blob. ARCHITECT: *"why we cant simply call setStateInfo() and getStateInfo() as is? why create

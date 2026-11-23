@@ -2,6 +2,84 @@
 
 ---
 
+## Sprint 110: One Focus Command for Every Pane, Standalone END Never Writes Settings, Rename Editor Focus ✅
+
+**Date:** 2026-11-24
+**Duration:** Not measured. One session from 2026-11-23 21:43 (+07:00), joined by context compactions.
+**Scope (ARCHITECT):**
+- Prompt and winsize on Windows (`DEBT-20261121T004127`), the new tab crash, and settings on disk: *"standalone with its own internal state, internal server should not save settings to disk"*.
+- Focus: *"visual feedback and focus still not always agree… identify code smells… ONE PATH, ONE COMMAND ID, ONE LANE, ONE SSOT … dont fix the symptoms, fix the cause, fix the design. DESIGN BY CONTRACT"*, then `/go`.
+- *"dont audit without my runtime check."* Runtime: *"active prompt no longer being erased"*, *"focused issues fixed"*, *"vim ctrl+direction works. drag image works. ctrl+shift+v paste works (keep it). rename tab works"*.
+- ling: *"update the RFC, what actually correct, what actually completed, what actually still outstanding"*.
+- *"daemon settings per instance shoule be added to DEBT"*. *"if it not writing/reading settings anymore, leave it."*
+
+### Agents Participated
+- COUNSELOR: the cause reads, the focus design, every validation read, the ling RFC, SPEC and ARCHITECTURE edits, the patch design, this log.
+- Pathfinder (haiku): discovery, whatdbg and window probes, the ling, conhost and pty experiments, the doxygen pass, the debt entry.
+- Librarian (haiku): the Claude Code, Neovim and console research of the ctrl+g quit.
+- Engineer (haiku): the focus redesign, the audit fixes, the rename editor fix.
+- Auditor (opus) ×1: 11 findings on the focus redesign.
+
+### Files Modified (38 total: 16 jam, 15 END, 6 EVE, 1 ling)
+**jam:**
+- `cast/gui.md:274`, `generated/jam_Gui.h`: `MatrixCommandId::focusPane`.
+- `jam_gui/layout/jam_MatrixComponent.h/.cpp`: `perform` is the only writer of the focused pane, for one command whose target is `InvocationInfo::originatingComponent`. The matrix listens to the mouse of its descendants (`mouseDown`). `split`, directions and `childRemoved` use `focusPane`. `childAdded` and `addChildrenFromState` write no focus. The EDGE `proportions` reaction moved here from `OwnerComponent`.
+- `jam_gui/layout/jam_OwnerComponent.h/.cpp`: no mouse listener. The fan-out writes 0 to the other children first, then 1. `setFocusedChild` is protected.
+- `jam_gui/layout/jam_TabbedComponent.h/.cpp`: layout on `focusedTab` before the fan-out; tab buttons take no keyboard focus.
+- `jam_terminal/document/jam_TerminalSwap.h:31-32, 127-157`, `jam_gui/widgets/jam_TextEditor.cpp:1567`, `.h`: `numLiveSlots` 3, `numHeldLiveSlots` 1. The live frame stays held until the next one, so a prompt stays on screen over a resize.
+- `jam_terminal/tty/native/jam_TerminalCygwinTTY_windows.cpp:167-173`: the assert on the size-pipe write is removed. It tested whether another process is alive (MANIFESTO B, Guard Rule).
+- `patch/juce-vulkan-engine-hook.patch`: `RedrawWindow` with `RDW_NOCHILDREN` for invalidate and validate, so a parent paint does not clear the pending paint of EVE.
+- `patch/juce-plugin-window-focus-hook.patch`: `handleFocusLoss` after `SetFocus` on Windows, `mouseActivateFlags = 0` in `WM_KILLFOCUS`, and `ComponentPeer::setLastFocusedSubcomponent`, which `Component::takeKeyboardFocus` calls before it takes native focus.
+- `patch/juce-mouse-event-hook.patch`: the click grab needs no external mouse callback or a focused peer. `user-modules-info.md:1404, 1412, 1413`.
+
+**END:**
+- `Source/Main.h/.cpp`: `isServer()`. `settings` names no file when the `server` row is false.
+- `Source/ui/EditorView.h/.cpp`: the `Id::focus` event repaints and grabs; `createProcessorEditor` runs that event; `fileDragEnter` uses `focusPane`.
+- `Source/ui/SessionView.h/.cpp`, `TabView.cpp`, `ENDView.h/.cpp`: no own focus grab, no second writer of `focusedTab`; the rename editor hands focus to the active tab.
+- `Source/config/theme/gfx/style.css`: `corbeau`, the `Label … WhenEditing` colours, the missing `TextEditor` colours.
+- `SPEC.md`, `ARCHITECTURE.md`: focus. `DEBT.md`. `CMakeLists.txt` and `.project`: generated.
+
+**EVE:**
+- `Source/EVEView.h/.cpp`: the `focus` handler is removed; `resizeEnd` writes the size through the `size` rule. `Source/layout/parameters.md:103`. `CMakeLists.txt`, `cygwinPTY/CMakeLists.txt` and the helper zip: build output.
+
+**ling:**
+- `RFC-mcp-empty-responses-and-manifest-cwd.md`: rewritten with the completed and the outstanding items.
+
+### Alignment Check
+- [x] BLESSED principles followed. S: one writer per focused parameter. E: the owner tells, the pane reacts to its own event. B: no raw TabView pointer in the rename callbacks.
+- [x] NAMES.md adhered. `focusPane`, `setLastFocusedSubcomponent` and `isServer` join existing families.
+- [x] MANIFESTO.md principles applied.
+- [ ] The audit ran before the audit fixes, the assert removal and the rename editor fix. ARCHITECT ran those in the last build.
+
+### Problems Solved
+- **Erased prompt and blank pane.** The END window has no `WS_CLIPCHILDREN`, and JUCE's `ValidateRgn` cleared the pending paint of EVE's child window. The live slot was also released at the read.
+- **Focus and feedback disagreed.** Several writers (owner mouse, SessionView, ENDView, child add) raced. One command now writes the focused pane, and one event gives keyboard focus.
+- **Settings on disk.** The standalone `PropertiesFile` has no file, so JUCE neither reads nor writes one (`juce_PropertiesFile.cpp:145, 183-187`).
+- **Rename editor without keys.** `SetFocus` on END gave focus back to the plugin window through `handleFocusGain`. The asking component is now set first. Magenta: the theme set no `WhenEditing` colour (`jam_StyleCustom.cpp:11`).
+- **File drop into an old build.** A probe shows layered pane windows there, so Windows finds END's window; the current build has none.
+- **Claude Code quits on ctrl+g.** Not END: Windows `conhost.exe` ends with `0xC0000005` when `nvim` starts while Claude runs with `"tui": "fullscreen"`. `"tui": "default"` works inline (measured in a plain MSYS2 pty).
+- **ling `[]` results.** One daemon run failed 10 of END's 16 units and keeps that failure; a new daemon indexed all of them from the same files. Not shown to be Windows or MSVC specific.
+- **Audit.** Resolved: F1, F3 to F11. Rejected: F2 (EVE's `parentHierarchyChanged` grab): the locked plan keeps it and `ARCHITECTURE.md` names it.
+- **Mistakes owned.** I opened `notepad` on ARCHITECT's desktop in a test; gave inferences as causes and withdrew them (the `nvim` console state, the kitty protocol, the assert that "protects" memory); wrote a wrong hunk number; listed `DEBT-20261121T004125` as open although Sprint 108 paid it.
+
+### State for Continuation
+- Regenerate doxygen in jam, END and EVE, and read the warning counts. The build of END and EVE that ARCHITECT ran is Debug; the Release tree on disk still used the JUCE tree `d612f5cc…` at 2026-11-24 00:50.
+- `~/.config/dev/themes/gfx/theme.md:142` holds `bunker` for `label background when editing` and wins over the new default `corbeau` until it is deleted or edited.
+- Unknown: why one `eve-cygwinPTY` helper ended in a new tab. It does not come back, and 68 starts outside END all lived. A dead helper now closes its pane (`EditorView.cpp:198-206`).
+- Unknown: the crash at launch of the Debug build of 00:32 until `~/.config/dev` was deleted. No dump, WER report or event exists. The old directory held no `END.settings`, and its `server` row was false.
+- Not analysed: `END.exe.23432.dmp` (2026-11-23 21:33).
+- ling: `D:/Poems/dev/ling/RFC-mcp-empty-responses-and-manifest-cwd.md`, 5 open questions.
+
+### Debts Paid
+- `DEBT-20261121T004127` — a new pane no longer erases the active prompt. ARCHITECT: *"active prompt no longer being erased"*.
+- `DEBT-20261121T004129` — ARCHITECT: *"no issue with active prompt race with seq anymore, that have been paid."*
+- `DEBT-20261121T004125` — paid in Sprint 108; drained now.
+
+### Debts Deferred
+- `DEBT-20261123T181545` — each daemon instance needs its own settings tree (ARCHITECT's command).
+
+---
+
 ## Sprint 109: Windows DirectComposition, Static CRT Virtual Listeners, Direct Hex Theme Aliases, and CygwinPTY Build Chain ✅
 
 **Date:** 2026-11-23
@@ -243,200 +321,6 @@
 - `DEBT-20260912T150000`: Windows END hosting EVE with shared Vulkan. The null factory call, the Release hang, the `%` and the double shell are fixed.
 - `DEBT-20261103T195500`: ARCHITECT: *"all DEBT paid"*.
 - `DEBT-20261025T135707`: ARCHITECT: *"all DEBT paid"*.
-
-### Debts Deferred
-- None
-
----
-
-## Sprint 105: One Lane for All Host State, Listener-Only Attach, Native Plugin State and Session Restore ✅
-
-**Date:** 2026-11-20
-**Duration:** Not measured. Several sessions, joined by context compactions.
-**Scope (ARCHITECT):**
-- The IPC lane and its server lifecycle (`PLAN-end-ipc-server.md`, executed, then replaced). Rulings: *"ONE SHAPE, ONE PATH, ONE LANE, ONE SERIALISATION, ONE SSOT. the difference only the IPC server lifecycle either live and die with the app, or running on bg"*; *"END is always IPC server / Daemon is IPC server on background"*; *"cmd+q close immediately, the app, the whole app. for Daemon mode, it destroy the GUI, keeping process running bg"*.
-- The runtime defect: *"winsize still always WRONG. resizing END's window never set winsize. winsize init already WRONG. DONT HACK, DONT PATCH. DESIGN BY CONTRACT"*.
-- `PLAN-one-lane-native-state.md`, Part A and Part B (AskUserQuestion: *"Part A and Part B"*). Rulings: *"enax extension or IPC, CHOOSE ONE FOR ALL"* (IPC for all terminal state); *"AudioParameter lane IS NOT THE WAY"*; *"why use change broadcaster? NO"*; *"why dont we trust ValueTreeSynchroniser? ValuTree::Listener? APVTS::Listener?"*; *"why we cant simply call setStateInfo() and getStateInfo() as is?"*; restored pane start directory *"Own saved cwd"*; *"PANE SIZE is the sole author of EVEView"*.
-- `/audit doxygen pass until /log no gate`.
-
-### Agents Participated
-- COUNSELOR: discovery synthesis, both PLANs, every validation read, the audit and doxygen triage, the SPEC, ARCHITECTURE, CLAUDE.md, DEBT and EVE SPEC edits, this log.
-- Pathfinder (haiku): the inventory reads of the project and of JUCE (host creation order, IPC callbacks, synchroniser, VST2 state and window paths), and the doxygen pass with three corrections.
-- Engineer (haiku): each code step, the split fix, the audit fixes, the `applyRule` rename, and the deletion of four completed or replaced PLAN files.
-- Auditor (opus) ×1: one pass, 14 code findings and 8 document findings.
-
-### Files Modified
-**jam:**
-- `patch/juce-value-tree-synchroniser-hook.patch`, `user-modules-info.md`: the synchroniser applies a delta and skips itself, for property and child events.
-- `jam_data_structures/connection/jam_ValueTreeConnection.h/.cpp`: the client end. One `juce::InterprocessConnection` and one `juce::ValueTreeSynchroniser` over one tree. It is a `ValueTree::Listener`, so it follows a root that `replaceState` installs (`valueTreeRedirected`). No `std::function`.
-- `jam_data_structures/connection/jam_ValueTreeServer.h/.cpp`: the server end. The nested `Connection` creates its synchroniser, then attaches the synced tree under the root: it replaces the held row with the same `Id::id`, or it appends a tree with no id. A connection ends only when its peer disconnects: `connectionLost` removes its tree, then calls `owner.removeConnection (*this)` (the JUCE pattern of `juce_ConnectedChildProcess.cpp:122`, `:135`).
-- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.h/.cpp`: the `cwd` rule and `serverConnection` are deleted. The `server` rule connects the plugin's own connection. The new `size` rule is empty under END. `set` is renamed `applyRule` (NAMES Rule 1: a callable parameter → `apply`).
-- `cast/core.md`, `generated/jam_Core.h/.cpp`: `enaxServerPort` added, `enaxStartDirectory` deleted. `cast/plugin_bootstrap.md`, `generated/jam_PluginBootstrap.h/.cpp`: the `server` rule id.
-- `jam_gui/layout/jam_OwnerComponent.h/.cpp`, `jam_PaneEdge.h` and the new `jam_PaneEdge.cpp`, `jam_MatrixComponent.h/.cpp`, `jam_gui.cpp`: adopt constructors and `addChildrenFromState`, so a window builds from existing rows. The `PaneEdge` bodies moved into their own `.cpp` (audit F12).
-
-**END:**
-- `Source/plugins/Nexus.h/.cpp`: the server serves the tree of `ENDModel`. `attachState`, `attachPluginState`, `onWindowRequested`, `getStartDirectory` and the start-directory extension are deleted. New: `getSessionsState`, `setSessionsState`.
-- `Source/plugins/Session.h/.cpp`: one adopt constructor (`createSession` builds the row). `addPlugin` restores `state` through `setStateInformation` before the graph adds the plugin, and appends a held row with only the type and `Id::id` of the raw VST2 chunk. New: `loadPlugins`, `setPluginStates`. The `Id::focus` and `Id::cwd` events keep the last focused `cwd` on the sessions row.
-- `Source/Main.h/.cpp`: in server mode the lock is taken before Nexus exists (audit F3). The launch request is a tree event (`valueTreeChildAdded` with an `end` child). Shutdown saves the sessions to `END.settings`, and `host` restores them before the window.
-- `Source/ui/EditorView.h/.cpp`: the new-row constructor writes the sessions `cwd` on every new pane row (audit F2). `valueTreeChildAdded` writes on the attached terminal row: `cwd` (then removes it from the pane row), `focus`, then `width` and `height`. `resized` writes the size rows.
-- `Source/ui/TabView.h/.cpp`, `SessionView.h/.cpp`, `ENDView.h/.cpp`: build from existing rows.
-- `Source/config/display.md`, `cast/identifiers.md`, `Source/generated/Identifiers.h/.cpp` (`port`, `server`, `state`), `project-info.md` (`jam_subprocess`).
-- `SPEC.md` §0, §1.0, §1.5, §1.7, §1.8, §3; `ARCHITECTURE.md`; `CLAUDE.md` (Open PLANs, line refs, the format-bound lane note); `DEBT.md` (`DEBT-20261103T195500` text).
-- Deleted: `PLAN-end-ipc-server.md`, `PLAN-eve-state-in-end.md`, `PLAN-file-uri-one-flow.md`.
-
-**EVE:**
-- `Source/EVEProcessor.h/.cpp`: the member `connection`, declared after `model`, listens to `model.state`. The `server` rule connects it under END. The layout-size write is the fallback of the `size` rule, so under END EVE writes no size. The start-directory read is deleted, and EVE writes its own config `cwd`.
-- `Source/EVETerminalProcessor.cpp`, `Source/EVEView.h/.cpp`: the `applyRule` call sites.
-- `Source/layout/parameters.md`: the `cwd` row. `SPEC.md`: host-to-EVE, shell start, `markdownFile` in the host rows, the close row, size item 6.
-
-### Alignment Check
-- [x] BLESSED principles followed. S: EVE's tree is the one state of its pane, and END is the one author of its size. E: every reaction is a `ValueTree::Listener` event on its payload. B: the server owns each connection, and EVE's connection ends before its model.
-- [x] NAMES.md adhered. `applyRule` joins the `apply…` family. `removeConnection` follows the JUCE owner-told connection.
-- [x] MANIFESTO.md principles applied.
-- [ ] Not built by COUNSELOR. ARCHITECT ran the lane before the split fix (*"no crash. terminal run and interactive"*), and the split defect led to the server correction. The split fix, the audit fixes and session restore are not run yet.
-
-### Problems Solved
-- **Wrong init `winsize`.** The server connection called `onAttach` before it created its synchroniser (`jam_ValueTreeConnection.cpp:56-58`, before this sprint), so no attach write reached EVE. EVE also wrote its own layout size (`EVEProcessor.cpp:28-33`, before this sprint). The synchroniser now exists before the attach, and under END EVE writes no size, so its first valid `winsize` comes from END's size.
-- **Two lanes.** `cwd` used ENAX and the other rows used IPC. All terminal state now uses IPC. ENAX keeps the peer hooks and the server port.
-- **Manual callbacks.** `onAttach`, `onLost` and `onWindowRequested` are replaced by listener events and the JUCE owner-told connection.
-- **A split lost the first pane's lane.** `split` moves the pane row (`jam_MatrixComponent.cpp:72`, `:341-342`). The first server design dropped a connection whose tree left the root. A connection now ends only when its peer disconnects.
-- **Native state.** END keeps each plugin's `getStateInformation` blob only in `END.settings`, and it gives the blob back through `setStateInformation` before the graph adds the plugin. `replaceState` swaps EVE's root, and the connection follows it through `valueTreeRedirected`.
-- **Corrections owned.** The claims that EVE's state pair could be one line each, and that `AudioParameter` or `ChangeBroadcaster` belonged in the lane, were wrong and were withdrawn.
-- **Audit.** Resolved: F1, F2, F3, F5, F6, F8, F9, F10, F11, F12; documents F4, F14, D1 to D8 and the PLAN drifts. Rejected with a read: F7 (a jam parameter reaches its tree only at the flush, `EVETerminalProcessor.cpp:24`, `:54-59`) and F13 (no read proves the listener unused).
-- **Doxygen pass.** Pathfinder's F1 was rejected: `jam::AudioModel` derives from APVTS (`jam_AudioModel.h:25`), whose `replaceState` assigns a new root (`juce_AudioProcessorValueTreeState.cpp:400`). Its F4 led to the `applyRule` rename. Its F2, F3 and F5 were rejected (`MANIFESTO.md:113-126`; named threat in `split`; in-process plugin).
-
-### State for Continuation
-- Run `cast` on jam (`core.md`, `user-modules-info.md` for `jam_PaneEdge.cpp`) and `cast cast/spell.md` in END (`identifiers.md`: `state`). Then build the EVE pack and END. The generated files were also edited by hand to match.
-- Runtime checks: a new pane opens at the pane size in the last focused `cwd`; a window resize and a split resize every EVE pane (`jam_ValueTreeServer.cpp:9-14`); quit and relaunch restore the sessions, each EVE pane in its own saved `cwd` (`Nexus::setSessionsState`, `Session::addPlugin`).
-- Server mode: a second launch attaches to the running server (`Main.cpp` `host`, `launch`).
-- The lane identity is VST2-only (`Session::addPlugin`, `CLAUDE.md` ENAX Plugin Format). VST3 or AU needs an identity read.
-- Regenerate doxygen (`ninja doxygen`) in jam, END and EVE, and read the warning counts.
-- `PLAN-one-lane-native-state.md` stays until ARCHITECT confirms the runtime.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
-
----
-
-## Sprint 104: EVE Loads in END Again — One Host Lane, No Hand-Rolled State Seam, No AppleDouble in cast Zips ✅
-
-**Date:** 2026-11-20
-**Duration:** Not measured. Two sessions, joined by one context compaction.
-**Scope:**
-- cast: ARCHITECT: *"`__MACOSX/<parent>/._<name>`, << this should not be written at all."*
-- END Step 6 of `eve/PLAN-eve-plugin-contract.md`: `PluginState` deleted. ARCHITECT: *"no manual handroll setState/getState"*.
-- `PLAN-eve-host-lane.md` Steps 1-8. ARCHITECT: *"ONE LANE, ONE PATH, ONE SERIALISATION, SSOT"*.
-
-### Agents Participated
-- COUNSELOR: discovery synthesis, the PLAN, the read of each return, two plan corrections, SPEC and ARCHITECTURE edits, this log.
-- Pathfinder (haiku): JUCE IPC, ValueTreeSynchroniser, message queue, per-format host lanes, the endless nexus precedent, the Framework Inventory, the doxygen pass.
-- Engineer (haiku): each code step and each audit fix.
-- Auditor (opus): one sprint audit, 10 findings, all validated and fixed.
-
-### Files Modified
-- cast `Source/ZipWriter.h`, `.cpp`: the AppleDouble entries are removed. The macOS zip is written from the items. The CRC constants are named through `std::numeric_limits`.
-- cast `Source/Pack.h`, `.cpp`: `toZip` has one path. The single-use `toStage` template is folded into `toDmg`.
-- cast `Source/IconWriter.h`, `.cpp`: `applyAttribute` is renamed `setAttribute` (Verb Contract). `nameListOffset` derives from `mapLength`.
-- cast `Source/AppleDoubleWriter.h`, `.cpp`: deleted. cast `SPEC.md`, `Source/HELP.md`: the zip and icon sections.
-- END `Source/plugins/PluginState.h`, `.cpp`: deleted.
-- jam `jam_data_structures/connection/jam_ValueTreeConnection.h`, `.cpp` (new): a `juce::InterprocessConnection` and a `juce::ValueTreeSynchroniser` over one named pipe per pane. The pipe name is the pane UUID. `setProperty` sends one message per tell. `paneIndex` is the `effVendorSpecific` index.
-- jam `user-modules-info.md:308`, `:314`: the submodule rows. cast writes the include lines from them.
-- jam `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp`: the `Id::cwd` rule. Under END it has no effect.
-- EVE `Source/EVEProcessor.h`, `.cpp`:
-  - It is a `juce::VST2ClientExtensions`. `handleVstManufacturerSpecific` connects, then sends the full state.
-  - The ENAX `cwd` fallback writes the default start directory outside END.
-  - `Id::cwd` calls `prepare()`.
-- EVE `Source/EVETerminalProcessor.cpp:372`: the shell opens when the winsize is valid and `cwd` is not empty.
-- END `Source/plugins/Session.h`, `.cpp`:
-  - There is one connection per pane. The VST2 pairing gives the pane UUID.
-  - `cwd` (home when empty) and `focus` are told at pairing.
-  - The `Id::focus` event sends tells. The `Id::plugin` event removes the old replica holder.
-  - `setProperty (pane, property, value)` sends one tell.
-- END `Source/ui/EditorView.h`, `.cpp`: the handlers act on the pane row only. `setMode` tells `mode`.
-- END `Source/ui/ENDView.h`, `.cpp`: `getFocusedDirectory` reads the replica. `addPane (edge, directory)`. `registerModeActions`.
-- END `Source/ui/TabView.h`, `.cpp`: `addPane (edge, directory)` writes the pane `cwd`.
-- END `Source/ui/SessionView.cpp`: the name branch acts on tab and pane rows only.
-- END `cast/bimaps.md`, `Source/config/keys.md`: `normal` and `open` restored. The zoom rows are removed.
-- END `cast/identifiers.md`, `Source/config/display.md`: `pluginState`, `exclusiveZoom` and `zoomStep` are removed.
-- END `SPEC.md` (§1.5 host lane, focus, §1.7, host tells), `ARCHITECTURE.md` (PANE row, host automation), EVE `SPEC.md`, EVE `Source/layout/parameters.md` (`cwd`).
-- Doxygen pass: the new jam class, ENAX, `EVEProcessor.h`, `EVETerminalProcessor.h`, `Session.h`, `Nexus.h`, `EditorView.h`, `ENDView.h`, `TabView.h`, `SessionView.h`, cast `Pack.h`.
-
-### Alignment Check
-- [x] BLESSED principles followed
-- [x] NAMES.md adhered
-- [x] MANIFESTO.md principles applied
-
-### Problems Solved
-- **EVE failed to load in END.** The root cause: END wrote a partial `pluginState` tree through `setChunkData`. EVE took it as its full state, so `historyCapacity` read 0 and `jassert (newCapacity > 0)` fired at `jam_TerminalSwap.cpp:29`. The hand-rolled seam is deleted.
-- **One lane replaces it.** There is one pipe per pane and one serialisation, `ValueTreeSynchroniser`.
-  - EVE publishes its whole `model.state`. END holds the replica and never writes it.
-  - END tells EVE's terminal row `cwd`, `focus` and `mode`.
-- **Start-directory order.** The editor opens synchronously, and a told `cwd` arrives as a posted IPC delivery. So EVE joins on its Model: it opens the shell when the winsize is valid and `cwd` is not empty.
-- **Plan corrections:**
-  - The home default moved to the one tell site, because the drop path writes no `cwd`.
-  - New-tab inheritance was restored, per SPEC §1.7.
-- **Audit findings fixed:**
-  - the module rows;
-  - focus from the pane row's `Id::focus`, because a split pane sits under an edge row;
-  - the stale replica on a plugin reload;
-  - the pairing reply as a bool;
-  - four cast CONTRACT findings;
-  - the EVE SPEC callers of `prepare()`.
-
-### State for Continuation
-- Not built. Run in order:
-  1. `cast` on jam, to write `connection/jam_ValueTreeConnection.h`/`.cpp` into the `jam_data_structures` aggregators from `user-modules-info.md:308`, `:314`.
-  2. `cast cast/spell.md` in END, for `normal` and `open` in `Source/generated/*`.
-  3. The EVE pack, then END.
-- Check `Session.cpp:2` (global `<pluginterfaces/vst2.x/aeffectx.h>`) on macOS and on Windows clang-cl.
-- Check `jam_ValueTreeConnection.h:75` (`makeInt` constexpr).
-- A user `~/.config/end/keys.md` or `display.md` that holds a removed row (zoom, `exclusiveZoom`, `zoomStep`) fails validation, and `ConfigDirectory` drops the whole file.
-- Each `cwd` report from the shell runs `prepare()`, which restarts the clock (`EVETerminalProcessor.cpp:370-398`). No compliant change was found.
-- Decided after the audit:
-  - The close-key requirement is dropped from `end/SPEC.md` Keys. A close key closes the pane.
-  - Under END, a pane with no inherited `cwd` starts in the home directory (`Session.cpp:140-141`). EVE's `startDirectory` setting applies outside END.
-- `~/.config/dev/plugins/__MACOSX` from earlier packs needs a manual delete.
-
-### Debts Paid
-- None
-
-### Debts Deferred
-- None
-
-## Sprint 103: Each Config File Parsed Once, Validated at the Parse ✅
-
-**Date:** 2026-11-14
-**Duration:** one session, from 2026-11-13 00:18 UTC. Not measured. `jam/carol/SPRINT-LOG.md` Sprint 187 is the primary record.
-**Scope:** `jam/PLAN-document-contract.md` Step 13 (RFC `jam/RFC-config-document-parse-once.md` Q1–Q4). ARCHITECT: *"Full END one-parse"*; *"Caller memoizes"*.
-
-### Agents Participated
-- COUNSELOR: delegation, the read of each return, this log.
-- Engineer (sonnet): the config changes, END with EVE build.
-- Pathfinder (haiku): reads, the doxygen pass.
-
-### Files Modified
-- `Source/config/ConfigDirectory.h`, `.cpp` — `addFileTables` takes `getFile` and `getDefaultText`; each file goes through `ConfigDocument::getOrCreateFileDocument`; nullptr adds the `ConfigDocument::isValid` message. The second `ConfigValidator` run is deleted.
-- `Source/config/ConfigModel.h`, `.cpp` — `saveToPath` keeps only the directory creation. `ConfigModel.h:16-17` doxygen corrected.
-- `Source/config/ConfigTheme.h`, `.cpp` — `saveToPath` keeps directories and flex files. `getOrCreateDefaultText (fileName)` replaces `getDefaultText`; `:53-58` passes a lambda (G2). `:30` reads `CssDocument::parse (…)->getValueTree`. `addFileFlex` gives `XmlDocument::isValid` on nullptr.
-- `Source/ui/ENDView.cpp` — callers of the pointer-returning `getOrCreate` and `parse`.
-
-### Alignment Check
-- [x] BLESSED principles followed
-- [x] NAMES.md adhered
-- [x] MANIFESTO.md principles applied
-
-### Problems Solved
-- Each config file was parsed in `loadFromPath` and again in `saveToPath`, and validated twice. Now one parse per file per load, validated at the parse.
-
-### State for Continuation
-- The default theme style tree goes through `CssDocument::getOrCreate (name, text)`, once per process. No read shows that the CssWriter output of the default document equals `themeStyleSheet`, so the round trip is memoized, not removed (PLAN Step 13, Q3).
-- Behaviour change: an invalid config file is not overwritten when its version is old; it is reported.
-
-### Debts Paid
-- None
 
 ### Debts Deferred
 - None

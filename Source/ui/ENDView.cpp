@@ -5,7 +5,6 @@ ENDView::ENDView()
     , messageOverlay (model.getChildWithName (jam::Format::toType (Id::overlay)), [] { return ENDLookAndFeel::getInstance()->getOverlayFont(); })
 {
     setOpaque (false);
-    toFront (true);
 
     registerActions();
     registerEvents();
@@ -28,7 +27,6 @@ ENDView::ENDView()
 
             addSessions();
             commandManager->setKeyPresses (config.getChildWithName (jam::Format::toType (Id::keys)));
-            grabKeyboardFocus();
         });
 }
 

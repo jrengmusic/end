@@ -89,10 +89,7 @@ bool EditorView::DropTarget::isInterestedInFileDrag (const juce::StringArray& fi
 
 void EditorView::DropTarget::fileDragEnter (const juce::StringArray&, int, int)
 {
-    auto& pane { *findParentComponentOfClass<jam::PaneComponent>() };
-
-    pane.findParentComponentOfClass<jam::OwnerComponent>()->setFocusedChild (
-        jam::UUID { static_cast<int64_t> (pane.getValueTree().getProperty (Id::id)) });
+    findParentComponentOfClass<jam::MatrixComponent>()->focusPane (*this);
 }
 
 void EditorView::DropTarget::filesDropped (const juce::StringArray& files, int x, int y)
@@ -238,8 +235,13 @@ void EditorView::registerEvents()
     events.add (Id::focus,
                 [this] (const juce::Identifier&, juce::ValueTree& tree)
                 {
-                    if (tree == state and editor != nullptr and isShowing() and static_cast<bool> (tree.getProperty (Id::focus)))
-                        editor->grabKeyboardFocus();
+                    if (tree == state)
+                    {
+                        repaint();
+
+                        if (editor != nullptr and isShowing() and static_cast<bool> (tree.getProperty (Id::focus)))
+                            editor->grabKeyboardFocus();
+                    }
                 });
 }
 
@@ -281,8 +283,10 @@ void EditorView::createProcessorEditor()
     addAndMakeVisible (editor.get());
     dropTarget.toFront (false);
 
-    if (editor != nullptr and isShowing() and static_cast<bool> (state.getProperty (Id::focus)))
-        editor->grabKeyboardFocus();
+    if (editor != nullptr)
+        editor->setMouseClickGrabsKeyboardFocus (false);
+
+    events.get (Id::focus, state);
 }
 
 Session& EditorView::getSession() const

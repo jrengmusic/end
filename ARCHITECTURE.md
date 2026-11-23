@@ -222,32 +222,35 @@ dead). Describes the landed code:
 SINGULAR uuid-valued parameters — the value IS the identity,
 `parameterChanged (id, value)` is fully self-describing downstream. Each
 `OwnerComponent` is the sole author of its own row's focused-child parameter
-(TabView authors `TAB.focusedPane`, SessionView authors `SESSION.focusedTab`). It
-writes it in the derived `childAdded` hook, with the survivor on remove, on a
-click inside a child (`OwnerComponent::mouseDown`), and on the focus-move action
-(`MatrixComponent::focusPane`, run by the `map::MatrixCommandId` pane commands,
-`jam_MatrixComponent.cpp:374-395`). Focus is told downward only: on a change of its
-focused-child parameter or of its own row's `Id::focus`, the owner sets each
-child row's `Id::focus` to 1 when the child is focused and its own row is
-focused, else 0 (`OwnerComponent::valueTreePropertyChanged`,
-`jam_OwnerComponent.cpp:110-122`). ENDView tells the active session row
-(`ENDView.cpp:147`). Keyboard focus never writes the Model.
+(TabView authors `TAB.focusedPane`, SessionView authors `SESSION.focusedTab`). Each has one
+writer. `MatrixComponent::perform` writes `focusedPane`, for the one command
+`map::MatrixCommandId::focusPane`. The command carries its target as
+`InvocationInfo::originatingComponent`, and the pane that holds that component becomes the
+focused one. When it already is, `perform` sends the `Id::focus` change of its row again, so
+the keyboard focus follows. Every path invokes that command through
+`MatrixComponent::focusPane (component)`: a click (`MatrixComponent::mouseDown`, the matrix
+listens to the mouse of its descendants), the four direction commands, `split`, the survivor
+in `childRemoved`, `TabView::add`, `EditorView::DropTarget::fileDragEnter`, and the end of a
+tab rename (`SessionView::addTabView`). `childAdded` and `addChildrenFromState` write no focus.
+`TabbedComponent::changeCallback` writes `focusedTab`, from the tab bar. `setFocusedChild` is
+protected. Focus is told downward only: on a change of its focused-child parameter or of its
+own row's `Id::focus`, the owner writes 0 to each other child row first, then 1 to the focused
+child row when its own row is focused (`OwnerComponent::valueTreePropertyChanged`).
+`TabbedComponent::valueTreePropertyChanged` lays out on `focusedTab` before that fan-out, so
+the new tab shows before its panes are told. ENDView tells the active session row
+(`ENDView::addSessionView`). Keyboard focus never writes the Model.
 There is no app-level copy of the focused pane: a consumer reads the active tab's
 focused child (`SessionView::getActiveTabView()->getFocusedChild()`), so a tab
 switch can never leave a stale pane id. No other writer of a `focused*` parameter
 may exist.
 
-**Keyboard focus follows the Model on one chain.** `SessionView::focusPane` asks the
-keyboard focus traverser of the active tab for its default component, and tells that
-component `grabKeyboardFocus()` (`SessionView.cpp:61-71`). The traverser of an
-`OwnerComponent` returns the focused child (`jam_OwnerComponent.cpp:136-142`), so the
-component is the focused pane. `focusPane` runs on a change of `Id::focusedPane` or
-`Id::name` (`SessionView.cpp:101-102`), and after a tab becomes the current tab
-(`SessionView::currentTabChanged`, `SessionView.cpp:56-59`, which
-`TabbedComponent::changeCallback` calls after `layout()`,
-`jam_TabbedComponent.cpp:137-143`). A pane and its corner buttons do not want keyboard
-focus (`jam_PaneComponent.cpp:12-25`, `:119-123`), so JUCE gives the grab to the hosted
-editor, the one child of the pane that wants it.
+**Keyboard focus follows the Model on one chain.** The `Id::focus` event of `EditorView`
+(`EditorView::registerEvents`) repaints the pane, and grabs keyboard focus for the editor when
+the pane shows and its row is on. `EditorView::createProcessorEditor` runs the same event for a
+new editor. A mouse click does not give the hosted editor keyboard focus
+(`setMouseClickGrabsKeyboardFocus (false)`), and tab buttons do not want it
+(`TabbedComponent::createTabButton`). A pane and its corner buttons do not want keyboard
+focus (`jam_PaneComponent.cpp`). ENDView and SessionView have no focus grab.
 
 **No cross-tree references:** ConfigModel → ENDModel dependency is one-way data flow. No upward references.
 
@@ -751,7 +754,7 @@ literal hosting relationship:
 - END hosts any VST2, VST3 or AU plugin. CLAP follows later.
 - One load path: the `loadPlugin (plugin)` action writes the plugin file into `Id::plugin` of the focused pane row. The default argument is the bundle that `Nexus::getOrCreatePlugin` returns, the first entry of the plugin archive. A dropped plugin file is the override. `Session` reacts to that Model event.
 - One split path: `ENDView::addPane (edge)` splits the focused pane in half, or adds a pane. The split keys, `newTab` and a file drop each run it, then `loadPlugin` (`ENDView::registerSplitActions`, `ENDView::registerTabActions`, `EditorView::DropTarget::filesDropped`). The new-row constructor of `EditorView` writes the `cwd` of the sessions row to the new pane row, and the attach tells it to the plugin. The corner drag calls `TabView::split (edge, proportion)`, then runs `loadPlugin`.
-- Lifecycle: `ENDApplication` owns `ENDModel`, `ConfigModel` and the window. It creates `Nexus` and the window only in the process that hosts. With the `server` row false, that is the process that the system launched. With `server` true, it is the process that a launch starts detached with `--server` (SPEC section 1.8). `ENDApplication::systemRequestedQuit` ends the process, or destroys the window and keeps `Nexus`. `ENDView` builds its views from the rows that exist (`ENDView::addSessions`). At shutdown, the process that hosts saves the sessions to the `sessions` key of `END.settings` (`Nexus::getSessionsState`, which holds each plugin's `getStateInformation` blob as `state`). `ENDApplication::host` restores them before the window (`Nexus::setSessionsState`, the adopt constructor of `Session`, and `setStateInformation` in `Session::addPlugin` before the graph adds the plugin).
+- Lifecycle: `ENDApplication` owns `ENDModel`, `ConfigModel` and the window. It creates `Nexus` and the window only in the process that hosts. With the `server` row false, that is the process that the system launched. With `server` true, it is the process that a launch starts detached with `--server` (SPEC section 1.8). `ENDApplication::systemRequestedQuit` ends the process, or destroys the window and keeps `Nexus`. `ENDView` builds its views from the rows that exist (`ENDView::addSessions`). `ENDApplication::settings` is `END.settings` only when `ENDApplication::isServer` is true. Otherwise it is `juce::File {}`, which JUCE neither reads nor writes (`juce_PropertiesFile.cpp:145`, `:184`), so a standalone launch starts with a new Model. At shutdown, the process that hosts saves the sessions to the `sessions` key of `settings` (`Nexus::getSessionsState`, which holds each plugin's `getStateInformation` blob as `state`). `ENDApplication::host` restores them before the window (`Nexus::setSessionsState`, the adopt constructor of `Session`, and `setStateInformation` in `Session::addPlugin` before the graph adds the plugin).
 - EVE is known: `Nexus::registerEVE` lists EVE's description at construction, so the first EVE load runs no scan.
 - The lane identity is format-bound: `Session::addPlugin` reads the plugin's `Id::id` from the raw VST2 chunk (`getVSTClient()->getChunkData`), and the server connection attaches the synced tree in place of the held row with that id. With VST3 or AU, no held row exists and the tree does not attach (`CLAUDE.md`, ENAX Plugin Format).
 - `EditorView::DropTarget` sits in front of every child of a pane. A file drag that enters it focuses the pane. A plugin file dropped on it runs `matrix.split (pane.getEdge (point))`, then writes the file to `Id::plugin` of the new pane (`EditorView::DropTarget::filesDropped`). Every new pane comes from the new-row constructor of `EditorView`, which writes the last-focused `cwd` of the sessions row on the new pane row.
@@ -835,20 +838,21 @@ hardcoded to END. The contract is formalised and enforced at run time.
   `juce_AudioUnitPluginFormat.mm` hunks).
 - **Focus.** END owns focus. END writes the plugin's `focus` row from the pane row's
   `Id::focus`: `Session::registerEvents` on each change, and `EditorView::valueTreeChildAdded`
-  when the plugin tree attaches. EVE takes or gives away keyboard focus when its
-  `focus` row changes (`EVEView.cpp:181-187`), and passes it to its default component
-  (`EVEView::focusGained`, `EVEView.cpp:67-74`). A row that is set to an equal value
-  sends no change, so a new editor reads the row itself: it takes keyboard focus when it
-  becomes showing and the row is on (`EVEView::parentHierarchyChanged`,
-  `EVEView.cpp:76-80`). `SessionView::focusPane` gives JUCE
-  keyboard focus to the focused pane of the active tab (`SessionView.cpp:61-71`). The
-  pane wants no keyboard focus, so the hosted editor takes it. `EditorView::createProcessorEditor`
-  also calls `editor->grabKeyboardFocus()` when `editor` is not null, the pane is showing,
-  and `Id::focus` is true. `jam/patch/juce-plugin-window-focus-hook.patch` sets
+  when the plugin tree attaches. END gives keyboard focus to the editor of the focused pane
+  (`EditorView::registerEvents`, the `Id::focus` event), and EVE passes it to its default
+  component (`EVEView::focusGained`). A new EVE editor reads the row itself: it takes keyboard
+  focus when it becomes showing and the row is on (`EVEView::parentHierarchyChanged`).
+  `jam/patch/juce-plugin-window-focus-hook.patch` sets
   `setWantsKeyboardFocus (true)` unconditionally on `VSTPluginWindow` and hands focus to
   the native plugin view in `focusGained`: `makeFirstResponder` on macOS (VST2 and AU),
-  `SetFocus (pluginHWND)` on Windows, and `xembedComponent.grabKeyboardFocus()` on
-  Linux/BSD. The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
+  `SetFocus (pluginHWND)` then `handleFocusLoss()` on the peer on Windows, and
+  `xembedComponent.grabKeyboardFocus()` on Linux/BSD. `Component::takeKeyboardFocus` sets itself
+  as the last focused component of its peer before the peer takes native focus
+  (`ComponentPeer::setLastFocusedSubcomponent`), so a component of END that asks for focus gets
+  it, and not the plugin window that had it last. On Windows, the same patch clears
+  `mouseActivateFlags` in `WM_KILLFOCUS`. `jam/patch/juce-mouse-event-hook.patch` lets a click
+  grab keyboard focus only when no external mouse callback is set or the peer of the component
+  is focused. The plugin never decides focus itself. In standalone, `MainWindow::focusGained`
   gives the editor focus (`jam_AudioStandaloneApp.cpp:74-78`).
 - **AU registration.** On macOS, when the plugin bundle is a `.component`
   (`files::audioUnitExtension`), the `Nexus` constructor registers that one bundle in
@@ -872,8 +876,9 @@ command name, and a widget never reads config.
   (`ENDView.cpp:13`, `:31`, `:460`), `invokeKey` is its one key entry (`:57-60`), and
   `perform` runs the `ENDActions` entry of the command name (`ENDView.cpp:85-88`).
 - **jam `MatrixComponent`.** `map::MatrixCommandId` (`paneLeft`, `paneDown`, `paneUp`,
-  `paneRight`; `jam/cast/gui.md:226-242`) holds the pane focus commands.
-  `MatrixComponent::perform` runs `focusPane` (`jam_MatrixComponent.cpp:385-406`).
+  `paneRight`, `focusPane`; `jam/cast/gui.md`) holds the pane focus commands. A direction
+  command finds the neighbour and runs `focusPane`. `MatrixComponent::perform` is the one
+  writer of the focused pane.
   `ENDView::getNextCommandTarget` gives the commands to the active `TabView`
   (`ENDView.cpp:70-73`).
 - **jam `TextEditor`.** `map::TextEditorCommandId` with the default keys

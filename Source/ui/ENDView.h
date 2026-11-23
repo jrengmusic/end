@@ -27,8 +27,8 @@ public:
     /**
      * @brief Registers the commands and the events, adds the background, and creates the parameters.
      *
-     * The constructor queues an asynchronous call. The call runs the event of the `enabled` key of the config,
-     * adds the first session, sets the key presses of the `keys` config, and takes the keyboard focus.
+     * The constructor queues an asynchronous call. The call sets the mouse configuration, adds the session views, and sets the key presses of the `keys` config.
+     * It creates the first session when none exists, and invokes the new tab command when no tab is active. It takes no keyboard focus.
      */
     ENDView();
 
