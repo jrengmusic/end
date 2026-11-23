@@ -2,6 +2,66 @@
 
 ---
 
+## Sprint 109: Windows DirectComposition, Static CRT Virtual Listeners, Direct Hex Theme Aliases, and CygwinPTY Build Chain ✅
+
+**Date:** 2026-11-23
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: root-cause triage, `whatdbg` tracing, four execution plans (`PLAN-windows-external-render-layered-contract.md`, `PLAN-windows-winsize-and-overlay-contract.md`, `PLAN-windows-crt-hex-alias-and-cygwinpty-chain.md`, `PLAN-windows-hex-validator-and-dcomp-clip.md`), step validations, Auditor triage, `SPEC.md` sync, sprint log.
+- Pathfinder (flash): codebase discovery, `whatdbg` traces, Win32/DComp/ConfigValidator reads, post-audit doxygen pass across 7 headers.
+- Librarian (flash): Microsoft Learn DirectComposition parent-child window clipping and visual tree contract research.
+- Engineer (inherit): implementation of all plan steps, Auditor Findings 1 and 2 fixes, and deletion of 5 completed `PLAN-windows-*.md` files.
+- Auditor (inherit): comprehensive sprint audit (4 findings; 2 code bugs fixed, 1 `SPEC.md` sync applied, 1 PLAN pivot recorded).
+
+### Files Modified (21 total)
+**jam:**
+- `patch/juce-vulkan-engine-hook.patch:50-59,254-261` — `HWNDComponentPeer::computeTransparencyKind()` returns `TransparencyKind::opaque` when `externalContextFactory != nullptr`, preventing un-updated `WS_EX_LAYERED` hit-test transparency; `handlePaintMessage()` calls `setLayeredWindow()` on fallback.
+- `patch/juce-image-subsection-hook.patch:19-59` — added `virtual void addListener (Listener*)` and `virtual void removeListener (Listener*)` to `juce::ImagePixelData` so cross-DLL calls stay inside the owning static `/MT` CRT heap (ARCHITECT rejected `/MD` pivot from `PLAN-windows-crt-hex-alias-and-cygwinpty-chain.md` Step 1).
+- `user-modules-info.md:1403-1404` — updated descriptions for `juce-image-subsection-hook.patch` and `juce-vulkan-engine-hook.patch`.
+- `jam_gui/widgets/jam_TextEditor.cpp:2017`, `jam_TextEditor.h:415-424` — `lookAndFeelChanged()` calls `viewport.lookAndFeelChanged()` before `getTerminalBounds()` and `resized()`, fixing initial scrollbar width before `setWinsize()`.
+- `jam_vulkan/context/native/jam_VulkanComposition_windows.cpp:32-36`, `jam_VulkanComposition_windows.h:22-34` — clears `WS_CLIPCHILDREN` and flushes styles via `SetWindowPos` before `CreateTargetForHwnd (hwnd, FALSE, ...)` so parent Layer 2 backgrounds composite behind transparent child HWNDs (`EVE`).
+- `jam_vulkan/resource/jam_VulkanBindlessRegistry.cpp:18,57,86,137` — switched `ImagePixelData` listener registration to virtual `addListener` / `removeListener`.
+- `jam_vulkan/resource/jam_VulkanTextureCache.cpp:7,13,43-59,207,256-291`, `jam_VulkanTextureCache.h:157-161` — switched listener registration to virtual `addListener` / `removeListener`, and fixed `evictUnusedEntries()` iterator invalidation by passing and returning `jam::HashMap::iterator` in `retireEntry()`.
+- `jam_markdown/document/jam_ConfigValidator.cpp:313-314,416-425`, `jam_ConfigValidator.h:31-33,50-51` — `isAliasTarget()` accepts `ConfigDocument::isHexColour()`, and `getReferenceFailure()` excludes `Id::alias` rows so `getAliasFailures()` is the sole validator.
+- `jam_markdown/document/jam_ConfigDocument.cpp:395-413,844-850`, `jam_ConfigDocument.h:165-176,225-237` — `addAliasProperties()` and `getAliasWords()` support direct `0xAARRGGBB` hex colours on `alias` rows in both `getValueTree()` and `toDocument (const CssDocument&)`.
+- `jam_markdown/document/jam_CssWriter.cpp:53-67`, `jam_CssWriter.h:22-24` — `getAliasDeclaration()` writes `#RRGGBBAA` when `ConfigDocument::isHexColour()` matches.
+- `jam_web/css/jam_Css.cpp:404-419,2093-2103`, `jam_Css.h:193,217-218,366-372,449-450` — `addAppearance()` stores hash-token colours as `juce::uint32`; `addAliases()` writes them as `juce::int64` to `ValueTree`.
+
+**END:**
+- `Source/ui/ENDView.cpp:16-19,48-54,161-163`, `Source/ui/ENDView.h:27-33,38-42,262-263` — attached `messageOverlay` as a sibling desktop peer via `addToDesktop` + `peer->getAreaCoveredBy (*this)`.
+- `SPEC.md:173-174` — documented direct `0xAARRGGBB` hex colours on `alias` rows.
+- Deleted completed sprint plans: `PLAN-windows-external-render-layered-contract.md`, `PLAN-windows-winsize-and-overlay-contract.md`, `PLAN-windows-crt-hex-alias-and-cygwinpty-chain.md`, `PLAN-windows-hex-validator-and-dcomp-clip.md`, `PLAN-windows-focus-and-headless-pty.md`.
+
+**EVE:**
+- `cast/cmake.cast:632-636`, `cast/spell.md:18,103-104`, `project-info.md:118-223` — wired `cygwinPtyBundle.cmake` (`if(WIN32)`) into all 13 `## toolchain` lanes so building from `END` chains `cygwinPTY` -> `eve` -> `end`.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Windows mouse selection / drag / wheel blocked under ExternalRenderContext:** `WS_EX_LAYERED` without `UpdateLayeredWindow` made `ViewComponent::Inner` hit-test transparent. Fixed in `juce-vulkan-engine-hook.patch`.
+- **Windows initial scrollbar width mismatch and `messageOverlay` occluded by `EVE`:** Fixed `TextEditor::lookAndFeelChanged()` ordering and promoted `ENDView::messageOverlay` to a sibling desktop peer.
+- **Cross-DLL heap crash (`__acrt_first_block == header`) under static `/MT` CRT:** Dispatched `ImagePixelData` listener add/remove through virtual methods on `juce::ImagePixelData` so allocations and frees stay in the owning binary's heap.
+- **Stale `eve-cygwinPTY.exe` erasing active prompt:** Chained `cygwinPtyBundle.cmake` into all `EVE` cast toolchain lanes.
+- **Direct `0xAARRGGBB` hex colours rejected on `alias` rows:** Added end-to-end hex support in `ConfigValidator`, `ConfigDocument`, `CssWriter`, and `CssDocument`, and excluded `Id::alias` from `getReferenceFailure()`.
+- **Focused pane background clipped behind transparent `EVE` child HWND:** Cleared `WS_CLIPCHILDREN` before `CreateTargetForHwnd (hwnd, FALSE, ...)` in `VulkanComposition::create()`.
+- **Audit clean sweep:** Fixed `VulkanTextureCache::evictUnusedEntries()` iterator invalidation via `HashMap::erase (iterator)` and `ConfigDocument::getAliasWords()` `juce::uint32` round-trip formatting.
+
+### State for Continuation
+- ARCHITECT confirmed all runtime fixes prior to `/audit`. After the two post-audit fixes (`jam_VulkanTextureCache.cpp` and `jam_ConfigDocument.cpp`), rebuild and run `<leader>bd` in `jam` to regenerate doxygen XML/HTML and confirm zero warnings.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261121T004127` — a new pane erases the active prompt of the last focused pane.
+- `DEBT-20261121T004129` — the prompt shows before the `time seq` output has finished on screen.
+
+---
+
 ## Sprint 108: Cross-Platform VST2 Focus Orchestration, Headless Cygwin PTY, and Audit Clean Sweep ✅
 
 **Date:** 2026-11-22

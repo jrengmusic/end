@@ -16,8 +16,6 @@ ENDView::ENDView()
     addAndMakeVisible (background);
     addMouseListener (&background, true);
 
-    addChildComponent (messageOverlay);
-
     createAndAttachParameters();
 
     config.addListener (this);
@@ -46,7 +44,14 @@ void ENDView::resized()
     setViewState (jam::Size<int16_t> (getWidth(), getHeight()));
 
     background.setBounds (getLocalBounds());
-    messageOverlay.setBounds (getLocalBounds());
+
+    if (auto* peer { getPeer() })
+    {
+        if (not messageOverlay.isOnDesktop())
+            messageOverlay.addToDesktop (juce::ComponentPeer::windowIgnoresMouseClicks | juce::ComponentPeer::windowIgnoresKeyPresses, peer->getNativeHandle());
+
+        messageOverlay.setBounds (peer->getAreaCoveredBy (*this));
+    }
 
     if (auto* sessionView { getActiveSessionView() })
         sessionView->setBounds (getLocalBounds());
@@ -154,7 +159,6 @@ void ENDView::addSessionView (Session& session)
     auto& [key, sessionView] = *entry;
 
     addAndMakeVisible (*sessionView);
-    sessionView->toBehind (&messageOverlay);
     attachments.try_emplace (sessionUuid,
                              std::make_unique<jam::Model::Attachment> (*sessionView));
     sessionView->getValueTree().setProperty (Id::focus, sessionView.get() == getActiveSessionView() ? 1 : 0, nullptr);

@@ -27,6 +27,10 @@ void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueT
 {
     if (parentTree == state and child.hasType (jam::Format::toType (Id::tab)))
         addTabView (child);
+    else if (parentTree.hasType (jam::Format::toType (Id::plugin)))
+        for (const auto& [uuid, tab] : getChildren())
+            if (parentTree.isAChildOf (tab->state))
+                applyTabName (uuid);
 }
 
 void SessionView::addTabView (const juce::ValueTree& tabRow)
@@ -101,14 +105,19 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 {
     OwnerComponent::valueTreePropertyChanged (tree, property);
 
-    if ((property == Id::name or property == Id::focusedPane)
-        and (tree.hasType (jam::Format::toType (Id::tab)) or tree.hasType (jam::Format::toType (Id::pane))))
+    const auto isFocusOrName { (property == Id::name or property == Id::focusedPane)
+                               and (tree.hasType (jam::Format::toType (Id::tab)) or tree.hasType (jam::Format::toType (Id::pane))) };
+    const auto isTerminalTitle { (property == Id::title or property == Id::foregroundProcess or property == Id::cwd)
+                                 and tree.hasType (jam::Format::toType (Id::terminal)) };
+
+    if (isFocusOrName or isTerminalTitle)
     {
         for (const auto& [uuid, child] : getChildren())
             if (tree == child->state or tree.isAChildOf (child->state))
                 applyTabName (uuid);
 
-        focusPane();
+        if (isFocusOrName)
+            focusPane();
     }
 }
 
@@ -127,6 +136,25 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
 
     if (sourcePane.isValid())
     {
+        const auto terminal { Session::getTerminal (sourcePane) };
+
+        if (terminal.isValid())
+        {
+            for (const auto& id : { Id::title, Id::foregroundProcess })
+            {
+                const juce::String paneTitle { terminal.getProperty (id).toString() };
+
+                if (paneTitle.isNotEmpty())
+                    return paneTitle;
+            }
+
+            const juce::URL cwd { terminal.getProperty (Id::cwd).toString() };
+            const juce::String directoryName { cwd.isLocalFile() ? cwd.getLocalFile().getFileName() : juce::String {} };
+
+            if (directoryName.isNotEmpty())
+                return directoryName;
+        }
+
         return sourcePane.getProperty (Id::name).toString();
     }
 

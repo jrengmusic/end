@@ -60,11 +60,12 @@ private:
     ENDLookAndFeel& lookAndFeel { *ENDLookAndFeel::getInstance() };
 
     /**
-     * @brief Reapplies the displayed name of each tab that holds the changed tree, then runs focusPane().
+     * @brief Reapplies the displayed name of each tab that owns the changed tree.
      *
-     * The call first runs the base handler of jam::OwnerComponent. It then acts only when the property is Id::name or
-     * Id::focusedPane, and the changed tree is a tab row or a pane row.
-     * A tab holds the tree when the tree is its row or a row under it. The name of each such tab is reapplied.
+     * The call first runs the base handler of jam::OwnerComponent.
+     * On a tab or pane row, Id::name or Id::focusedPane reapplies the tab name and calls focusPane().
+     * On a terminal row, Id::title, Id::foregroundProcess, or Id::cwd reapplies the tab name without focusPane().
+     * A tab owns the tree when the tree is its row or a descendant row.
      *
      * @param tree      The ValueTree whose property changed.
      * @param property  The identifier of the changed property.
@@ -73,12 +74,14 @@ private:
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
-     * @brief Mounts the TabView of a tab row that is added directly under the session row.
+     * @brief Mounts a TabView for a new tab row, or reapplies the owning tab name under a plugin row.
      *
+     * When a tab row arrives directly under the session row, the call mounts its TabView.
+     * When a child arrives under a plugin row, the call reapplies the name of the owning tab.
      * Any other added child has no effect.
      *
-     * @param parentTree  Tree that gained the child. Only the session row mounts tabs.
-     * @param child       Added child. A tab row is mounted.
+     * @param parentTree  Tree that gained the child.
+     * @param child       Added child tree.
      */
     void valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueTree& child) override;
 
@@ -122,12 +125,18 @@ private:
     /** @brief Reapplies tab bar depth and position from the current theme. */
     void lookAndFeelChanged() override;
 
-    /** @brief Resolves a tab's displayed name.
+    /**
+     * @brief Resolves a tab's displayed name.
      *
-     *  The rename of the tab row wins when it is not empty. Otherwise the call returns the Id::name of the first descendant row of the
-     *  tab whose Id::id property equals the Id::focusedPane property of the tab row. It returns an empty string when no such row exists.
-     *  @param tabState The tab's own ValueTree row.
-     *  @return The resolved name, or an empty string when neither holds a value.
+     * A non-empty Id::name rename on tabState wins first.
+     * Otherwise the call looks up sourcePane by Id::focusedPane, then inspects Session::getTerminal (sourcePane).
+     * From a valid terminal row, it checks Id::title, then Id::foregroundProcess.
+     * Next it takes the local directory name from Id::cwd when juce::URL is a local file.
+     * If the terminal gives no non-empty name, it falls back to Id::name on sourcePane.
+     * It returns an empty string when sourcePane is invalid.
+     *
+     * @param tabState  The tab's own ValueTree row.
+     * @return The resolved name, or an empty string when no source holds a value.
      */
     juce::String getTabName (const juce::ValueTree& tabState) const;
 

@@ -234,6 +234,13 @@ void EditorView::registerEvents()
                         }
                     }
                 });
+
+    events.add (Id::focus,
+                [this] (const juce::Identifier&, juce::ValueTree& tree)
+                {
+                    if (tree == state and editor != nullptr and isShowing() and static_cast<bool> (tree.getProperty (Id::focus)))
+                        editor->grabKeyboardFocus();
+                });
 }
 
 void EditorView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)

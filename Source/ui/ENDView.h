@@ -25,7 +25,7 @@ class ENDView
 {
 public:
     /**
-     * @brief Registers the commands and the events, adds the background and the message overlay, and creates the parameters.
+     * @brief Registers the commands and the events, adds the background, and creates the parameters.
      *
      * The constructor queues an asynchronous call. The call runs the event of the `enabled` key of the config,
      * adds the first session, sets the key presses of the `keys` config, and takes the keyboard focus.
@@ -35,7 +35,10 @@ public:
     /** @brief Stops listening to the model and the config. */
     ~ENDView() override;
 
-    /** @brief Writes the view size to the state, lays out the background, the message overlay and the active session view. */
+    /** @brief Writes the view size to the state and lays out the background, the message overlay, and the active session view.
+     *
+     *  When a peer exists, adds messageOverlay to the desktop as a sibling peer of the native handle and bounds it to the view area.
+     */
     void resized() override;
 
     /**
@@ -256,7 +259,7 @@ private:
     /** @brief Command callbacks keyed by command id. The register functions add them, and perform() runs them. */
     jam::Function::Map<juce::CommandID, commandCapacity, void ()> commands;
 
-    /** @brief Message overlay, shown above the sessions. */
+    /** @brief Non-interactive message overlay, attached as a sibling desktop peer above the window. */
     jam::MessageOverlay messageOverlay;
 
 #if JAM_USING_PROFILER

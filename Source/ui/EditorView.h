@@ -174,13 +174,15 @@ private:
     Session& getSession() const;
 
     /**
-     * @brief Fills events with one handler for each of Id::shellExited, Id::plugin and Id::name.
+     * @brief Fills events with one handler for each of Id::shellExited, Id::plugin, Id::name and Id::focus.
      *
      * The Id::shellExited handler reads the changed tree, which is a tree under the pane row. When its value is true,
      * the handler invokes closeTerminalPane on this pane, asynchronously.
      * The Id::plugin handler destroys the editor. It acts only when the changed tree is the pane row itself.
      * The Id::name handler acts only when the changed tree is the pane row itself, and the row holds Id::name. It adds the
      * plugin file of the row to the ENAX plugin modules of Nexus, creates the editor, and then runs resized() to lay out the pane.
+     * The Id::focus handler runs when `tree == state`, `editor != nullptr`, `isShowing()`, and `Id::focus` is `true`.
+     * It calls `editor->grabKeyboardFocus()`.
      */
     void registerEvents();
 
@@ -190,7 +192,7 @@ private:
      * A property with no handler does nothing.
      *
      * @param tree      The ValueTree whose property changed.
-     * @param property  The identifier of the changed property. Id::shellExited, Id::plugin and Id::name have an effect.
+     * @param property  The identifier of the changed property. Id::shellExited, Id::plugin, Id::name and Id::focus have an effect.
      */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 

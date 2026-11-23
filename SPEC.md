@@ -170,8 +170,8 @@ Config data lives in markdown grid tables, parsed by jam_markdown
   in `display.md` `## tab` and `## pane`.
 - **Theme on disk:** the default is written to a virgin disk, and disk wins. ARCHITECT:
   *"binary write to virgin state to disk, disk always win."* The tables are `## colours`
-  (palette rows `colour` + `0xAARRGGBB`, and colour-id rows `alias` + palette words in
-  `light` / `dark`), `## fonts` (face rows with `value`, `style`, `src`, `height`,
+  (palette rows `colour` + `0xAARRGGBB`, and colour-id rows `alias` + palette words or
+  `0xAARRGGBB` hex colours in `light` / `dark`), `## fonts` (face rows with `value`, `style`, `src`, `height`,
   `kerning`, and the rasterizer columns on the first face; font-id rows `alias` + face
   words), one `## metrics` (the unit is the type, `em` or `float`), `## window`,
   and one table per css class. Each record of `.appearance` or of a class (`DARK`) is one

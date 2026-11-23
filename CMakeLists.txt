@@ -121,8 +121,8 @@ find_package(Git REQUIRED)
 set(CAST_JUCE_PATCHES
 "${CAST_USER_MODULE_PATH}/patch/juce-cached-image-factory-hook.patch"       # External CachedComponentImage factory
 "${CAST_USER_MODULE_PATH}/patch/juce-direct2d-helpers-visibility-hook.patch"# Direct2D helpers visibility gate
-"${CAST_USER_MODULE_PATH}/patch/juce-image-subsection-hook.patch"           # Root image and subsection bounds hooks
-"${CAST_USER_MODULE_PATH}/patch/juce-vulkan-engine-hook.patch"              # External graphics context factory for Vulkan
+"${CAST_USER_MODULE_PATH}/patch/juce-image-subsection-hook.patch"           # Root image, subsection bounds, and virtual ImagePixelData listener hooks
+"${CAST_USER_MODULE_PATH}/patch/juce-vulkan-engine-hook.patch"              # External graphics context factory for Vulkan; HWNDComponentPeer skips Win32 WS_EX_LAYERED while externalContextFactory is active and restores layered state on fallback to the default renderer
 "${CAST_USER_MODULE_PATH}/patch/juce-paint-update-rect-hook.patch"          # OS dirty rectangle before native paint; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-attributed-text-hook.patch"            # Attributed text virtual on LowLevelGraphicsContext; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-adhoc-sign-hook.patch"                 # No ad-hoc signature on the VST3 bundle
@@ -130,7 +130,7 @@ set(CAST_JUCE_PATCHES
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-transparency-hook.patch"        # Plugin editor wrappers (VST2, VST3) transparent when the host is END; host plugin windows transparent; applies after juce-vulkan-engine-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-key-pressed-hook.patch"                # Host key press callback before a peer's components; applies after juce-plugin-transparency-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-host-type-hook.patch"           # END registered as a known PluginHostType host: HostType END, isEND(), description, host file name detection
-"${CAST_USER_MODULE_PATH}/patch/juce-plugin-window-focus-hook.patch"        # VST2 host plugin windows take keyboard focus and hand focus to the native plugin view (macOS first responder, Windows SetFocus, Linux XEmbedComponent), and AU host plugin windows make the plugin view first responder; applies after juce-plugin-transparency-hook.patch
+"${CAST_USER_MODULE_PATH}/patch/juce-plugin-window-focus-hook.patch"        # VST2 host plugin windows take keyboard focus and hand focus to the native plugin view (macOS first responder, Windows SetFocus, Linux XEmbedComponent), and AU host plugin windows make the plugin view first responder; HWNDComponentPeer treats a focused child HWND as focused and skips focus loss on child-HWND focus handoff; applies after juce-plugin-transparency-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-mouse-event-hook.patch"                # Host mouse event callback before a peer's components; applies after juce-key-pressed-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-editor-once-hook.patch"         # VST2 plugin client opens the editor that effEditGetRect created, so the editor is built once; applies after juce-plugin-transparency-hook.patch
 "${CAST_USER_MODULE_PATH}/patch/juce-plugin-window-size-hook.patch"         # VST2 host child window takes the plugin's effEditGetRect size in physical pixels on Windows; applies after juce-plugin-transparency-hook.patch
