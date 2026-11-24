@@ -16,4 +16,4 @@
 
 string(JOIN "-" CAST_PLUGIN_LANE vst ${CAST_LANE})
 
-execute_process(COMMAND cast "${CMAKE_CURRENT_LIST_DIR}/../eve/cast/spell.md" "--${CAST_PLUGIN_LANE}" COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND cast "${CMAKE_CURRENT_LIST_DIR}/../eve/cast/spell.md" "--${CAST_PLUGIN_LANE}" ENCODING UTF-8 COMMAND_ERROR_IS_FATAL ANY)
