@@ -28,7 +28,7 @@ void SessionView::valueTreeChildAdded (juce::ValueTree& parentTree, juce::ValueT
     else if (parentTree.hasType (jam::Format::toType (Id::plugin)))
         for (const auto& [uuid, tab] : getChildren())
             if (parentTree.isAChildOf (tab->state))
-                applyTabName (uuid);
+                setTabName (uuid);
 }
 
 void SessionView::addTabView (const juce::ValueTree& tabRow)
@@ -44,14 +44,17 @@ void SessionView::addTabView (const juce::ValueTree& tabRow)
             get (uuid).getValueTree().setProperty (Id::name, tab->label.getText(), nullptr);
         };
 
-        tab->label.onEditorHide = [this]
+        tab->label.onEditorHide = [this, uuid, tab]
         {
+            if (tab->label.getText().compare (tab->getButtonText()) == 0)
+                setTabName (uuid);
+
             if (auto* tabView { getActiveTabView() })
                 tabView->focusPane (tabView->getFocusedPane());
         };
     }
 
-    applyTabName (uuid);
+    setTabName (uuid);
     lookAndFeelChanged();
 }
 
@@ -99,7 +102,7 @@ void SessionView::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
     {
         for (const auto& [uuid, child] : getChildren())
             if (tree == child->state or tree.isAChildOf (child->state))
-                applyTabName (uuid);
+                setTabName (uuid);
     }
 }
 
@@ -143,13 +146,18 @@ juce::String SessionView::getTabName (const juce::ValueTree& tabState) const
     return juce::String {};
 }
 
-void SessionView::applyTabName (jam::UUID uuid)
+void SessionView::setTabName (jam::UUID uuid)
 {
-    const auto name { getTabName (get (uuid).getValueTree()) };
-    setTabName (uuid, name);
-
     if (auto* tab { getBar().getTabButton (uuid) })
-        tab->label.setText (name, juce::dontSendNotification);
+    {
+        if (not tab->label.isBeingEdited())
+        {
+            const auto name { getTabName (get (uuid).getValueTree()) };
+
+            jam::TabbedComponent::setTabName (uuid, name);
+            tab->label.setText (name, juce::dontSendNotification);
+        }
+    }
 }
 
 void SessionView::lookAndFeelChanged()

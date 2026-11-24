@@ -120,15 +120,23 @@ private:
      */
     juce::String getTabName (const juce::ValueTree& tabState) const;
 
-    /** @brief Applies the resolved tab name to both the tab-bar name and label.
-     *  @param uuid Identity of a mounted tab. The call looks the tab up with get(), so the tab must be mounted.
+    /**
+     * @brief Writes the name from getTabName() to the tab bar and to the tab label.
+     *
+     * The call does nothing while the label editor is open, because juce::Label::setText() closes the editor and discards its text.
+     * The call does nothing when the tab bar has no button for the tab.
+     * The label receives the text without a notification, so the write does not return to Id::name.
+     *
+     * @param uuid Identity of a mounted tab. The call looks the tab up with get(), so the tab must be mounted.
      */
-    void applyTabName (jam::UUID uuid);
+    void setTabName (jam::UUID uuid);
 
     /**
      * @brief Mounts the TabView of a tab row in the tab bar, then applies its displayed name and the depth and position of the theme.
      *
-     * The tab button label writes its text to the Id::name property of the tab row whenever the text changes. When the label editor hides, the focused pane of the active tab takes the keyboard focus.
+     * The label writes its text to Id::name of the tab row when an edit ends with a changed text.
+     * When the label editor hides and the label text equals the button text, setTabName() gives the tab its current name.
+     * Then the focused pane of the active tab receives a focusPane() call.
      *
      * @param tabRow  Row of the tab to mount.
      */

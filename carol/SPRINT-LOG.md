@@ -2,6 +2,46 @@
 
 ---
 
+## Sprint 111: A Tab Rename Wins over the Shell Title ✅
+
+**Date:** 2026-11-24
+**Duration:** 00:15 (10:00 to 10:15 +0700)
+**Scope (ARCHITECT):** *"since rename should always win, renaming active focused tab should guard whether label is being edited / text editor is active"*; *"`apply` is wrong verb here, should be `set`"*; `/go`; *"no need audit. just update the doxygen then /log"*.
+
+### Agents Participated
+- COUNSELOR: the cause read, the design, the read of the edit and of the doxygen blocks, one doxygen sentence, this log.
+- Engineer (haiku): the edit.
+- Pathfinder (haiku): the doxygen blocks, the git state.
+- Auditor: not run. ARCHITECT: *"no need audit"*.
+
+### Files Modified (2 total)
+- `Source/ui/SessionView.cpp:149-161`: `applyTabName` is now `setTabName (jam::UUID uuid)`. It writes nothing while the label is being edited. The bar name is also held, because `ButtonBar::setTabName` resizes the tab (`jam_ButtonBar.cpp:138-142`). Calls: `:31`, `:57`, `:105`.
+- `Source/ui/SessionView.cpp:47-54`: `onEditorHide` calls `setTabName` when the label text equals the button text, so an edit with no rename shows the current name.
+- `Source/ui/SessionView.h`: the declaration, and the blocks of `setTabName` and `addTabView`.
+
+### Alignment Check
+- [x] BLESSED principles followed. One writer of the tab name holds the guard, and the guard names its threat: `juce::Label::setText` closes the editor (`juce_Label.cpp:63`).
+- [x] NAMES.md adhered. `setTabName` has no callable parameter (Rule 1) and joins `getTabName` and `TabbedComponent::setTabName` (Rule 5).
+- [x] MANIFESTO.md principles applied. The label keeps the edit state; the view holds no flag.
+- [ ] Not built. Not run by ARCHITECT. Not audited, by ARCHITECT's order.
+
+### Problems Solved
+- **The shell discarded a rename in progress.** Each `title`, `foregroundProcess` or `cwd` change called `label.setText`, which starts with `hideEditor (true)` (`juce_Label.cpp:61-63`).
+- **The order of Return.** JUCE writes the label text, hides the editor, then calls `onTextChange` (`juce_Label.cpp:493-510`). An unconditional `setTabName` in `onEditorHide` would overwrite the new name before it is saved. The text compare prevents it.
+
+### State for Continuation
+- Build END, then check: the editor stays open while the shell changes the title; Return saves the new name; Escape shows the current title.
+- `ButtonTab::lookAndFeelChanged` also calls `label.setText` (`jam_ButtonTab.h:97-102`), so a theme change during a rename still closes the editor.
+- Regenerate doxygen in END and read the warning count.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20261123T181545`: each daemon instance needs its own settings tree (unchanged).
+
+---
+
 ## Sprint 110: One Focus Command for Every Pane, Standalone END Never Writes Settings, Rename Editor Focus ✅
 
 **Date:** 2026-11-24
@@ -253,77 +293,6 @@
 - `DEBT-20261121T004125`: input lost in a pane until a tab closes or opens.
 - `DEBT-20261121T004127`: a new pane erases the active prompt of the last focused pane.
 - `DEBT-20261121T004129`: the prompt shows before the `time seq` output has finished on screen.
-
----
-
-## Sprint 106: Windows END Hosts EVE with Shared Vulkan — No Null Factory Call, No Release Hang, One Shell per Pane at Its Real Size ✅
-
-**Date:** 2026-11-21
-**Duration:** Not measured. Several sessions, joined by context compactions.
-**Scope (ARCHITECT):**
-- `/pay`, `vulkan` (`DEBT-20260912T150000`). The debt text was stale: *"the issue is EVE loaded at END with shared Vulkan"*; *"i have no issue with mac"*; *"one by one. fix the crash first"*.
-- The Release hang: *"release build, hangs at the time terminal created"*. The `/GL` warning: *"fix it and probe the crash"*. PDB flags: *"just add it"*; *"if you need to read eve pdb just add flags"*.
-- The leaked `%` before the prompt. Ruling: *"ViewEditor contract is with plugin_bootstrap. this is kernel modules. it will be synced to KANJUT. JFS will break"*, then *"ViewEditor ctor overload with explicit (width, height)"*.
-- The double shell: *"double shell itself is wrong. why double?"*; *"no fake cwd"*, *"no fake size"*, *"must be deterministic"*; *"TextEditor write to Model isnt it?"*; *"so where is the absolute seam? that works as SSOT?"*, then `/go`.
-- Binding rulings: *"MUST CHECK THOROUGHLY, NEVER GUESS AND SUGGEST MACRO GUARD AT ARBITRARY PLACE"*; *"NEVER FIX THE SYMPTOMS. fix the cause, fix the design, design by contract"*; *"be careful with those changes, i had no issues with mac, ensure it was windows only"*.
-- `/audit doxygen pass then /log no-gate`. *"all DEBT paid"*.
-
-### Agents Participated
-- COUNSELOR: the probe specs and every cause read (VST2 host and client, JUCE graph and player, VirtualDevice, Model restore), every validation read, the audit triage, the SPEC, ARCHITECTURE, CLAUDE.md and `parameters.md` edits, this log.
-- Pathfinder (haiku): whatdbg traces and samples of Release END and EVE, discovery reads, two doxygen passes.
-- Engineer (haiku): the Vulkan, Nexus, ViewEditor, EVEView and EVE shell-seam edits, and the audit fixes.
-- Auditor (opus) ×1: 3 code findings and 9 document findings.
-
-### Files Modified (19 total)
-**jam:**
-- `jam_vulkan/engine/jam_VulkanGraphicsEngine.cpp:133`: `getOrCreateGraphics (juce::ComponentPeer&)` creates Graphics only for a component with non-empty local bounds, on every platform. The Windows `createContext` (`:430-497`) has no check of its own. `.h`: the `getOrCreateGraphics` and `createContext` blocks.
-- `jam_plugin_bootstrap/enax/jam_ENAXClientExtensions.cpp:23-31`: the context factory forwards to the host factory while it is set. When the host factory is null, it sets the process factory to null, repaints the peer's component and returns nullptr. The patch then gives the peer its default engine. `.h`: the constructor block.
-- `jam_plugin_bootstrap/view/jam_ViewEditor.h`: a `create` overload and a private constructor with explicit `width` and `height`. The existing `create` and constructor are unchanged (kernel, synced to KANJUT).
-
-**END:**
-- `Source/plugins/Nexus.h/.cpp`: Nexus also derives privately from `juce::AsyncUpdater`. `run()` opens the audio devices on the Nexus thread, then triggers the update. `handleAsyncUpdate()` adds the player on the message thread.
-- `project-info.md` `## release`: the Windows `/GL` cell is empty (clang-cl ignored it; LTO comes from `-flto=thin`). The probe rows `debugSymbols` (`/Zi`) and `linkDebugSymbols` (`/debug`) were added for the PDB traces, then removed. ARCHITECT: *"remove /debug and /zi for release as they were"*.
-- `SPEC.md` (EVE's shell start, `cwd` fallback), `ARCHITECTURE.md` (Nexus line refs, the factory set and clear, EVE's factory forward), `CLAUDE.md` (Current State).
-
-**EVE:**
-- `project-info.md`: the probe rows `programDatabase` (Release, Windows, `/Zi` and `/debug`) were added for the PDB traces, then removed. Net: no change.
-- `Source/EVEProcessor.h/.cpp`: the constructor writes no `cwd`. Only `Id::winsize` calls `terminalProcessor.prepare()`.
-- `Source/EVETerminalProcessor.h/.cpp`: the `prepare()` gate is `winsize.isValid()` only. `releaseResources()` stops and closes the clock and keeps the TTY and `ttyResize`. RAII closes them, because they are declared after `device`.
-- `Source/EVEView.h/.cpp`: `initialiseView` builds the view at `jam::ViewEditor::getViewBounds` of the terminal `width`, `height` and `zoom` rows, which is the formula of `resized()`.
-- `Source/layout/parameters.md`: the `width` and `height` descriptions name their three writers. `SPEC.md`: the shell start.
-
-### Alignment Check
-- [x] BLESSED principles followed. D: the readiness of a peer is checked once, at the owner of the create. S: the first valid `winsize` in the Model is the one seam of the shell. The view size has one formula. E: the restore and the host tell; EVE does not ask a host lifecycle for its shell. B: the shell's TTY lives and dies with `EVETerminalProcessor`.
-- [x] NAMES.md adhered. No new names except `viewBounds` (the `getViewBounds` family).
-- [x] MANIFESTO.md principles applied.
-- [ ] Not built after the shell seam, the audit fixes and the owner move. ARCHITECT ran the Release lane after the crash, hang and `%` fixes.
-
-### Problems Solved
-- **Null call at `0x0` (the debt's stack, `jam_ENAXClientExtensions.cpp:23`).** A 0×0 EVE peer reached the Windows `createContext`. The composition create failed, `setGpuAvailable (false)` cleared END's factory (`jam_VulkanGraphicsEngine.cpp:301-303`), and EVE's forward called it. The owner now skips an empty component. EVE's forward also honours a cleared host factory, so any other close of END's gate no longer crashes EVE.
-- **Release hang at terminal creation.** `addAudioCallback` ran on the Nexus thread, and a whatdbg sample pinned the deadlock. It now runs on the message thread through `handleAsyncUpdate`, after the device opens on the Nexus thread. The ruling *"On a background thread"* (sound card) still holds.
-- **The `%` before the prompt.** The first zsh started at EVE's config size, 97×37, which the kernel `ViewEditor` constructor gave the view, while the grid was 74 columns. PROMPT_SP padded 96 spaces and wrapped. EVE now builds the view through the explicit-size overload, at the Model's size. Verified in a Release run: first open at 74×26, 73 spaces, no wrap.
-- **Two shells per pane.** The shell lived between the host's `prepareToPlay` and `releaseResources`. The player attached after EVE's first shell opened. Its `audioDeviceAboutToStart` released and prepared the graph (`juce_AudioProcessorPlayer.cpp:364-371`, `juce_AudioProcessorGraph.cpp:459-483`), and `tty.reset()` killed shell 1. The seam is now the first valid `winsize`, and a host release does not close the shell.
-- **Fake `cwd` and its loop.** The constructor always wrote the config `cwd`, and `openTTY`'s `cwd` write re-triggered `prepare`. Both are gone. `openTTY` falls back to the config start directory when the Model has no local `cwd` (`EVETerminalProcessor.cpp:475-476`).
-- **Audit.** Resolved: F1 (null host factory), F2 (empty bounds at the owner), F3 (one view-size formula), documents F4 to F8, F10 to F12. F9 (stale `DEBT-20260912T150000` text) resolved by the drain. F2 was first rejected against *"ensure it was windows only"*, then corrected after ARCHITECT's *"isnt single check whether peer size is ready crossplatform?"*.
-- **Doxygen.** Two passes, each block read against the code. Pathfinder's "own factory" correction was accepted: `externalContextFactory` is one static pointer for the process (patch `:325`).
-- **Mistakes owned.** A Pathfinder sent with the LSP; scope widened to the Editor debt; a race guessed and a Windows macro guard proposed; `project-info.md` edited by COUNSELOR; two wrong explanations of the `%`; removal of the kernel `setSize` proposed; F2 rejected on a wrong reading of a ruling.
-
-### State for Continuation
-- Build: `cast cast/spell.md --no-sign` (Release) or `cast cast/spell.md --debug` in END. The default lane signs and runs `gh.cmake`.
-- Runtime checks on Windows: one `openTTY` per pane at load; a split keeps one shell per pane; a GPU gate close in END paints EVE with its default engine, with no crash.
-- Runtime check on macOS: a 0×0 peer now gets the CPU context for that frame (`jam_VulkanGraphicsEngine.cpp:133`, `:425-426`).
-- Not addressed (ARCHITECT's report, not ruled): a split resize erases a pane's active prompt until the next input. When a prompt is active and the grid size changes, `TerminalProcessor::reset` erases the screen (`jam_TerminalProcessor.cpp:37-40`). Each resize goes through `device.stop`, `device.open` and `prepare (winsize, history)` (`EVETerminalProcessor.cpp:370`, `:392`, `:536-572`).
-- Restore order: `Model::setValuesFrom` sets one property at a time and notifies at once (`jam_Model.cpp:261-267`). `parameters.md` creates `winsize` (`:57`) before `cwd` (`:59`). So a restored pane can open its shell before its saved `cwd` arrives. Check it against END `SPEC.md` *"Own saved cwd"*.
-- KANJUT `kuassa_ViewEditor.h:35` has no explicit-size `create`. The kernel sync is ARCHITECT's.
-- Regenerate doxygen in jam, END and EVE, and read the warning counts.
-
-### Debts Paid
-- `DEBT-20260912T150000`: Windows END hosting EVE with shared Vulkan. The null factory call, the Release hang, the `%` and the double shell are fixed.
-- `DEBT-20261103T195500`: ARCHITECT: *"all DEBT paid"*.
-- `DEBT-20261025T135707`: ARCHITECT: *"all DEBT paid"*.
-
-### Debts Deferred
-- None
 
 ---
 
