@@ -261,7 +261,7 @@ private:
      *
      * The member is declared after `sessions`, so it is destroyed before the sessions. Its destructor stops the server.
      */
-    jam::ValueTreeServer server;
+    jam::ModelServer server;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

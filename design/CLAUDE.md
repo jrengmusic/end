@@ -23,7 +23,7 @@
 - `donors/` — donor font files (`.ttf`).
 - `fonts/` — font directory (`Display Mono`).
 - `svg-mono/` — SVG glyph sheets.
-- `carol/` — CAROL contract files and `SPRINT-LOG.md`.
+- `carol/` — `SPRINT-LOG.md` and `config.yml`.
 - `.claude/` — Claude Code settings, agents, and commands.
 
 ## Key Documents

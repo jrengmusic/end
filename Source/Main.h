@@ -73,7 +73,7 @@ private:
     /** @brief Nexus of the application. host() builds it when the application hosts. */
     std::unique_ptr<Nexus> nexus;
     /** @brief Client connection that launch() opens to the running server. The application owns it, and it is destroyed with the application. */
-    std::unique_ptr<jam::ValueTreeConnection> launchConnection;
+    std::unique_ptr<jam::ModelConnection> launchConnection;
     /** @brief Window of the application, created by getOrCreateWindow() and destroyed by destroyWindow(). */
     std::unique_ptr<jam::Window> window;
 

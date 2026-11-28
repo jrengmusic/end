@@ -35,7 +35,7 @@ Nexus::Nexus()
 {
     registerExtensions();
 
-    [[maybe_unused]] const bool isListening { server.beginWaitingForSocket (anyPort, jam::ValueTreeConnection::loopbackAddress) };
+    [[maybe_unused]] const bool isListening { server.beginWaitingForSocket (anyPort, jam::ModelConnection::loopbackAddress) };
     jassert (isListening);
 
     model.getOrCreateChildWithName (jam::Format::toType (Id::window));

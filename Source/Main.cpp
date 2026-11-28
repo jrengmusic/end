@@ -309,8 +309,8 @@ void ENDApplication::launch()
     }
     else
     {
-        launchConnection = std::make_unique<jam::ValueTreeConnection> (model.state);
-        launchConnection->connectToSocket (jam::ValueTreeConnection::loopbackAddress, settings.getIntValue (Id::port.toString()), jam::ValueTreeConnection::connectTimeoutMs);
+        launchConnection = std::make_unique<jam::ModelConnection> (model.state);
+        launchConnection->connectToSocket (jam::ModelConnection::loopbackAddress, settings.getIntValue (Id::port.toString()), jam::ModelConnection::connectTimeoutMs);
 
         juce::MessageManager::callAsync ([] { quit(); });
     }
